@@ -1,0 +1,29 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["es2017", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@nativescript/angular": ["packages/angular/src/index.ts"],
+      "@nativescript/angular/*": ["packages/angular/src/*"],
+      "@nativescript/angular/testing": ["packages/angular/testing/src/index.ts"],
+      "@nativescript/angular/polyfills": ["packages/angular/polyfills/src/index.ts"],
+      "@nativescript/zone-js": ["packages/zone-js/dist/index.ts"],
+      "@nativescript/zone-js/*": ["packages/zone-js/*"]
+    }
+  },
+  "exclude": ["node_modules", "tmp", "apps/nativescript-*"],
+  "includes": ["xplat/**/*.{ios,android}.ts"]
+}

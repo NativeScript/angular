@@ -1,0 +1,26 @@
+{
+  "name": "@nativescript/angular",
+  "version": "12.0.0-alpha.14",
+  "homepage": "https://nativescript.org/",
+  "bugs": "https://github.com/NativeScript/angular/issues",
+  "author": "NativeScript TSC",
+  "license": "Apache-2.0",
+  "keywords": [
+    "NativeScript",
+    "Angular"
+  ],
+  "dependencies": {
+    "@nativescript/zone-js": "~2.0.0-alpha.5"
+  },
+  "ngPackage": {
+    "lib": {
+      "entryFile": "src/index.ts",
+      "umdModuleIds": {
+        "@nativescript/core": "ns-core"
+      }
+    },
+    "allowedNonPeerDependencies": [
+      "."
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "extends": "../../node_modules/ng-packagr/lib/ts/conf/tsconfig.ngc.json",
+  "compilerOptions": {
+    "types": ["node", "./references"],
+    "lib": ["es2017", "dom"],
+    "baseUrl": ".",
+    "paths": {
+      "@nativescript/core": ["../../node_modules/@nativescript/core"]
+    }
+  }
+}

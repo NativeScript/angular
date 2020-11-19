@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "projects": {
+    "angular": {
+      "root": "packages/angular",
+      "sourceRoot": "packages/angular/src",
+      "projectType": "library",
+      "schematics": {},
+      "architect": {
+        "build": {
+          "builder": "@nrwl/workspace:run-commands",
+          "outputs": ["dist/packages"],
+          "options": {
+            "commands": ["node tools/scripts/build-angular.ts angular"],
+            "parallel": false
+          }
+        },
+        "lint": {
+          "builder": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["packages/angular/**/*.ts", "packages/angular/src/**/*.html"]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "options": {
+            "jestConfig": "packages/angular/jest.config.js",
+            "passWithNoTests": true
+          },
+          "outputs": ["coverage/packages/angular"]
+        }
+      }
+    },
+    "nativescript-demo-ng": {
+      "root": "apps/nativescript-demo-ng/",
+      "sourceRoot": "apps/nativescript-demo-ng/src",
+      "projectType": "application",
+      "prefix": "nativescript",
+      "schematics": {
+        "@schematics/angular:component": {
+          "styleext": "scss"
+        }
+      },
+      "architect": {
+        "build": {
+          "builder": "@nativescript/nx:build",
+          "options": {
+            "noHmr": true,
+            "production": true,
+            "uglify": true,
+            "release": true,
+            "forDevice": true
+          },
+          "configurations": {
+            "prod": {
+              "fileReplacements": [
+                {
+                  "replace": "apps/nativescript-demo-ng/src/environments/environment.ts",
+                  "with": "apps/nativescript-demo-ng/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "ios": {
+          "builder": "@nativescript/nx:build",
+          "options": {
+            "platform": "ios"
+          },
+          "configurations": {
+            "prod": {
+              "combineWithConfig": "build:prod"
+            }
+          }
+        },
+        "android": {
+          "builder": "@nativescript/nx:build",
+          "options": {
+            "platform": "android"
+          },
+          "configurations": {
+            "prod": {
+              "combineWithConfig": "build:prod"
+            }
+          }
+        },
+        "clean": {
+          "builder": "@nativescript/nx:build",
+          "options": {
+            "clean": true
+          }
+        },
+        "lint": {
+          "builder": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["apps/nativescript-demo-ng/**/*.ts", "apps/nativescript-demo-ng/src/**/*.html"]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "options": {
+            "jestConfig": "apps/nativescript-demo-ng/jest.config.js",
+            "tsConfig": "apps/nativescript-demo-ng/tsconfig.spec.json",
+            "passWithNoTests": true,
+            "setupFile": "apps/nativescript-demo-ng/src/test-setup.ts"
+          }
+        }
+      }
+    },
+    "zone-js": {
+      "root": "packages/zone-js",
+      "sourceRoot": "packages/zone-js/src",
+      "projectType": "library",
+      "architect": {
+        "build": {
+          "builder": "@nrwl/node:package",
+          "options": {
+            "outputPath": "dist/packages/zone-js",
+            "tsConfig": "packages/zone-js/tsconfig.lib.json",
+            "packageJson": "packages/zone-js/package.json",
+            "main": "packages/zone-js/dist/index.ts",
+            "assets": ["packages/zone-js/*.md"]
+          }
+        },
+        "lint": {
+          "builder": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["packages/zone-js/**/*.ts"]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "outputs": ["coverage/packages/zone-js"],
+          "options": {
+            "jestConfig": "packages/zone-js/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "defaultCollection": "@nstudio/xplat"
+  }
+}

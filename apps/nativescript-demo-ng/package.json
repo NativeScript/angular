@@ -1,0 +1,43 @@
+{
+  "name": "demong",
+  "main": "src/main.ts",
+  "description": "NativeScript Application",
+  "scripts": {
+    "postinstall": "node ./tools/xplat-postinstall.js && npm run ngcc",
+    "ngcc": "ngcc --tsconfig tsconfig.json --properties es2015 module main --first-only"
+  },
+  "dependencies": {
+    "@angular/animations": "~12.0.0",
+    "@angular/common": "~12.0.0",
+    "@angular/compiler": "~12.0.0",
+    "@angular/core": "~12.0.0",
+    "@angular/forms": "~12.0.0",
+    "@angular/platform-browser": "~12.0.0",
+    "@angular/platform-browser-dynamic": "~12.0.0",
+    "@angular/router": "~12.0.0",
+    "@nativescript/angular": "file:../../packages/angular",
+    "@nativescript/core": "next",
+    "@nativescript/theme": "^3.0.1",
+    "rxjs": "^6.6.0",
+    "zone.js": "~0.11.1"
+  },
+  "devDependencies": {
+    "@angular/compiler-cli": "~12.0.0",
+    "@nativescript/android": "8.0.0",
+    "@nativescript/ios": "8.0.0",
+    "@nativescript/types": "8.0.0",
+    "@nativescript/unit-test-runner": "^2.0.5",
+    "@nativescript/webpack": "dev",
+    "@ngtools/webpack": "~12.0.0",
+    "@types/jasmine": "^3.7.2",
+    "@types/sinon": "^10.0.2",
+    "karma": "6.3.3",
+    "karma-jasmine": "4.0.1",
+    "karma-mocha-reporter": "^2.2.5",
+    "karma-nativescript-launcher": "0.4.0",
+    "karma-sinon": "^1.0.5",
+    "karma-webpack": "5.0.0",
+    "sinon": "^11.1.1",
+    "typescript": "~4.2.0"
+  }
+}
