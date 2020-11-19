@@ -1,1 +1,0 @@
-{"version":3,"file":"nativescript-angular.umd.js","sources":["../../src/lib/angular.ts","../../../src/nativescript-angular.ts"],"sourcesContent":["export function angular(): string {\n  return 'angular';\n}\n","/**\n * Generated bundle index. Do not edit.\n */\n\nexport * from './index';\n"],"names":[],"mappings":";;;;;;aAAgB,OAAO;QACrB,OAAO,SAAS,CAAC;IACnB;;ICFA;;;;;;;;;;;;"}
