@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "es2017",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "moduleResolution": "node",
+    "noEmitHelpers": true,
+    "noEmitOnError": true,
+    "skipLibCheck": true,
+    "lib": ["es2018", "es2017", "dom", "webworker", "es6"],
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["src/*"],
+      "@nativescript/angular": ["../../packages/angular/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "platforms"]
+}

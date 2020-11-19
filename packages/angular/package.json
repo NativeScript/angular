@@ -1,0 +1,14 @@
+{
+	"name": "@nativescript/angular",
+	"ngPackage": {
+		"lib": {
+			"entryFile": "src/index.ts",
+			"umdModuleIds": {
+				"@nativescript/core": "ns-core"
+			}
+		},
+		"whitelistedNonPeerDependencies": [
+			"."
+		]
+	}
+}

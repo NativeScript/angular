@@ -1,8 +1,9 @@
 {
-  "name": "angular",
+  "name": "nativescript-frontend-flavors",
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "clean": "npx rimraf -- hooks node_modules package-lock.json && npm i",
     "nx": "nx",
     "start": "nx serve",
     "build": "nx build",
@@ -23,20 +24,57 @@
     "update": "nx migrate latest",
     "workspace-schematic": "nx workspace-schematic",
     "dep-graph": "nx dep-graph",
-    "help": "nx help"
+    "help": "nx help",
+    "clean.nativescript.demo-ng": "cd apps/nativescript-demo-ng && ns clean && npm i && npx rimraf -- package-lock.json"
   },
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "@angular/animations": "~11.0.0",
+    "@angular/common": "~11.0.0",
+    "@angular/compiler": "~11.0.0",
+    "@angular/core": "~11.0.0",
+    "@angular/forms": "~11.0.0",
+    "@angular/platform-browser": "~11.0.0",
+    "@angular/platform-browser-dynamic": "~11.0.0",
+    "@angular/router": "~11.0.0",
+    "@nativescript/core": "~7.0.0",
+    "nativescript-ngx-fonticon": "~7.0.0",
+    "reflect-metadata": "~0.1.12",
+    "rxjs": "^6.6.0",
+    "zone.js": "~0.11.1"
+  },
   "devDependencies": {
-    "@nrwl/tao": "10.4.4",
-    "@nrwl/cli": "10.4.4",
-    "@nrwl/workspace": "10.4.4",
-    "@types/node": "~8.9.4",
-    "dotenv": "6.2.0",
+    "@angular/compiler-cli": "~11.0.0",
+    "@ngtools/webpack": "~11.0.0",
+    "@nrwl/angular": "~10.3.0",
+    "@nrwl/cli": "~10.4.4",
+    "@nrwl/eslint-plugin-nx": "~10.4.4",
+    "@nrwl/jest": "~10.4.4",
+    "@nrwl/tao": "~10.4.4",
+    "@nrwl/workspace": "~10.4.4",
+    "@nstudio/angular": "~10.3.8",
+    "@nstudio/nativescript": "~10.3.8",
+    "@nstudio/nativescript-angular": "~10.3.8",
+    "@nstudio/xplat": "~10.3.8",
+    "@types/jest": "~26.0.8",
+    "@types/node": "~12.0.0",
+    "@typescript-eslint/eslint-plugin": "~4.3.0",
+    "@typescript-eslint/parser": "~4.3.0",
+    "dotenv": "~6.2.0",
+    "eslint": "~7.10.0",
+    "eslint-config-prettier": "~6.0.0",
+    "fs-extra": "^9.0.1",
+    "jest": "~26.2.2",
+    "ng-packagr": "~11.0.0",
+    "node-sass": "^4.14.0",
+    "prettier": "~2.1.2",
+    "ts-jest": "~26.4.0",
     "ts-node": "~7.0.0",
     "tslint": "~6.0.0",
-    "eslint": "7.10.0",
-    "typescript": "~4.0.3",
-    "prettier": "2.1.2"
+    "typescript": "~4.0.3"
+  },
+  "xplat": {
+    "prefix": "nativescript",
+    "framework": "angular"
   }
 }

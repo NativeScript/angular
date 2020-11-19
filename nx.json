@@ -1,5 +1,5 @@
 {
-  "npmScope": "angular",
+  "npmScope": "nativescript",
   "affected": {
     "defaultBase": "master"
   },
@@ -18,13 +18,25 @@
     "default": {
       "runner": "@nrwl/workspace/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "lint", "test", "e2e"]
+        "cacheableOperations": [
+          "build",
+          "lint",
+          "test",
+          "e2e"
+        ]
       }
     }
   },
-  "projects": {},
+  "projects": {
+    "angular": {
+      "tags": []
+    },
+    "nativescript-demo-ng": {
+      "tags": []
+    }
+  },
   "workspaceLayout": {
-    "appsDir": "packages",
+    "appsDir": "apps",
     "libsDir": "packages"
   }
 }
