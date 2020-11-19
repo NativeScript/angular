@@ -1,5 +1,6 @@
 {
-	"name": "@nativescript/angular",
+  "name": "@nativescript/angular",
+  "main": "src/index.js",
 	"ngPackage": {
 		"lib": {
 			"entryFile": "src/index.ts",

@@ -39,6 +39,7 @@
     "@angular/router": "~11.0.0",
     "@nativescript/core": "~7.0.0",
     "nativescript-ngx-fonticon": "~7.0.0",
+    "nativescript-theme-core": "~1.0.4",
     "reflect-metadata": "~0.1.12",
     "rxjs": "^6.6.0",
     "zone.js": "~0.11.1"
