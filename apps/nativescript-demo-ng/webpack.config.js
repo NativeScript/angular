@@ -126,9 +126,9 @@ module.exports = env => {
     // for example, include mock json folder
     // copyTargets.push({ from: 'tools/mockdata', to: 'assets/mockdata' });
 
-    if (hmr) {
-      ngCompilerTransformers.push(nsSupportHmrNg);
-    }
+    // if (hmr) {
+    //   ngCompilerTransformers.push(nsSupportHmrNg);
+    // }
   }
 
   // when "@angular/core" is external, it's not included in the bundles. In this way, it will be used
