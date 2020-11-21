@@ -1,5 +1,5 @@
 import { NgModuleRef } from '@angular/core';
-import { Application, ApplicationEventData, Color, LaunchEventData, LayoutBase, profile, StackLayout, View } from "@nativescript/core";
+import { Application, ApplicationEventData, Color, LaunchEventData, LayoutBase, profile, StackLayout, TextView, View } from "@nativescript/core";
 import { AppHostAsyncView, AppHostView } from './app-host-view';
 import { LoadingService } from './loading.service';
 import { APP_ROOT_VIEW } from './tokens';
@@ -35,6 +35,13 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
             create: () => view.content
         });
     }
+    const showErrorUI = (error: Error) => {
+        const message = error.message + '\n\n' + error.stack;
+        const errorTextBox = new TextView();
+		errorTextBox.text = message;
+		errorTextBox.color = new Color('red');
+		setRootView(errorTextBox);
+    }
     const bootstrapRoot = () => {
         let bootstrapped = false;
         let onMainBootstrap = () => {
@@ -45,7 +52,7 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
             bootstrapped = true;
             onMainBootstrap();
             // bootstrapped component: (ref as any)._bootstrapComponents[0];
-        });
+        }, (err) => showErrorUI(err));
         // TODO: scheduleMacroTask
         setTimeout(() => {
             if(bootstrapped) {
@@ -64,7 +71,7 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
                                 setRootView(mainModuleRef);
                             });
                         }
-                    })
+                    }, (err) => showErrorUI(err))
                 } else if(options.launchView) {
                     let launchView = options.launchView();
                     setRootView(launchView);
@@ -76,7 +83,7 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
                     }
                     onMainBootstrap = () => {
                         if(launchView.cleanup) {
-                            launchView.cleanup().then(() => {
+                            launchView.cleanup().catch().then(() => {
                                 launchView = null;
                                 setRootView(mainModuleRef);
 							});
