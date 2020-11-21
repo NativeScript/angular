@@ -1,17 +1,24 @@
 import { CommonModule, DOCUMENT, ViewportScroller, ɵNullViewportScroller as NullViewportScroller } from '@angular/common';
-import { Provider, ɵangular_packages_core_core_y as SCHEDULER } from '@angular/core';
+import { ModuleWithProviders, Provider, ɵangular_packages_core_core_y as SCHEDULER } from '@angular/core';
 import { ElementSchemaRegistry } from '@angular/compiler';
 import { ApplicationModule, APP_ID, ErrorHandler, Inject, NgModule, NgZone, Optional, PLATFORM_ID, RendererFactory2, SkipSelf, StaticProvider, Testability, ɵINJECTOR_SCOPE as INJECTOR_SCOPE } from "@angular/core";
 import { NativeScriptRendererFactory } from './nativescript_renderer';
 import { PlatformNamespaceFilter } from './property-filter';
 import { APP_ROOT_VIEW, NAMESPACE_FILTERS } from './tokens';
 import { NativeScriptCommonModule } from './nativescript_common.module';
+import { AppHostView } from './app-host-view';
+import { Color } from '@nativescript/core';
+
+export function generateRootView() {
+  return new AppHostView(new Color("white"));
+}
 
 export function errorHandler() {
 	return new ErrorHandler();
 }
 
 export const NATIVESCRIPT_MODULE_STATIC_PROVIDERS: StaticProvider[] = [
+    {provide: APP_ROOT_VIEW, useFactory: generateRootView },
     // BROWSER_SANITIZATION_PROVIDERS,
     {provide: INJECTOR_SCOPE, useValue: 'root'},
     {provide: ErrorHandler, useFactory: errorHandler, deps: []},

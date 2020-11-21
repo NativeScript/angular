@@ -2,6 +2,7 @@ import { CompilerOptions, Injector, NgModuleRef, NgZone, PlatformRef, Type } fro
 import { ɵNgModuleFactory as NgModuleFactory } from "@angular/core";
 import { Application, StackLayout } from "@nativescript/core";
 import { AppHostView } from "./app-host-view";
+import { AppRunOptions, runNativescriptAngularApp } from './application';
 import { APP_ROOT_VIEW } from "./tokens";
 
 /**
@@ -42,26 +43,29 @@ export interface BootstrapOptions {
 
 
 export class NativeScriptPlatformRefProxy extends PlatformRef {
+    options: AppRunOptions<any, any>;
     constructor(private platform: PlatformRef) {
         super();
     }
 
     bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>): Promise<NgModuleRef<M>> {
+        this.options = {
+            appModuleBootstrap: () => this.platform.bootstrapModuleFactory(moduleFactory)
+        }
 
-        return this.platform.bootstrapModuleFactory(moduleFactory);
+        runNativescriptAngularApp(this.options);
+
+        return null;
     }
     bootstrapModule<M>(moduleType: Type<M>, compilerOptions?: (CompilerOptions & BootstrapOptions) | Array<CompilerOptions & BootstrapOptions>): Promise<NgModuleRef<M>> {
 
+        this.options = {
+            appModuleBootstrap: () => this.platform.bootstrapModule(moduleType, compilerOptions)
+        }
 
-        return this.platform.bootstrapModule(moduleType, compilerOptions).then((ref) => {
-            setTimeout(() => {
-                // Application.resetRootView({
-                //     create: () => (this.platform.injector.get(APP_ROOT_VIEW) as AppHostView).content
-                // });
-            }, 100)
-            
-            return ref;
-        });
+        runNativescriptAngularApp(this.options);
+
+        return null;
     }
 
     onDestroy(callback: () => void): void {

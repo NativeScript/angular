@@ -42,7 +42,8 @@ export class AppHostView extends ContentView {
 			this.ngAppRoot = grid;
 		}
 		if(this.ngAppRoot) {
-			this.scheduleRootChange();
+			// maybe use this approach
+			// this.scheduleRootChange();
 		}
 	}
 
