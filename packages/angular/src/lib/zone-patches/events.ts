@@ -33,7 +33,7 @@ interface ExtendedTask extends Task {
 	ranOnce?: boolean;
 }
 
-function patchEventListeners(cls: any) {
+export function patchEventListeners(cls: any) {
 	function compare(task: ExtendedTask, delegate: any, thisArg?: any) {
 		const taskThis = task.thisArg ? task.thisArg.get() : undefined;
 		if (!thisArg) {
