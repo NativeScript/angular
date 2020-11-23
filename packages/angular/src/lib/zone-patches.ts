@@ -1,6 +1,6 @@
 /// <reference path="../../../../node_modules/zone.js/zone.d.ts" />
 
-import { Label, Observable, View } from '@nativescript/core';
+import { Connectivity, Label, Observable, View } from '@nativescript/core';
 
 const ZONE_SYMBOL_PREFIX = Zone.__symbol__('');
 const zoneSymbolEventNames: any = {};
@@ -305,6 +305,13 @@ function patchEventListeners(cls: any) {
 		);
 	});
 }
+
+Zone.__load_patch('NSconnectivity', (global, zone, api) => {
+	api.patchMethod(Connectivity, 'startMonitoring', (delegate, delegateName, name) => function (self, args) {
+		const callback = args[0];
+		return delegate.apply(self, [Zone.current.wrap(callback, 'NS Connectivity patch')]);
+	});
+});
 
 patchEventListeners(Observable);
 patchEventListeners(View);
