@@ -5,6 +5,8 @@ import "@nativescript/angular/lib/zone-patches";
 // optional: patch connectivity
 import "@nativescript/angular/lib/zone-patches/connectivity";
 import { Label, Observable, View } from "@nativescript/core";
+// kill zonedCallback
+global.zonedCallback = (c) => c;
 
 const t = new Label();
 
@@ -22,6 +24,7 @@ const zone2 = Zone.current.fork({
 console.log("1");
 
 zone2.run(() => {
+    setTimeout(() => console.log("setTimeout", Zone.current.name));
     t.addEventListener("test", function() {
         console.log(this);
         console.log("test Zone2:", Zone.current.name);
