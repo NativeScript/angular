@@ -2,6 +2,8 @@
 import "@nativescript/core/globals";
 import "zone.js/dist/zone.js";
 import "@nativescript/angular/lib/zone-patches";
+// optional: patch connectivity
+import "@nativescript/angular/lib/zone-patches/connectivity";
 import { Label, Observable, View } from "@nativescript/core";
 
 const t = new Label();
