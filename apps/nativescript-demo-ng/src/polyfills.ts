@@ -2,9 +2,14 @@
 import "@nativescript/core/globals";
 import "zone.js/dist/zone.js";
 import "@nativescript/angular/lib/zone-patches";
-// optional: patch connectivity
-import "@nativescript/angular/lib/zone-patches/connectivity";
-import { Label, Observable, View } from "@nativescript/core";
+import "@nativescript/angular/lib/zone-patches/connectivity"; // optional: patch connectivity
+import "@nativescript/angular/lib/zone-patches/trace-error"; // optional: redirect all zone errors to Trace.error
+import { Label, Observable, Trace, View } from "@nativescript/core";
+Trace.setErrorHandler({
+    handlerError: (e) => {
+        console.log("------error has been handled------", e);
+    }
+});
 // kill zonedCallback
 global.zonedCallback = (c) => c;
 
@@ -30,6 +35,7 @@ zone2.run(() => {
         console.log("test Zone2:", Zone.current.name);
         global[Zone.__symbol__("Promise")].resolve()[Zone.__symbol__("then")](() => console.log("actual microtask!"));
         Promise.resolve().then(() => console.log("test microtask will fire before 2! (right after event task finishes)"));
+        Promise.resolve().then(() => {throw new Error("HANDLE THIS!");});
     }, {
         v: 2
     });
