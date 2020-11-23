@@ -28,6 +28,8 @@ zone2.run(() => {
     t.addEventListener("test", function() {
         console.log(this);
         console.log("test Zone2:", Zone.current.name);
+        global[Zone.__symbol__("Promise")].resolve()[Zone.__symbol__("then")](() => console.log("actual microtask!"));
+        Promise.resolve().then(() => console.log("test microtask will fire before 2! (right after event task finishes)"));
     }, {
         v: 2
     });
