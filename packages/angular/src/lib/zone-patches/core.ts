@@ -12,7 +12,7 @@ function isPropertyWritable(propertyDesc: any) {
 	return !(typeof propertyDesc.get === 'function' && typeof propertyDesc.set === 'undefined');
 }
 
-Zone.__load_patch('nativescript patchMethod', (global, Zone, api) => {
+Zone.__load_patch('nativescript_patchMethod', (global, Zone, api) => {
 	api.patchMethod = function patchMethod(target: any, name: string, patchFn: (delegate: Function, delegateName: string, name: string) => (self: any, args: any[]) => any): Function | null {
 		let proto = target;
 		while (proto && !proto.hasOwnProperty(name)) {
