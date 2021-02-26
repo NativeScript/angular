@@ -7,9 +7,12 @@ import { PlatformNamespaceFilter } from './property-filter';
 import { APP_ROOT_VIEW, NAMESPACE_FILTERS } from './tokens';
 import { NativeScriptCommonModule } from './nativescript_common.module';
 import { AppHostView } from './app-host-view';
-import { Color } from '@nativescript/core';
+import { Color, View } from '@nativescript/core';
 
-export function generateRootView() {
+export function generateFallbackRootView(parentRootView?: View) {
+  if (parentRootView) {
+    return parentRootView;
+  }
   return new AppHostView(new Color("white"));
 }
 
@@ -18,7 +21,7 @@ export function errorHandler() {
 }
 
 export const NATIVESCRIPT_MODULE_STATIC_PROVIDERS: StaticProvider[] = [
-    {provide: APP_ROOT_VIEW, useFactory: generateRootView },
+    {provide: APP_ROOT_VIEW, useFactory: generateFallbackRootView, deps: [[new SkipSelf(), new Optional(), APP_ROOT_VIEW]] },
     // BROWSER_SANITIZATION_PROVIDERS,
     {provide: INJECTOR_SCOPE, useValue: 'root'},
     {provide: ErrorHandler, useFactory: errorHandler, deps: []},
