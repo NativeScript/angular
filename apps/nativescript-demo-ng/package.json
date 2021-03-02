@@ -23,7 +23,7 @@
   "devDependencies": {
     "@angular/compiler-cli": "file:../../node_modules/@angular/compiler-cli",
     "@ngtools/webpack": "file:../../node_modules/@ngtools/webpack",
-    "@nativescript/webpack": "~3.0.0",
+    "@nativescript/webpack": "~4.1.0",
     "typescript": "file:../../node_modules/typescript"
   }
 }
