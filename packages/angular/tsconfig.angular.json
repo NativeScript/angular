@@ -1,7 +1,11 @@
 {
-	"extends": "../../node_modules/ng-packagr/lib/ts/conf/tsconfig.ngc.json",
-	"compilerOptions": {
-		"types": ["node"],
-		"baseUrl": "."
-	}
+  "extends": "../../node_modules/ng-packagr/lib/ts/conf/tsconfig.ngc.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "lib": ["es2017", "dom"],
+    "baseUrl": ".",
+    "paths": {
+      "@nativescript/core": ["../../node_modules/@nativescript/core"]
+    }
+  }
 }

@@ -10,28 +10,16 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "lib": [
-      "es2017",
-      "dom"
-    ],
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["es2017", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@nativescript/angular": [
-        "packages/angular/src/index.ts"
-      ]
+      "@nativescript/angular": ["packages/angular/src/index.ts"],
+      "@nativescript/zone-js": ["packages/zone-js/src/index.ts"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "tmp",
-    "apps/nativescript-*"
-  ],
-  "includes": [
-    "xplat/**/*.{ios,android}.ts"
-  ]
+  "exclude": ["node_modules", "tmp", "apps/nativescript-*"],
+  "includes": ["xplat/**/*.{ios,android}.ts"]
 }

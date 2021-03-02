@@ -13,7 +13,11 @@
     "paths": {
       "~/*": ["src/*"],
       "@nativescript/angular": ["../../packages/angular/src/index.ts"],
-      "@nativescript/angular/*": ["../../packages/angular/src/*"]
+      "@nativescript/angular/*": ["../../packages/angular/src/*"],
+      "@nativescript/zone-js": ["../../packages/zone-js/src/index.ts"],
+      "@nativescript/zone-js/src/lib/connectivity": ["../../packages/zone-js/src/lib/connectivity.ts"],
+      "@nativescript/zone-js/src/lib/trace-error": ["../../packages/zone-js/src/lib/trace-error.ts"],
+      "@nativescript/zone-js/*": ["../../packages/zone-js/src/*"]
     },
     "types": []
   },
