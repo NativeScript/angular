@@ -3,7 +3,7 @@ import { ContentView, View, ProxyViewContainer, GridLayout, Color, Application }
 export class AppHostView extends ContentView {
 	private _ngAppRoot: View;
 	private _content: View;
-	private timeout = -1;
+	private timeout: any = -1;
 
 	constructor(backgroundColor: Color) {
 		super();

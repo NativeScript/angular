@@ -1,49 +1,57 @@
-
-import "@nativescript/core/globals";
-import "zone.js/dist/zone.js";
-import "@nativescript/angular/lib/zone-patches";
-import "@nativescript/angular/lib/zone-patches/connectivity"; // optional: patch connectivity
-import "@nativescript/angular/lib/zone-patches/trace-error"; // optional: redirect all zone errors to Trace.error
-import { Label, Observable, Trace, View } from "@nativescript/core";
+import '@nativescript/core/globals';
+import 'zone.js/dist/zone.js';
+import '@nativescript/zone-js';
+import '@nativescript/zone-js/src/lib/connectivity'; // optional: patch connectivity
+import '@nativescript/zone-js/src/lib/trace-error'; // optional: redirect all zone errors to Trace.error
+import { Label, Observable, Trace, View } from '@nativescript/core';
 Trace.setErrorHandler({
-    handlerError: (e) => {
-        console.log("------error has been handled------", e);
-    }
+  handlerError: (e) => {
+    console.log('------error has been handled------', e);
+  },
 });
 // kill zonedCallback
 global.zonedCallback = (c) => c;
 
 const t = new Label();
 
-t.addEventListener("test", function() {
+t.addEventListener(
+  'test',
+  function () {
     console.log(this);
-    console.log("test Zone:", Zone.current.name);
-}, {
-    v: 1
-});
+    console.log('test Zone:', Zone.current.name);
+  },
+  {
+    v: 1,
+  }
+);
 
 const zone2 = Zone.current.fork({
-    name: "zone2",
-
+  name: 'zone2',
 });
-console.log("1");
+console.log('1');
 
 zone2.run(() => {
-    setTimeout(() => console.log("setTimeout", Zone.current.name));
-    t.addEventListener("test", function() {
-        console.log(this);
-        console.log("test Zone2:", Zone.current.name);
-        global[Zone.__symbol__("Promise")].resolve()[Zone.__symbol__("then")](() => console.log("actual microtask!"));
-        Promise.resolve().then(() => console.log("test microtask will fire before 2! (right after event task finishes)"));
-        Promise.resolve().then(() => {throw new Error("HANDLE THIS!");});
-    }, {
-        v: 2
-    });
+  setTimeout(() => console.log('setTimeout', Zone.current.name));
+  t.addEventListener(
+    'test',
+    function () {
+      console.log(this);
+      console.log('test Zone2:', Zone.current.name);
+      global[Zone.__symbol__('Promise')].resolve()[Zone.__symbol__('then')](() => console.log('actual microtask!'));
+      Promise.resolve().then(() => console.log('test microtask will fire before 2! (right after event task finishes)'));
+      Promise.resolve().then(() => {
+        throw new Error('HANDLE THIS!');
+      });
+    },
+    {
+      v: 2,
+    }
+  );
 });
 t.notify({
-    eventName: "test",
-    object: null
+  eventName: 'test',
+  object: null,
 });
-console.log("2");
+console.log('2');
 
 // (new Label()).on("test", () => console.log("test Zone:", Zone.current.name););
