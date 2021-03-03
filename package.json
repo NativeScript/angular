@@ -5,6 +5,7 @@
   "scripts": {
     "clean": "npx rimraf hooks node_modules package-lock.json && npm i",
     "clean.all": "npm run clean && nx run nativescript-demo-ng:clean",
+    "postinstall": "husky install",
     "nx": "nx",
     "start": "nx serve",
     "build": "nx build",
@@ -72,6 +73,7 @@
     "fs-extra": "^9.0.1",
     "husky": "~5.1.3",
     "jest": "~26.2.2",
+    "lint-staged": "~10.5.0",
     "ng-packagr": "~11.2.4",
     "node-sass": "^4.14.0",
     "prettier": "2.2.1",
@@ -84,13 +86,8 @@
     "prefix": "nativescript",
     "framework": "angular"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "lint-staged": {
-    "**/*.{js,ts,scss}": [
+    "**/*.{js,ts,scss,html,json}": [
       "prettier --write",
       "git add"
     ]
