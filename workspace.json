@@ -9,22 +9,16 @@
       "architect": {
         "build": {
           "builder": "@nrwl/workspace:run-commands",
-          "outputs": [
-            "dist/packages"
-          ],
+          "outputs": ["dist/packages"],
           "options": {
-            "commands": [
-              "node tools/scripts/build-angular.ts angular"
-            ],
+            "commands": ["node tools/scripts/build-angular.ts angular"],
             "parallel": false
           }
         },
         "lint": {
           "builder": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": [
-              "packages/angular/**/*.ts"
-            ]
+            "lintFilePatterns": ["packages/angular/**/*.ts", "packages/angular/src/**/*.html"]
           }
         },
         "test": {
@@ -32,7 +26,8 @@
           "options": {
             "jestConfig": "packages/angular/jest.config.js",
             "passWithNoTests": true
-          }
+          },
+          "outputs": ["coverage/packages/angular"]
         }
       }
     },
@@ -63,9 +58,7 @@
         "ios": {
           "builder": "@nrwl/workspace:run-commands",
           "options": {
-            "commands": [
-              "ns debug ios --no-hmr --env.configuration={args.configuration} --env.projectName=nativescript-demo-ng"
-            ],
+            "commands": ["ns debug ios --no-hmr --env.configuration={args.configuration} --env.projectName=nativescript-demo-ng"],
             "cwd": "apps/nativescript-demo-ng",
             "parallel": false
           }
@@ -73,9 +66,7 @@
         "android": {
           "builder": "@nrwl/workspace:run-commands",
           "options": {
-            "commands": [
-              "ns debug android --no-hmr --env.configuration={args.configuration} --env.projectName=nativescript-demo-ng"
-            ],
+            "commands": ["ns debug android --no-hmr --env.configuration={args.configuration} --env.projectName=nativescript-demo-ng"],
             "cwd": "apps/nativescript-demo-ng",
             "parallel": false
           }
@@ -83,13 +74,40 @@
         "clean": {
           "builder": "@nrwl/workspace:run-commands",
           "options": {
-            "commands": [
-              "ns clean",
-              "npm i",
-              "npx rimraf package-lock.json"
-            ],
+            "commands": ["ns clean", "npm i", "npx rimraf package-lock.json"],
             "cwd": "apps/nativescript-demo-ng",
             "parallel": false
+          }
+        }
+      }
+    },
+    "zone-js": {
+      "root": "packages/zone-js",
+      "sourceRoot": "packages/zone-js/src",
+      "projectType": "library",
+      "architect": {
+        "build": {
+          "builder": "@nrwl/node:package",
+          "options": {
+            "outputPath": "dist/packages/zone-js",
+            "tsConfig": "packages/zone-js/tsconfig.lib.json",
+            "packageJson": "packages/zone-js/package.json",
+            "main": "packages/zone-js/src/index.ts",
+            "assets": ["packages/zone-js/*.md"]
+          }
+        },
+        "lint": {
+          "builder": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["packages/zone-js/**/*.ts"]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "outputs": ["coverage/packages/zone-js"],
+          "options": {
+            "jestConfig": "packages/zone-js/jest.config.js",
+            "passWithNoTests": true
           }
         }
       }
