@@ -1,4 +1,4 @@
-import "./polyfills";
+import './polyfills';
 import { platformNativescript, platformNativeScriptDynamic, runNativescriptAngularApp } from '@nativescript/angular';
 import { Application, StackLayout } from '@nativescript/core';
 
@@ -24,10 +24,10 @@ import { AppModule } from './app/app.module';
 //     doBootstrap({});
 // };
 
-if((module as any).hot) {
-    (module as any).hot.accept('./app/app.module', () => {
-        global["hmrRefresh"]({});
-    });
+if ((module as any).hot) {
+  (module as any).hot.accept('./app/app.module', () => {
+    global['hmrRefresh']({});
+  });
 }
 
 // Application.on("launch", doBootstrap);
@@ -35,6 +35,7 @@ if((module as any).hot) {
 // Application.run();
 
 // platformNativeScriptDynamic().bootstrapModule(AppModule);
+
 runNativescriptAngularApp({
-    appModuleBootstrap: () => platformNativescript().bootstrapModule(AppModule)
+  appModuleBootstrap: () => platformNativescript().bootstrapModule(AppModule),
 });

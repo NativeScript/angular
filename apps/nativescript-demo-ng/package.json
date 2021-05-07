@@ -1,30 +1,30 @@
 {
   "name": "demong",
-  "main": "main.js",
+  "main": "src/main.ts",
   "description": "NativeScript Application",
   "scripts": {
     "postinstall": "node ./tools/xplat-postinstall.js"
   },
   "dependencies": {
-    "@angular/animations": "file:../../node_modules/@angular/animations",
-    "@angular/common": "file:../../node_modules/@angular/common",
-    "@angular/compiler": "file:../../node_modules/@angular/compiler",
-    "@angular/core": "file:../../node_modules/@angular/core",
-    "@angular/forms": "file:../../node_modules/@angular/forms",
-    "@angular/platform-browser": "file:../../node_modules/@angular/platform-browser",
-    "@angular/platform-browser-dynamic": "file:../../node_modules/@angular/platform-browser-dynamic",
-    "@angular/router": "file:../../node_modules/@angular/router",
+    "@angular/animations": "~12.0.0-rc.2",
+    "@angular/common": "~12.0.0-rc.2",
+    "@angular/compiler": "~12.0.0-rc.2",
+    "@angular/core": "~12.0.0-rc.2",
+    "@angular/forms": "~12.0.0-rc.2",
+    "@angular/platform-browser": "~12.0.0-rc.2",
+    "@angular/platform-browser-dynamic": "~12.0.0-rc.2",
+    "@angular/router": "~12.0.0-rc.2",
     "@nativescript/angular": "file:../../packages/angular",
-    "@nativescript/core": "file:../../node_modules/@nativescript/core",
-    "nativescript-theme-core": "file:../../node_modules/nativescript-theme-core",
-    "rxjs": "file:../../node_modules/rxjs",
-    "zone.js": "file:../../node_modules/zone.js"
+    "@nativescript/core": "~8.0.0",
+    "nativescript-theme-core": "~1.0.4",
+    "rxjs": "^6.6.0",
+    "zone.js": "~0.11.1"
   },
   "devDependencies": {
-    "@angular/compiler-cli": "file:../../node_modules/@angular/compiler-cli",
-    "@nativescript/ios": "7.2.0",
-    "@nativescript/webpack": "~4.1.0",
-    "@ngtools/webpack": "file:../../node_modules/@ngtools/webpack",
-    "typescript": "file:../../node_modules/typescript"
+    "@angular/compiler-cli": "~12.0.0-rc.2",
+    "@nativescript/ios": "8.0.0",
+    "@nativescript/webpack": "beta",
+    "@ngtools/webpack": "~12.0.0-rc.2",
+    "typescript": "~4.2.0"
   }
 }
