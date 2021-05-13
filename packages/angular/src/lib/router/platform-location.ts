@@ -30,17 +30,25 @@ export class NativescriptPlatformLocation extends PlatformLocation {
   getState(): unknown {
     throw new Error('Method not implemented.');
   }
-  onPopState(fn: LocationChangeListener): void {
+  onPopState(fn: LocationChangeListener): VoidFunction {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.routerLog('NativescriptPlatformLocation.onPopState');
     }
     this.popStateCallbacks.push(fn);
+    return () => {
+      const index = this.popStateCallbacks.indexOf(fn);
+
+      if (index !== -1) {
+        this.popStateCallbacks.splice(index, 1);
+      }
+    };
     // throw new Error("Method not implemented.");
   }
-  onHashChange(fn: LocationChangeListener): void {
+  onHashChange(fn: LocationChangeListener): VoidFunction {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.routerLog('NativescriptPlatformLocation.onHashChange');
     }
+    return () => {};
     // throw new Error("Method not implemented.");
   }
   get href(): string {
