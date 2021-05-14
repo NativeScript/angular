@@ -6,9 +6,10 @@ import { ItemService } from './item.service';
 @Component({
   selector: 'ns-items',
   moduleId: module.id,
-  templateUrl: './items.component.html'
+  templateUrl: './items.component.html',
 })
 export class ItemsComponent implements OnInit {
+  message = 'Hello Angular 12!';
   items: Array<Item>;
 
   // This pattern makes use of Angular’s dependency injection implementation to
@@ -18,6 +19,11 @@ export class ItemsComponent implements OnInit {
   constructor(private itemService: ItemService) {}
 
   ngOnInit(): void {
+    console.log('ItemsComponent ngOnInit');
     this.items = this.itemService.getItems();
+  }
+
+  ngOnDestroy() {
+    console.log('ItemsComponent ngOnDestroy');
   }
 }
