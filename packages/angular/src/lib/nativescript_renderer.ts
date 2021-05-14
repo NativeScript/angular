@@ -2,7 +2,7 @@ import { Inject, Injectable, NgZone, Optional, Renderer2, RendererFactory2, Rend
 import { addTaggedAdditionalCSS, Application, ContentView, Device, getViewById, profile, View } from '@nativescript/core';
 import { getViewClass, isKnownView, NgView } from './element-registry';
 import { NamespaceFilter } from './property-filter';
-import { APP_RENDERED_ROOT_VIEW, APP_ROOT_VIEW, NAMESPACE_FILTERS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
+import { APP_RENDERED_ROOT_VIEW, APP_ROOT_VIEW, ENABLE_REUSABE_VIEWS, NAMESPACE_FILTERS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { NativeScriptDebug } from './trace';
 import { ViewUtil } from './view-util';
 
@@ -18,8 +18,11 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
   private componentRenderers = new Map<string, Renderer2>();
   private defaultRenderer: Renderer2;
 
-  constructor(@Inject(APP_RENDERED_ROOT_VIEW) private rootView: View, @Inject(NAMESPACE_FILTERS) private namespaceFilters: NamespaceFilter[], @Inject(NATIVESCRIPT_ROOT_MODULE_ID) private rootModuleID: string | number) {
-    this.defaultRenderer = new NativeScriptRenderer(rootView, namespaceFilters);
+  constructor(@Inject(APP_RENDERED_ROOT_VIEW) private rootView: View, @Inject(NAMESPACE_FILTERS) private namespaceFilters: NamespaceFilter[], @Inject(NATIVESCRIPT_ROOT_MODULE_ID) private rootModuleID: string | number, @Optional() @Inject(ENABLE_REUSABE_VIEWS) private reuseViews) {
+    if (typeof this.reuseViews !== 'boolean') {
+      this.reuseViews = false; // default to false
+    }
+    this.defaultRenderer = new NativeScriptRenderer(rootView, namespaceFilters, this.reuseViews);
   }
   createRenderer(hostElement: any, type: RendererType2): Renderer2 {
     if (NativeScriptDebug.enabled) {
@@ -42,7 +45,7 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
       type.styles.map((s) => s.toString()).forEach((v) => addStyleToCss(v, this.rootModuleID));
       renderer = this.defaultRenderer;
     } else {
-      renderer = new EmulatedRenderer(type, hostElement, this.namespaceFilters, this.rootModuleID);
+      renderer = new EmulatedRenderer(type, hostElement, this.namespaceFilters, this.rootModuleID, this.reuseViews);
       (<EmulatedRenderer>renderer).applyToHost(hostElement);
     }
 
@@ -61,9 +64,9 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
 }
 
 class NativeScriptRenderer implements Renderer2 {
-  private viewUtil = new ViewUtil(this.namespaceFilters);
+  private viewUtil = new ViewUtil(this.namespaceFilters, this.reuseViews);
 
-  constructor(private rootView: View, private namespaceFilters?: NamespaceFilter[]) {}
+  constructor(private rootView: View, private namespaceFilters?: NamespaceFilter[], private reuseViews?: boolean) {}
   get data(): { [key: string]: any } {
     throw new Error('Method not implemented.');
   }
@@ -229,8 +232,8 @@ export class EmulatedRenderer extends NativeScriptRenderer {
   private contentAttr: string;
   private hostAttr: string;
 
-  constructor(component: RendererType2, rootView: View, namespaceFilters: NamespaceFilter[], private rootModuleId: string | number) {
-    super(rootView, namespaceFilters);
+  constructor(component: RendererType2, rootView: View, namespaceFilters: NamespaceFilter[], private rootModuleId: string | number, reuseViews: boolean) {
+    super(rootView, namespaceFilters, reuseViews);
 
     const componentId = component.id.replace(ATTR_SANITIZER, '_');
     this.contentAttr = replaceNgAttribute(CONTENT_ATTR, componentId);

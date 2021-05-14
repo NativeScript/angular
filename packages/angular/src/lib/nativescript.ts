@@ -4,7 +4,7 @@ import { ElementSchemaRegistry } from '@angular/compiler';
 import { ApplicationModule, APP_ID, ErrorHandler, Inject, NgModule, NgZone, Optional, PLATFORM_ID, RendererFactory2, SkipSelf, StaticProvider, Testability, ɵINJECTOR_SCOPE as INJECTOR_SCOPE } from '@angular/core';
 import { NativeScriptRendererFactory } from './nativescript_renderer';
 import { PlatformNamespaceFilter } from './property-filter';
-import { APP_ROOT_VIEW, APP_RENDERED_ROOT_VIEW, NAMESPACE_FILTERS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
+import { APP_ROOT_VIEW, APP_RENDERED_ROOT_VIEW, NAMESPACE_FILTERS, NATIVESCRIPT_ROOT_MODULE_ID, ENABLE_REUSABE_VIEWS } from './tokens';
 import { NativeScriptCommonModule } from './nativescript_common.module';
 import { AppHostView } from './app-host-view';
 import { Color, View } from '@nativescript/core';
@@ -40,7 +40,7 @@ export const NATIVESCRIPT_MODULE_STATIC_PROVIDERS: StaticProvider[] = [
   {
     provide: NativeScriptRendererFactory,
     useClass: NativeScriptRendererFactory,
-    deps: [APP_RENDERED_ROOT_VIEW, NAMESPACE_FILTERS, NATIVESCRIPT_ROOT_MODULE_ID],
+    deps: [APP_RENDERED_ROOT_VIEW, NAMESPACE_FILTERS, NATIVESCRIPT_ROOT_MODULE_ID, [new Optional(), ENABLE_REUSABE_VIEWS]],
     //   deps: [EventManager, DomSharedStylesHost, APP_ID]
   },
   { provide: NATIVESCRIPT_ROOT_MODULE_ID, useFactory: generateRandomId },

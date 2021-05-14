@@ -8,3 +8,4 @@ export const NATIVESCRIPT_ROOT_MODULE_ID = new InjectionToken<string | number>('
 export const NAMESPACE_FILTERS = new InjectionToken<NamespaceFilter[]>('NativeScriptNamespaceFilter');
 
 export const START_PATH = new InjectionToken<Promise<string> | string>('NativeScriptStartPath');
+export const ENABLE_REUSABE_VIEWS = new InjectionToken<boolean>('NativeScriptEnableReusableViews');
