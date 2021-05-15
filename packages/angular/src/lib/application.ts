@@ -1,4 +1,4 @@
-import { NgModuleRef } from '@angular/core';
+import { NgModuleRef, PlatformRef } from '@angular/core';
 import { Application, ApplicationEventData, Color, LaunchEventData, LayoutBase, profile, removeTaggedAdditionalCSS, StackLayout, TextView, View } from '@nativescript/core';
 import { AppHostAsyncView, AppHostView } from './app-host-view';
 import { LoadingService } from './loading.service';
@@ -22,6 +22,18 @@ export interface AppRunOptions<T, K> {
 export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   let mainModuleRef = null;
   let loadingModuleRef: NgModuleRef<K>;
+  let platformRef: PlatformRef = null;
+  const updatePlatformRef = (moduleRef: NgModuleRef<any>) => {
+    const newPlatformRef = moduleRef.injector.get(PlatformRef);
+    if (newPlatformRef === platformRef) {
+      return;
+    }
+    if (platformRef) {
+      platformRef.destroy();
+    }
+    platformRef = newPlatformRef;
+    platformRef.onDestroy(() => (platformRef = platformRef === newPlatformRef ? null : platformRef));
+  };
   const setRootView = (ref: NgModuleRef<T | K> | View) => {
     // TODO: check for leaks when root view isn't properly destroyed
     if (ref instanceof View) {
@@ -51,6 +63,8 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     options.appModuleBootstrap().then(
       (ref) => {
         mainModuleRef = ref;
+        ref.onDestroy(() => (mainModuleRef = mainModuleRef === ref ? null : mainModuleRef));
+        updatePlatformRef(ref);
         const styleTag = ref.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
         ref.onDestroy(() => {
           removeTaggedAdditionalCSS(styleTag);
@@ -70,6 +84,8 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
           options.loadingModule().then(
             (loadingRef) => {
               loadingModuleRef = loadingRef;
+              loadingModuleRef.onDestroy(() => (loadingModuleRef = loadingModuleRef === loadingRef ? null : loadingModuleRef));
+              updatePlatformRef(loadingRef);
               const styleTag = loadingModuleRef.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
               loadingRef.onDestroy(() => {
                 removeTaggedAdditionalCSS(styleTag);
@@ -117,6 +133,10 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     }, 0);
   };
   const disposeLastModules = () => {
+    if (platformRef) {
+      platformRef.destroy();
+      platformRef = null;
+    }
     if (loadingModuleRef) {
       loadingModuleRef.destroy();
       loadingModuleRef = null;
