@@ -5,12 +5,11 @@ import { Component } from '@angular/core';
   templateUrl: './app.component.html',
 })
 export class AppComponent {
-  message = 'Hello Angular!';
   ngOnInit() {
-    console.log('init');
+    console.log('ngOnInit');
   }
 
   ngOnDestroy() {
-    console.log('destroyed');
+    console.log('ngOnDestroy');
   }
 }

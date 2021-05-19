@@ -65,7 +65,8 @@
         "ios": {
           "builder": "@nativescript/nx:build",
           "options": {
-            "platform": "ios"
+            "platform": "ios",
+            "noHmr": true
           },
           "configurations": {
             "prod": {
@@ -76,7 +77,8 @@
         "android": {
           "builder": "@nativescript/nx:build",
           "options": {
-            "platform": "android"
+            "platform": "android",
+            "noHmr": true
           },
           "configurations": {
             "prod": {

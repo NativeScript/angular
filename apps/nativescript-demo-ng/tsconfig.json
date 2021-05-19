@@ -23,6 +23,7 @@
       "@nativescript/zone-js/*": ["../../packages/zone-js/src/*"]
     }
   },
-  "exclude": ["node_modules", "platforms"],
-  "include": ["../../packages/angular/src/", "./src/"]
+  "exclude": ["node_modules", "platforms", "./src/**/*.spec.ts"],
+  "include": ["../../packages/angular/src/", "./src/"],
+  "files": ["./references.d.ts", "./src/main.ts"]
 }
