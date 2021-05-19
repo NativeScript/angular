@@ -9,6 +9,7 @@ import { NativeScriptCommonModule } from './nativescript_common.module';
 import { AppHostView } from './app-host-view';
 import { Color, View } from '@nativescript/core';
 import { DetachedLoader } from './utils/detached-loader';
+import { ViewUtil } from './view-util';
 
 export function generateFallbackRootView(parentRootView?: View) {
   if (parentRootView) {
@@ -37,6 +38,7 @@ export const NATIVESCRIPT_MODULE_STATIC_PROVIDERS: StaticProvider[] = [
   // },
   // {provide: EVENT_MANAGER_PLUGINS, useClass: KeyEventsPlugin, multi: true, deps: [DOCUMENT]},
   // HAMMER_PROVIDERS,
+  { provide: ViewUtil, useClass: ViewUtil, deps: [NAMESPACE_FILTERS, [new Optional(), ENABLE_REUSABE_VIEWS]] },
   {
     provide: NativeScriptRendererFactory,
     useClass: NativeScriptRendererFactory,

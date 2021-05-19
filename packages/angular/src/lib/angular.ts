@@ -4,3 +4,4 @@ export * from './nativescript_common.module';
 export * from './router/router.module';
 export * from './application';
 export * from './tokens';
+export * from './private_exports';

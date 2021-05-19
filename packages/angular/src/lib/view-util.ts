@@ -108,11 +108,13 @@ export class ViewUtil {
     // printNgTree(extendedChild);
   }
 
-  public insertBefore(parent: View, child: View, refChild?: NgView) {
-    this.insertChild(parent, child, undefined, refChild);
+  public insertBefore(parent: View, child: View, refChild?: View | NgView) {
+    const extendedRef = refChild ? this.ensureNgViewExtensions(refChild) : undefined;
+    this.insertChild(parent, child, undefined, extendedRef);
   }
-  public insertAfter(parent: View, child: View, refChild?: NgView) {
-    this.insertChild(parent, child, refChild);
+  public insertAfter(parent: View, child: View, refChild?: View | NgView) {
+    const extendedRef = refChild ? this.ensureNgViewExtensions(refChild) : undefined;
+    this.insertChild(parent, child, extendedRef);
   }
 
   public appendChild(parent: View, child: View) {
@@ -306,11 +308,11 @@ export class ViewUtil {
     }
   }
 
-  public createComment(value: string): InvisibleNode {
+  public createComment(value: string): CommentNode {
     return new CommentNode(value);
   }
 
-  public createText(value: string): InvisibleNode {
+  public createText(value: string): TextNode {
     return new TextNode(value);
   }
 
@@ -480,14 +482,16 @@ export class ViewUtil {
     return view.ngCssClasses;
   }
 
-  public addClass(view: NgView, className: string): void {
-    this.cssClasses(view).set(className, true);
-    this.syncClasses(view);
+  public addClass(view: View | NgView, className: string): void {
+    const extendedView = this.ensureNgViewExtensions(view);
+    this.cssClasses(extendedView).set(className, true);
+    this.syncClasses(extendedView);
   }
 
-  public removeClass(view: NgView, className: string): void {
-    this.cssClasses(view).delete(className);
-    this.syncClasses(view);
+  public removeClass(view: View, className: string): void {
+    const extendedView = this.ensureNgViewExtensions(view);
+    this.cssClasses(extendedView).delete(className);
+    this.syncClasses(extendedView);
   }
 
   private setClasses(view: NgView, classesValue: string): void {
@@ -502,11 +506,11 @@ export class ViewUtil {
     view.className = classValue;
   }
 
-  public setStyle(view: NgView, styleName: string, value: any) {
+  public setStyle(view: View, styleName: string, value: any) {
     view.style[styleName] = value;
   }
 
-  public removeStyle(view: NgView, styleName: string) {
+  public removeStyle(view: View, styleName: string) {
     view.style[styleName] = unsetValue;
   }
 }
