@@ -106,7 +106,9 @@ class NativeScriptRenderer implements Renderer2 {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.destroyNode node: ${node}`);
     }
-    // TODO: destroy this node
+    if (node?.destroyNode) {
+      node?.destroyNode();
+    }
   };
   appendChild(parent: View, newChild: View): void {
     if (NativeScriptDebug.enabled) {
