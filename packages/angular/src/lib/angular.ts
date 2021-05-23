@@ -6,4 +6,5 @@ export * from './application';
 export * from './tokens';
 export * from './forms';
 export * from './animations';
+export * from './http';
 export * from './private_exports';
