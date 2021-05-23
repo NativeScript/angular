@@ -120,7 +120,7 @@
             "outputPath": "dist/packages/zone-js",
             "tsConfig": "packages/zone-js/tsconfig.lib.json",
             "packageJson": "packages/zone-js/package.json",
-            "main": "packages/zone-js/src/index.ts",
+            "main": "packages/zone-js/dist/index.ts",
             "assets": ["packages/zone-js/*.md"]
           }
         },

@@ -17,7 +17,10 @@
     "baseUrl": ".",
     "paths": {
       "@nativescript/angular": ["packages/angular/src/index.ts"],
-      "@nativescript/zone-js": ["packages/zone-js/src/index.ts"]
+      "@nativescript/angular/*": ["packages/angular/src/*"],
+      "@nativescript/angular/testing": ["packages/angular/testing/src/index.ts"],
+      "@nativescript/zone-js": ["packages/zone-js/dist/index.ts"],
+      "@nativescript/zone-js/*": ["packages/zone-js/*"]
     }
   },
   "exclude": ["node_modules", "tmp", "apps/nativescript-*"],

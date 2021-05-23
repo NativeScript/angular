@@ -1,26 +1,14 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "ESNext",
-    "target": "es2017",
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "moduleResolution": "node",
-    "noEmitHelpers": true,
-    "noEmitOnError": true,
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "typeRoots": ["node_modules/@types"],
-    "lib": ["es2018", "es2017", "dom", "webworker", "es6"],
     "baseUrl": ".",
     "paths": {
       "~/*": ["src/*"],
       "@nativescript/angular": ["../../packages/angular/src/index.ts"],
       "@nativescript/angular/*": ["../../packages/angular/src/*"],
       "@nativescript/angular/testing": ["../../packages/angular/testing/src/index.ts"],
-      "@nativescript/zone-js": ["../../packages/zone-js/src/index.ts"],
-      "@nativescript/zone-js/src/lib/connectivity": ["../../packages/zone-js/src/lib/connectivity.ts"],
-      "@nativescript/zone-js/src/lib/trace-error": ["../../packages/zone-js/src/lib/trace-error.ts"],
-      "@nativescript/zone-js/*": ["../../packages/zone-js/src/*"]
+      "@nativescript/zone-js": ["../../packages/zone-js/dist/index.ts"],
+      "@nativescript/zone-js/*": ["../../packages/zone-js/*"]
     }
   },
   "exclude": ["node_modules", "platforms", "./src/**/*.spec.ts"],
