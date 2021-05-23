@@ -1,5 +1,5 @@
-import { View, unsetValue, Placeholder, ContentView, LayoutBase, platformNames, Device } from '@nativescript/core';
-import { CommentNode, InvisibleNode, NgView, TextNode, ViewExtensions, getViewClass, getViewMeta, isDetachedElement, isInvisibleNode, isKnownView, isView } from './element-registry';
+import { View, unsetValue, Placeholder, ContentView, LayoutBase, ProxyViewContainer } from '@nativescript/core';
+import { CommentNode, NgView, TextNode, ViewExtensions, getViewClass, getViewMeta, isDetachedElement, isInvisibleNode, isKnownView, isView } from './element-registry';
 import { NamespaceFilter } from './property-filter';
 
 import { NativeScriptDebug } from './trace';
@@ -21,6 +21,16 @@ export function isLayout(view: any): view is NgLayoutBase {
 
 export function isContentView(view: any): view is NgContentView {
   return view instanceof ContentView;
+}
+
+export function getFirstNativeLikeView(view: View) {
+  if (view instanceof ProxyViewContainer) {
+    return getFirstNativeLikeView(view.getChildAt(0));
+  }
+  if (isContentView(view)) {
+    return getFirstNativeLikeView(view.content);
+  }
+  return view;
 }
 
 function printNgTree(view: NgView) {
