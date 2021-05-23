@@ -1,5 +1,5 @@
 import { Inject, Injectable, NgZone, Optional, Renderer2, RendererFactory2, RendererStyleFlags2, RendererType2, ViewEncapsulation } from '@angular/core';
-import { addTaggedAdditionalCSS, Application, ContentView, Device, getViewById, profile, View } from '@nativescript/core';
+import { addTaggedAdditionalCSS, Application, ContentView, Device, getViewById, Observable, profile, View } from '@nativescript/core';
 import { getViewClass, isKnownView, NgView } from './element-registry';
 import { NamespaceFilter } from './property-filter';
 import { APP_RENDERED_ROOT_VIEW, APP_ROOT_VIEW, ENABLE_REUSABE_VIEWS, NAMESPACE_FILTERS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
@@ -200,12 +200,22 @@ class NativeScriptRenderer implements Renderer2 {
     }
     // throw new Error("Method not implemented.");
   }
-  listen(target: any, eventName: string, callback: (event: any) => boolean | void): () => void {
+  listen(target: View, eventName: string, callback: (event: any) => boolean | void): () => void {
     // throw new Error("Method not implemented.");
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.listen: ${eventName}`);
     }
-    return () => {};
+    target.on(eventName, callback);
+    if (eventName === View.loadedEvent && target.isLoaded) {
+      // we must create a new obervable here to ensure that the event goes through whatever zone patches are applied
+      const obs = new Observable();
+      obs.once(eventName, callback);
+      obs.notify({
+        eventName,
+        object: target,
+      });
+    }
+    return () => target.off(eventName, callback);
   }
 }
 
