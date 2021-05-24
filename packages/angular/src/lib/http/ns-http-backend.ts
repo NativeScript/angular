@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpRequest, HttpEvent, HttpResponse, HttpErrorResponse, HttpXhrBackend } from '@angular/common/http';
-import { XhrFactory } from '@angular/common';
+import { HttpRequest, HttpEvent, HttpResponse, HttpErrorResponse, HttpXhrBackend, XhrFactory } from '@angular/common/http';
+// import { XhrFactory } from '@angular/common';
 import { Observable } from 'rxjs';
 
 import { NSFileSystem } from '../file-system/ns-file-system';
