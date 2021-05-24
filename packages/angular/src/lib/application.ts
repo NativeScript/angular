@@ -4,6 +4,7 @@ import { AppHostAsyncView, AppHostView } from './app-host-view';
 import { LoadingService } from './loading.service';
 import { APP_RENDERED_ROOT_VIEW, APP_ROOT_VIEW, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { filter, take } from 'rxjs/operators';
+import { queueMacrotask } from '@nativescript/core/utils';
 
 export interface AppLaunchView extends LayoutBase {
   // called when the animation is to begin
@@ -76,7 +77,7 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
       (err) => showErrorUI(err)
     );
     // TODO: scheduleMacroTask
-    setTimeout(() => {
+    queueMacrotask(() => {
       if (bootstrapped) {
         setRootView(mainModuleRef);
       } else {
@@ -130,13 +131,15 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
           };
         }
       }
-    }, 0);
+    });
   };
-  const disposeLastModules = () => {
+  const disposePlatform = () => {
     if (platformRef) {
       platformRef.destroy();
       platformRef = null;
     }
+  };
+  const disposeLastModules = () => {
     if (loadingModuleRef) {
       loadingModuleRef.destroy();
       loadingModuleRef = null;
@@ -154,6 +157,9 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     disposeLastModules();
   });
   if (module['hot']) {
+    global['__dispose_app_ng_platform__'] = () => {
+      disposePlatform();
+    };
     global['__dispose_app_ng_modules__'] = () => {
       disposeLastModules();
     };
@@ -161,6 +167,7 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
       bootstrapRoot();
     };
     global['__reboot_ng_modules__'] = () => {
+      global['__dispose_app_ng_platform__']();
       global['__dispose_app_ng_modules__']();
       global['__bootstrap_app_ng_modules__']();
     };
