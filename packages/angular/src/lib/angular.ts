@@ -5,6 +5,7 @@ export * from './nativescript_common.module';
 export * from './legacy/router';
 export * from './application';
 export * from './tokens';
+export * from './element-registry';
 export * from './forms';
 export * from './animations';
 export * from './http';
