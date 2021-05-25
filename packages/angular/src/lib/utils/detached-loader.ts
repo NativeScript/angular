@@ -1,5 +1,6 @@
 import { ComponentRef, ComponentFactory, ViewContainerRef, Component, Type, ComponentFactoryResolver, ChangeDetectorRef, ApplicationRef, OnDestroy, TemplateRef, ViewChild, Injector } from '@angular/core';
 import { Trace } from '@nativescript/core';
+import { ComponentPortal, ComponentType, TemplatePortal } from './portal/portal';
 
 /**
  * Wrapper component used for loading components when navigating
@@ -8,7 +9,7 @@ import { Trace } from '@nativescript/core';
  */
 @Component({
   selector: 'DetachedContainer',
-  template: `<Placeholder #loader></Placeholder><ng-container #vc></ng-container>`,
+  template: `<Placeholder #loader></Placeholder><ng-container #vc></ng-container><ng-content></ng-content>`,
 })
 export class DetachedLoader implements OnDestroy {
   @ViewChild('vc', { read: ViewContainerRef, static: true }) vc: ViewContainerRef;
@@ -16,7 +17,15 @@ export class DetachedLoader implements OnDestroy {
   // tslint:disable-line:component-class-suffix
   constructor(private resolver: ComponentFactoryResolver, private changeDetector: ChangeDetectorRef, private containerRef: ViewContainerRef, private appRef: ApplicationRef) {}
 
-  private loadInLocation(componentType: Type<any>): Promise<ComponentRef<any>> {
+  public createComponentPortal<T>(componentType: ComponentType<T>, customInjector?: Injector) {
+    return new ComponentPortal(componentType, this.vc, customInjector || this.vc.injector);
+  }
+
+  public createTemplatePortal<T>(templateRef: TemplateRef<T>, context?: T) {
+    return new TemplatePortal(templateRef, this.vc, context);
+  }
+
+  private loadInLocation(componentType: Type<any>): ComponentRef<any> {
     const factory = this.resolver.resolveComponentFactory(componentType);
     const componentRef = factory.create(this.containerRef.injector);
     this.appRef.attachView(componentRef.hostView);
@@ -32,7 +41,7 @@ export class DetachedLoader implements OnDestroy {
     // after the promise.
     Trace.write('DetachedLoader.loadInLocation component loaded -> markForCheck', 'detached-loader');
 
-    return Promise.resolve(componentRef);
+    return componentRef;
   }
 
   public ngOnDestroy() {
@@ -43,12 +52,25 @@ export class DetachedLoader implements OnDestroy {
     this.changeDetector.markForCheck();
   }
 
-  // TODO: change this API -- async promises not needed here anymore.
+  /**
+   * @deprecated use Portals
+   */
   public loadComponent(componentType: Type<any>): Promise<ComponentRef<any>> {
+    Trace.write('DetachedLoader.loadComponent', 'detached-loader');
+    return Promise.resolve(this.loadInLocation(componentType));
+  }
+
+  /**
+   * @deprecated use Portals
+   */
+  public loadComponentSync(componentType: Type<any>): ComponentRef<any> {
     Trace.write('DetachedLoader.loadComponent', 'detached-loader');
     return this.loadInLocation(componentType);
   }
 
+  /**
+   * @deprecated use Portals
+   */
   public loadWithFactory<T>(factory: ComponentFactory<T>): ComponentRef<T> {
     const componentRef = factory.create(this.containerRef.injector);
     this.appRef.attachView(componentRef.hostView);
