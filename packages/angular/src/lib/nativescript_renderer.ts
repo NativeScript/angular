@@ -4,7 +4,7 @@ import { getViewClass, isKnownView, NgView } from './element-registry';
 import { NamespaceFilter } from './property-filter';
 import { APP_RENDERED_ROOT_VIEW, APP_ROOT_VIEW, ENABLE_REUSABE_VIEWS, NAMESPACE_FILTERS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { NativeScriptDebug } from './trace';
-import { ViewUtil } from './view-util';
+import { getFirstNativeLikeView, ViewUtil } from './view-util';
 
 const addStyleToCss = profile('"renderer".addStyleToCss', function addStyleToCss(style: string, tag?: string | number): void {
   if (tag) {
@@ -138,6 +138,14 @@ class NativeScriptRenderer implements Renderer2 {
     if (selectorOrNode && selectorOrNode[0] === '#') {
       const result = getViewById(this.rootView, selectorOrNode.slice(1));
       return (result || this.rootView) as View;
+    }
+    if (typeof selectorOrNode === 'string') {
+      const view = this.viewUtil.createView(selectorOrNode);
+      if (getFirstNativeLikeView(view) === view) {
+        // view is nativelike!
+        this.appendChild(this.rootView, view);
+        return view;
+      }
     }
     return this.rootView;
   }

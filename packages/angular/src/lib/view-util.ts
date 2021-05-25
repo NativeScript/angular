@@ -25,6 +25,9 @@ export function isContentView(view: any): view is NgContentView {
 
 export function getFirstNativeLikeView(view: View) {
   if (view instanceof ProxyViewContainer) {
+    if (view.getChildrenCount() === 0) {
+      return null;
+    }
     return getFirstNativeLikeView(view.getChildAt(0));
   }
   if (isContentView(view)) {
