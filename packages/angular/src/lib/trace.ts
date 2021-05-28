@@ -1,70 +1,69 @@
 import { Trace } from '@nativescript/core';
 
-
 // Trace.setCategories('ns-renderer,ns-view-util');
-Trace.setCategories('ns-router');
+// Trace.setCategories('ns-renderer');
 Trace.enable();
 
-export namespace NativeScriptDebug {
-	export const animationsTraceCategory = 'ns-animations';
-	export const rendererTraceCategory = 'ns-renderer';
-	export const viewUtilCategory = 'ns-view-util';
-	export const routerTraceCategory = 'ns-router';
-	export const routeReuseStrategyTraceCategory = 'ns-route-reuse-strategy';
-	export const listViewTraceCategory = 'ns-list-view';
-	export const bootstrapCategory = 'bootstrap';
-	// TODO: migrate all usage to this - avoids extraneous method executions
-	export const enabled = Trace.isEnabled();
+export class NativeScriptDebug {
+  static readonly animationsTraceCategory = 'ns-animations';
+  static readonly rendererTraceCategory = 'ns-renderer';
+  static readonly viewUtilCategory = 'ns-view-util';
+  static readonly routerTraceCategory = 'ns-router';
+  static readonly routeReuseStrategyTraceCategory = 'ns-route-reuse-strategy';
+  static readonly listViewTraceCategory = 'ns-list-view';
+  static readonly bootstrapCategory = 'bootstrap';
+  // TODO: migrate all usage to this - avoids extraneous method executions
+  static readonly enabled = Trace.isEnabled();
 
-	export function isLogEnabled() {
-		return Trace.isEnabled();
-	}
+  static isLogEnabled() {
+    return Trace.isEnabled();
+  }
 
-	export function animationsLog(message: string): void {
-		Trace.write(message, animationsTraceCategory);
-	}
+  static animationsLog(message: string): void {
+    Trace.write(message, NativeScriptDebug.animationsTraceCategory);
+  }
 
-	export function rendererLog(msg): void {
-		Trace.write(msg, rendererTraceCategory);
-	}
+  static rendererLog(msg): void {
+    Trace.write(msg, NativeScriptDebug.rendererTraceCategory);
+  }
 
-	export function rendererError(message: string): void {
-		Trace.write(message, rendererTraceCategory, Trace.messageType.error);
-	}
+  static rendererError(message: string): void {
+    Trace.write(message, NativeScriptDebug.rendererTraceCategory, Trace.messageType.error);
+  }
 
-	export function viewUtilLog(msg): void {
-		Trace.write(msg, viewUtilCategory);
-	}
+  static viewUtilLog(msg): void {
+    Trace.write(msg, NativeScriptDebug.viewUtilCategory);
+  }
 
-	export function routerLog(message: string): void {
-		Trace.write(message, routerTraceCategory);
-	}
+  static routerLog(message: string): void {
+    Trace.write(message, NativeScriptDebug.routerTraceCategory);
+  }
 
-	export function routerError(message: string): void {
-		Trace.write(message, routerTraceCategory, Trace.messageType.error);
-	}
+  static routerError(message: string): void {
+    Trace.write(message, NativeScriptDebug.routerTraceCategory, Trace.messageType.error);
+  }
 
-	export function routeReuseStrategyLog(message: string): void {
-		Trace.write(message, routeReuseStrategyTraceCategory);
-	}
+  static routeReuseStrategyLog(message: string): void {
+    Trace.write(message, NativeScriptDebug.routeReuseStrategyTraceCategory);
+  }
 
-	export function styleError(message: string): void {
-		Trace.write(message, Trace.categories.Style, Trace.messageType.error);
-	}
+  static styleError(message: string): void {
+    Trace.write(message, Trace.categories.Style, Trace.messageType.error);
+  }
 
-	export function listViewLog(message: string): void {
-		Trace.write(message, listViewTraceCategory);
-	}
+  static listViewLog(message: string): void {
+    Trace.write(message, NativeScriptDebug.listViewTraceCategory);
+  }
 
-	export function listViewError(message: string): void {
-		Trace.write(message, listViewTraceCategory, Trace.messageType.error);
-	}
+  static listViewError(message: string): void {
+    Trace.write(message, NativeScriptDebug.listViewTraceCategory, Trace.messageType.error);
+  }
 
-	export function bootstrapLog(message: string): void {
-		Trace.write(message, bootstrapCategory);
-	}
+  static bootstrapLog(message: string): void {
+    Trace.write(message, NativeScriptDebug.bootstrapCategory);
+  }
 
-	export function bootstrapLogError(message: string): void {
-		Trace.write(message, bootstrapCategory, Trace.messageType.error);
-	}
+  static bootstrapLogError(message: string): void {
+    Trace.write(message, NativeScriptDebug.bootstrapCategory, Trace.messageType.error);
+  }
 }

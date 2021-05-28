@@ -40,7 +40,7 @@ export class ModalDialogParams {
 
 @Injectable()
 export class ModalDialogService {
-  constructor(private location: NSLocationStrategy, private zone: NgZone, private appRef: ApplicationRef, private viewUtil: ViewUtil, private defaultInjector: Injector) {}
+  constructor(private location: NSLocationStrategy, private zone: NgZone, private appRef: ApplicationRef, private defaultInjector: Injector) {}
 
   public showModal(type: Type<any>, options: ModalDialogOptions = {}): Promise<any> {
     // if (!options.viewContainerRef) {
@@ -136,7 +136,7 @@ export class ModalDialogService {
       // }
       const targetView = new ContentView();
       const portal = new ComponentPortal(options.type);
-      portalOutlet = new NativescriptDomPortalOutlet(targetView, options.resolver, this.appRef, childInjector, this.viewUtil);
+      portalOutlet = new NativescriptDomPortalOutlet(targetView, options.resolver, this.appRef, childInjector);
       const componentRef = portalOutlet.attach(portal);
       ɵmarkDirty(componentRef.instance);
       componentView = getFirstNativeLikeView(targetView);
