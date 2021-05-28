@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NO_ERRORS_SCHEMA, NgModule } from '@angular/core';
-import { ListViewComponent, TemplateKeyDirective, ActionBarComponent, ActionBarScope, ActionItemDirective, NavigationButtonDirective } from './cdk';
+import { ListViewComponent, TemplateKeyDirective } from './cdk/list-view/list-view.component';
+import { ActionBarComponent, ActionBarScope, ActionItemDirective, NavigationButtonDirective } from './cdk/action-bar/action-bar';
 import { ModalDialogService } from './legacy/directives/dialogs';
 
 @NgModule({
