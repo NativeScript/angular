@@ -1,8 +1,9 @@
-import { View, LayoutBase, Page, Frame, AbsoluteLayout, ActivityIndicator, Button, ContentView, DatePicker, DockLayout, GridLayout, HtmlView, Image, Label, ListPicker, ListView, Placeholder, Progress, ProxyViewContainer, Repeater, ScrollView, SearchBar, SegmentedBar, SegmentedBarItem, Slider, StackLayout, FlexboxLayout, Switch, TabView, TextField, TextView, TimePicker, WebView, WrapLayout, FormattedString, Span, RootLayout } from '@nativescript/core';
-import { isInvisibleNode, NgView, registerElement, ViewClassMeta } from './element-registry';
+import { AbsoluteLayout, ActivityIndicator, Button, ContentView, DatePicker, DockLayout, FlexboxLayout, FormattedString, Frame, GridLayout, HtmlView, Image, Label, ListPicker, ListView, Page, Placeholder, Progress, ProxyViewContainer, Repeater, RootLayout, ScrollView, SearchBar, SegmentedBar, SegmentedBarItem, Slider, Span, StackLayout, Switch, TabView, TextField, TextView, TimePicker, WebView, WrapLayout } from '@nativescript/core';
+import { isInvisibleNode, registerElement } from './element-registry';
+import { NgView, ViewClassMeta } from './view-types';
 
 const frameMeta: ViewClassMeta = {
-  insertChild: (parent: Frame, child: NgView, next: any) => {
+  insertChild: (parent: Frame, child: NgView) => {
     // Page cannot be added to Frame with _addChildFromBuilder (thwos "use defaultPage" error)
     if (isInvisibleNode(child)) {
       return;
@@ -22,7 +23,7 @@ registerElement('Button', () => Button);
 registerElement('ContentView', () => ContentView);
 registerElement('DatePicker', () => DatePicker);
 registerElement('DockLayout', () => DockLayout);
-registerElement('Frame', () => <any>Frame, frameMeta);
+registerElement('Frame', () => Frame, frameMeta);
 registerElement('GridLayout', () => GridLayout);
 registerElement('HtmlView', () => HtmlView);
 registerElement('Image', () => Image);
@@ -40,7 +41,7 @@ registerElement('RootLayout', () => RootLayout);
 registerElement('ScrollView', () => ScrollView);
 registerElement('SearchBar', () => SearchBar);
 registerElement('SegmentedBar', () => SegmentedBar);
-registerElement('SegmentedBarItem', () => <any>SegmentedBarItem);
+registerElement('SegmentedBarItem', () => SegmentedBarItem);
 registerElement('Slider', () => Slider);
 registerElement('StackLayout', () => StackLayout);
 registerElement('FlexboxLayout', () => FlexboxLayout);
@@ -51,11 +52,11 @@ registerElement('TextView', () => TextView);
 registerElement('TimePicker', () => TimePicker);
 registerElement('WebView', () => WebView);
 registerElement('WrapLayout', () => WrapLayout);
-registerElement('FormattedString', () => <any>FormattedString);
-registerElement('Span', () => <any>Span);
+registerElement('FormattedString', () => FormattedString);
+registerElement('Span', () => Span);
 
 registerElement('DetachedContainer', () => ProxyViewContainer, {
   skipAddToDom: true,
 });
 
-registerElement('page-router-outlet', () => <any>Frame);
+registerElement('page-router-outlet', () => Frame);

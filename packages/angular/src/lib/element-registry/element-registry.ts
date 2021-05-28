@@ -1,90 +1,16 @@
-import { Frame, LayoutBase, Page, View } from '@nativescript/core';
+import { LayoutBase, View } from '@nativescript/core';
+import { InvisibleNode } from './invisible-nodes';
+import { NgView, ViewClassMeta } from './view-types';
 
-export interface ViewClass {
-  new (): View;
-}
-export interface ViewExtensions {
-  meta: ViewClassMeta;
-  nodeType: number;
-  nodeName: string;
-  parentNode: NgView;
-  nextSibling: NgView;
-  previousSibling: NgView;
-  firstChild: NgView;
-  lastChild: NgView;
-  ngCssClasses: Map<string, boolean>;
+export function isDetachedElement(element: View | NgView): boolean {
+  return element && (<NgView>element).meta && (<NgView>element).meta.skipAddToDom;
 }
 
-export type NgView = View & ViewExtensions;
-
-export abstract class InvisibleNode extends View implements NgView {
-  meta: { skipAddToDom: boolean };
-  nodeType: number;
-  nodeName: string;
-  parentNode: NgView;
-  nextSibling: NgView;
-  previousSibling: NgView;
-  firstChild: NgView;
-  lastChild: NgView;
-  ngCssClasses: Map<string, boolean>;
-
-  constructor(protected name: string = '') {
-    super();
-
-    this.nodeType = 1;
-    this.nodeName = getClassName(this);
-  }
-
-  toString() {
-    return `${this.nodeName}(${this.id})-${this.name}`;
-  }
-}
-
-export class CommentNode extends InvisibleNode {
-  protected static id = 0;
-
-  constructor(value?: string) {
-    super(value);
-
-    this.meta = {
-      skipAddToDom: true,
-    };
-    this.id = CommentNode.id.toString();
-    CommentNode.id += 1;
-  }
-}
-
-export class TextNode extends InvisibleNode {
-  protected static id = 0;
-
-  constructor(value?: string) {
-    super(value);
-
-    this.meta = {
-      skipAddToDom: true,
-    };
-    this.id = TextNode.id.toString();
-    TextNode.id += 1;
-  }
-}
-
-const getClassName = (instance) => instance.constructor.name;
-
-export interface ViewClassMeta {
-  skipAddToDom?: boolean;
-  insertChild?: (parent: any, child: any, next?: any) => void;
-  removeChild?: (parent: any, child: any) => void;
-}
-
-export function isDetachedElement(element): boolean {
-  return element && element.meta && element.meta.skipAddToDom;
-}
-
-export function isView(view: any): view is NgView {
+export function isView(view: unknown): view is NgView {
   return view instanceof View;
 }
 
-export function isInvisibleNode(view: any): view is InvisibleNode {
+export function isInvisibleNode(view: unknown): view is InvisibleNode {
   return view instanceof InvisibleNode;
 }
 
@@ -123,7 +49,7 @@ export function isKnownView(elementName: string): boolean {
   return elementMap.has(elementName) || elementMap.has(elementName.toLowerCase());
 }
 
-export function getSingleViewRecursive(nodes: Array<any>, nestLevel: number): View {
+export function extractSingleViewRecursive(nodes: Array<any>, nestLevel: number): View {
   const actualNodes = nodes.filter((node) => !(node instanceof InvisibleNode));
 
   if (actualNodes.length === 0) {
@@ -134,12 +60,12 @@ export function getSingleViewRecursive(nodes: Array<any>, nestLevel: number): Vi
 
   const rootLayout = actualNodes[0];
   if (!rootLayout) {
-    return getSingleViewRecursive(rootLayout.children, nestLevel + 1);
+    return extractSingleViewRecursive(rootLayout.children, nestLevel + 1);
   }
 
   const parentLayout = rootLayout.parent;
   if (parentLayout instanceof LayoutBase) {
-    let node = rootLayout.parentNode;
+    const node = rootLayout.parentNode;
     parentLayout.removeChild(rootLayout);
     rootLayout.parentNode = node;
   }
@@ -147,15 +73,7 @@ export function getSingleViewRecursive(nodes: Array<any>, nestLevel: number): Vi
   return rootLayout;
 }
 
-const frameMeta: ViewClassMeta = {
-  insertChild: (parent: Frame, child: NgView, next: any) => {
-    // Page cannot be added to Frame with _addChildFromBuilder (thwos "use defaultPage" error)
-    if (isInvisibleNode(child)) {
-      return;
-    } else if (child instanceof Page) {
-      parent.navigate({ create: () => child });
-    } else {
-      throw new Error('Only a Page can be a child of Frame');
-    }
-  },
-};
+export function getSingleViewRecursive(nodes: Array<any>, nestLevel: number): View {
+  console.log('getSingleViewRecursive is deprecated, use extractSingleViewRecursive');
+  return extractSingleViewRecursive(nodes, nestLevel);
+}
