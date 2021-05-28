@@ -257,7 +257,7 @@ export function getItemViewRoot(viewRef: EmbeddedViewRef<unknown>, rootLocator: 
 // eslint-disable-next-line @angular-eslint/directive-selector
 @Directive({ selector: '[nsTemplateKey],[nsTemplateKeys]' })
 export class TemplateKeyDirective<T> {
-  constructor(private templateRef: TemplateRef<T>, @Host() private comp: TemplatedItemsComponent<T>) {}
+  constructor(private templateRef: TemplateRef<T>, @Host() private comp: ListViewComponent<T>) {}
 
   @Input()
   set nsTemplateKey(value: string) {
