@@ -42,7 +42,7 @@ export class ModalDialogParams {
 export class ModalDialogService {
   constructor(private location: NSLocationStrategy, private zone: NgZone, private appRef: ApplicationRef, private viewUtil: ViewUtil, private defaultInjector: Injector) {}
 
-  public showModal(type: Type<any>, options: ModalDialogOptions): Promise<any> {
+  public showModal(type: Type<any>, options: ModalDialogOptions = {}): Promise<any> {
     // if (!options.viewContainerRef) {
     //   throw new Error('No viewContainerRef: ' + 'Make sure you pass viewContainerRef in ModalDialogOptions.');
     // }
