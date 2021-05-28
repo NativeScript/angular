@@ -7,6 +7,7 @@ import { once } from '../../utils';
 import { DetachedLoader } from '../../utils/detached-loader';
 import { ComponentPortal, Portal, PortalOutlet, NativescriptDomPortalOutlet } from '../../utils/portal';
 import { ViewUtil, isContentView, getFirstNativeLikeView } from '../../view-util';
+import { getRootView } from '@nativescript/core/application';
 
 export type BaseShowModalOptions = Pick<ShowModalOptions, Exclude<keyof ShowModalOptions, 'closeCallback' | 'context'>>;
 
@@ -18,12 +19,13 @@ export interface ModalDialogOptions extends BaseShowModalOptions {
 }
 
 export interface ShowDialogOptions extends BaseShowModalOptions {
-  containerRef: ViewContainerRef;
+  containerRef?: ViewContainerRef;
   /**
    * which container to attach the change detection
    * if not specified, attaches to the ApplicationRef (recommended)
    */
   attachToContainerRef?: ViewContainerRef;
+  injector: Injector;
   context: any;
   doneCallback;
   pageFactory?: any;
@@ -38,14 +40,14 @@ export class ModalDialogParams {
 
 @Injectable()
 export class ModalDialogService {
-  constructor(private location: NSLocationStrategy, private zone: NgZone, private appRef: ApplicationRef, private viewUtil: ViewUtil) {}
+  constructor(private location: NSLocationStrategy, private zone: NgZone, private appRef: ApplicationRef, private viewUtil: ViewUtil, private defaultInjector: Injector) {}
 
   public showModal(type: Type<any>, options: ModalDialogOptions): Promise<any> {
-    if (!options.viewContainerRef) {
-      throw new Error('No viewContainerRef: ' + 'Make sure you pass viewContainerRef in ModalDialogOptions.');
-    }
+    // if (!options.viewContainerRef) {
+    //   throw new Error('No viewContainerRef: ' + 'Make sure you pass viewContainerRef in ModalDialogOptions.');
+    // }
 
-    let parentView = options.viewContainerRef.element.nativeElement;
+    let parentView = options.viewContainerRef?.element.nativeElement || getRootView();
     if (options.target) {
       parentView = options.target;
     }
@@ -63,8 +65,8 @@ export class ModalDialogService {
 
     // resolve from particular module (moduleRef)
     // or from same module as parentView (viewContainerRef)
-    const componentContainer = options.moduleRef || options.viewContainerRef;
-    const resolver = componentContainer.injector.get(ComponentFactoryResolver);
+    const componentInjector = options.moduleRef?.injector || options.viewContainerRef?.injector || this.defaultInjector;
+    const resolver = componentInjector.get(ComponentFactoryResolver);
 
     let frame = parentView;
     if (!(parentView instanceof Frame)) {
@@ -79,6 +81,7 @@ export class ModalDialogService {
           this._showDialog({
             ...options,
             containerRef: options.viewContainerRef,
+            injector: componentInjector,
             context: options.context,
             doneCallback: resolve,
             parentView,
@@ -116,7 +119,7 @@ export class ModalDialogService {
 
     const childInjector = Injector.create({
       providers: [{ provide: ModalDialogParams, useValue: modalParams }],
-      parent: options.containerRef.injector,
+      parent: options.injector,
     });
     this.zone.run(() => {
       // if we ever support templates in the old API
@@ -140,25 +143,11 @@ export class ModalDialogService {
       if (componentView !== componentRef.location.nativeElement) {
         componentRef.location.nativeElement._ngDialogRoot = componentView;
       }
-      if (componentView.parent) {
-        this.viewUtil.removeChild(componentView.parent as View, componentView);
-      }
+      // apparently this isn't needed
+      // if (componentView.parent) {
+      //   this.viewUtil.removeChild(componentView.parent as View, componentView);
+      // }
       options.parentView.showModal(componentView, { ...options, closeCallback });
-      // detachedLoaderRef.instance.loadComponent(options.type).then((compRef) => {
-      // 	const detachedProxy = <ProxyViewContainer>compRef.location.nativeElement;
-
-      // 	if (detachedProxy.getChildrenCount() > 1) {
-      // 		throw new Error('Modal content has more than one root view.');
-      // 	}
-      // 	componentView = detachedProxy.getChildAt(0);
-
-      // 	if (componentView.parent) {
-      // 		(<any>componentView.parent)._ngDialogRoot = componentView;
-      // 		(<any>componentView.parent).removeChild(componentView);
-      // 	}
-
-      // 	options.parentView.showModal(componentView, { ...options, closeCallback });
-      // });
     });
   }
 }
