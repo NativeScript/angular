@@ -1,4 +1,6 @@
 export * from './lang-facade';
+export { DetachedLoader } from './detached-loader';
+export * from './portal';
 
 /**
  * Utility method to ensure a NgModule is only imported once in a codebase, otherwise will throw to help prevent accidental double importing
