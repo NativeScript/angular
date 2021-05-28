@@ -1,5 +1,5 @@
 import { AbsoluteLayout, ActivityIndicator, Button, ContentView, DatePicker, DockLayout, FlexboxLayout, FormattedString, Frame, GridLayout, HtmlView, Image, Label, ListPicker, ListView, Page, Placeholder, Progress, ProxyViewContainer, Repeater, RootLayout, ScrollView, SearchBar, SegmentedBar, SegmentedBarItem, Slider, Span, StackLayout, Switch, TabView, TextField, TextView, TimePicker, WebView, WrapLayout } from '@nativescript/core';
-import { isInvisibleNode, registerElement } from './element-registry';
+import { isInvisibleNode, registerElement } from './registry';
 import { NgView, ViewClassMeta } from './view-types';
 
 const frameMeta: ViewClassMeta = {

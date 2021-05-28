@@ -1,6 +1,6 @@
 import { LayoutBase, View } from '@nativescript/core';
-import { InvisibleNode } from './invisible-nodes';
 import { NgView, ViewClassMeta } from './view-types';
+import { InvisibleNode } from './invisible-nodes';
 
 export function isDetachedElement(element: View | NgView): boolean {
   return element && (<NgView>element).meta && (<NgView>element).meta.skipAddToDom;
