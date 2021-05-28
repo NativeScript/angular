@@ -6,7 +6,7 @@ export * from './legacy/router';
 export * from './application';
 export * from './tokens';
 export * from './element-registry';
-export * from './nativescript_renderer';
+export { EmulatedRenderer, NativeScriptRendererFactory, ɵCOMPONENT_VARIABLE, ɵCONTENT_ATTR, ɵHOST_ATTR } from './nativescript_renderer';
 export * from './utils/detached-loader';
 export * from './forms';
 export * from './animations';
