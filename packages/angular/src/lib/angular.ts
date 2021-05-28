@@ -11,4 +11,5 @@ export * from './utils/detached-loader';
 export * from './forms';
 export * from './animations';
 export * from './http';
+export * from './legacy/directives/dialogs';
 export * from './private_exports';
