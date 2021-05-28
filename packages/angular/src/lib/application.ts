@@ -4,7 +4,7 @@ import { AppHostAsyncView, AppHostView } from './app-host-view';
 import { LoadingService } from './loading.service';
 import { APP_RENDERED_ROOT_VIEW, APP_ROOT_VIEW, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { filter, take } from 'rxjs/operators';
-import { queueMacrotask } from '@nativescript/core/utils';
+import { Utils } from '@nativescript/core';
 
 export interface AppLaunchView extends LayoutBase {
   // called when the animation is to begin
@@ -77,7 +77,7 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
       (err) => showErrorUI(err)
     );
     // TODO: scheduleMacroTask
-    queueMacrotask(() => {
+    (<any>Utils).queueMacrotask(() => {
       if (bootstrapped) {
         setRootView(mainModuleRef);
       } else {

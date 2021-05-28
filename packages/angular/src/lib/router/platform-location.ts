@@ -1,6 +1,5 @@
 import { Inject, Injectable, Optional } from '@angular/core';
 import { LocationChangeListener, PlatformLocation } from '@angular/common';
-import { debug } from '@nativescript/core/utils/debug';
 import { START_PATH } from '../tokens';
 import { NativeScriptDebug } from '../trace';
 

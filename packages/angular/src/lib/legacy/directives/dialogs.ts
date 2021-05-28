@@ -1,5 +1,5 @@
 import { ApplicationRef, ComponentFactoryResolver, ComponentRef, Injectable, Injector, NgModuleRef, NgZone, Renderer2, Type, ViewContainerRef, ɵmarkDirty } from '@angular/core';
-import { Frame, View, ViewBase, ProxyViewContainer, ShowModalOptions, ContentView } from '@nativescript/core';
+import { Application, Frame, View, ViewBase, ProxyViewContainer, ShowModalOptions, ContentView } from '@nativescript/core';
 
 import { NSLocationStrategy } from '../router/ns-location-strategy';
 import { AppHostView, AppHostAsyncView } from '../../app-host-view';
@@ -7,7 +7,6 @@ import { once } from '../../utils';
 import { DetachedLoader } from '../../utils/detached-loader';
 import { ComponentPortal, Portal, PortalOutlet, NativescriptDomPortalOutlet } from '../../utils/portal';
 import { ViewUtil, isContentView, getFirstNativeLikeView } from '../../view-util';
-import { getRootView } from '@nativescript/core/application';
 
 export type BaseShowModalOptions = Pick<ShowModalOptions, Exclude<keyof ShowModalOptions, 'closeCallback' | 'context'>>;
 
@@ -47,7 +46,7 @@ export class ModalDialogService {
     //   throw new Error('No viewContainerRef: ' + 'Make sure you pass viewContainerRef in ModalDialogOptions.');
     // }
 
-    let parentView = options.viewContainerRef?.element.nativeElement || getRootView();
+    let parentView = options.viewContainerRef?.element.nativeElement || Application.getRootView();
     if (options.target) {
       parentView = options.target;
     }
