@@ -38,7 +38,7 @@
     "@angular/platform-browser": "~12.0.0",
     "@angular/platform-browser-dynamic": "~12.0.0",
     "@angular/router": "~12.0.0",
-    "@nativescript/core": "~8.0.0",
+    "@nativescript/core": "next",
     "@nativescript/theme": "~3.0.0",
     "nativescript-ngx-fonticon": "~7.0.0",
     "reflect-metadata": "~0.1.12",
