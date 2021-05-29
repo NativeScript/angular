@@ -16,7 +16,7 @@
     "@angular/platform-browser-dynamic": "~12.0.0",
     "@angular/router": "~12.0.0",
     "@nativescript/angular": "file:../../packages/angular",
-    "@nativescript/core": "~8.0.0",
+    "@nativescript/core": "next",
     "@nativescript/theme": "^3.0.1",
     "rxjs": "^6.6.0",
     "zone.js": "~0.11.1"
