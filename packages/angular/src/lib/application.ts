@@ -156,7 +156,13 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   const exitCallback = profile('@nativescript/angular/platform-common.exitCallback', (args: ApplicationEventData) => {
     disposeLastModules();
   });
+
+  Application.on(Application.launchEvent, launchCallback);
+  Application.on(Application.exitEvent, exitCallback);
   if (module['hot']) {
+    // handle HMR Application.run
+    const isAppRunning = !!global['__ns_app_running__'];
+    global['__ns_app_running__'] = true;
     global['__dispose_app_ng_platform__'] = () => {
       disposePlatform();
     };
@@ -166,13 +172,27 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     global['__bootstrap_app_ng_modules__'] = () => {
       bootstrapRoot();
     };
-    global['__reboot_ng_modules__'] = () => {
-      global['__dispose_app_ng_platform__']();
-      global['__dispose_app_ng_modules__']();
-      global['__bootstrap_app_ng_modules__']();
+    global['__cleanup_ng_hot__'] = () => {
+      Application.off(Application.launchEvent, launchCallback);
+      Application.off(Application.exitEvent, exitCallback);
+      disposePlatform();
+      disposeLastModules();
     };
+    global['__reboot_ng_modules__'] = (shouldDisposePlatform: boolean = false) => {
+      if (shouldDisposePlatform) {
+        disposePlatform();
+      }
+      disposeLastModules();
+      bootstrapRoot();
+    };
+
+    if (!isAppRunning) {
+      Application.run();
+      return;
+    }
+    bootstrapRoot();
+    return;
   }
-  Application.on(Application.launchEvent, launchCallback);
-  Application.on(Application.exitEvent, exitCallback);
+
   Application.run();
 }
