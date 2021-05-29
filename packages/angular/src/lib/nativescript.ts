@@ -1,4 +1,4 @@
-import { CommonModule, DOCUMENT, ViewportScroller, ɵNullViewportScroller as NullViewportScroller } from '@angular/common';
+import { CommonModule, DOCUMENT, ViewportScroller, XhrFactory, ɵNullViewportScroller as NullViewportScroller } from '@angular/common';
 import { ModuleWithProviders, NO_ERRORS_SCHEMA, Provider, Self, ɵangular_packages_core_core_y as SCHEDULER } from '@angular/core';
 import { ElementSchemaRegistry } from '@angular/compiler';
 import { ApplicationModule, APP_ID, ErrorHandler, Inject, NgModule, NgZone, Optional, PLATFORM_ID, RendererFactory2, SkipSelf, StaticProvider, Testability, ɵINJECTOR_SCOPE as INJECTOR_SCOPE } from '@angular/core';
@@ -10,6 +10,7 @@ import { AppHostView } from './app-host-view';
 import { Color, View } from '@nativescript/core';
 import { DetachedLoader } from './utils/detached-loader';
 import { ViewUtil } from './view-util';
+import { NativescriptXhrFactory } from './nativescript-xhr-factory';
 
 export function generateFallbackRootView(parentRootView?: View) {
   if (parentRootView) {
@@ -54,6 +55,7 @@ export const NATIVESCRIPT_MODULE_STATIC_PROVIDERS: StaticProvider[] = [
   // ELEMENT_PROBE_PROVIDERS,
   // { provide: ElementSchemaRegistry, useClass: NativeScriptElementSchemaRegistry, deps: [] }
   { provide: NAMESPACE_FILTERS, useClass: PlatformNamespaceFilter, deps: [], multi: true },
+  { provide: XhrFactory, useClass: NativescriptXhrFactory, deps: [] },
 ];
 export const NATIVESCRIPT_MODULE_PROVIDERS: Provider[] = [{ provide: ViewportScroller, useClass: NullViewportScroller }];
 
