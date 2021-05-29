@@ -11,3 +11,7 @@ refer to http://docs.nativescript.org/ui/theme.
 */
 @import '@nativescript/theme/css/core.css';
 @import '@nativescript/theme/css/default.css';
+
+.h2 {
+  color: green;
+}
