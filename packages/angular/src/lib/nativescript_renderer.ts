@@ -33,6 +33,16 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
     }
 
     let renderer = this.componentRenderers.get(type.id);
+    /**
+     *! WARNING
+     *! We're reusing the renderer for the components
+     *! this might cause unexpected behavior as the "rootView" is an arbitrary hostElement
+     *! also, the renderer has it's .destroy() called!
+     *! might be useful to create a BaseEmulatedRender and a ProxyEmulatedRender
+     *! every component type gets a BaseEmulatedRender (singleton) which is passed to ProxyEmulatedRender
+     *! ProxyEmulatedRenderer registers with BaseEmulatedRender so we can clean up things like CSS when it's not needed
+     *! this might be useful if we find a way to HMR component styling without a full rebootstrap
+     */
     if (renderer) {
       if (renderer instanceof EmulatedRenderer) {
         renderer.applyToHost(hostElement);
@@ -240,7 +250,6 @@ const replaceNgAttribute = function (input: string, componentId: string): string
 
 const addScopedStyleToCss = profile(`"renderer".addScopedStyleToCss`, function addScopedStyleToCss(style: string, tag?: number | string): void {
   if (tag) {
-    console.log('ADDTAG', style, tag);
     addTaggedAdditionalCSS(style, tag);
   } else {
     Application.addCss(style);

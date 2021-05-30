@@ -20,6 +20,14 @@ export interface AppRunOptions<T, K> {
   launchView?: () => AppLaunchView;
 }
 
+if (module['hot']) {
+  module['hot'].decline();
+  global.__onLiveSyncCore = () => {
+    Application.getRootView()?._onCssStateChange();
+    // all other changes are applied by runNativescriptAngularApp
+  };
+}
+
 export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   let mainModuleRef = null;
   let loadingModuleRef: NgModuleRef<K>;
@@ -36,6 +44,7 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     platformRef.onDestroy(() => (platformRef = platformRef === newPlatformRef ? null : platformRef));
   };
   const setRootView = (ref: NgModuleRef<T | K> | View) => {
+    Application.getRootView()?._closeAllModalViewsInternal(); // cleanup old rootview
     // TODO: check for leaks when root view isn't properly destroyed
     if (ref instanceof View) {
       Application.resetRootView({
@@ -161,8 +170,6 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   Application.on(Application.exitEvent, exitCallback);
   if (module['hot']) {
     // handle HMR Application.run
-    const isAppRunning = !!global['__ns_app_running__'];
-    global['__ns_app_running__'] = true;
     global['__dispose_app_ng_platform__'] = () => {
       disposePlatform();
     };
@@ -186,7 +193,7 @@ export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
       bootstrapRoot();
     };
 
-    if (!isAppRunning) {
+    if (!Application.hasLaunched()) {
       Application.run();
       return;
     }
