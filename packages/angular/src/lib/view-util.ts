@@ -1,5 +1,6 @@
 import { View, unsetValue, Placeholder, ContentView, LayoutBase, ProxyViewContainer } from '@nativescript/core';
-import { CommentNode, NgView, TextNode, ViewExtensions, getViewClass, getViewMeta, isDetachedElement, isInvisibleNode, isKnownView, isView } from './element-registry';
+import { getViewClass, getViewMeta, isKnownView } from './element-registry';
+import { CommentNode, NgView, TextNode, ViewExtensions, isDetachedElement, isInvisibleNode, isView } from './views';
 import { NamespaceFilter } from './property-filter';
 
 import { NativeScriptDebug } from './trace';
@@ -23,7 +24,7 @@ export function isContentView(view: any): view is NgContentView {
   return view instanceof ContentView;
 }
 
-export function getFirstNativeLikeView(view: View) {
+export function getFirstNativeLikeView(view: View, extractFromNSParent = false) {
   if (view instanceof ProxyViewContainer) {
     if (view.getChildrenCount() === 0) {
       return null;
@@ -32,6 +33,12 @@ export function getFirstNativeLikeView(view: View) {
   }
   if (isContentView(view)) {
     return getFirstNativeLikeView(view.content);
+  }
+  const parentLayout = view?.parent;
+  if (extractFromNSParent && parentLayout instanceof LayoutBase) {
+    const node = view.parentNode;
+    parentLayout.removeChild(view);
+    view.parentNode = node;
   }
   return view;
 }

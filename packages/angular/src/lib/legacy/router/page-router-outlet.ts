@@ -7,7 +7,7 @@ import { BehaviorSubject } from 'rxjs';
 
 import { PAGE_FACTORY, PageFactory } from '../../tokens';
 import { NativeScriptDebug } from '../../trace';
-import { DetachedLoader } from '../../utils/detached-loader';
+import { DetachedLoader } from '../../cdk';
 import { ViewUtil } from '../../view-util';
 import { NSLocationStrategy } from './ns-location-strategy';
 import { Outlet } from './ns-location-utils';

@@ -1,12 +1,10 @@
-import { ApplicationRef, ComponentFactoryResolver, ComponentRef, Injectable, Injector, NgModuleRef, NgZone, Renderer2, Type, ViewContainerRef, ɵmarkDirty } from '@angular/core';
-import { Application, Frame, View, ViewBase, ProxyViewContainer, ShowModalOptions, ContentView } from '@nativescript/core';
-
-import { NSLocationStrategy } from '../router/ns-location-strategy';
-import { AppHostView, AppHostAsyncView } from '../../app-host-view';
+import { ApplicationRef, ComponentFactoryResolver, ComponentRef, Injectable, Injector, NgModuleRef, NgZone, Type, ViewContainerRef, ɵmarkDirty } from '@angular/core';
+import { Application, ContentView, Frame, ShowModalOptions, View, ViewBase } from '@nativescript/core';
+import { AppHostAsyncView, AppHostView } from '../../app-host-view';
+import { ComponentPortal, DetachedLoader, NativescriptDomPortalOutlet } from '../../cdk';
 import { once } from '../../utils';
-import { DetachedLoader } from '../../utils/detached-loader';
-import { ComponentPortal, Portal, PortalOutlet, NativescriptDomPortalOutlet } from '../../utils/portal';
-import { ViewUtil, isContentView, getFirstNativeLikeView } from '../../view-util';
+import { getFirstNativeLikeView } from '../../view-util';
+import { NSLocationStrategy } from '../router/ns-location-strategy';
 
 export type BaseShowModalOptions = Pick<ShowModalOptions, Exclude<keyof ShowModalOptions, 'closeCallback' | 'context'>>;
 

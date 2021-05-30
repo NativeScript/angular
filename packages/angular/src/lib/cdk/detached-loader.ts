@@ -1,6 +1,6 @@
 import { ComponentRef, ComponentFactory, ViewContainerRef, Component, Type, ComponentFactoryResolver, ChangeDetectorRef, ApplicationRef, OnDestroy, TemplateRef, ViewChild, Injector } from '@angular/core';
 import { Trace } from '@nativescript/core';
-import { ComponentPortal, ComponentType, TemplatePortal } from './portal/portal';
+import { ComponentPortal, ComponentType, TemplatePortal } from './portal';
 
 /**
  * Wrapper component used for loading components when navigating
@@ -8,10 +8,12 @@ import { ComponentPortal, ComponentType, TemplatePortal } from './portal/portal'
  * the visual tree.
  */
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'DetachedContainer',
   template: `<Placeholder #loader></Placeholder><ng-container #vc></ng-container><ng-content></ng-content>`,
 })
 export class DetachedLoader implements OnDestroy {
+  // eslint-disable-line @angular-eslint/component-class-suffix
   @ViewChild('vc', { read: ViewContainerRef, static: true }) vc: ViewContainerRef;
   private disposeFunctions: Array<() => void> = [];
   // tslint:disable-line:component-class-suffix

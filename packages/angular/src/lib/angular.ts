@@ -1,10 +1,12 @@
+export * from './views';
+export * from './tokens';
 export * from './platform-nativescript';
 export * from './nativescript';
 export * from './nativescript_common.module';
+export * from './cdk';
 // export * from './router/router.module';
 export * from './legacy/router';
 export * from './application';
-export * from './tokens';
 export * from './element-registry';
 export * from './nativescript-xhr-factory';
 export { EmulatedRenderer, NativeScriptRendererFactory, COMPONENT_VARIABLE as ɵCOMPONENT_VARIABLE, CONTENT_ATTR as ɵCONTENT_ATTR, HOST_ATTR as ɵHOST_ATTR } from './nativescript_renderer';

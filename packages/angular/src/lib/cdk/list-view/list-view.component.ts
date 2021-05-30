@@ -77,6 +77,7 @@ export interface SetupItemViewArgs<T> {
 }
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'ListView',
   template: `<DetachedContainer>
     <ng-container #loader></ng-container>

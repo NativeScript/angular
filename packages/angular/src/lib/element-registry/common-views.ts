@@ -1,19 +1,6 @@
 import { AbsoluteLayout, ActivityIndicator, Button, ContentView, DatePicker, DockLayout, FlexboxLayout, FormattedString, Frame, GridLayout, HtmlView, Image, Label, ListPicker, ListView, Page, Placeholder, Progress, ProxyViewContainer, Repeater, RootLayout, ScrollView, SearchBar, SegmentedBar, SegmentedBarItem, Slider, Span, StackLayout, Switch, TabView, TextField, TextView, TimePicker, WebView, WrapLayout } from '@nativescript/core';
-import { isInvisibleNode, registerElement } from './registry';
-import { NgView, ViewClassMeta } from './view-types';
-
-const frameMeta: ViewClassMeta = {
-  insertChild: (parent: Frame, child: NgView) => {
-    // Page cannot be added to Frame with _addChildFromBuilder (thwos "use defaultPage" error)
-    if (isInvisibleNode(child)) {
-      return;
-    } else if (child instanceof Page) {
-      parent.navigate({ create: () => child });
-    } else {
-      throw new Error('Only a Page can be a child of Frame');
-    }
-  },
-};
+import { frameMeta } from './metas';
+import { registerElement } from './registry';
 
 // Register default NativeScript components
 // Note: ActionBar related components are registerd together with action-bar directives.

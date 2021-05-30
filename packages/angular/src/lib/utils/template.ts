@@ -1,6 +1,7 @@
 import { ComponentRef, EmbeddedViewRef } from '@angular/core';
 import { View } from '@nativescript/core';
-import { getFirstNativeLikeView } from '../view-util';
+import { InvisibleNode } from '../views';
+// import { getFirstNativeLikeView } from '../view-util';
 
 export interface NgViewRef<T> {
   view: View;
@@ -23,7 +24,7 @@ export class NgViewRef<T> implements NgViewRef<T> {
 
   constructor(ref: EmbeddedViewRef<T> | ComponentRef<T>) {
     this.ref = ref;
-    this.view = ref instanceof EmbeddedViewRef ? ref.rootNodes[0] : ref.location.nativeElement;
-    this.firstNativeLikeView = getFirstNativeLikeView(this.view);
+    this.view = ref instanceof EmbeddedViewRef ? ref.rootNodes.find((v) => !(v instanceof InvisibleNode)) : ref.location.nativeElement;
+    // this.firstNativeLikeView = getFirstNativeLikeView(this.view);
   }
 }

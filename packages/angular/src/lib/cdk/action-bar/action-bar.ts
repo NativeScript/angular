@@ -2,7 +2,8 @@ import { Directive, Component, ElementRef, Optional, OnDestroy } from '@angular/
 import { ActionBar, ActionItem, ActionItems, NavigationButton, Page } from '@nativescript/core';
 
 import { isBlank } from '../../utils';
-import { NgView, ViewClassMeta, ViewExtensions, isInvisibleNode, isView, registerElement } from '../../element-registry';
+import { registerElement } from '../../element-registry';
+import { NgView, ViewClassMeta, ViewExtensions, isInvisibleNode, isView } from '../../views';
 
 export function isActionItem(view: any): view is ActionItem {
   return view instanceof ActionItem;

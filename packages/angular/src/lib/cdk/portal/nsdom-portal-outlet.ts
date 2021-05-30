@@ -8,7 +8,7 @@
 
 import { ComponentFactoryResolver, ComponentRef, EmbeddedViewRef, ApplicationRef, Injector, Renderer2, Optional } from '@angular/core';
 import { View } from '@nativescript/core';
-import { CommentNode, NgView } from '../../element-registry';
+import { CommentNode, NgView } from '../../views';
 import { ViewUtil } from '../../view-util';
 import { BasePortalOutlet, ComponentPortal, TemplatePortal, DomPortal } from './portal';
 

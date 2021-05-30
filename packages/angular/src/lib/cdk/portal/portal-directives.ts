@@ -10,7 +10,7 @@ import { ComponentFactoryResolver, ComponentRef, Directive, EmbeddedViewRef, Eve
 import { DOCUMENT } from '@angular/common';
 import { BasePortalOutlet, ComponentPortal, Portal, TemplatePortal, DomPortal } from './portal';
 import { View } from '@nativescript/core';
-import { CommentNode } from '../../element-registry';
+import { CommentNode } from '../../views';
 
 /**
  * Directive version of a `TemplatePortal`. Because the directive *is* a TemplatePortal,

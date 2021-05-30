@@ -1,18 +1,5 @@
 import { LayoutBase, View } from '@nativescript/core';
-import { NgView, ViewClassMeta } from './view-types';
-import { InvisibleNode } from './invisible-nodes';
-
-export function isDetachedElement(element: View | NgView): boolean {
-  return element && (<NgView>element).meta && (<NgView>element).meta.skipAddToDom;
-}
-
-export function isView(view: unknown): view is NgView {
-  return view instanceof View;
-}
-
-export function isInvisibleNode(view: unknown): view is InvisibleNode {
-  return view instanceof InvisibleNode;
-}
+import { InvisibleNode, ViewClassMeta } from '../views';
 
 export type ViewResolver = () => any;
 
