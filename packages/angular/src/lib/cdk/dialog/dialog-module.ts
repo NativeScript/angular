@@ -4,6 +4,7 @@ import { NSDialog } from './dialog-directives';
 
 @NgModule({
   declarations: [NSDialogClose],
+  exports: [NSDialogClose],
   providers: [NSDialog],
 })
 export class NSDialogModule {}
