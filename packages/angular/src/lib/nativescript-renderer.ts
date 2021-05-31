@@ -239,7 +239,7 @@ class NativeScriptRenderer implements Renderer2 {
   }
 }
 
-// CONTENT_ATTR not exported from NativeScript_renderer - we need it for styles application.
+// CONTENT_ATTR not exported from nativescript-renderer - we need it for styles application.
 const COMPONENT_REGEX = /%COMP%/g;
 const ATTR_SANITIZER = /-/g;
 export const COMPONENT_VARIABLE = '%COMP%';

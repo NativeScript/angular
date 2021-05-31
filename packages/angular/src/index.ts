@@ -1,1 +1,1 @@
-export * from './lib/angular';
+export * from './lib/public_api';

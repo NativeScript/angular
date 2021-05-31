@@ -1,49 +1,59 @@
-import { AbsoluteLayout, ActivityIndicator, Button, ContentView, DatePicker, DockLayout, FlexboxLayout, FormattedString, Frame, GridLayout, HtmlView, Image, Label, ListPicker, ListView, Page, Placeholder, Progress, ProxyViewContainer, Repeater, RootLayout, ScrollView, SearchBar, SegmentedBar, SegmentedBarItem, Slider, Span, StackLayout, Switch, TabView, TextField, TextView, TimePicker, WebView, WrapLayout } from '@nativescript/core';
+import { AbsoluteLayout, ActionBar, ActionItem, ActivityIndicator, Button, ContentView, DatePicker, DockLayout, FlexboxLayout, FormattedString, Frame, GridLayout, HtmlView, Image, Label, ListPicker, ListView, NavigationButton, Page, Placeholder, Progress, ProxyViewContainer, Repeater, RootLayout, ScrollView, SearchBar, SegmentedBar, SegmentedBarItem, Slider, Span, StackLayout, Switch, TabView, TextField, TextView, TimePicker, WebView, WrapLayout } from '@nativescript/core';
+import { actionBarMeta } from '../cdk/action-bar';
 import { frameMeta } from './metas';
 import { registerElement } from './registry';
 
 // Register default NativeScript components
 // Note: ActionBar related components are registerd together with action-bar directives.
-registerElement('AbsoluteLayout', () => AbsoluteLayout);
-registerElement('ActivityIndicator', () => ActivityIndicator);
-registerElement('Button', () => Button);
-registerElement('ContentView', () => ContentView);
-registerElement('DatePicker', () => DatePicker);
-registerElement('DockLayout', () => DockLayout);
-registerElement('Frame', () => Frame, frameMeta);
-registerElement('GridLayout', () => GridLayout);
-registerElement('HtmlView', () => HtmlView);
-registerElement('Image', () => Image);
-// Parse5 changes <Image> tags to <img>. WTF!
-registerElement('img', () => Image);
-registerElement('Label', () => Label);
-registerElement('ListPicker', () => ListPicker);
-registerElement('ListView', () => ListView);
-registerElement('Page', () => Page);
-registerElement('Placeholder', () => Placeholder);
-registerElement('Progress', () => Progress);
-registerElement('ProxyViewContainer', () => ProxyViewContainer);
-registerElement('Repeater', () => Repeater);
-registerElement('RootLayout', () => RootLayout);
-registerElement('ScrollView', () => ScrollView);
-registerElement('SearchBar', () => SearchBar);
-registerElement('SegmentedBar', () => SegmentedBar);
-registerElement('SegmentedBarItem', () => SegmentedBarItem);
-registerElement('Slider', () => Slider);
-registerElement('StackLayout', () => StackLayout);
-registerElement('FlexboxLayout', () => FlexboxLayout);
-registerElement('Switch', () => Switch);
-registerElement('TabView', () => TabView);
-registerElement('TextField', () => TextField);
-registerElement('TextView', () => TextView);
-registerElement('TimePicker', () => TimePicker);
-registerElement('WebView', () => WebView);
-registerElement('WrapLayout', () => WrapLayout);
-registerElement('FormattedString', () => FormattedString);
-registerElement('Span', () => Span);
+export function registerNativeScriptViewComponents() {
+  if (!(<any>global).__ngRegisteredViews) {
+    (<any>global).__ngRegisteredViews = true;
+    registerElement('AbsoluteLayout', () => AbsoluteLayout);
+    registerElement('ActionBar', () => ActionBar, actionBarMeta);
+    registerElement('ActionItem', () => <any>ActionItem);
+    registerElement('NavigationButton', () => <any>NavigationButton);
+    registerElement('ActivityIndicator', () => ActivityIndicator);
+    registerElement('Button', () => Button);
+    registerElement('ContentView', () => ContentView);
+    registerElement('DatePicker', () => DatePicker);
+    registerElement('DockLayout', () => DockLayout);
+    registerElement('Frame', () => Frame, frameMeta);
+    registerElement('FramePage', () => Frame, frameMeta);
+    registerElement('GridLayout', () => GridLayout);
+    registerElement('HtmlView', () => HtmlView);
+    registerElement('Image', () => Image);
+    // Parse5 changes <Image> tags to <img>. WTF!
+    registerElement('img', () => Image);
+    registerElement('Label', () => Label);
+    registerElement('ListPicker', () => ListPicker);
+    registerElement('ListView', () => ListView);
+    registerElement('Page', () => Page);
+    registerElement('Placeholder', () => Placeholder);
+    registerElement('Progress', () => Progress);
+    registerElement('ProxyViewContainer', () => ProxyViewContainer);
+    registerElement('Repeater', () => Repeater);
+    registerElement('RootLayout', () => RootLayout);
+    registerElement('ScrollView', () => ScrollView);
+    registerElement('SearchBar', () => SearchBar);
+    registerElement('SegmentedBar', () => SegmentedBar);
+    registerElement('SegmentedBarItem', () => SegmentedBarItem);
+    registerElement('Slider', () => Slider);
+    registerElement('StackLayout', () => StackLayout);
+    registerElement('FlexboxLayout', () => FlexboxLayout);
+    registerElement('Switch', () => Switch);
+    registerElement('TabView', () => TabView);
+    registerElement('TextField', () => TextField);
+    registerElement('TextView', () => TextView);
+    registerElement('TimePicker', () => TimePicker);
+    registerElement('WebView', () => WebView);
+    registerElement('WrapLayout', () => WrapLayout);
+    registerElement('FormattedString', () => FormattedString);
+    registerElement('Span', () => Span);
 
-registerElement('DetachedContainer', () => ProxyViewContainer, {
-  skipAddToDom: true,
-});
+    registerElement('DetachedContainer', () => ProxyViewContainer, {
+      skipAddToDom: true,
+    });
 
-registerElement('page-router-outlet', () => Frame);
+    registerElement('page-router-outlet', () => Frame);
+  }
+}

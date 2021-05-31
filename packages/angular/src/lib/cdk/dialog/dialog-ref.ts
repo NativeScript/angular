@@ -1,4 +1,3 @@
-import { View } from '@nativescript/core';
 import { fromEvent, Observable, Subject } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import { NativeModalRef } from './native-modal-ref';
@@ -33,7 +32,7 @@ export class NSDialogRef<T, R = any> {
   private _result: R | undefined;
 
   /** Handle to the timeout that's running as a fallback in case the exit animation doesn't fire. */
-  private _closeFallbackTimeout: number;
+  private _closeFallbackTimeout: any;
 
   /** Current state of the dialog. */
   private _state = NSDialogState.OPEN;

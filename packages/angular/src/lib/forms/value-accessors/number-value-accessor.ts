@@ -1,7 +1,7 @@
 import { Directive, ElementRef, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { BaseValueAccessor } from './base-value-accessor';
 import { Slider } from '@nativescript/core';
+import { BaseValueAccessor } from './base-value-accessor';
 
 const NUMBER_VALUE_ACCESSOR = {
   provide: NG_VALUE_ACCESSOR,

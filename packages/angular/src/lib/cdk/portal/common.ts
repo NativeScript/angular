@@ -9,11 +9,7 @@
 import { TemplateRef, ViewContainerRef, ElementRef, ComponentRef, EmbeddedViewRef, Injector, ComponentFactoryResolver } from '@angular/core';
 import { View } from '@nativescript/core';
 import { throwNullPortalOutletError, throwPortalAlreadyAttachedError, throwNoPortalAttachedError, throwNullPortalError, throwPortalOutletAlreadyDisposedError, throwUnknownPortalTypeError } from './portal-errors';
-
-/** Interface that can be used to generically type a class. */
-export interface ComponentType<T> {
-  new (...args: any[]): T;
-}
+import type { ComponentType } from '../../utils/general';
 
 /**
  * A `Portal` is something that you want to render somewhere else.

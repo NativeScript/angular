@@ -1,8 +1,8 @@
+import { NativeScriptModule } from '@nativescript/angular';
 import { View, Frame, LayoutBase, GridLayout } from '@nativescript/core';
 import { NgModule, Type } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommonModule } from '@angular/common';
-import { NativeScriptModule } from '@nativescript/angular';
 import { platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 // import { NS_COMPILER_PROVIDERS } from "../../platform";
 import { NATIVESCRIPT_TESTING_PROVIDERS, NativeScriptTestingModule } from './nativescript-testing.module';

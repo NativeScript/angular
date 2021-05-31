@@ -1,15 +1,15 @@
 import { ApplicationRef, ComponentFactoryResolver, ComponentRef, EmbeddedViewRef, Injector, Optional, ViewContainerRef, ɵmarkDirty } from '@angular/core';
-import { ContentView, View } from '@nativescript/core';
-import { getRootView } from '@nativescript/core/application';
+import { ContentView, View, Application } from '@nativescript/core';
 import { fromEvent, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { AppHostAsyncView, AppHostView } from '../../app-host-view';
-import { InvisibleNode } from '../../views';
+import { InvisibleNode } from '../../views/invisible-nodes';
 import { NSLocationStrategy } from '../../legacy/router';
-import { once } from '../../utils';
+import { once } from '../../utils/general';
 import { getFirstNativeLikeView } from '../../view-util';
 import { DetachedLoader } from '../detached-loader';
-import { ComponentPortal, NativescriptDomPortalOutlet, TemplatePortal } from '../portal';
+import { ComponentPortal, TemplatePortal } from '../portal/common';
+import { NativescriptDomPortalOutlet } from '../portal/nsdom-portal-outlet';
 import { MatDialogConfig } from './dialog-config';
 
 export class NativeModalRef {
@@ -25,7 +25,7 @@ export class NativeModalRef {
   private _closeCallback: () => void;
 
   constructor(private _config: MatDialogConfig, private _injector: Injector, @Optional() private location?: NSLocationStrategy) {
-    let parentView = this._config.viewContainerRef?.element.nativeElement || getRootView();
+    let parentView = this._config.viewContainerRef?.element.nativeElement || Application.getRootView();
 
     if ((parentView instanceof AppHostView || parentView instanceof AppHostAsyncView) && parentView.ngAppRoot) {
       parentView = parentView.ngAppRoot;

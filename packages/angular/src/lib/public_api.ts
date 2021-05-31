@@ -1,0 +1,18 @@
+export * from './views';
+export * from './tokens';
+export * from './platform-nativescript';
+export * from './nativescript';
+export { NativeScriptCommonModule } from './cdk';
+// export * from './router/router.module';
+export * from './application';
+export * from './element-registry';
+export * from './nativescript-xhr-factory';
+export { EmulatedRenderer, NativeScriptRendererFactory, COMPONENT_VARIABLE as ɵCOMPONENT_VARIABLE, CONTENT_ATTR as ɵCONTENT_ATTR, HOST_ATTR as ɵHOST_ATTR } from './nativescript-renderer';
+export * from './utils';
+export * from './forms';
+export * from './animations';
+export * from './http';
+export * from './legacy';
+export * from './private-exports';
+import { registerNativeScriptViewComponents } from './element-registry/common-views';
+registerNativeScriptViewComponents();

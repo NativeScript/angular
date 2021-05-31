@@ -1,8 +1,10 @@
 import { ApplicationRef, ComponentFactoryResolver, ComponentRef, Injectable, Injector, NgModuleRef, NgZone, Type, ViewContainerRef, ɵmarkDirty } from '@angular/core';
 import { Application, ContentView, Frame, ShowModalOptions, View, ViewBase } from '@nativescript/core';
 import { AppHostAsyncView, AppHostView } from '../../app-host-view';
-import { ComponentPortal, DetachedLoader, NativescriptDomPortalOutlet } from '../../cdk';
-import { once } from '../../utils';
+import { DetachedLoader } from '../../cdk/detached-loader';
+import { ComponentPortal } from '../../cdk/portal/common';
+import { NativescriptDomPortalOutlet } from '../../cdk/portal/nsdom-portal-outlet';
+import { once } from '../../utils/general';
 import { getFirstNativeLikeView } from '../../view-util';
 import { NSLocationStrategy } from '../router/ns-location-strategy';
 

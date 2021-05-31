@@ -3,7 +3,7 @@ import { NgView } from './view-types';
 
 const getClassName = (instance) => instance.constructor.name;
 
-export abstract class InvisibleNode extends View implements NgView {
+export class InvisibleNode extends View implements NgView {
   meta: { skipAddToDom: boolean };
   nodeType: number;
   nodeName: string;

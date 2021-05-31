@@ -1,42 +1,8 @@
-import {
-  APP_BASE_HREF,
-  CommonModule,
-  HashLocationStrategy,
-  Location,
-  LocationStrategy,
-  LOCATION_INITIALIZED,
-  PathLocationStrategy,
-  PlatformLocation,
-} from '@angular/common';
-import {
-  ApplicationRef,
-  APP_BOOTSTRAP_LISTENER,
-  APP_INITIALIZER,
-  ComponentRef,
-  Inject,
-  Injectable,
-  Injector,
-  ModuleWithProviders,
-  NgModule,
-  NgProbeToken,
-  NO_ERRORS_SCHEMA,
-  Optional,
-} from '@angular/core';
-import {
-  ExtraOptions,
-  NoPreloading,
-  PreloadingStrategy,
-  provideRoutes,
-  Router,
-  RouterModule,
-  RouterPreloader,
-  ROUTER_CONFIGURATION,
-  ROUTER_INITIALIZER,
-  Routes,
-  ɵROUTER_PROVIDERS,
-} from '@angular/router';
+import { APP_BASE_HREF, CommonModule, HashLocationStrategy, Location, LocationStrategy, LOCATION_INITIALIZED, PathLocationStrategy, PlatformLocation } from '@angular/common';
+import { ApplicationRef, APP_BOOTSTRAP_LISTENER, APP_INITIALIZER, ComponentRef, Inject, Injectable, Injector, ModuleWithProviders, NgModule, NgProbeToken, NO_ERRORS_SCHEMA, Optional } from '@angular/core';
+import { ExtraOptions, NoPreloading, PreloadingStrategy, provideRoutes, Router, RouterModule, RouterPreloader, ROUTER_CONFIGURATION, ROUTER_INITIALIZER, Routes, ɵROUTER_PROVIDERS } from '@angular/router';
 import { of, Subject } from 'rxjs';
-import { NativeScriptCommonModule } from '../nativescript_common.module';
+import { NativeScriptCommonModule } from '../cdk/nativescript-common.module';
 import { START_PATH } from '../tokens';
 import { NativescriptPlatformLocation } from './platform-location';
 
@@ -67,10 +33,7 @@ export class ModalRouterInitializer {
     }
 
     // Default case
-    if (
-      opts.initialNavigation === 'enabledNonBlocking' ||
-      opts.initialNavigation === undefined
-    ) {
+    if (opts.initialNavigation === 'enabledNonBlocking' || opts.initialNavigation === undefined) {
       router.initialNavigation();
     }
 
@@ -90,10 +53,7 @@ export class RouterInitializer {
   constructor(private injector: Injector) {}
 
   appInitializer(): Promise<any> {
-    const p: Promise<any> = this.injector.get(
-      LOCATION_INITIALIZED,
-      Promise.resolve(null)
-    );
+    const p: Promise<any> = this.injector.get(LOCATION_INITIALIZED, Promise.resolve(null));
     return p.then(() => {
       let resolve: Function = null!;
       const res = new Promise((r) => (resolve = r));
@@ -140,10 +100,7 @@ export class RouterInitializer {
     }
 
     // Default case
-    if (
-      opts.initialNavigation === 'enabledNonBlocking' ||
-      opts.initialNavigation === undefined
-    ) {
+    if (opts.initialNavigation === 'enabledNonBlocking' || opts.initialNavigation === undefined) {
       router.initialNavigation();
     }
 
@@ -159,19 +116,11 @@ export function routerNgProbeToken() {
   return new NgProbeToken('Router', Router);
 }
 
-export function provideLocationStrategy(
-  platformLocationStrategy: PlatformLocation,
-  baseHref: string,
-  options: ExtraOptions = {}
-) {
-  return options.useHash
-    ? new HashLocationStrategy(platformLocationStrategy, baseHref)
-    : new PathLocationStrategy(platformLocationStrategy, baseHref);
+export function provideLocationStrategy(platformLocationStrategy: PlatformLocation, baseHref: string, options: ExtraOptions = {}) {
+  return options.useHash ? new HashLocationStrategy(platformLocationStrategy, baseHref) : new PathLocationStrategy(platformLocationStrategy, baseHref);
 }
 
-export function provideLocationInitialized(
-  startpath: string | Promise<string>
-) {
+export function provideLocationInitialized(startpath: string | Promise<string>) {
   if (startpath instanceof Promise) {
     return startpath;
   }
@@ -186,16 +135,11 @@ export function provideLocationInitialized(
     /* NSEmptyOutletComponent */
   ],
   imports: [RouterModule, NativeScriptCommonModule],
-  exports: [
-    RouterModule /* NSRouterLink, NSRouterLinkActive, PageRouterOutlet, NSEmptyOutletComponent */,
-  ],
+  exports: [RouterModule /* NSRouterLink, NSRouterLinkActive, PageRouterOutlet, NSEmptyOutletComponent */],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class NativeScriptRouterModule {
-  static forRoot(
-    routes: Routes,
-    config?: ExtraOptions
-  ): ModuleWithProviders<NativeScriptRouterModule> {
+  static forRoot(routes: Routes, config?: ExtraOptions): ModuleWithProviders<NativeScriptRouterModule> {
     let routerProviders = RouterModule.forRoot(routes, config).providers;
     return {
       ngModule: NativeScriptRouterModule,
@@ -224,11 +168,7 @@ export class NativeScriptRouterModule {
         {
           provide: LocationStrategy,
           useFactory: provideLocationStrategy,
-          deps: [
-            PlatformLocation,
-            [new Inject(APP_BASE_HREF), new Optional()],
-            ROUTER_CONFIGURATION,
-          ],
+          deps: [PlatformLocation, [new Inject(APP_BASE_HREF), new Optional()], ROUTER_CONFIGURATION],
         },
         // {
         // 	provide: RouterScroller,
@@ -237,10 +177,7 @@ export class NativeScriptRouterModule {
         // },
         {
           provide: PreloadingStrategy,
-          useExisting:
-            config && config.preloadingStrategy
-              ? config.preloadingStrategy
-              : NoPreloading,
+          useExisting: config && config.preloadingStrategy ? config.preloadingStrategy : NoPreloading,
         },
         { provide: NgProbeToken, multi: true, useFactory: routerNgProbeToken },
         // {
@@ -285,10 +222,7 @@ export class NativeScriptRouterModule {
     };
   }
 
-  static forModal(
-    routes: Routes,
-    config?: ExtraOptions
-  ): ModuleWithProviders<NativeScriptRouterModule> {
+  static forModal(routes: Routes, config?: ExtraOptions): ModuleWithProviders<NativeScriptRouterModule> {
     // let routerProviders = RouterModule.forRoot(routes, config).providers;
     // routerProviders = routerProviders.filter((v: any) => {
     // 	if (v && v.provide && v.provide._desc === "ROUTER_FORROOT_GUARD") {
@@ -304,11 +238,7 @@ export class NativeScriptRouterModule {
         {
           provide: LocationStrategy,
           useFactory: provideLocationStrategy,
-          deps: [
-            PlatformLocation,
-            [new Inject(APP_BASE_HREF), new Optional()],
-            ROUTER_CONFIGURATION,
-          ],
+          deps: [PlatformLocation, [new Inject(APP_BASE_HREF), new Optional()], ROUTER_CONFIGURATION],
         },
         NativescriptPlatformLocation,
         {
@@ -329,18 +259,11 @@ export class NativeScriptRouterModule {
         {
           provide: LocationStrategy,
           useFactory: provideLocationStrategy,
-          deps: [
-            PlatformLocation,
-            [new Inject(APP_BASE_HREF), new Optional()],
-            ROUTER_CONFIGURATION,
-          ],
+          deps: [PlatformLocation, [new Inject(APP_BASE_HREF), new Optional()], ROUTER_CONFIGURATION],
         },
         {
           provide: PreloadingStrategy,
-          useExisting:
-            config && config.preloadingStrategy
-              ? config.preloadingStrategy
-              : NoPreloading,
+          useExisting: config && config.preloadingStrategy ? config.preloadingStrategy : NoPreloading,
         },
         { provide: NgProbeToken, multi: true, useFactory: routerNgProbeToken },
         // {
@@ -363,9 +286,7 @@ export class NativeScriptRouterModule {
     };
   }
 
-  static forChild(
-    routes: Routes
-  ): ModuleWithProviders<NativeScriptRouterModule> {
+  static forChild(routes: Routes): ModuleWithProviders<NativeScriptRouterModule> {
     return {
       ngModule: NativeScriptRouterModule,
       providers: RouterModule.forChild(routes).providers,

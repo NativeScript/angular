@@ -7,10 +7,10 @@
  */
 
 import { ComponentFactoryResolver, ComponentRef, Directive, EmbeddedViewRef, EventEmitter, NgModule, OnDestroy, OnInit, Output, TemplateRef, ViewContainerRef, Inject, Renderer2 } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
-import { BasePortalOutlet, ComponentPortal, Portal, TemplatePortal, DomPortal } from './portal';
 import { View } from '@nativescript/core';
-import { CommentNode } from '../../views';
+import { DOCUMENT } from '@angular/common';
+import { BasePortalOutlet, ComponentPortal, Portal, TemplatePortal, DomPortal } from './common';
+import { CommentNode } from '../../views/invisible-nodes';
 
 /**
  * Directive version of a `TemplatePortal`. Because the directive *is* a TemplatePortal,
@@ -111,8 +111,8 @@ export class CdkPortalOutlet extends BasePortalOutlet implements OnInit, OnDestr
     const viewContainerRef = portal.viewContainerRef != null ? portal.viewContainerRef : this._viewContainerRef;
 
     const resolver = portal.componentFactoryResolver || this._componentFactoryResolver;
-    const componentFactory = resolver.resolveComponentFactory(portal.component);
-    const ref = viewContainerRef.createComponent(componentFactory, viewContainerRef.length, portal.injector || viewContainerRef.injector);
+    const componentFactory = resolver.resolveComponentFactory<T>(portal.component);
+    const ref = viewContainerRef.createComponent<T>(componentFactory, viewContainerRef.length, portal.injector || viewContainerRef.injector);
 
     // If we're using a view container that's different from the injected one (e.g. when the portal
     // specifies its own) we need to move the component into the outlet, otherwise it'll be rendered

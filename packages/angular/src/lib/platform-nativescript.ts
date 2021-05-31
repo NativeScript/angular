@@ -1,6 +1,6 @@
 import { Type, Injector, CompilerOptions, PlatformRef, NgModuleFactory, NgModuleRef, EventEmitter, Sanitizer, InjectionToken, StaticProvider, createPlatformFactory, platformCore } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { NativeScriptPlatformRefProxy } from './platform_ref';
+import { NativeScriptPlatformRefProxy } from './platform-ref';
 import { ɵangular_packages_core_core_y as SCHEDULER } from '@angular/core';
 import { ElementSchemaRegistry } from '@angular/compiler';
 import { AppHostView } from './app-host-view';

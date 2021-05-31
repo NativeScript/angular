@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { Page } from '@nativescript/core';
 import { PageRouterOutlet } from './page-router-outlet';
+
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'ns-empty-outlet',

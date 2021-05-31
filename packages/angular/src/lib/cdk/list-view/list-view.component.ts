@@ -1,7 +1,7 @@
 import { AfterContentInit, ContentChild, Directive, DoCheck, ElementRef, EmbeddedViewRef, EventEmitter, Host, Inject, InjectionToken, Input, IterableDiffer, IterableDiffers, OnDestroy, Output, TemplateRef, ViewChild, ViewContainerRef, ɵisListLikeIterable as isListLikeIterable, NgZone, ɵmarkDirty, Component, ChangeDetectionStrategy } from '@angular/core';
 import { ObservableArray, View, KeyedTemplate, LayoutBase, ItemEventData, TemplatedItemsView, profile, ListView } from '@nativescript/core';
 
-import { extractSingleViewRecursive } from '../../element-registry';
+import { extractSingleViewRecursive } from '../../element-registry/registry';
 import { NativeScriptDebug } from '../../trace';
 import { NgViewTemplate } from '../../utils/template';
 

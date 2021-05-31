@@ -1,5 +1,4 @@
-import 'zone.js/dist/zone.js';
-import '@nativescript/zone-js';
+import './polyfills';
 import { platformNativescript, platformNativeScriptDynamic, runNativescriptAngularApp } from '@nativescript/angular';
 import { Application, StackLayout } from '@nativescript/core';
 

@@ -4,7 +4,8 @@ import { ProxyViewContainer, eachDescendant, CssAnimationProperty, CSSHelper } f
 
 import { NativeScriptAnimationPlayer } from './animation-player';
 import { Keyframe, dashCaseToCamelCase } from './utils';
-import { NgView, InvisibleNode } from '../views';
+import { InvisibleNode } from '../views/invisible-nodes';
+import { NgView } from '../views/view-types';
 import { NativeScriptDebug } from '../trace';
 
 interface ViewMatchResult {

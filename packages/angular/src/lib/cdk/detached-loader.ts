@@ -1,6 +1,7 @@
 import { ComponentRef, ComponentFactory, ViewContainerRef, Component, Type, ComponentFactoryResolver, ChangeDetectorRef, ApplicationRef, OnDestroy, TemplateRef, ViewChild, Injector } from '@angular/core';
 import { Trace } from '@nativescript/core';
-import { ComponentPortal, ComponentType, TemplatePortal } from './portal';
+import { ComponentPortal, TemplatePortal } from './portal';
+import type { ComponentType } from '../utils/general';
 
 /**
  * Wrapper component used for loading components when navigating

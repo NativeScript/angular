@@ -1,7 +1,7 @@
 import { Directive, ElementRef } from '@angular/core';
 import { Frame } from '@nativescript/core';
 
-export function customFrameFactory(v: FrameDirective) {
+export function customFrameDirectiveFactory(v: FrameDirective) {
   return v.element.nativeElement;
 }
 
@@ -11,7 +11,7 @@ export function customFrameFactory(v: FrameDirective) {
   providers: [
     {
       provide: Frame,
-      useFactory: customFrameFactory,
+      useFactory: customFrameDirectiveFactory,
       deps: [FrameDirective],
     },
   ],

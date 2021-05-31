@@ -3,8 +3,7 @@ import { ApplicationModule, ErrorHandler, Inject, NgModule, NO_ERRORS_SCHEMA, Op
 import { Color, View } from '@nativescript/core';
 import { AppHostView } from './app-host-view';
 import { NativescriptXhrFactory } from './nativescript-xhr-factory';
-// import { NativeScriptCommonModule } from './nativescript_common.module';
-import { NativeScriptRendererFactory } from './nativescript_renderer';
+import { NativeScriptRendererFactory } from './nativescript-renderer';
 import { PlatformNamespaceFilter } from './property-filter';
 import { APP_RENDERED_ROOT_VIEW, APP_ROOT_VIEW, ENABLE_REUSABE_VIEWS, NAMESPACE_FILTERS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { ViewUtil } from './view-util';

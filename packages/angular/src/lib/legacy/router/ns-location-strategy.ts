@@ -3,7 +3,7 @@ import { LocationStrategy } from '@angular/common';
 import { DefaultUrlSerializer, UrlSegmentGroup, UrlTree, ActivatedRouteSnapshot, Params } from '@angular/router';
 import { Frame } from '@nativescript/core';
 import { NativeScriptDebug } from '../../trace';
-import { isPresent } from '../../utils';
+import { isPresent } from '../../utils/lang-facade';
 import { FrameService } from '../frame.service';
 import { Outlet, NavigationOptions, LocationState, defaultNavOptions } from './ns-location-utils';
 

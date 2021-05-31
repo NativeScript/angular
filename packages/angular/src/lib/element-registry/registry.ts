@@ -1,5 +1,6 @@
 import { LayoutBase, View } from '@nativescript/core';
-import { InvisibleNode, ViewClassMeta } from '../views';
+import { InvisibleNode } from '../views/invisible-nodes';
+import { ViewClassMeta } from '../views/view-types';
 
 export type ViewResolver = () => any;
 

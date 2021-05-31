@@ -2,7 +2,7 @@ import { AnimationPlayer } from '@angular/animations';
 import { View, EventData, KeyframeAnimation } from '@nativescript/core';
 
 import { Keyframe, createKeyframeAnimation } from './utils';
-import { NgView } from '../views';
+import { NgView } from '../views/view-types';
 import { NativeScriptDebug } from '../trace';
 
 export class NativeScriptAnimationPlayer implements AnimationPlayer {

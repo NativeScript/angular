@@ -1,7 +1,7 @@
 import { ControlValueAccessor } from '@angular/forms';
 import { View, unsetValue } from '@nativescript/core';
 
-import { isBlank } from '../../utils';
+import { isBlank } from '../../utils/lang-facade';
 
 export class BaseValueAccessor<TView extends View> implements ControlValueAccessor {
   private pendingChangeNotification: any = 0;

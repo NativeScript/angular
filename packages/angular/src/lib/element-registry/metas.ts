@@ -1,5 +1,6 @@
 import { Frame, Page } from '@nativescript/core';
-import { isInvisibleNode, NgView, ViewClassMeta } from '../views';
+import { NgView, ViewClassMeta } from '../views/view-types';
+import { isInvisibleNode } from '../views/utils';
 
 export const frameMeta: ViewClassMeta = {
   insertChild: (parent: Frame, child: NgView) => {

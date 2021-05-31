@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-
 import { HttpClientModule, HttpBackend } from '@angular/common/http';
 
 import { NSFileSystem } from '../file-system/ns-file-system';

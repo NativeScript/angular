@@ -7,10 +7,10 @@ import { AnimationDriver, ɵAnimationStyleNormalizer as AnimationStyleNormalizer
 import { ɵAnimationRendererFactory as AnimationRendererFactory, ɵBrowserAnimationBuilder as BrowserAnimationBuilder } from '@angular/platform-browser/animations';
 
 // import { NativeScriptModule } from "../nativescript.module";
-import { NativeScriptRendererFactory } from '../nativescript_renderer';
+import { NativeScriptRendererFactory } from '../nativescript-renderer';
 import { NativeScriptAnimationDriver } from './animation-driver';
-import { throwIfAlreadyLoaded } from '../utils';
-import { NativeScriptCommonModule } from '../nativescript_common.module';
+import { throwIfAlreadyLoaded } from '../utils/general';
+import { NativeScriptCommonModule } from '../cdk/nativescript-common.module';
 
 @Injectable()
 export class InjectableAnimationEngine extends AnimationEngine {

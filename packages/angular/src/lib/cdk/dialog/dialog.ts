@@ -6,11 +6,12 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import { ComponentPortal, ComponentType, NativescriptDomPortalOutlet, TemplatePortal } from '../portal';
-import { Location } from '@angular/common';
 import { ApplicationRef, ComponentFactoryResolver, Directive, Inject, Injectable, InjectionToken, Injector, OnDestroy, Optional, SkipSelf, StaticProvider, TemplateRef, Type } from '@angular/core';
+import { Location } from '@angular/common';
 import { defer, Observable, of as observableOf, Subject } from 'rxjs';
 import { startWith } from 'rxjs/operators';
+import { ComponentType } from '../../utils/general';
+import { ComponentPortal, TemplatePortal } from '../portal/common';
 import { MatDialogConfig } from './dialog-config';
 import { NSDialogRef } from './dialog-ref';
 import { NativeModalRef } from './native-modal-ref';

@@ -1,3 +1,3 @@
+export * from './common-views';
 export * from './registry';
-export { frameMeta } from './metas';
-import './common-views';
+export * from './metas';

@@ -1,4 +1,3 @@
-import '@nativescript/core/globals';
 import 'zone.js/dist/zone.js';
 import '@nativescript/zone-js';
 import '@nativescript/zone-js/dist/connectivity'; // optional: patch connectivity
