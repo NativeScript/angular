@@ -1,6 +1,5 @@
 import { Component, ViewContainerRef } from '@angular/core';
-import { ModalDialogService } from '@nativescript/angular';
-import { NSDialog } from '@nativescript/angular/lib/cdk/dialog/dialog-directives';
+import { ModalDialogService, NSDialog } from '@nativescript/angular';
 import { ModalComponent } from './modal/modal.component';
 
 // registerElement('ns-app', () => GridLayout);

@@ -1,5 +1,5 @@
 import { Component, Inject, Optional } from '@angular/core';
-import { NSDialogRef } from '@nativescript/angular/lib/cdk/dialog/dialog-ref';
+import { NSDialogRef } from '@nativescript/angular';
 
 @Component({
   template: `<Label [nsDialogClose]="'thanks for clicking modal ' + id" text="in modal"></Label>`,
