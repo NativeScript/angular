@@ -13,5 +13,5 @@ refer to http://docs.nativescript.org/ui/theme.
 @import '@nativescript/theme/css/default.css';
 
 .h2 {
-  color: green;
+  color: blue;
 }
