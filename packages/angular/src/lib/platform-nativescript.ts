@@ -2,9 +2,8 @@ import { Type, Injector, CompilerOptions, PlatformRef, NgModuleFactory, NgModule
 import { DOCUMENT } from '@angular/common';
 import { NativeScriptPlatformRefProxy } from './platform-ref';
 import { ɵangular_packages_core_core_y as SCHEDULER } from '@angular/core';
-import { ElementSchemaRegistry } from '@angular/compiler';
 import { AppHostView } from './app-host-view';
-import { Color, Page } from '@nativescript/core';
+import { Color } from '@nativescript/core';
 import { APP_ROOT_VIEW, defaultPageFactory, PAGE_FACTORY } from './tokens';
 
 export const defaultPageFactoryProvider = { provide: PAGE_FACTORY, useValue: defaultPageFactory };

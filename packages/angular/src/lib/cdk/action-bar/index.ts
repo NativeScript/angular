@@ -2,7 +2,6 @@ import { Directive, Component, ElementRef, Optional, OnDestroy } from '@angular/
 import { ActionBar, ActionItem, ActionItems, NavigationButton, Page } from '@nativescript/core';
 
 import { isBlank } from '../../utils/lang-facade';
-import { registerElement } from '../../element-registry/registry';
 import { NgView, ViewClassMeta, ViewExtensions } from '../../views/view-types';
 import { isInvisibleNode, isView } from '../../views/utils';
 

@@ -2,7 +2,7 @@ export * from './views';
 export * from './tokens';
 export * from './platform-nativescript';
 export * from './nativescript';
-export { NativeScriptCommonModule } from './cdk';
+export * from './cdk';
 // export * from './router/router.module';
 export * from './application';
 export * from './element-registry';
