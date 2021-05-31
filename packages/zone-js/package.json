@@ -1,9 +1,6 @@
 {
   "name": "@nativescript/zone-js",
-  "version": "2.0.0-alpha.0",
+  "version": "2.0.0-alpha.1",
   "description": "NativeScript Zone.js",
-  "main": "dist/index.js",
-  "dependencies": {
-    "@nativescript/core": "^8.0.0"
-  }
+  "main": "dist/index.js"
 }

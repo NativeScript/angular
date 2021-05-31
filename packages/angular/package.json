@@ -10,7 +10,7 @@
     "Angular"
   ],
   "dependencies": {
-    "@nativescript/zone-js": "~2.0.0-alpha.0"
+    "@nativescript/zone-js": "~2.0.0-alpha.1"
   },
   "ngPackage": {
     "lib": {
