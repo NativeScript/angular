@@ -11,7 +11,7 @@ registerElement('FramePage', () => Frame, frameMeta);
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'FramePage',
-  template: `<Page #page><ng-content></ng-content></Page>`,
+  template: `<Page><ng-content></ng-content></Page>`,
   providers: [
     {
       provide: Frame,
