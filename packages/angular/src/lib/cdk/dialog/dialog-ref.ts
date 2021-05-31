@@ -6,13 +6,13 @@ import { NativeModalRef } from './native-modal-ref';
 let uniqueId = 0;
 
 /** Possible states of the lifecycle of a dialog. */
-export const enum NSDialogState {
+export const enum NativeDialogState {
   OPEN,
   CLOSING,
   CLOSED,
 }
 
-export class NSDialogRef<T, R = any> {
+export class NativeDialogRef<T, R = any> {
   /** The instance of component opened into the dialog. */
   componentInstance: T;
 
@@ -35,9 +35,9 @@ export class NSDialogRef<T, R = any> {
   private _closeFallbackTimeout: any;
 
   /** Current state of the dialog. */
-  private _state = NSDialogState.OPEN;
+  private _state = NativeDialogState.OPEN;
 
-  constructor(private _nativeModalRef: NativeModalRef, readonly id: string = `ns-dialog-${uniqueId++}`) {
+  constructor(private _nativeModalRef: NativeModalRef, readonly id: string = `native-dialog-${uniqueId++}`) {
     // Pass the id along to the container.
     _nativeModalRef._id = id;
 
@@ -104,7 +104,7 @@ export class NSDialogRef<T, R = any> {
         );
       });
 
-    this._state = NSDialogState.CLOSING;
+    this._state = NativeDialogState.CLOSING;
     this._nativeModalRef._startExitAnimation();
   }
 
@@ -149,7 +149,7 @@ export class NSDialogRef<T, R = any> {
   }
 
   /** Gets the current state of the dialog's lifecycle. */
-  getState(): NSDialogState {
+  getState(): NativeDialogState {
     return this._state;
   }
 
@@ -158,7 +158,7 @@ export class NSDialogRef<T, R = any> {
    * and disposing the overlay.
    */
   private _finishDialogClose() {
-    this._state = NSDialogState.CLOSED;
+    this._state = NativeDialogState.CLOSED;
     this._nativeModalRef.dispose();
   }
 }

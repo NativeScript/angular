@@ -8,7 +8,7 @@ import { once } from '../../utils/general';
 import { DetachedLoader } from '../detached-loader';
 import { ComponentPortal, TemplatePortal } from '../portal/common';
 import { NativescriptDomPortalOutlet } from '../portal/nsdom-portal-outlet';
-import { NSDialogConfig } from './dialog-config';
+import { NativeDialogConfig } from './dialog-config';
 import { NgViewRef } from '../../view-refs';
 
 export class NativeModalRef {
@@ -23,7 +23,7 @@ export class NativeModalRef {
 
   private _closeCallback: () => void;
 
-  constructor(private _config: NSDialogConfig, private _injector: Injector, @Optional() private location?: NSLocationStrategy) {
+  constructor(private _config: NativeDialogConfig, private _injector: Injector, @Optional() private location?: NSLocationStrategy) {
     let parentView = this._config.viewContainerRef?.element.nativeElement || Application.getRootView();
 
     if ((parentView instanceof AppHostView || parentView instanceof AppHostAsyncView) && parentView.ngAppRoot) {
