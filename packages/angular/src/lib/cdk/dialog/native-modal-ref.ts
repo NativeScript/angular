@@ -77,6 +77,7 @@ export class NativeModalRef {
 
     this.parentView.showModal(this.modalViewRef.firstNativeLikeView, {
       closeCallback: () => {
+        this.location?._closeModalNavigation();
         this.onDismiss.next();
         this.onDismiss.complete();
       },
@@ -106,6 +107,7 @@ export class NativeModalRef {
     // }
     this.parentView.showModal(this.modalViewRef.firstNativeLikeView, {
       closeCallback: () => {
+        this.location?._closeModalNavigation();
         this.onDismiss.next();
         this.onDismiss.complete();
       },
