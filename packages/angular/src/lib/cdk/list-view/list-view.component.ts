@@ -95,7 +95,7 @@ export class ListViewComponent<T> implements DoCheck, OnDestroy, AfterContentIni
   protected _templateMap: Map<string, NsTemplatedItem<T>>;
   protected _viewToTemplate: WeakMap<View, string> = new WeakMap<View, string>();
 
-  @ViewChild('loader', { read: ViewContainerRef, static: false }) loader: ViewContainerRef;
+  @ViewChild('loader', { read: ViewContainerRef, static: true }) loader: ViewContainerRef;
 
   @Output() public setupItemView = new EventEmitter<SetupItemViewArgs<T>>();
 
