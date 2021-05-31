@@ -7,7 +7,9 @@
  */
 
 import { ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
+import { ShowModalOptions } from '@nativescript/core';
 
+export type NativeShowModalOptions = Partial<Omit<ShowModalOptions, 'cancelable' | 'closeCallback'>>;
 /**
  * Configuration for opening a modal dialog with the MatDialog service.
  */
@@ -41,6 +43,8 @@ export class NativeDialogConfig<D = any> {
 
   /** Alternate `ComponentFactoryResolver` to use when resolving the associated component. */
   componentFactoryResolver?: ComponentFactoryResolver;
+
+  nativeOptions?: NativeShowModalOptions = {};
 
   // TODO(jelbourn): add configuration for lifecycle hooks, ARIA labelling.
 }

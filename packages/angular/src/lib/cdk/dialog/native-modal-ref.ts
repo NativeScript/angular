@@ -77,13 +77,16 @@ export class NativeModalRef {
     // if we don't detach the view from its parent, ios gets mad
     this.modalViewRef.detachNativeLikeView();
 
+    const userOptions = this._config.nativeOptions || {};
     this.parentView.showModal(this.modalViewRef.firstNativeLikeView, {
+      context: null,
+      ...userOptions,
       closeCallback: () => {
         this.location?._closeModalNavigation();
         this.onDismiss.next();
         this.onDismiss.complete();
       },
-      context: null,
+      cancelable: !this._config.disableClose,
     });
     //   if (this.modalView !== templateRef.rootNodes[0]) {
     //     componentRef.location.nativeElement._ngDialogRoot = this.modalView;
@@ -106,13 +109,16 @@ export class NativeModalRef {
     // if we don't detach the view from its parent, ios gets mad
     this.modalViewRef.detachNativeLikeView();
 
+    const userOptions = this._config.nativeOptions || {};
     this.parentView.showModal(this.modalViewRef.firstNativeLikeView, {
+      context: null,
+      ...userOptions,
       closeCallback: () => {
         this.location?._closeModalNavigation();
         this.onDismiss.next();
         this.onDismiss.complete();
       },
-      context: null,
+      cancelable: !this._config.disableClose,
     });
     return componentRef;
   }
