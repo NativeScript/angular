@@ -74,6 +74,8 @@ export class NativeModalRef {
     const templateRef = this.portalOutlet.attach(portal);
     this.modalViewRef = new NgViewRef(templateRef);
     this.modalViewRef.firstNativeLikeView['__ng_modal_id__'] = this._id;
+    // if we don't detach the view from its parent, ios gets mad
+    this.modalViewRef.detachNativeLikeView();
 
     this.parentView.showModal(this.modalViewRef.firstNativeLikeView, {
       closeCallback: () => {
@@ -101,10 +103,9 @@ export class NativeModalRef {
       (<any>this.modalViewRef.view)._ngDialogRoot = this.modalViewRef.firstNativeLikeView;
     }
     this.modalViewRef.firstNativeLikeView['__ng_modal_id__'] = this._id;
-    // apparently this isn't needed
-    // if (componentView.parent) {
-    //   this.viewUtil.removeChild(componentView.parent as View, componentView);
-    // }
+    // if we don't detach the view from its parent, ios gets mad
+    this.modalViewRef.detachNativeLikeView();
+
     this.parentView.showModal(this.modalViewRef.firstNativeLikeView, {
       closeCallback: () => {
         this.location?._closeModalNavigation();

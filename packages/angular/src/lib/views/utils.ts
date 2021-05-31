@@ -32,11 +32,24 @@ export function getFirstNativeLikeView(view: View, extractFromNSParent = false) 
   if (isContentView(view)) {
     return getFirstNativeLikeView(view.content);
   }
-  const parentLayout = view?.parent;
-  if (extractFromNSParent && parentLayout instanceof LayoutBase) {
-    const node = view.parentNode;
-    parentLayout.removeChild(view);
-    view.parentNode = node;
+
+  if (extractFromNSParent) {
+    // const node = view.parentNode;
+    detachViewFromParent(view);
+    // view.parentNode = node;
   }
   return view;
+}
+
+export function detachViewFromParent(view: View) {
+  const parent = <NgView>view?.parent;
+  if (parent.meta && parent.meta.removeChild) {
+    parent.meta.removeChild(parent, view);
+  } else if (isLayout(parent)) {
+    this.removeLayoutChild(parent, view);
+  } else if (isContentView(parent) && parent.content === view) {
+    parent.content = null;
+  } else if (isView(parent)) {
+    parent._removeView(view);
+  }
 }

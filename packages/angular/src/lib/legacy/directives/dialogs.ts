@@ -142,10 +142,8 @@ export class ModalDialogService {
       if (componentViewRef !== componentRef.location.nativeElement) {
         componentRef.location.nativeElement._ngDialogRoot = componentViewRef;
       }
-      // apparently this isn't needed
-      // if (componentView.parent) {
-      //   this.viewUtil.removeChild(componentView.parent as View, componentView);
-      // }
+      // if we don't detach the view from its parent, ios gets mad
+      componentViewRef.detachNativeLikeView();
       options.parentView.showModal(componentViewRef.firstNativeLikeView, { ...options, closeCallback });
     });
   }
