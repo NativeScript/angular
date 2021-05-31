@@ -110,7 +110,7 @@ export function patchEventListeners(cls: any) {
             existingTasks.push(task);
             // return nativeAddListener.apply(target, args);
           };
-          const events: string[] = originalArgs[0].split(',');
+          const events: string[] = typeof originalArgs[0] === 'string' ? originalArgs[0].split(',') : [];
           if (events.length > 0) {
             Array.prototype.splice.call(originalArgs, 0, 1);
             for (let i = 0; i < events.length; i++) {
@@ -199,7 +199,7 @@ export function patchEventListeners(cls: any) {
             task.eventName = eventName;
             existingTasks.push(task);
           };
-          const events: string[] = originalArgs && Array.isArray(originalArgs) ? originalArgs[0].split(',') : [];
+          const events: string[] = originalArgs && Array.isArray(originalArgs) && typeof originalArgs[0] === 'string' ? originalArgs[0].split(',') : [];
           if (events.length > 0) {
             if (originalArgs && Array.isArray(originalArgs)) {
               originalArgs.splice(0, 1);
@@ -245,7 +245,7 @@ export function patchEventListeners(cls: any) {
             }
             return nativeRemoveListener.apply(target, args);
           };
-          const events: string[] = originalArgs[0].split(',');
+          const events: string[] = typeof originalArgs[0] === 'string' ? originalArgs[0].split(',') : [];
           if (events.length > 0) {
             Array.prototype.splice.call(originalArgs, 0, 1);
             for (let i = 0; i < events.length; i++) {
