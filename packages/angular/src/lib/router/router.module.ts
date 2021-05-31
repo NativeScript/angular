@@ -2,7 +2,7 @@ import { APP_BASE_HREF, CommonModule, HashLocationStrategy, Location, LocationSt
 import { ApplicationRef, APP_BOOTSTRAP_LISTENER, APP_INITIALIZER, ComponentRef, Inject, Injectable, Injector, ModuleWithProviders, NgModule, NgProbeToken, NO_ERRORS_SCHEMA, Optional } from '@angular/core';
 import { ExtraOptions, NoPreloading, PreloadingStrategy, provideRoutes, Router, RouterModule, RouterPreloader, ROUTER_CONFIGURATION, ROUTER_INITIALIZER, Routes, ɵROUTER_PROVIDERS } from '@angular/router';
 import { of, Subject } from 'rxjs';
-import { NativeScriptCommonModule } from '../cdk/nativescript-common.module';
+import { NativeScriptCommonModule } from '../nativescript-common.module';
 import { START_PATH } from '../tokens';
 import { NativescriptPlatformLocation } from './platform-location';
 

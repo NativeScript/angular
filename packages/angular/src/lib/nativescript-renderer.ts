@@ -1,12 +1,12 @@
 import { Inject, Injectable, NgZone, Optional, Renderer2, RendererFactory2, RendererStyleFlags2, RendererType2, ViewEncapsulation } from '@angular/core';
 import { addTaggedAdditionalCSS, Application, ContentView, Device, getViewById, Observable, profile, View } from '@nativescript/core';
 import { getViewClass, isKnownView } from './element-registry';
-import { NgView } from './views';
+import { getFirstNativeLikeView, NgView } from './views';
 
 import { NamespaceFilter } from './property-filter';
 import { APP_RENDERED_ROOT_VIEW, APP_ROOT_VIEW, ENABLE_REUSABE_VIEWS, NAMESPACE_FILTERS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { NativeScriptDebug } from './trace';
-import { getFirstNativeLikeView, ViewUtil } from './view-util';
+import { ViewUtil } from './view-util';
 
 const addStyleToCss = profile('"renderer".addStyleToCss', function addStyleToCss(style: string, tag?: string | number): void {
   if (tag) {

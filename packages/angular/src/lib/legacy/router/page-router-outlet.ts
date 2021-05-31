@@ -13,6 +13,7 @@ import { NSLocationStrategy } from './ns-location-strategy';
 import { Outlet } from './ns-location-utils';
 import { NSRouteReuseStrategy } from './ns-route-reuse-strategy';
 import { findTopActivatedRouteNodeForOutlet, pageRouterActivatedSymbol, loaderRefSymbol, destroyComponentRef } from './page-router-outlet-utils';
+import { registerElement } from '../../element-registry';
 
 export class PageRoute {
   activatedRoute: BehaviorSubject<ActivatedRoute>;
@@ -48,6 +49,7 @@ const routeToString = function (activatedRoute: ActivatedRoute | ActivatedRouteS
   return activatedRoute.pathFromRoot.join('->');
 };
 
+registerElement('page-router-outlet', () => Frame);
 // eslint-disable-next-line @angular-eslint/directive-selector
 @Directive({ selector: 'page-router-outlet' }) // tslint:disable-line:directive-selector
 // eslint-disable-next-line @angular-eslint/directive-class-suffix

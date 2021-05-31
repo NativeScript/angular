@@ -4,6 +4,7 @@ import { ActionBar, ActionItem, ActionItems, NavigationButton, Page } from '@nat
 import { isBlank } from '../../utils/lang-facade';
 import { NgView, ViewClassMeta, ViewExtensions } from '../../views/view-types';
 import { isInvisibleNode, isView } from '../../views/utils';
+import { registerElement } from '../../element-registry';
 
 export function isActionItem(view: any): view is ActionItem {
   return view instanceof ActionItem;
@@ -47,6 +48,10 @@ export const actionBarMeta: ViewClassMeta = {
     }
   },
 };
+
+registerElement('ActionBar', () => ActionBar, actionBarMeta);
+registerElement('ActionItem', () => <any>ActionItem);
+registerElement('NavigationButton', () => <any>NavigationButton);
 
 const addActionItem = (bar: NgActionBar, item: ActionItem, next: ActionItem) => {
   if (next) {

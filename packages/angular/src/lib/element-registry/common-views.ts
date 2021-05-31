@@ -1,5 +1,4 @@
-import { AbsoluteLayout, ActionBar, ActionItem, ActivityIndicator, Button, ContentView, DatePicker, DockLayout, FlexboxLayout, FormattedString, Frame, GridLayout, HtmlView, Image, Label, ListPicker, ListView, NavigationButton, Page, Placeholder, Progress, ProxyViewContainer, Repeater, RootLayout, ScrollView, SearchBar, SegmentedBar, SegmentedBarItem, Slider, Span, StackLayout, Switch, TabView, TextField, TextView, TimePicker, WebView, WrapLayout } from '@nativescript/core';
-import { actionBarMeta } from '../cdk/action-bar';
+import { AbsoluteLayout, ActivityIndicator, Button, ContentView, DatePicker, DockLayout, FlexboxLayout, FormattedString, Frame, GridLayout, HtmlView, Image, Label, ListPicker, ListView, Page, Placeholder, Progress, ProxyViewContainer, Repeater, RootLayout, ScrollView, SearchBar, SegmentedBar, SegmentedBarItem, Slider, Span, StackLayout, Switch, TabView, TextField, TextView, TimePicker, WebView, WrapLayout } from '@nativescript/core';
 import { frameMeta } from './metas';
 import { registerElement } from './registry';
 
@@ -9,16 +8,12 @@ export function registerNativeScriptViewComponents() {
   if (!(<any>global).__ngRegisteredViews) {
     (<any>global).__ngRegisteredViews = true;
     registerElement('AbsoluteLayout', () => AbsoluteLayout);
-    registerElement('ActionBar', () => ActionBar, actionBarMeta);
-    registerElement('ActionItem', () => <any>ActionItem);
-    registerElement('NavigationButton', () => <any>NavigationButton);
     registerElement('ActivityIndicator', () => ActivityIndicator);
     registerElement('Button', () => Button);
     registerElement('ContentView', () => ContentView);
     registerElement('DatePicker', () => DatePicker);
     registerElement('DockLayout', () => DockLayout);
     registerElement('Frame', () => Frame, frameMeta);
-    registerElement('FramePage', () => Frame, frameMeta);
     registerElement('GridLayout', () => GridLayout);
     registerElement('HtmlView', () => HtmlView);
     registerElement('Image', () => Image);
@@ -49,11 +44,5 @@ export function registerNativeScriptViewComponents() {
     registerElement('WrapLayout', () => WrapLayout);
     registerElement('FormattedString', () => FormattedString);
     registerElement('Span', () => Span);
-
-    registerElement('DetachedContainer', () => ProxyViewContainer, {
-      skipAddToDom: true,
-    });
-
-    registerElement('page-router-outlet', () => Frame);
   }
 }

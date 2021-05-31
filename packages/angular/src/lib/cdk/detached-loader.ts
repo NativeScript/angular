@@ -1,7 +1,12 @@
 import { ComponentRef, ComponentFactory, ViewContainerRef, Component, Type, ComponentFactoryResolver, ChangeDetectorRef, ApplicationRef, OnDestroy, TemplateRef, ViewChild, Injector } from '@angular/core';
-import { Trace } from '@nativescript/core';
+import { ProxyViewContainer, Trace } from '@nativescript/core';
 import { ComponentPortal, TemplatePortal } from './portal';
 import type { ComponentType } from '../utils/general';
+import { registerElement } from '../element-registry';
+
+registerElement('DetachedContainer', () => ProxyViewContainer, {
+  skipAddToDom: true,
+});
 
 /**
  * Wrapper component used for loading components when navigating
@@ -13,8 +18,8 @@ import type { ComponentType } from '../utils/general';
   selector: 'DetachedContainer',
   template: `<Placeholder #loader></Placeholder><ng-container #vc></ng-container><ng-content></ng-content>`,
 })
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class DetachedLoader implements OnDestroy {
-  // eslint-disable-line @angular-eslint/component-class-suffix
   @ViewChild('vc', { read: ViewContainerRef, static: true }) vc: ViewContainerRef;
   private disposeFunctions: Array<() => void> = [];
   // tslint:disable-line:component-class-suffix

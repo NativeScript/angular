@@ -1,47 +1,16 @@
 import { View, unsetValue, Placeholder, ContentView, LayoutBase, ProxyViewContainer } from '@nativescript/core';
 import { getViewClass, getViewMeta, isKnownView } from './element-registry';
-import { CommentNode, NgView, TextNode, ViewExtensions, isDetachedElement, isInvisibleNode, isView } from './views';
+import { CommentNode, NgView, TextNode, ViewExtensions, isDetachedElement, isInvisibleNode, isView, isContentView, isLayout } from './views';
 import { NamespaceFilter } from './property-filter';
 
 import { NativeScriptDebug } from './trace';
+import { NgLayoutBase } from './views/view-types';
 
 const ELEMENT_NODE_TYPE = 1;
 const XML_ATTRIBUTES = Object.freeze(['style', 'rows', 'columns', 'fontAttributes']);
 const whiteSpaceSplitter = /\s+/;
 
-// export type ViewExtensions = ViewExtensions;
-// export type NgView = NgView;
-export type NgLayoutBase = LayoutBase & ViewExtensions;
-export type NgContentView = ContentView & ViewExtensions;
-export type NgPlaceholder = Placeholder & ViewExtensions;
 export type BeforeAttachAction = (view: View) => void;
-
-export function isLayout(view: any): view is NgLayoutBase {
-  return view instanceof LayoutBase;
-}
-
-export function isContentView(view: any): view is NgContentView {
-  return view instanceof ContentView;
-}
-
-export function getFirstNativeLikeView(view: View, extractFromNSParent = false) {
-  if (view instanceof ProxyViewContainer) {
-    if (view.getChildrenCount() === 0) {
-      return null;
-    }
-    return getFirstNativeLikeView(view.getChildAt(0));
-  }
-  if (isContentView(view)) {
-    return getFirstNativeLikeView(view.content);
-  }
-  const parentLayout = view?.parent;
-  if (extractFromNSParent && parentLayout instanceof LayoutBase) {
-    const node = view.parentNode;
-    parentLayout.removeChild(view);
-    view.parentNode = node;
-  }
-  return view;
-}
 
 function printNgTree(view: NgView) {
   let parent = view;

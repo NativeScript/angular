@@ -1,4 +1,4 @@
-import { View } from '@nativescript/core';
+import { ContentView, LayoutBase, Placeholder, View } from '@nativescript/core';
 
 export interface ViewClass {
   new (): View;
@@ -22,3 +22,7 @@ export interface ViewClassMeta {
   insertChild?: (parent: any, child: any, next?: any) => void;
   removeChild?: (parent: any, child: any) => void;
 }
+
+export type NgLayoutBase = LayoutBase & ViewExtensions;
+export type NgContentView = ContentView & ViewExtensions;
+export type NgPlaceholder = Placeholder & ViewExtensions;

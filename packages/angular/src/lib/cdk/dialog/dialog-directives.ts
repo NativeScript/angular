@@ -6,13 +6,13 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import { ApplicationRef, ComponentFactoryResolver, Directive, Inject, Injectable, InjectionToken, Injector, OnDestroy, Optional, SkipSelf, StaticProvider, TemplateRef, Type } from '@angular/core';
-import { Location } from '@angular/common';
-import { defer, Observable, of as observableOf, Subject } from 'rxjs';
+import { Directive, Inject, Injectable, InjectionToken, Injector, OnDestroy, Optional, SkipSelf, StaticProvider, TemplateRef, Type } from '@angular/core';
+import { defer, Observable, Subject } from 'rxjs';
 import { startWith } from 'rxjs/operators';
+import { NSLocationStrategy } from '../../legacy/router/ns-location-strategy';
 import { ComponentType } from '../../utils/general';
 import { ComponentPortal, TemplatePortal } from '../portal/common';
-import { MatDialogConfig } from './dialog-config';
+import { NSDialogConfig } from './dialog-config';
 import { NSDialogRef } from './dialog-ref';
 import { NativeModalRef } from './native-modal-ref';
 
@@ -20,18 +20,17 @@ import { NativeModalRef } from './native-modal-ref';
 export const NS_DIALOG_DATA = new InjectionToken<any>('NSDialogData');
 
 /** Injection token that can be used to specify default dialog options. */
-export const NS_DIALOG_DEFAULT_OPTIONS = new InjectionToken<MatDialogConfig>('ns-dialog-default-options');
+export const NS_DIALOG_DEFAULT_OPTIONS = new InjectionToken<NSDialogConfig>('ns-dialog-default-options');
 
 /**
  * Base class for dialog services. The base dialog service allows
  * for arbitrary dialog refs and dialog container components.
  */
 @Directive()
-export abstract class _MatDialogBase<C extends NativeModalRef> implements OnDestroy {
+export abstract class _NSDialogBase<C extends NativeModalRef> implements OnDestroy {
   private _openDialogsAtThisLevel: NSDialogRef<any>[] = [];
   private readonly _afterAllClosedAtThisLevel = new Subject<void>();
   private readonly _afterOpenedAtThisLevel = new Subject<NSDialogRef<any>>();
-  private _ariaHiddenElements = new Map<Element, string | null>();
   // TODO (jelbourn): tighten the typing right-hand side of this expression.
   /**
    * Stream that emits when all open dialog have finished closing.
@@ -54,7 +53,7 @@ export abstract class _MatDialogBase<C extends NativeModalRef> implements OnDest
     return parent ? parent._getAfterAllClosed() : this._afterAllClosedAtThisLevel;
   }
 
-  constructor(private _injector: Injector, private _defaultOptions: MatDialogConfig | undefined, private _parentDialog: _MatDialogBase<C> | undefined, private _dialogRefConstructor: Type<NSDialogRef<any>>, private _dialogContainerType: Type<C>, private _dialogDataToken: InjectionToken<any>) {}
+  constructor(private _injector: Injector, private _defaultOptions: NSDialogConfig | undefined, private _parentDialog: _NSDialogBase<C> | undefined, private _dialogRefConstructor: Type<NSDialogRef<any>>, private _nativeModalType: Type<C>, private _dialogDataToken: InjectionToken<any>, private locationStrategy: NSLocationStrategy) {}
 
   /**
    * Opens a modal dialog containing the given component.
@@ -62,7 +61,7 @@ export abstract class _MatDialogBase<C extends NativeModalRef> implements OnDest
    * @param config Extra configuration options.
    * @returns Reference to the newly-opened dialog.
    */
-  open<T, D = any, R = any>(component: ComponentType<T>, config?: MatDialogConfig<D>): NSDialogRef<T, R>;
+  open<T, D = any, R = any>(component: ComponentType<T>, config?: NSDialogConfig<D>): NSDialogRef<T, R>;
 
   /**
    * Opens a modal dialog containing the given template.
@@ -70,12 +69,12 @@ export abstract class _MatDialogBase<C extends NativeModalRef> implements OnDest
    * @param config Extra configuration options.
    * @returns Reference to the newly-opened dialog.
    */
-  open<T, D = any, R = any>(template: TemplateRef<T>, config?: MatDialogConfig<D>): NSDialogRef<T, R>;
+  open<T, D = any, R = any>(template: TemplateRef<T>, config?: NSDialogConfig<D>): NSDialogRef<T, R>;
 
-  open<T, D = any, R = any>(template: ComponentType<T> | TemplateRef<T>, config?: MatDialogConfig<D>): NSDialogRef<T, R>;
+  open<T, D = any, R = any>(template: ComponentType<T> | TemplateRef<T>, config?: NSDialogConfig<D>): NSDialogRef<T, R>;
 
-  open<T, D = any, R = any>(componentOrTemplateRef: ComponentType<T> | TemplateRef<T>, config?: MatDialogConfig<D>): NSDialogRef<T, R> {
-    config = _applyConfigDefaults(config, this._defaultOptions || new MatDialogConfig());
+  open<T, D = any, R = any>(componentOrTemplateRef: ComponentType<T> | TemplateRef<T>, config?: NSDialogConfig<D>): NSDialogRef<T, R> {
+    config = _applyConfigDefaults(config, this._defaultOptions || new NSDialogConfig());
 
     if (config.id && this.getDialogById(config.id) && (typeof ngDevMode === 'undefined' || ngDevMode)) {
       throw Error(`Dialog with id "${config.id}" exists already. The dialog id must be unique.`);
@@ -124,10 +123,10 @@ export abstract class _MatDialogBase<C extends NativeModalRef> implements OnDest
    * @param config The dialog configuration.
    * @returns A promise resolving to the MatDialogRef that should be returned to the user.
    */
-  private _attachDialogContent<T, R>(componentOrTemplateRef: ComponentType<T> | TemplateRef<T>, config: MatDialogConfig): NSDialogRef<T, R> {
+  private _attachDialogContent<T, R>(componentOrTemplateRef: ComponentType<T> | TemplateRef<T>, config: NSDialogConfig): NSDialogRef<T, R> {
     // Create a reference to the dialog we're creating in order to give the user a handle
     // to modify and close it.
-    const nativeModalRef = new NativeModalRef(config, this._injector);
+    const nativeModalRef = new this._nativeModalType(config, this._injector, this.locationStrategy);
     const dialogRef = new this._dialogRefConstructor(nativeModalRef, config.id);
 
     if (componentOrTemplateRef instanceof TemplateRef) {
@@ -141,6 +140,7 @@ export abstract class _MatDialogBase<C extends NativeModalRef> implements OnDest
       //     detachedLoaderRef.changeDetectorRef.detectChanges(); // force a change detection
       //     detachedLoaderRef.instance.createTemplatePortal(options.templateRef);
       nativeModalRef.attachTemplatePortal(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         new TemplatePortal<T>(componentOrTemplateRef, null!, <any>{ $implicit: config.data, dialogRef })
       );
     } else {
@@ -160,7 +160,7 @@ export abstract class _MatDialogBase<C extends NativeModalRef> implements OnDest
    * @param dialogContainer Dialog container element that wraps all of the contents.
    * @returns The custom injector that can be used inside the dialog.
    */
-  private _createInjector<T>(config: MatDialogConfig, dialogRef: NSDialogRef<T>): Injector {
+  private _createInjector<T>(config: NSDialogConfig, dialogRef: NSDialogRef<T>): Injector {
     const userInjector = config && config.viewContainerRef && config.viewContainerRef.injector;
 
     // The dialog container should be provided as the dialog container and the dialog's
@@ -211,9 +211,9 @@ export abstract class _MatDialogBase<C extends NativeModalRef> implements OnDest
  * Service to open Material Design modal dialogs.
  */
 @Injectable()
-export class MatDialog extends _MatDialogBase<NativeModalRef> {
-  constructor(injector: Injector, @Optional() @Inject(NS_DIALOG_DEFAULT_OPTIONS) defaultOptions: MatDialogConfig, @Optional() @SkipSelf() parentDialog: MatDialog) {
-    super(injector, defaultOptions, parentDialog, NSDialogRef, NativeModalRef, NS_DIALOG_DATA);
+export class NSDialog extends _NSDialogBase<NativeModalRef> {
+  constructor(injector: Injector, @Optional() @Inject(NS_DIALOG_DEFAULT_OPTIONS) defaultOptions: NSDialogConfig, @Optional() @SkipSelf() parentDialog: NSDialog, @Optional() location: NSLocationStrategy) {
+    super(injector, defaultOptions, parentDialog, NSDialogRef, NativeModalRef, NS_DIALOG_DATA, location);
   }
 }
 
@@ -223,6 +223,6 @@ export class MatDialog extends _MatDialogBase<NativeModalRef> {
  * @param defaultOptions Default options provided.
  * @returns The new configuration object.
  */
-function _applyConfigDefaults(config?: MatDialogConfig, defaultOptions?: MatDialogConfig): MatDialogConfig {
+function _applyConfigDefaults(config?: NSDialogConfig, defaultOptions?: NSDialogConfig): NSDialogConfig {
   return { ...defaultOptions, ...config };
 }

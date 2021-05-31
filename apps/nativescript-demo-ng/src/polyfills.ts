@@ -1,8 +1,9 @@
+import '@nativescript/core/globals';
 import 'zone.js/dist/zone.js';
 import '@nativescript/zone-js';
 import '@nativescript/zone-js/dist/connectivity'; // optional: patch connectivity
 import '@nativescript/zone-js/dist/trace-error'; // optional: redirect all zone errors to Trace.error
-import { Label, Observable, Trace, View } from '@nativescript/core';
+// import { Label, Observable, Trace, View } from '@nativescript/core';
 // Trace.setErrorHandler({
 //   handlerError: (e) => {
 //     console.log('------error has been handled------', e);

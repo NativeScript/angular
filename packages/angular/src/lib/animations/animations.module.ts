@@ -10,7 +10,7 @@ import { ɵAnimationRendererFactory as AnimationRendererFactory, ɵBrowserAnimat
 import { NativeScriptRendererFactory } from '../nativescript-renderer';
 import { NativeScriptAnimationDriver } from './animation-driver';
 import { throwIfAlreadyLoaded } from '../utils/general';
-import { NativeScriptCommonModule } from '../cdk/nativescript-common.module';
+import { NativeScriptCommonModule } from '../nativescript-common.module';
 
 @Injectable()
 export class InjectableAnimationEngine extends AnimationEngine {

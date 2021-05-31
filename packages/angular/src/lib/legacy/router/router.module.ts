@@ -10,7 +10,7 @@ import { NSRouteReuseStrategy } from './ns-route-reuse-strategy';
 import { RouterExtensions } from './router-extensions';
 import { FrameService } from '../frame.service';
 import { NSEmptyOutletComponent } from './ns-empty-outlet.component';
-import { NativeScriptCommonModule } from '../../cdk/nativescript-common.module';
+import { NativeScriptCommonModule } from '../../nativescript-common.module';
 
 export { PageRoute } from './page-router-outlet';
 export { RouterExtensions } from './router-extensions';

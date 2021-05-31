@@ -5,7 +5,7 @@ import { DetachedLoader } from '../../cdk/detached-loader';
 import { ComponentPortal } from '../../cdk/portal/common';
 import { NativescriptDomPortalOutlet } from '../../cdk/portal/nsdom-portal-outlet';
 import { once } from '../../utils/general';
-import { getFirstNativeLikeView } from '../../view-util';
+import { NgViewRef } from '../../view-refs';
 import { NSLocationStrategy } from '../router/ns-location-strategy';
 
 export type BaseShowModalOptions = Pick<ShowModalOptions, Exclude<keyof ShowModalOptions, 'closeCallback' | 'context'>>;
@@ -72,7 +72,7 @@ export class ModalDialogService {
       frame = (parentView.page && parentView.page.frame) || Frame.topmost();
     }
 
-    this.location._beginModalNavigation(frame);
+    this.location?._beginModalNavigation(frame);
 
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -95,14 +95,14 @@ export class ModalDialogService {
   }
 
   private _showDialog(options: ShowDialogOptions): void {
-    let componentView: View;
+    let componentViewRef: NgViewRef<unknown>;
     let detachedLoaderRef: ComponentRef<DetachedLoader>;
     let portalOutlet: NativescriptDomPortalOutlet;
 
     const closeCallback = once((...args) => {
       options.doneCallback.apply(undefined, args);
-      if (componentView) {
-        componentView.closeModal();
+      if (componentViewRef) {
+        componentViewRef.firstNativeLikeView.closeModal();
         this.location._closeModalNavigation();
         if (detachedLoaderRef || portalOutlet) {
           this.zone.run(() => {
@@ -138,15 +138,15 @@ export class ModalDialogService {
       portalOutlet = new NativescriptDomPortalOutlet(targetView, options.resolver, this.appRef, childInjector);
       const componentRef = portalOutlet.attach(portal);
       ɵmarkDirty(componentRef.instance);
-      componentView = getFirstNativeLikeView(targetView);
-      if (componentView !== componentRef.location.nativeElement) {
-        componentRef.location.nativeElement._ngDialogRoot = componentView;
+      componentViewRef = new NgViewRef(componentRef);
+      if (componentViewRef !== componentRef.location.nativeElement) {
+        componentRef.location.nativeElement._ngDialogRoot = componentViewRef;
       }
       // apparently this isn't needed
       // if (componentView.parent) {
       //   this.viewUtil.removeChild(componentView.parent as View, componentView);
       // }
-      options.parentView.showModal(componentView, { ...options, closeCallback });
+      options.parentView.showModal(componentViewRef.firstNativeLikeView, { ...options, closeCallback });
     });
   }
 }

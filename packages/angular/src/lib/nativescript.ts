@@ -7,6 +7,7 @@ import { NativeScriptRendererFactory } from './nativescript-renderer';
 import { PlatformNamespaceFilter } from './property-filter';
 import { APP_RENDERED_ROOT_VIEW, APP_ROOT_VIEW, ENABLE_REUSABE_VIEWS, NAMESPACE_FILTERS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { ViewUtil } from './view-util';
+import { DetachedLoader } from './cdk/detached-loader';
 
 export function generateFallbackRootView(parentRootView?: View) {
   if (parentRootView) {
@@ -41,9 +42,9 @@ export const NATIVESCRIPT_MODULE_PROVIDERS: Provider[] = [{ provide: ViewportScr
 
 @NgModule({
   imports: [ApplicationModule],
-  declarations: [],
+  declarations: [DetachedLoader],
   providers: [...NATIVESCRIPT_MODULE_STATIC_PROVIDERS, ...NATIVESCRIPT_MODULE_PROVIDERS],
-  exports: [ApplicationModule],
+  exports: [ApplicationModule, DetachedLoader],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class NativeScriptModule {

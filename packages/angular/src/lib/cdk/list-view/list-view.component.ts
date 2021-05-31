@@ -3,7 +3,7 @@ import { ObservableArray, View, KeyedTemplate, LayoutBase, ItemEventData, Templa
 
 import { extractSingleViewRecursive } from '../../element-registry/registry';
 import { NativeScriptDebug } from '../../trace';
-import { NgViewTemplate } from '../../utils/template';
+import { NgViewTemplate } from '../../view-refs';
 
 const NG_VIEW = '_ngViewRef';
 

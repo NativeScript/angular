@@ -1,7 +1,6 @@
 import { Type, Injector, CompilerOptions, PlatformRef, NgModuleFactory, NgModuleRef, EventEmitter, Sanitizer, InjectionToken, StaticProvider, createPlatformFactory, platformCore } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { NativeScriptPlatformRefProxy } from './platform-ref';
-import { ɵangular_packages_core_core_y as SCHEDULER } from '@angular/core';
 import { AppHostView } from './app-host-view';
 import { Color } from '@nativescript/core';
 import { APP_ROOT_VIEW, defaultPageFactory, PAGE_FACTORY } from './tokens';
@@ -12,12 +11,13 @@ export class NativeScriptSanitizer extends Sanitizer {
     return value;
   }
 }
-export function schedulerFactory() {
-  return (fn: any) => {
-    console.log('SCHEDULER');
-    setTimeout(fn, 0);
-  };
-}
+// TODO: when angular finally exports their scheduler token for ivy CD, provide our own with queueMacroTask
+// export function schedulerFactory() {
+//   return (fn: any) => {
+//     console.log('SCHEDULER');
+//     setTimeout(fn, 0);
+//   };
+// }
 
 export class NativeScriptDocument {
   // Required by the AnimationDriver
@@ -30,7 +30,7 @@ export class NativeScriptDocument {
   }
 }
 
-export const COMMON_PROVIDERS = [defaultPageFactoryProvider, { provide: Sanitizer, useClass: NativeScriptSanitizer, deps: [] }, { provide: DOCUMENT, useClass: NativeScriptDocument, deps: [] }, { provide: SCHEDULER, useFactory: schedulerFactory }];
+export const COMMON_PROVIDERS = [defaultPageFactoryProvider, { provide: Sanitizer, useClass: NativeScriptSanitizer, deps: [] }, { provide: DOCUMENT, useClass: NativeScriptDocument, deps: [] }];
 
 export const platformNativescript = createPlatformFactory(platformCore, 'nativescriptDynamic', COMMON_PROVIDERS);
 
