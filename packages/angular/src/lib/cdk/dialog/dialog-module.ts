@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
-import { NSDialogClose } from './dialog-content-directives';
-import { NSDialog } from './dialog-directives';
+import { NativeDialogCloseDirective } from './dialog-content-directives';
+import { NativeDialogService } from './dialog-services';
 
 @NgModule({
-  declarations: [NSDialogClose],
-  exports: [NSDialogClose],
-  providers: [NSDialog],
+  declarations: [NativeDialogCloseDirective],
+  exports: [NativeDialogCloseDirective],
+  providers: [NativeDialogService],
 })
-export class NSDialogModule {}
+export class NativeDialogModule {}

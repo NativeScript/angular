@@ -1,13 +1,14 @@
 import { Component, Inject, Optional } from '@angular/core';
-import { NSDialogRef } from '@nativescript/angular';
+import { NativeDialogRef } from '@nativescript/angular';
 
 @Component({
-  template: `<Label [nsDialogClose]="'thanks for clicking modal ' + id" text="in modal"></Label>`,
+  selector: 'ns-modal',
+  templateUrl: `./modal.component.html`,
 })
 export class ModalComponent {
   id = Math.floor(Math.random() * 1000);
 
-  constructor(@Optional() ref: NSDialogRef<ModalComponent>) {}
+  constructor(@Optional() ref: NativeDialogRef<ModalComponent>) {}
   ngOnInit() {
     console.log('modal init');
   }

@@ -11,7 +11,7 @@ import { ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
 /**
  * Configuration for opening a modal dialog with the MatDialog service.
  */
-export class NSDialogConfig<D = any> {
+export class NativeDialogConfig<D = any> {
   /**
    * Where the attached component should live in Angular's *logical* component tree.
    * This affects what is available for injection and the change detection order for the

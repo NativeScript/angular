@@ -8,30 +8,30 @@
 
 import { Directive, Input, OnChanges, OnInit, Optional, SimpleChanges, ElementRef, HostListener } from '@angular/core';
 import { View, ViewBase } from '@nativescript/core';
-import { NSDialog } from './dialog-directives';
-import { NSDialogRef } from './dialog-ref';
+import { NativeDialogService } from './dialog-services';
+import { NativeDialogRef } from './dialog-ref';
 
 /**
  * Button that will close the current dialog.
  */
 @Directive({
   // eslint-disable-next-line @angular-eslint/directive-selector
-  selector: '[ns-dialog-close], [nsDialogClose]',
-  exportAs: 'nsDialogClose',
+  selector: '[native-dialog-close], [nativeDialogClose]',
+  exportAs: 'nativeDialogClose',
 })
 // eslint-disable-next-line @angular-eslint/directive-class-suffix
-export class NSDialogClose implements OnInit, OnChanges {
+export class NativeDialogCloseDirective implements OnInit, OnChanges {
   /** Dialog close input. */
-  @Input('ns-dialog-close') dialogResult: any;
+  @Input('native-dialog-close') dialogResult: any;
 
-  @Input('nsDialogClose') _matDialogClose: any;
+  @Input('nativeDialogClose') _matDialogClose: any;
 
   constructor(
     // The dialog title directive is always used in combination with a `MatDialogRef`.
     // tslint:disable-next-line: lightweight-tokens
-    @Optional() public dialogRef: NSDialogRef<any>,
+    @Optional() public dialogRef: NativeDialogRef<any>,
     private _elementRef: ElementRef<View>,
-    private _dialog: NSDialog
+    private _dialog: NativeDialogService
   ) {}
 
   ngOnInit() {
@@ -69,7 +69,7 @@ export class NSDialogClose implements OnInit, OnChanges {
  * @param element Element relative to which to look for a dialog.
  * @param openDialogs References to the currently-open dialogs.
  */
-function getClosestDialog(element: ElementRef<View>, openDialogs: NSDialogRef<any>[]) {
+function getClosestDialog(element: ElementRef<View>, openDialogs: NativeDialogRef<any>[]) {
   let view: ViewBase | null = element.nativeElement.parent;
 
   while (view && !Object.hasOwnProperty.call(view, '__ng_modal_id__')) {
