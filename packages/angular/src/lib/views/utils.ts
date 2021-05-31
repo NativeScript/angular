@@ -43,10 +43,13 @@ export function getFirstNativeLikeView(view: View, extractFromNSParent = false) 
 
 export function detachViewFromParent(view: View) {
   const parent = <NgView>view?.parent;
+  if (!parent) {
+    return;
+  }
   if (parent.meta && parent.meta.removeChild) {
     parent.meta.removeChild(parent, view);
   } else if (isLayout(parent)) {
-    this.removeLayoutChild(parent, view);
+    parent.removeChild(view);
   } else if (isContentView(parent) && parent.content === view) {
     parent.content = null;
   } else if (isView(parent)) {
