@@ -1,5 +1,8 @@
+/* eslint-disable  */
 const ZONE_SYMBOL_PREFIX = Zone.__symbol__('');
 const zoneSymbolEventNames: any = {};
+const ADD_EVENT_LISTENER_STR = 'addEventListener';
+const REMOVE_EVENT_LISTENER_STR = 'removeEventListener';
 function prepareEventNames(eventName: string, eventNameToString?: (eventName: string) => string) {
   // const falseEventName = (eventNameToString ? eventNameToString(eventName) : eventName) + FALSE_STR;
   // const trueEventName = (eventNameToString ? eventNameToString(eventName) : eventName) + TRUE_STR;
@@ -8,7 +11,7 @@ function prepareEventNames(eventName: string, eventNameToString?: (eventName: st
   // zoneSymbolEventNames[eventName] = {};
   // zoneSymbolEventNames[eventName][FALSE_STR] = symbol;
   // zoneSymbolEventNames[eventName][TRUE_STR] = symbolCapture;
-  const symbol = ZONE_SYMBOL_PREFIX + (eventNameToString ? eventNameToString(eventName) : eventName);
+  const symbol = ZONE_SYMBOL_PREFIX + (eventNameToString ? eventNameToString(eventName) : eventName) + 'false';
   zoneSymbolEventNames[eventName] = symbol;
 }
 interface NSTaskData {
@@ -28,21 +31,72 @@ interface ExtendedTask extends Task {
   customCallback?: any;
   ranOnce?: boolean;
 }
+export interface PatchEventTargetOptions {
+  // validateHandler
+  vh?: (nativeDelegate: any, delegate: any, target: any, args: any) => boolean;
+  // addEventListener function name
+  add?: string;
+  // removeEventListener function name
+  rm?: string;
+  // once function name
+  once?: string;
+  // listeners function name
+  listeners?: string;
+  // removeAllListeners function name
+  rmAll?: string;
+  // check duplicate flag when addEventListener
+  chkDup?: boolean;
+  // return target flag when addEventListener
+  rt?: boolean;
+  // event compare handler
+  diff?: (task: any, delegate: any) => boolean;
+  // support passive or not
+  supportPassive?: boolean;
+  // get string from eventName (in nodejs, eventName maybe Symbol)
+  eventNameToString?: (eventName: any) => string;
+  // transfer eventName
+  transferEventName?: (eventName: string) => string;
+}
 
-export function patchEventListeners(cls: any) {
-  function compare(task: ExtendedTask, delegate: any, thisArg?: any) {
-    const taskThis = task.thisArg ? task.thisArg.get() : undefined;
-    if (!thisArg) {
-      thisArg = undefined; // keep consistent
+export function patchNativescriptEventTarget(global: any, api: _ZonePrivate, apis?: any[], patchOptions?: PatchEventTargetOptions) {
+  const ADD_EVENT_LISTENER = (patchOptions && patchOptions.add) || ADD_EVENT_LISTENER_STR;
+  const REMOVE_EVENT_LISTENER = (patchOptions && patchOptions.rm) || REMOVE_EVENT_LISTENER_STR;
+  const ONCE = (patchOptions && patchOptions.once) || 'once';
+
+  const zoneSymbolAddEventListener = Zone.__symbol__(ADD_EVENT_LISTENER);
+
+  const ADD_EVENT_LISTENER_SOURCE = '.' + ADD_EVENT_LISTENER + ':';
+
+  function patchNativescriptEventTargetMethods(obj, patchOptions) {
+    if (!obj) {
+      return false;
     }
-    return task.callback === delegate && taskThis === thisArg;
-  }
-  Zone.__load_patch(cls.name + ':eventListeners', (global: any, Zone, api) => {
-    const ADD_EVENT_LISTENER = 'addEventListener';
-    const REMOVE_EVENT_LISTENER = 'removeEventListener';
-    const ONCE = 'once';
+    const eventNameToString = patchOptions && patchOptions.eventNameToString;
+    // let proto = obj;
+    // while (proto && !proto.hasOwnProperty(ADD_EVENT_LISTENER)) {
+    //   proto = Object.getPrototypeOf(proto);
+    // }
+    // if (!proto && obj[ADD_EVENT_LISTENER]) {
+    //   // somehow we did not find it, but we can see it. This happens on IE for Window properties.
+    //   proto = obj;
+    // }
+
+    // if (!proto) {
+    //   return false;
+    // }
+    // if (proto[zoneSymbolAddEventListener]) {
+    //   return false;
+    // }
+    function compare(task: ExtendedTask, delegate: any, thisArg?: any) {
+      const taskThis = task.thisArg ? task.thisArg.get() : undefined;
+      if (!thisArg) {
+        thisArg = undefined; // keep consistent
+      }
+      return task.callback === delegate && taskThis === thisArg;
+    }
+
     const nativeAddListener = api.patchMethod(
-      cls.prototype,
+      obj,
       ADD_EVENT_LISTENER,
       (delegate, delegateName, name) =>
         function (originalTarget, originalArgs) {
@@ -56,7 +110,7 @@ export function patchEventListeners(cls: any) {
             taskData.thisArg = thisArg;
             let symbolEventNames = zoneSymbolEventNames[eventName];
             if (!symbolEventNames) {
-              prepareEventNames(eventName);
+              prepareEventNames(eventName, eventNameToString);
               symbolEventNames = zoneSymbolEventNames[eventName];
             }
             const symbolEventName = symbolEventNames;
@@ -94,7 +148,7 @@ export function patchEventListeners(cls: any) {
             const data: ExtendedTaskData = {
               nsTaskData: taskData,
             };
-            const task: ExtendedTask = Zone.current.scheduleEventTask(cls.name + ':' + taskData.eventName, callback, data, schedule, unschedule);
+            const task: ExtendedTask = Zone.current.scheduleEventTask(obj.name + ':' + taskData.eventName, callback, data, schedule, unschedule);
             // should clear taskData.target to avoid memory leak
             // issue, https://github.com/angular/angular/issues/20442
             taskData.target = null;
@@ -123,7 +177,7 @@ export function patchEventListeners(cls: any) {
     );
 
     const nativeOnce = api.patchMethod(
-      cls.prototype,
+      obj,
       ONCE,
       (delegate, delegateName, name) =>
         function (originalTarget, originalArgs) {
@@ -137,7 +191,7 @@ export function patchEventListeners(cls: any) {
             taskData.thisArg = thisArg;
             let symbolEventNames = zoneSymbolEventNames[eventName];
             if (!symbolEventNames) {
-              prepareEventNames(eventName);
+              prepareEventNames(eventName, eventNameToString);
               symbolEventNames = zoneSymbolEventNames[eventName];
             }
             const symbolEventName = symbolEventNames;
@@ -184,7 +238,7 @@ export function patchEventListeners(cls: any) {
             const data: ExtendedTaskData = {
               nsTaskData: taskData,
             };
-            const task: ExtendedTask = Zone.current.scheduleEventTask(cls.name + ':' + taskData.eventName, callback, data, schedule, unschedule);
+            const task: ExtendedTask = Zone.current.scheduleEventTask(obj.name + ':' + taskData.eventName, callback, data, schedule, unschedule);
             // should clear taskData.target to avoid memory leak
             // issue, https://github.com/angular/angular/issues/20442
             taskData.target = null;
@@ -214,7 +268,7 @@ export function patchEventListeners(cls: any) {
     );
 
     const nativeRemoveListener = api.patchMethod(
-      cls.prototype,
+      obj,
       REMOVE_EVENT_LISTENER,
       (delegate, delegateName, name) =>
         function (originalTarget, originalArgs) {
@@ -225,9 +279,16 @@ export function patchEventListeners(cls: any) {
             const symbolEventNames = zoneSymbolEventNames[eventName];
             const symbolEventName = symbolEventNames;
             const existingTasks: Task[] = symbolEventName && target[symbolEventName];
+            const removeAll = !callback; // object.off(event);
             if (existingTasks) {
               for (let i = 0; i < existingTasks.length; i++) {
                 const existingTask = existingTasks[i];
+                if (removeAll) {
+                  (existingTask as any).isRemoved = true;
+                  (existingTask as any).allRemoved = true;
+                  existingTask.zone.cancelTask(existingTask);
+                  continue;
+                }
                 if (compare(existingTask, callback, thisArg)) {
                   existingTasks.splice(i, 1);
                   // set isRemoved to data for faster invokeTask check
@@ -241,6 +302,9 @@ export function patchEventListeners(cls: any) {
                   existingTask.zone.cancelTask(existingTask);
                   return;
                 }
+              }
+              if (removeAll) {
+                target[symbolEventName] = null;
               }
             }
             return nativeRemoveListener.apply(target, args);
@@ -256,5 +320,12 @@ export function patchEventListeners(cls: any) {
           }
         }
     );
-  });
+  }
+
+  let results: any[] = [];
+  for (let i = 0; i < apis.length; i++) {
+    results[i] = patchNativescriptEventTargetMethods(apis[i], patchOptions);
+  }
+
+  return results;
 }

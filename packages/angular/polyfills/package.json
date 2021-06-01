@@ -1,0 +1,11 @@
+{
+  "ngPackage": {
+    "lib": {
+      "entryFile": "./src/index.ts",
+      "umdModuleIds": {
+        "@nativescript/angular": "ns-angular",
+        "@nativescript/core": "ns-core"
+      }
+    }
+  }
+}

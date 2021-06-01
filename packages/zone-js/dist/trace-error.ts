@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Trace } from '@nativescript/core';
 
 Zone.__load_patch('nativescript_zone_to_trace_error', (global, zone, api) => {

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import './core';
 import { Connectivity } from '@nativescript/core';
 
