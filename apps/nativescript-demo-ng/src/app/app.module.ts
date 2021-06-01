@@ -1,5 +1,5 @@
 import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
-import { NativeScriptCommonModule, NativeScriptModule, NativeDialogModule } from '@nativescript/angular';
+import { NativeScriptModule, NativeScriptCommonModule, NativeScriptHttpClientModule, NativeDialogModule } from '@nativescript/angular';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -9,7 +9,7 @@ import { ModalComponent } from './modal/modal.component';
 
 @NgModule({
   bootstrap: [AppComponent],
-  imports: [NativeScriptModule, AppRoutingModule, NativeDialogModule],
+  imports: [NativeScriptModule, NativeScriptHttpClientModule, AppRoutingModule, NativeDialogModule],
   declarations: [AppComponent, ItemsComponent, ItemDetailComponent, ModalComponent],
   providers: [],
   schemas: [NO_ERRORS_SCHEMA],

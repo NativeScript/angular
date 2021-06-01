@@ -50,7 +50,7 @@ export class FramePageComponent implements AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.actionBarHidden) {
+    if (changes.actionBarHidden && changes.actionBarHidden.previousValue !== changes.actionBarHidden.currentValue) {
       if (this.page) {
         this.page.actionBarHidden = !!this.actionBarHidden;
       }
