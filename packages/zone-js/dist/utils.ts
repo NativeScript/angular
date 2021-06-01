@@ -58,7 +58,7 @@ export interface PatchEventTargetOptions {
   transferEventName?: (eventName: string) => string;
 }
 
-export function patchNativescriptEventTarget(global: any, api: _ZonePrivate, apis?: any[], patchOptions?: PatchEventTargetOptions) {
+export function patchNativeScriptEventTarget(global: any, api: _ZonePrivate, apis?: any[], patchOptions?: PatchEventTargetOptions) {
   const ADD_EVENT_LISTENER = (patchOptions && patchOptions.add) || ADD_EVENT_LISTENER_STR;
   const REMOVE_EVENT_LISTENER = (patchOptions && patchOptions.rm) || REMOVE_EVENT_LISTENER_STR;
   const ONCE = (patchOptions && patchOptions.once) || 'once';
@@ -67,7 +67,7 @@ export function patchNativescriptEventTarget(global: any, api: _ZonePrivate, api
 
   const ADD_EVENT_LISTENER_SOURCE = '.' + ADD_EVENT_LISTENER + ':';
 
-  function patchNativescriptEventTargetMethods(obj, patchOptions) {
+  function patchNativeScriptEventTargetMethods(obj, patchOptions) {
     if (!obj) {
       return false;
     }
@@ -324,7 +324,7 @@ export function patchNativescriptEventTarget(global: any, api: _ZonePrivate, api
 
   let results: any[] = [];
   for (let i = 0; i < apis.length; i++) {
-    results[i] = patchNativescriptEventTargetMethods(apis[i], patchOptions);
+    results[i] = patchNativeScriptEventTargetMethods(apis[i], patchOptions);
   }
 
   return results;

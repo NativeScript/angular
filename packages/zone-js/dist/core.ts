@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { patchNativescriptEventTarget } from './utils';
+import { patchNativeScriptEventTarget } from './utils';
 
 function isPropertyWritable(propertyDesc: any) {
   if (!propertyDesc) {
@@ -47,5 +47,5 @@ Zone.__load_patch('nativescript_patchMethod', (global, Zone, api) => {
 });
 
 Zone.__load_patch('nativescript_event_target_api', (g, z, api: any) => {
-  api.patchNativescriptEventTarget = patchNativescriptEventTarget;
+  api.patchNativeScriptEventTarget = patchNativeScriptEventTarget;
 });
