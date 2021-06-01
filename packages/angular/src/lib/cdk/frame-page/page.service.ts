@@ -1,11 +1,12 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { NavigatedData, Page } from '@nativescript/core';
+import { ElementRef, Inject, Injectable, OnDestroy, Optional } from '@angular/core';
+import { NavigatedData, Page, View, ViewBase } from '@nativescript/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 
 @Injectable()
 export class PageService implements OnDestroy {
-  private _inPage$ = new BehaviorSubject<boolean>(!!this.page?.isLoaded);
+  page: Page;
+  private _inPage$: BehaviorSubject<boolean>;
   private _pageEvents$ = new Subject<NavigatedData>();
 
   get inPage(): boolean {
@@ -17,7 +18,20 @@ export class PageService implements OnDestroy {
   get pageEvents$(): Observable<NavigatedData> {
     return this._pageEvents$.asObservable();
   }
-  constructor(public page: Page) {
+  constructor(@Optional() page?: Page, @Optional() elRef?: ElementRef<ViewBase>, @Optional() view?: ViewBase) {
+    if (page) {
+      this.page = page;
+    } else {
+      view = view || elRef.nativeElement;
+      while (view) {
+        if (view instanceof Page) {
+          this.page = view;
+          break;
+        }
+        view = view.parent;
+      }
+    }
+    this._inPage$ = new BehaviorSubject<boolean>(!!this.page?.isLoaded);
     if (this.page) {
       this.page.on('navigatedFrom', this.pageEvent, this);
       this.page.on('navigatedTo', this.pageEvent, this);
