@@ -14,6 +14,7 @@ import { Outlet } from './ns-location-utils';
 import { NSRouteReuseStrategy } from './ns-route-reuse-strategy';
 import { findTopActivatedRouteNodeForOutlet, pageRouterActivatedSymbol, loaderRefSymbol, destroyComponentRef } from './page-router-outlet-utils';
 import { registerElement } from '../../element-registry';
+import { PageService } from '../../cdk/frame-page/page.service';
 
 export class PageRoute {
   activatedRoute: BehaviorSubject<ActivatedRoute>;
@@ -295,6 +296,7 @@ export class PageRouterOutlet implements OnDestroy {
         { provide: PageRoute, useValue: new PageRoute(activatedRoute) },
         { provide: ActivatedRoute, useValue: activatedRoute },
         { provide: ChildrenOutletContexts, useValue: this.parentContexts.getOrCreateContext(this.name).children },
+        { provide: PageService, useClass: PageService },
       ],
       parent: this.location.injector,
     });
