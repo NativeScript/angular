@@ -12,5 +12,5 @@
     }
   },
   "exclude": ["node_modules", "platforms", "./src/**/*.spec.ts"],
-  "files": ["./references.d.ts", "../../packages/angular/references.d.ts", "./src/main.ts"]
+  "files": ["./references.d.ts", "../../packages/angular/references.d.ts", "./src/main.ts", "./src/polyfills.ts"]
 }

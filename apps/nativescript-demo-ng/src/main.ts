@@ -1,4 +1,3 @@
-import './polyfills';
 import { platformNativescript, platformNativeScriptDynamic, runNativescriptAngularApp } from '@nativescript/angular';
 import { Application, StackLayout } from '@nativescript/core';
 
