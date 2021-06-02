@@ -1,8 +1,8 @@
 import { CompilerOptions, Injector, NgModuleRef, NgZone, PlatformRef, Type } from '@angular/core';
 import { ɵNgModuleFactory as NgModuleFactory } from '@angular/core';
-import { Application, StackLayout } from '@nativescript/core';
+import { Application, StackLayout, View } from '@nativescript/core';
 import { AppHostView } from './app-host-view';
-import { AppRunOptions, runNativescriptAngularApp } from './application';
+import { AppLaunchView, AppRunOptions, runNativescriptAngularApp } from './application';
 import { APP_ROOT_VIEW } from './tokens';
 
 /**
@@ -61,13 +61,14 @@ export interface BootstrapOptions {
 
 export class NativeScriptPlatformRefProxy extends PlatformRef {
   options: AppRunOptions<any, any>;
-  constructor(private platform: PlatformRef) {
+  constructor(private platform: PlatformRef, private launchView?: AppLaunchView) {
     super();
   }
 
   bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>): Promise<NgModuleRef<M>> {
     this.options = {
       appModuleBootstrap: () => this.platform.bootstrapModuleFactory(moduleFactory),
+      launchView: () => this.launchView,
     };
 
     runNativescriptAngularApp(this.options);
