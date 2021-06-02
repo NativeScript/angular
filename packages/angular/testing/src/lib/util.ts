@@ -24,6 +24,7 @@ export function promiseWait(durationMs: number) {
 
 /**
  * Perform basic TestBed environment initialization. Call this once in the main entry point to your tests.
+ * @deprecated
  */
 export function nsTestBedInit() {
   TestBed.initTestEnvironment(
@@ -47,6 +48,7 @@ export function nsTestBedInit() {
  *
  * **NOTE*** Remember to pair with {@see nsTestBedAfterEach}
  *
+ * @deprecated
  * @param components Any components that you will create during the test
  * @param providers Any services your tests depend on
  * @param imports Any module imports your tests depend on
@@ -101,6 +103,7 @@ export function nsTestBedBeforeEach(components: any[], providers: any[] = [], im
  * Helper for a basic component TestBed clean up.
  * @param resetEnv When true the testing environment will be reset
  * @param resetFn When resetting the environment, use this init function
+ * @deprecated
  */
 export function nsTestBedAfterEach(resetEnv = true, resetFn = nsTestBedInit) {
   return () => {
@@ -127,6 +130,7 @@ export function nsTestBedAfterEach(resetEnv = true, resetFn = nsTestBedInit) {
 /**
  * Render a component using the TestBed helper, and return a promise that resolves when the
  * ComponentFixture is fully initialized.
+ * @deprecated
  */
 export function nsTestBedRender<T>(componentType: Type<T>): Promise<ComponentFixture<T>> {
   const fixture = TestBed.createComponent(componentType);
