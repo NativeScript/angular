@@ -13,7 +13,7 @@ export class FakeFrameService extends FrameService {
     this.frame = new FakeFrame(backCB) as any;
   }
 
-  public getFrame(): any {
+  public getFrame(): Frame {
     return this.frame;
   }
 }
