@@ -1,4 +1,4 @@
-import { Directive, Input, ElementRef, NgZone } from '@angular/core';
+import { Directive, Input, ElementRef, NgZone, AfterViewInit } from '@angular/core';
 import { NavigationExtras } from '@angular/router';
 import { ActivatedRoute, Router, UrlTree } from '@angular/router';
 import { NavigationTransition } from '@nativescript/core';
@@ -34,7 +34,7 @@ export type QueryParamsHandling = 'merge' | 'preserve' | '';
  * And if the segment begins with `../`, the router will go up one level.
  */
 @Directive({ selector: '[nsRouterLink]' })
-export class NSRouterLink {
+export class NSRouterLink implements AfterViewInit {
   // tslint:disable-line:directive-class-suffix
   @Input() target: string;
   @Input() queryParams: { [k: string]: any };
@@ -57,20 +57,7 @@ export class NSRouterLink {
   ngAfterViewInit() {
     this.el.nativeElement.on('tap', () => {
       this.ngZone.run(() => {
-        if (NativeScriptDebug.isLogEnabled()) {
-          NativeScriptDebug.routerLog(`nsRouterLink.tapped: ${this.commands} ` + `clear: ${this.clearHistory} ` + `transition: ${JSON.stringify(this.pageTransition)} ` + `duration: ${this.pageTransitionDuration}`);
-        }
-
-        const extras = this.getExtras();
-        // this.navigator.navigateByUrl(this.urlTree, extras);
-        this.navigator.navigate(this.commands, {
-          ...extras,
-          relativeTo: this.route,
-          queryParams: this.queryParams,
-          fragment: this.fragment,
-          queryParamsHandling: this.queryParamsHandling,
-          preserveFragment: attrBoolValue(this.preserveFragment),
-        });
+        this.onTap();
       });
     });
   }
@@ -82,6 +69,23 @@ export class NSRouterLink {
     } else {
       this.commands = [data];
     }
+  }
+
+  onTap() {
+    if (NativeScriptDebug.isLogEnabled()) {
+      NativeScriptDebug.routerLog(`nsRouterLink.tapped: ${this.commands} ` + `clear: ${this.clearHistory} ` + `transition: ${JSON.stringify(this.pageTransition)} ` + `duration: ${this.pageTransitionDuration}`);
+    }
+
+    const extras = this.getExtras();
+    // this.navigator.navigateByUrl(this.urlTree, extras);
+    this.navigator.navigate(this.commands, {
+      ...extras,
+      relativeTo: this.route,
+      queryParams: this.queryParams,
+      fragment: this.fragment,
+      queryParamsHandling: this.queryParamsHandling,
+      preserveFragment: attrBoolValue(this.preserveFragment),
+    });
   }
 
   private getExtras(): NavigationExtras & NavigationOptions {

@@ -11,7 +11,7 @@
       "@nativescript/zone-js": ["../../packages/zone-js/dist/index.ts"],
       "@nativescript/zone-js/*": ["../../packages/zone-js/*"]
     },
-    "types": ["node", "jasmine"]
+    "types": ["node", "jasmine", "sinon"]
   },
   "exclude": ["node_modules", "platforms", "./src/**/*.spec.ts"],
   "include": ["./src/tests/*.ts"],
