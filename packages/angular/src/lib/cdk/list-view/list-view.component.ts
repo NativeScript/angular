@@ -12,7 +12,7 @@ export class ItemContext<T> {
 }
 
 export class NsTemplatedItem<T> implements NgViewTemplate<{ index: number; data: T }> {
-  constructor(private template: TemplateRef<ItemContext<T>>, private location: ViewContainerRef, private onCreate?: (view: View) => void) {}
+  constructor(private template: TemplateRef<ItemContext<T>>, public location: ViewContainerRef, private onCreate?: (view: View) => void) {}
   create(context?: { index: number; data: T }): View {
     const viewRef = this.location.createEmbeddedView(this.template, context ? this.setupItemContext(context) : new ItemContext());
     viewRef.detach(); // create detached
@@ -84,12 +84,12 @@ export interface SetupItemViewArgs<T> {
   </DetachedContainer>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ListViewComponent<T> implements DoCheck, OnDestroy, AfterContentInit {
-  public get nativeElement(): TemplatedItemsView {
+export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterContentInit {
+  public get nativeElement(): ListView {
     return this.templatedItemsView;
   }
 
-  protected templatedItemsView: TemplatedItemsView;
+  protected templatedItemsView: ListView;
   protected _items: T[] | ObservableArray<T>;
   protected _differ: IterableDiffer<T>;
   protected _templateMap: Map<string, NsTemplatedItem<T>>;
@@ -150,7 +150,11 @@ export class ListViewComponent<T> implements DoCheck, OnDestroy, AfterContentIni
     // The itemTemplateQuery may be changed after list items are added that contain <template> inside,
     // so cache and use only the original template to avoid errors.
     this.fallbackItemTemplate = this.itemTemplateQuery;
-    if (!this._templateMap) {
+    if (this._templateMap) {
+      // sometimes templates are registered before loader is ready, so we update here
+      this._templateMap.forEach((t) => (t.location = this.loader));
+    } else if (this.fallbackItemTemplate) {
+      // apparently you can create a Core ListView without a template...
       this.registerTemplate('default', this.fallbackItemTemplate);
     }
 
@@ -172,7 +176,7 @@ export class ListViewComponent<T> implements DoCheck, OnDestroy, AfterContentIni
 
   public registerTemplate(key: string, template: TemplateRef<ItemContext<T>>) {
     if (NativeScriptDebug.isLogEnabled()) {
-      NativeScriptDebug.listViewLog(`registerTemplate for key: ${key}`);
+      NativeScriptDebug.listViewLog(`registerTemplate for key: ${key}, ${this.loader}`);
     }
 
     if (!this._templateMap) {
