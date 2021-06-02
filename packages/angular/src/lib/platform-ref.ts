@@ -2,7 +2,7 @@ import { CompilerOptions, Injector, NgModuleRef, NgZone, PlatformRef, Type } fro
 import { ɵNgModuleFactory as NgModuleFactory } from '@angular/core';
 import { Application, StackLayout, View } from '@nativescript/core';
 import { AppHostView } from './app-host-view';
-import { AppLaunchView, AppRunOptions, runNativescriptAngularApp } from './application';
+import { AppLaunchView, AppRunOptions, runNativeScriptAngularApp } from './application';
 import { APP_ROOT_VIEW } from './tokens';
 
 /**
@@ -71,7 +71,7 @@ export class NativeScriptPlatformRefProxy extends PlatformRef {
       launchView: () => this.launchView,
     };
 
-    runNativescriptAngularApp(this.options);
+    runNativeScriptAngularApp(this.options);
 
     return null;
   }
@@ -80,7 +80,7 @@ export class NativeScriptPlatformRefProxy extends PlatformRef {
       appModuleBootstrap: () => this.platform.bootstrapModule(moduleType, compilerOptions),
     };
 
-    runNativescriptAngularApp(this.options);
+    runNativeScriptAngularApp(this.options);
 
     return null;
   }
