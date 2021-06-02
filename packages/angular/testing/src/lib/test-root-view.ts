@@ -11,8 +11,8 @@ export function testingRootView(): LayoutBase {
   let testingRoot: LayoutBase;
   rootPageLayout.eachChild((child: View) => {
     if (child.id === TESTING_ROOT_ID) {
-      // testingRoot = child as LayoutBase;
-      rootPageLayout.removeChild(child);
+      testingRoot = child as LayoutBase;
+      // rootPageLayout.removeChild(child);
       return false;
     }
     return true;

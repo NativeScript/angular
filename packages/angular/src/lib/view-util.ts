@@ -386,7 +386,8 @@ export class ViewUtil {
     if (this.namespaceFilters) {
       let chain = (p: string) => true;
       for (let i = this.namespaceFilters.length - 1; i >= 0; i--) {
-        chain = (p) => this.namespaceFilters[i].runsIn(p, chain);
+        const currentChain = chain;
+        chain = (p) => this.namespaceFilters[i].runsIn(p, currentChain);
       }
       runs = chain(platform);
       runs = runs !== false ? true : false; // undefined means true

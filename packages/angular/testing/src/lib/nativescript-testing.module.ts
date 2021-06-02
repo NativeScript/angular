@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, Provider } from '@angular/core';
 import { TestComponentRenderer } from '@angular/core/testing';
 import { COMMON_PROVIDERS, APP_ROOT_VIEW } from '@nativescript/angular';
 import { NativeScriptTestComponentRenderer } from './nativescript_test_component_renderer';
@@ -15,7 +15,7 @@ if (typeof Node === 'undefined' && !global.Node) {
  * to test dynamic component loading and need to specify an entryComponent for the testing
  * module.
  */
-export const NATIVESCRIPT_TESTING_PROVIDERS: any[] = [...COMMON_PROVIDERS, { provide: APP_ROOT_VIEW, useFactory: testingRootView }, { provide: TestComponentRenderer, useClass: NativeScriptTestComponentRenderer }];
+export const NATIVESCRIPT_TESTING_PROVIDERS: Provider[] = [...COMMON_PROVIDERS, { provide: APP_ROOT_VIEW, useFactory: testingRootView }, { provide: TestComponentRenderer, useClass: NativeScriptTestComponentRenderer }];
 
 /**
  * NativeScript testing support module. Enables use of TestBed for angular components, directives,

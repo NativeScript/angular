@@ -1,11 +1,11 @@
 import { ViewportScroller, XhrFactory, ɵNullViewportScroller as NullViewportScroller } from '@angular/common';
 import { ApplicationModule, ErrorHandler, Inject, NgModule, NO_ERRORS_SCHEMA, Optional, Provider, RendererFactory2, SkipSelf, StaticProvider, ɵINJECTOR_SCOPE as INJECTOR_SCOPE } from '@angular/core';
-import { Color, View } from '@nativescript/core';
+import { Color, Device, View } from '@nativescript/core';
 import { AppHostView } from './app-host-view';
 import { NativescriptXhrFactory } from './nativescript-xhr-factory';
 import { NativeScriptRendererFactory } from './nativescript-renderer';
-import { PlatformNamespaceFilter } from './property-filter';
-import { APP_RENDERED_ROOT_VIEW, APP_ROOT_VIEW, ENABLE_REUSABE_VIEWS, NAMESPACE_FILTERS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
+import { PlatformNamespaceFilter, NAMESPACE_FILTERS } from './property-filter';
+import { APP_RENDERED_ROOT_VIEW, APP_ROOT_VIEW, DEVICE, ENABLE_REUSABE_VIEWS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { ViewUtil } from './view-util';
 import { DetachedLoader } from './cdk/detached-loader';
 import { NativeScriptCommonModule } from './nativescript-common.module';
@@ -36,7 +36,8 @@ export const NATIVESCRIPT_MODULE_STATIC_PROVIDERS: StaticProvider[] = [
   },
   { provide: NATIVESCRIPT_ROOT_MODULE_ID, useFactory: generateRandomId },
   { provide: RendererFactory2, useExisting: NativeScriptRendererFactory },
-  { provide: NAMESPACE_FILTERS, useClass: PlatformNamespaceFilter, deps: [], multi: true },
+  { provide: NAMESPACE_FILTERS, useClass: PlatformNamespaceFilter, deps: [DEVICE], multi: true },
+  { provide: DEVICE, useValue: Device },
   { provide: XhrFactory, useClass: NativescriptXhrFactory, deps: [] },
 ];
 export const NATIVESCRIPT_MODULE_PROVIDERS: Provider[] = [{ provide: ViewportScroller, useClass: NullViewportScroller }];

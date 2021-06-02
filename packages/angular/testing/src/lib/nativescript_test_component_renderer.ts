@@ -13,6 +13,9 @@ export class NativeScriptTestComponentRenderer extends TestComponentRenderer {
     layout.id = rootElId;
 
     const rootLayout = testingRootView();
+    while (rootLayout.getChildrenCount() > 0) {
+      rootLayout.removeChild(rootLayout.getChildAt(0));
+    }
     rootLayout.addChild(layout);
   }
 }

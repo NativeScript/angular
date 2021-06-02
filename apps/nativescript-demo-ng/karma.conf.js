@@ -1,4 +1,5 @@
-const filePatterns = ['main.spec.ts', '**/*.spec.ts'];
+// const filePatterns = ['tests/test-main.ts','tests/**/*.ts', '**/*.spec.ts'];
+const filePatterns = ['tests/test-main.ts', 'tests/**/*.ts'];
 module.exports = function (config) {
   const options = {
     // base path that will be used to resolve all patterns (eg. files, exclude)

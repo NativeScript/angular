@@ -3,8 +3,8 @@ import { addTaggedAdditionalCSS, Application, ContentView, Device, getViewById, 
 import { getViewClass, isKnownView } from './element-registry';
 import { getFirstNativeLikeView, NgView } from './views';
 
-import { NamespaceFilter } from './property-filter';
-import { APP_RENDERED_ROOT_VIEW, APP_ROOT_VIEW, ENABLE_REUSABE_VIEWS, NAMESPACE_FILTERS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
+import { NamespaceFilter, NAMESPACE_FILTERS } from './property-filter';
+import { APP_RENDERED_ROOT_VIEW, APP_ROOT_VIEW, ENABLE_REUSABE_VIEWS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { NativeScriptDebug } from './trace';
 import { ViewUtil } from './view-util';
 
