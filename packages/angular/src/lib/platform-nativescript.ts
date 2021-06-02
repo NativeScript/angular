@@ -2,8 +2,9 @@ import { Type, Injector, CompilerOptions, PlatformRef, NgModuleFactory, NgModule
 import { DOCUMENT } from '@angular/common';
 import { NativeScriptPlatformRefProxy } from './platform-ref';
 import { AppHostView } from './app-host-view';
-import { Color } from '@nativescript/core';
+import { Color, GridLayout } from '@nativescript/core';
 import { APP_ROOT_VIEW, defaultPageFactory, PAGE_FACTORY } from './tokens';
+import { AppLaunchView } from './application';
 
 export const defaultPageFactoryProvider = { provide: PAGE_FACTORY, useValue: defaultPageFactory };
 export class NativeScriptSanitizer extends Sanitizer {
@@ -57,12 +58,30 @@ export interface AppOptions {
    * Background color of the root view
    */
   backgroundColor?: string;
+  /**
+   * Use animated launch view (async by default)
+   */
+  launchView?: AppLaunchView;
+  /**
+   * When using Async APP_INITIALIZER, set this to `true`.
+   * (Not needed when using launchView)
+   */
+  async?: boolean;
 }
 
+/**
+ * @deprecated use runNativescriptAngularApp instead
+ */
 export const platformNativeScriptDynamic = function (options?: AppOptions, extraProviders?: StaticProvider[]) {
+  console.log('platformNativeScriptDynamic is deprecated, use runNativescriptAngularApp instead');
   options = options || {};
   extraProviders = extraProviders || [];
 
   const ngRootView = new AppHostView(new Color(options.backgroundColor || 'white'));
-  return new NativeScriptPlatformRefProxy(platformNativeScript([{ provide: APP_ROOT_VIEW, useValue: ngRootView }, ...extraProviders]));
+  let launchView = options.launchView;
+  if (!launchView && options.async) {
+    launchView = new GridLayout();
+    launchView.backgroundColor = options.backgroundColor || 'white';
+  }
+  return new NativeScriptPlatformRefProxy(platformNativeScript([{ provide: APP_ROOT_VIEW, useValue: ngRootView }, ...extraProviders]), launchView);
 };
