@@ -32,7 +32,7 @@ export class NativeScriptDocument {
 
 export const COMMON_PROVIDERS = [defaultPageFactoryProvider, { provide: Sanitizer, useClass: NativeScriptSanitizer, deps: [] }, { provide: DOCUMENT, useClass: NativeScriptDocument, deps: [] }];
 
-export const platformNativescript = createPlatformFactory(platformCore, 'nativescriptDynamic', COMMON_PROVIDERS);
+export const platformNativeScript = createPlatformFactory(platformCore, 'nativescriptDynamic', COMMON_PROVIDERS);
 
 export interface HmrOptions {
   /**
@@ -64,5 +64,5 @@ export const platformNativeScriptDynamic = function (options?: AppOptions, extra
   extraProviders = extraProviders || [];
 
   const ngRootView = new AppHostView(new Color(options.backgroundColor || 'white'));
-  return new NativeScriptPlatformRefProxy(platformNativescript([{ provide: APP_ROOT_VIEW, useValue: ngRootView }, ...extraProviders]));
+  return new NativeScriptPlatformRefProxy(platformNativeScript([{ provide: APP_ROOT_VIEW, useValue: ngRootView }, ...extraProviders]));
 };

@@ -2,7 +2,7 @@ export * from './views';
 export * from './tokens';
 export * from './property-filter';
 export * from './view-refs';
-export { AppOptions, COMMON_PROVIDERS, HmrOptions, NativeScriptDocument, NativeScriptSanitizer, defaultPageFactoryProvider, platformNativeScriptDynamic, platformNativescript } from './platform-nativescript';
+export { AppOptions, COMMON_PROVIDERS, HmrOptions, NativeScriptDocument, NativeScriptSanitizer, defaultPageFactoryProvider, platformNativeScriptDynamic, platformNativeScript } from './platform-nativescript';
 export * from './cdk/detached-loader';
 export * from './nativescript';
 export { ActionBarComponent, ActionBarScope, ActionItemDirective, NavigationButtonDirective } from './cdk/action-bar';
