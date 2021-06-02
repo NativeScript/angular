@@ -23,11 +23,11 @@ if (module['hot']) {
   module['hot'].decline();
   global.__onLiveSyncCore = () => {
     Application.getRootView()?._onCssStateChange();
-    // all other changes are applied by runNativescriptAngularApp
+    // all other changes are applied by runNativeScriptAngularApp
   };
 }
 
-export function runNativescriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
+export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   let mainModuleRef = null;
   let loadingModuleRef: NgModuleRef<K>;
   let platformRef: PlatformRef = null;
