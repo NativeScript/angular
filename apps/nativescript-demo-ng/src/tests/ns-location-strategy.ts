@@ -1,10 +1,7 @@
 // make sure you import mocha-config before @angular/core
 import { DefaultUrlSerializer, UrlTree } from '@angular/router';
-import { NSLocationStrategy, LocationState, Outlet } from '@nativescript/angular';
-import { Frame, BackstackEntry, NavigationEntry } from '@nativescript/core';
-import { Page } from '@nativescript/core/ui/page';
-import { View } from '@nativescript/core/ui/core/view';
-import { FrameService } from '@nativescript/angular';
+import { FrameService, LocationState, NSLocationStrategy, Outlet } from '@nativescript/angular';
+import { BackstackEntry, Frame, NavigationEntry, Page, View } from '@nativescript/core';
 
 export class FakeFrameService extends FrameService {
   private frame: Frame;

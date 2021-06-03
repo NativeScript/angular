@@ -1,126 +1,125 @@
-// // make sure you import mocha-config before @angular/core
-// import {assert} from "./test-config";
-// import {View} from "@nativescript/core/ui/core/view";
-// import {ViewUtil} from "@nativescript/angular/view-util";
-// import {
-//     NgView,
-//     ViewExtensions,
-//     ViewClassMeta,
-// } from "@nativescript/angular/element-registry";
-// import {Red} from "@nativescript/core/color/known-colors";
-// import {device, platformNames} from "@nativescript/core/platform";
-// import {createDevice} from "./test-utils";
+import { Color, View } from '@nativescript/core';
+import { PlatformNamespaceFilter, ɵViewUtil } from '@nativescript/angular';
+type ViewUtil = ɵViewUtil.ViewUtil;
+import { NgView, ViewExtensions, ViewClassMeta } from '@nativescript/angular';
+import { device, platformNames } from '@nativescript/core/platform';
+import { createDevice } from './test-utils';
+import { Device } from '@nativescript/core';
 
-// class TestView extends View implements NgView {
-//     public meta: ViewClassMeta = { skipAddToDom: false };
-//     public nodeType: number = 1;
-//     public nodeName: string = "TestView";
-//     public parentNode: NgView = null;
-//     public nextSibling: NgView;
-//     public firstChild: NgView;
-//     public lastChild: NgView;
-//     public ngCssClasses: Map<string, boolean> = new Map<string, boolean>();
+class TestView extends View implements NgView {
+  public meta: ViewClassMeta = { skipAddToDom: false };
+  public nodeType: number = 1;
+  public nodeName: string = 'TestView';
+  public parentNode: NgView = null;
+  public previousSibling: NgView;
+  public nextSibling: NgView;
+  public firstChild: NgView;
+  public lastChild: NgView;
+  public ngCssClasses: Map<string, boolean> = new Map<string, boolean>();
 
-//     public stringValue: string = "";
-//     public numValue: number = 0;
-//     public boolValue: boolean = undefined;
-//     public anyValue: any = undefined;
-//     public nested: { property: string } = { property: "untouched" };
-// }
+  public stringValue: string = '';
+  public numValue: number = 0;
+  public boolValue: boolean = undefined;
+  public anyValue: any = undefined;
+  public nested: { property: string } = { property: 'untouched' };
+}
 
-// const iosDevice = createDevice(platformNames.ios);
-// const androidDevice = createDevice(platformNames.android);
+const iosDevice = createDevice(platformNames.ios);
+const androidDevice = createDevice(platformNames.android);
 
-// describe("setting View properties", () => {
-//     let viewUtil: ViewUtil;
-//     before(() => {
-//         viewUtil = new ViewUtil(device);
-//     });
+describe('setting View properties', () => {
+  function createViewUtil(device: typeof Device) {
+    return new ɵViewUtil.ViewUtil([new PlatformNamespaceFilter(device)], false);
+  }
+  let viewUtil: ViewUtil;
+  beforeAll(() => {
+    viewUtil = createViewUtil(Device);
+  });
 
-//     it("preserves string values", () => {
-//         let view = new TestView();
-//         viewUtil.setProperty(view, "stringValue", "blah");
-//         assert.equal("blah", view.stringValue);
-//     });
+  it('preserves string values', () => {
+    let view = new TestView();
+    viewUtil.setProperty(view, 'stringValue', 'blah');
+    expect(view.stringValue).toBe('blah');
+  });
 
-//     it("doesn\'t convert number values", () => {
-//         let view = new TestView();
-//         viewUtil.setProperty(view, "numValue", "42");
-//         assert.strictEqual(<any>"42", view.numValue);
+  it("doesn't convert number values", () => {
+    let view = new TestView();
+    viewUtil.setProperty(view, 'numValue', '42');
+    expect(view.numValue).toBe(<any>'42');
 
-//         viewUtil.setProperty(view, "numValue", "42.");
-//         assert.strictEqual(<any>"42.", <any>view.numValue);
+    viewUtil.setProperty(view, 'numValue', '42.');
+    expect(<any>view.numValue).toBe(<any>'42.');
 
-//         viewUtil.setProperty(view, "numValue", 0);
-//         assert.strictEqual(0, view.numValue);
-//     });
+    viewUtil.setProperty(view, 'numValue', 0);
+    expect(view.numValue).toBe(0);
+  });
 
-//     it("doesn\'t convert boolean values", () => {
-//         let view = new TestView();
-//         viewUtil.setProperty(view, "boolValue", "true");
-//         assert.strictEqual(<any>"true", view.boolValue);
-//         viewUtil.setProperty(view, "boolValue", "false");
-//         assert.strictEqual(<any>"false", view.boolValue);
-//     });
+  it("doesn't convert boolean values", () => {
+    let view = new TestView();
+    viewUtil.setProperty(view, 'boolValue', 'true');
+    expect(view.boolValue).toBe(<any>'true');
+    viewUtil.setProperty(view, 'boolValue', 'false');
+    expect(view.boolValue).toBe(<any>'false');
+  });
 
-//     it("sets style values", () => {
-//         let view = new TestView();
-//         viewUtil.setProperty(view, "style", "color: red");
-//         assert.equal(Red, view.style.color.hex);
-//     });
+  it('sets style values', () => {
+    let view = new TestView();
+    viewUtil.setProperty(view, 'style', 'color: red');
+    expect(view.style.color.hex).toBe(new Color('red').hex);
+  });
 
-//     it("doesn\'t convert blank strings", () => {
-//         let view = new TestView();
-//         viewUtil.setProperty(view, "stringValue", "");
-//         assert.strictEqual("", view.stringValue);
-//     });
+  it("doesn't convert blank strings", () => {
+    let view = new TestView();
+    viewUtil.setProperty(view, 'stringValue', '');
+    expect(view.stringValue).toBe('');
+  });
 
-//     it("doesn\'t convert booleans", () => {
-//         let view = new TestView();
-//         viewUtil.setProperty(view, "boolValue", true);
-//         assert.strictEqual(true, view.boolValue);
-//         viewUtil.setProperty(view, "boolValue", false);
-//         assert.strictEqual(false, view.boolValue);
-//     });
+  it("doesn't convert booleans", () => {
+    let view = new TestView();
+    viewUtil.setProperty(view, 'boolValue', true);
+    expect(view.boolValue).toBe(true);
+    viewUtil.setProperty(view, 'boolValue', false);
+    expect(view.boolValue).toBe(false);
+  });
 
-//     it("preserves objects", () => {
-//         let value = { name: "Jim", age: 23 };
-//         let view = new TestView();
-//         viewUtil.setProperty(view, "anyValue", value);
-//         assert.deepEqual(value, view.anyValue);
-//     });
+  it('preserves objects', () => {
+    let value = { name: 'Jim', age: 23 };
+    let view = new TestView();
+    viewUtil.setProperty(view, 'anyValue', value);
+    expect(value).toEqual(view.anyValue);
+  });
 
-//     it("sets nested properties", () => {
-//         let view = new TestView();
-//         viewUtil.setProperty(view, "nested.property", "blah");
-//         assert.strictEqual("blah", view.nested.property);
-//     });
+  it('sets nested properties', () => {
+    let view = new TestView();
+    viewUtil.setProperty(view, 'nested.property', 'blah');
+    expect(view.nested.property).toBe('blah');
+  });
 
-//     it("sets ios property in ios", () => {
-//         let view = new TestView();
-//         let testUtil = new ViewUtil(iosDevice);
-//         testUtil.setProperty(view, "anyValue", "blah", "ios");
-//         assert.strictEqual("blah", view.anyValue);
-//     });
+  it('sets ios property in ios', () => {
+    let view = new TestView();
+    let testUtil = createViewUtil(iosDevice);
+    testUtil.setProperty(view, 'anyValue', 'blah', 'ios');
+    expect(view.anyValue).toBe('blah');
+  });
 
-//     it("doesn\'t set android property in ios", () => {
-//         let view = new TestView();
-//         let testUtil = new ViewUtil(iosDevice);
-//         testUtil.setProperty(view, "anyValue", "blah", "android");
-//         assert.isUndefined(view.anyValue);
-//     });
+  it("doesn't set android property in ios", () => {
+    let view = new TestView();
+    let testUtil = createViewUtil(iosDevice);
+    testUtil.setProperty(view, 'anyValue', 'blah', 'android');
+    expect(view.anyValue).toBeUndefined();
+  });
 
-//     it("sets android property in android", () => {
-//         let view = new TestView();
-//         let testUtil = new ViewUtil(androidDevice);
-//         testUtil.setProperty(view, "anyValue", "blah", "android");
-//         assert.strictEqual("blah", view.anyValue);
-//     });
+  it('sets android property in android', () => {
+    let view = new TestView();
+    let testUtil = createViewUtil(androidDevice);
+    testUtil.setProperty(view, 'anyValue', 'blah', 'android');
+    expect(view.anyValue).toBe('blah');
+  });
 
-//     it("doesn\'t set ios property in android", () => {
-//         let view = new TestView();
-//         let testUtil = new ViewUtil(androidDevice);
-//         testUtil.setProperty(view, "anyValue", "blah", "ios");
-//         assert.isUndefined(view.anyValue);
-//     });
-// });
+  it("doesn't set ios property in android", () => {
+    let view = new TestView();
+    let testUtil = createViewUtil(androidDevice);
+    testUtil.setProperty(view, 'anyValue', 'blah', 'ios');
+    expect(view.anyValue).toBeUndefined();
+  });
+});
