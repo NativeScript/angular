@@ -76,12 +76,17 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
     }
     return new Promise<void>((resolve) => {
       let interval = 0;
+      function scheduleResolve() {
+        // iOS really hates synchronous things...
+        // Utils.queueMacrotask(resolve);
+        setTimeout(resolve, 15);
+      }
       function fireWhenLoaded() {
         const view = rootFactory();
         if (view.isLoaded) {
-          Utils.queueMacrotask(resolve);
+          scheduleResolve();
         } else {
-          view.once('loaded', () => Utils.queueMacrotask(resolve));
+          view.once('loaded', scheduleResolve);
         }
       }
       let rootFactory = () => (this.rootView instanceof ContentView ? this.rootView.content : this.rootView);
