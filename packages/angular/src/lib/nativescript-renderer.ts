@@ -1,5 +1,5 @@
 import { Inject, Injectable, NgZone, Optional, Renderer2, RendererFactory2, RendererStyleFlags2, RendererType2, ViewEncapsulation } from '@angular/core';
-import { addTaggedAdditionalCSS, Application, ContentView, Device, getViewById, Observable, profile, View } from '@nativescript/core';
+import { addTaggedAdditionalCSS, Application, ContentView, Device, getViewById, Observable, profile, Utils, View } from '@nativescript/core';
 import { getViewClass, isKnownView } from './element-registry';
 import { getFirstNativeLikeView, NgView } from './views';
 
@@ -70,9 +70,34 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
   // end?(): void {
   //     throw new Error("Method not implemented.");
   // }
-  // whenRenderingDone?(): Promise<any> {
-  //     throw new Error("Method not implemented.");
-  // }
+  whenRenderingDone(): Promise<any> {
+    if (!this.rootView) {
+      return Promise.resolve();
+    }
+    return new Promise<void>((resolve) => {
+      let interval = 0;
+      function fireWhenLoaded() {
+        const view = rootFactory();
+        if (view.isLoaded) {
+          Utils.queueMacrotask(resolve);
+        } else {
+          view.once('loaded', () => Utils.queueMacrotask(resolve));
+        }
+      }
+      let rootFactory = () => (this.rootView instanceof ContentView ? this.rootView.content : this.rootView);
+      if (!rootFactory()) {
+        interval = setInterval(() => {
+          if (rootFactory()) {
+            clearInterval(interval);
+            fireWhenLoaded();
+          }
+        }, 10);
+      } else {
+        fireWhenLoaded();
+      }
+    });
+    // throw new Error("Method not implemented.");
+  }
 }
 
 class NativeScriptRenderer implements Renderer2 {

@@ -115,41 +115,33 @@ describe('ListView-tests', () => {
 
   it(
     'setupItemView is called for every item',
-    waitForAsync(() => {
+    waitForAsync(async () => {
       const fixture = TestBed.createComponent(TestListViewComponent);
       fixture.detectChanges();
       const component = fixture.componentRef.instance;
-      promiseWait(100)().then(() => {
-        // allow for native calls to go through
-        expect(component.counter).toBe(3);
-      });
+      await fixture.whenRenderingDone();
+      expect(component.counter).toBe(3);
     })
   );
 
   it(
     'itemTemplateSelector selects templates',
-    waitForAsync(() => {
+    waitForAsync(async () => {
       const fixture = TestBed.createComponent(TestListViewSelectorComponent);
       fixture.detectChanges();
-      const component = fixture.componentRef.instance;
-      promiseWait(100)().then(() => {
-        // allow for native calls to go through
-        expect(testTemplates).toEqual({ first: 2, second: 1 });
-      });
+      await fixture.whenRenderingDone();
+      expect(testTemplates).toEqual({ first: 2, second: 1 });
     })
   );
 
   it(
     "'defaultTemplate' does not throw when list-view is scrolled",
-    waitForAsync(() => {
+    waitForAsync(async () => {
       const fixture = TestBed.createComponent(TestDefaultItemTemplateComponent);
       fixture.detectChanges();
       const component = fixture.componentRef.instance;
+      await fixture.whenRenderingDone();
       expect(component.onScrollListViewTo.bind(component)).not.toThrow();
-      promiseWait(100)().then(() => {
-        // allow for native calls to go through
-        expect(component.onScrollListViewTo.bind(component)).not.toThrow();
-      });
     })
   );
 });
