@@ -47,7 +47,7 @@ export class TextValueAccessor extends BaseValueAccessor<TextView> {
   }
 
   writeValue(value: any): void {
-    const normalized = super.normalizeValue(value);
+    const normalized = super.normalizeValue(value ? `${value}` : value);
     this.view.text = normalized;
   }
 }
