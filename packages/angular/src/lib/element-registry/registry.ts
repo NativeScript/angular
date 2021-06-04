@@ -61,7 +61,9 @@ export function extractSingleViewRecursive(nodes: Array<any>, nestLevel: number)
   return rootLayout;
 }
 
+/**
+ * @deprecated getSingleViewRecursive is deprecated, use extractSingleViewRecursive
+ */
 export function getSingleViewRecursive(nodes: Array<any>, nestLevel: number): View {
-  console.log('getSingleViewRecursive is deprecated, use extractSingleViewRecursive');
   return extractSingleViewRecursive(nodes, nestLevel);
 }
