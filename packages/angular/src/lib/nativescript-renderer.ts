@@ -75,7 +75,7 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
       return Promise.resolve();
     }
     return new Promise<void>((resolve) => {
-      let interval = 0;
+      let interval: any = 0;
       function scheduleResolve() {
         // iOS really hates synchronous things...
         // Utils.queueMacrotask(resolve);
