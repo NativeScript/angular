@@ -156,7 +156,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     const currentBootstrapId = bootstrapId;
     let bootstrapped = false;
     let onMainBootstrap = () => {
-      //
+      setRootView(mainModuleRef);
     };
     options.appModuleBootstrap(reason).then(
       (ref) => {
@@ -176,7 +176,6 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
         bootstrapped = true;
         onMainBootstrap();
         emitModuleBootstrapEvent(ref, 'main', reason);
-        setRootView(mainModuleRef);
         // bootstrapped component: (ref as any)._bootstrapComponents[0];
       },
       (err) => showErrorUI(err)
