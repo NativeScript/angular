@@ -9,7 +9,13 @@ export interface NamespaceFilter {
 export class PlatformNamespaceFilter implements NamespaceFilter {
   constructor(@Inject(DEVICE) private device: typeof Device) {}
   runsIn(namespace: string, next: (namespace: string) => boolean | undefined): boolean | undefined {
-    return (namespace === 'android' && this.device.os === platformNames.android) || (namespace === 'ios' && this.device.os === platformNames.ios) ? next(namespace) : false;
+    if (namespace === 'android') {
+      return this.device.os === platformNames.android;
+    }
+    if (namespace === 'ios') {
+      return this.device.os === platformNames.ios;
+    }
+    return next(namespace);
   }
 }
 

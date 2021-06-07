@@ -1,6 +1,6 @@
 import { NgModule, Provider } from '@angular/core';
 import { TestComponentRenderer } from '@angular/core/testing';
-import { COMMON_PROVIDERS, APP_ROOT_VIEW } from '@nativescript/angular';
+import { COMMON_PROVIDERS, APP_ROOT_VIEW, NativeScriptModule } from '@nativescript/angular';
 import { NativeScriptTestComponentRenderer } from './nativescript_test_component_renderer';
 import { testingRootView } from './test-root-view';
 
@@ -22,6 +22,7 @@ export const NATIVESCRIPT_TESTING_PROVIDERS: Provider[] = [...COMMON_PROVIDERS, 
  * pipes, and services.
  */
 @NgModule({
+  exports: [NativeScriptModule],
   providers: NATIVESCRIPT_TESTING_PROVIDERS,
 })
 export class NativeScriptTestingModule {}

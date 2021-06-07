@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable, Optional } from '@angular/core';
 import { LocationStrategy } from '@angular/common';
 import { DefaultUrlSerializer, UrlSegmentGroup, UrlTree, ActivatedRouteSnapshot, Params } from '@angular/router';
 import { Frame } from '@nativescript/core';
@@ -6,6 +6,7 @@ import { NativeScriptDebug } from '../../trace';
 import { isPresent } from '../../utils/lang-facade';
 import { FrameService } from '../frame.service';
 import { Outlet, NavigationOptions, LocationState, defaultNavOptions } from './ns-location-utils';
+import { START_PATH } from '../../tokens';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +21,7 @@ export class NSLocationStrategy extends LocationStrategy {
 
   public _modalNavigationDepth = 0;
 
-  constructor(private frameService: FrameService, private startPath?: string) {
+  constructor(private frameService: FrameService, @Inject(START_PATH) @Optional() private startPath?: string) {
     super();
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.routerLog('NSLocationStrategy.constructor()');

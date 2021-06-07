@@ -1,10 +1,7 @@
-import { Color, View } from '@nativescript/core';
-import { PlatformNamespaceFilter, ɵViewUtil } from '@nativescript/angular';
-type ViewUtil = ɵViewUtil.ViewUtil;
-import { NgView, ViewExtensions, ViewClassMeta } from '@nativescript/angular';
-import { device, platformNames } from '@nativescript/core/platform';
+import { NgView, PlatformNamespaceFilter, ViewClassMeta, ɵViewUtil } from '@nativescript/angular';
+import { Color, Device, platformNames, View } from '@nativescript/core';
 import { createDevice } from './test-utils';
-import { Device } from '@nativescript/core';
+type ViewUtil = ɵViewUtil.ViewUtil;
 
 class TestView extends View implements NgView {
   public meta: ViewClassMeta = { skipAddToDom: false };

@@ -9,4 +9,4 @@ import { NativeScriptTestingModule } from '@nativescript/angular/testing';
 import { NativeScriptModule } from '@nativescript/angular';
 import { platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 
-TestBed.initTestEnvironment([NativeScriptTestingModule, NativeScriptModule], platformBrowserDynamicTesting());
+TestBed.initTestEnvironment([NativeScriptTestingModule], platformBrowserDynamicTesting());
