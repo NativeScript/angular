@@ -100,6 +100,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   let mainModuleRef: NgModuleRef<T> = null;
   let loadingModuleRef: NgModuleRef<K>;
   let platformRef: PlatformRef = null;
+  let bootstrapId = -1;
   const updatePlatformRef = (moduleRef: NgModuleRef<T | K>, reason: NgModuleReason) => {
     const newPlatformRef = moduleRef.injector.get(PlatformRef);
     if (newPlatformRef === platformRef) {
@@ -110,6 +111,10 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     platformRef.onDestroy(() => (platformRef = platformRef === newPlatformRef ? null : platformRef));
   };
   const setRootView = (ref: NgModuleRef<T | K> | View) => {
+    if (bootstrapId === -1) {
+      // treat edge cases
+      return;
+    }
     if (ref instanceof NgModuleRef) {
       if (ref.injector.get(DISABLE_ROOT_VIEW_HANDLING, false)) {
         return;
@@ -147,12 +152,20 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     setRootView(errorTextBox);
   };
   const bootstrapRoot = (reason: NgModuleReason) => {
+    bootstrapId = Date.now();
+    const currentBootstrapId = bootstrapId;
     let bootstrapped = false;
     let onMainBootstrap = () => {
       //
     };
     options.appModuleBootstrap(reason).then(
       (ref) => {
+        if (currentBootstrapId !== bootstrapId) {
+          // this module is old and not needed anymore
+          // this may happen when developer uses async app initializer and the user exits the app before this bootstraps
+          ref.destroy();
+          return;
+        }
         mainModuleRef = ref;
         ref.onDestroy(() => (mainModuleRef = mainModuleRef === ref ? null : mainModuleRef));
         updatePlatformRef(ref, reason);
@@ -169,10 +182,19 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
       (err) => showErrorUI(err)
     );
     Utils.queueMacrotask(() => {
+      if (currentBootstrapId !== bootstrapId) {
+        return;
+      }
       if (!bootstrapped) {
         if (options.loadingModule) {
           options.loadingModule(reason).then(
             (loadingRef) => {
+              if (currentBootstrapId !== bootstrapId) {
+                // this module is old and not needed anymore
+                // this may happen when developer uses async app initializer and the user exits the app before this bootstraps
+                loadingRef.destroy();
+                return;
+              }
               loadingModuleRef = loadingRef;
               loadingModuleRef.onDestroy(() => (loadingModuleRef = loadingModuleRef === loadingRef ? null : loadingModuleRef));
               updatePlatformRef(loadingRef, reason);
@@ -230,6 +252,8 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     platformRef = null;
   };
   const disposeLastModules = (reason: NgModuleReason) => {
+    // reset bootstrap ID to make sure any modules bootstrapped after this are discarded
+    bootstrapId = -1;
     destroyRef(loadingModuleRef, 'loading', reason);
     loadingModuleRef = null;
     destroyRef(mainModuleRef, 'main', reason);
