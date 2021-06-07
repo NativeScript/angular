@@ -17,8 +17,15 @@ export interface NgViewTemplate<T> {
 }
 
 export class NgViewRef<T> implements NgViewRef<T> {
+  /**
+   * Component's view instance or first valid template view
+   */
   view: View;
   ref: EmbeddedViewRef<T> | ComponentRef<T>;
+  /**
+   * First valid view that isn't strictly logical (ContentView, ProxyViewContainer, ...)
+   * This view *very* likely has a nativeView associated to it.
+   */
   firstNativeLikeView: View;
 
   constructor(ref: EmbeddedViewRef<T> | ComponentRef<T>) {

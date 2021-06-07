@@ -16,7 +16,7 @@ import { BasePortalOutlet, ComponentPortal, TemplatePortal, DomPortal } from './
  * A PortalOutlet for attaching portals to an arbitrary DOM element outside of the Angular
  * application context.
  */
-export class NativescriptDomPortalOutlet extends BasePortalOutlet {
+export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
   private _viewUtil: ViewUtil;
   constructor(
     /** Element into which the content is projected. */

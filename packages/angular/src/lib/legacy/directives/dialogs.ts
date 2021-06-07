@@ -3,7 +3,7 @@ import { Application, ContentView, Frame, ShowModalOptions, View, ViewBase } fro
 import { AppHostAsyncView, AppHostView } from '../../app-host-view';
 import { DetachedLoader } from '../../cdk/detached-loader';
 import { ComponentPortal } from '../../cdk/portal/common';
-import { NativescriptDomPortalOutlet } from '../../cdk/portal/nsdom-portal-outlet';
+import { NativeScriptDomPortalOutlet } from '../../cdk/portal/nsdom-portal-outlet';
 import { once } from '../../utils/general';
 import { NgViewRef } from '../../view-refs';
 import { NSLocationStrategy } from '../router/ns-location-strategy';
@@ -97,7 +97,7 @@ export class ModalDialogService {
   private _showDialog(options: ShowDialogOptions): void {
     let componentViewRef: NgViewRef<unknown>;
     let detachedLoaderRef: ComponentRef<DetachedLoader>;
-    let portalOutlet: NativescriptDomPortalOutlet;
+    let portalOutlet: NativeScriptDomPortalOutlet;
 
     const closeCallback = once((...args) => {
       options.doneCallback.apply(undefined, args);
@@ -135,7 +135,7 @@ export class ModalDialogService {
       // }
       const targetView = new ContentView();
       const portal = new ComponentPortal(options.type);
-      portalOutlet = new NativescriptDomPortalOutlet(targetView, options.resolver, this.appRef, childInjector);
+      portalOutlet = new NativeScriptDomPortalOutlet(targetView, options.resolver, this.appRef, childInjector);
       const componentRef = portalOutlet.attach(portal);
       ɵmarkDirty(componentRef.instance);
       componentViewRef = new NgViewRef(componentRef);

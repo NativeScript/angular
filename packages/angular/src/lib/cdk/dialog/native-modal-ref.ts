@@ -7,7 +7,7 @@ import { NSLocationStrategy } from '../../legacy/router/ns-location-strategy';
 import { once } from '../../utils/general';
 import { DetachedLoader } from '../detached-loader';
 import { ComponentPortal, TemplatePortal } from '../portal/common';
-import { NativescriptDomPortalOutlet } from '../portal/nsdom-portal-outlet';
+import { NativeScriptDomPortalOutlet } from '../portal/nsdom-portal-outlet';
 import { NativeDialogConfig } from './dialog-config';
 import { NgViewRef } from '../../view-refs';
 
@@ -17,7 +17,7 @@ export class NativeModalRef {
   onDismiss = new Subject();
 
   parentView: View;
-  portalOutlet: NativescriptDomPortalOutlet;
+  portalOutlet: NativeScriptDomPortalOutlet;
   detachedLoaderRef: ComponentRef<DetachedLoader>;
   modalViewRef: NgViewRef<any>;
 
@@ -70,7 +70,7 @@ export class NativeModalRef {
     this._generateDetachedContainer(vcRef);
     portal.viewContainerRef = this.detachedLoaderRef.instance.vc;
     const targetView = new ContentView();
-    this.portalOutlet = new NativescriptDomPortalOutlet(targetView, this._config.componentFactoryResolver || this._injector.get(ComponentFactoryResolver), this._injector.get(ApplicationRef), this._injector);
+    this.portalOutlet = new NativeScriptDomPortalOutlet(targetView, this._config.componentFactoryResolver || this._injector.get(ComponentFactoryResolver), this._injector.get(ApplicationRef), this._injector);
     const templateRef = this.portalOutlet.attach(portal);
     this.modalViewRef = new NgViewRef(templateRef);
     this.modalViewRef.firstNativeLikeView['__ng_modal_id__'] = this._id;
@@ -98,7 +98,7 @@ export class NativeModalRef {
     this.startModalNavigation();
 
     const targetView = new ContentView();
-    this.portalOutlet = new NativescriptDomPortalOutlet(targetView, this._config.componentFactoryResolver || this._injector.get(ComponentFactoryResolver), this._injector.get(ApplicationRef), this._injector);
+    this.portalOutlet = new NativeScriptDomPortalOutlet(targetView, this._config.componentFactoryResolver || this._injector.get(ComponentFactoryResolver), this._injector.get(ApplicationRef), this._injector);
     const componentRef = this.portalOutlet.attach(portal);
     ɵmarkDirty(componentRef.instance);
     this.modalViewRef = new NgViewRef(componentRef);

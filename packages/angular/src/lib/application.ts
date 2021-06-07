@@ -1,8 +1,8 @@
-import { NgModuleRef, PlatformRef } from '@angular/core';
+import { NgModuleRef, NgZone, PlatformRef } from '@angular/core';
 import { filter, map, take } from 'rxjs/operators';
 import { Application, ApplicationEventData, Color, LaunchEventData, LayoutBase, profile, removeTaggedAdditionalCSS, StackLayout, TextView, View, Utils, Trace } from '@nativescript/core';
-import { AppHostAsyncView, AppHostView } from './app-host-view';
-import { LoadingService } from './loading.service';
+import { AppHostView } from './app-host-view';
+import { NativeScriptLoadingService } from './loading.service';
 import { APP_ROOT_VIEW, DISABLE_ROOT_VIEW_HANDLING, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { Observable, Subject } from 'rxjs';
 import { NativeScriptDebug } from './trace';
@@ -16,6 +16,10 @@ export interface AppLaunchView extends LayoutBase {
 
   // do you want to handle setting this as a rootview manually?
   __disable_root_view_handling?: boolean;
+}
+
+export function disableRootViewHanding(view: AppLaunchView) {
+  view.__disable_root_view_handling = true;
 }
 
 export type NgModuleReason = 'hotreload' | 'applaunch' | 'appexit';
@@ -174,7 +178,9 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
           removeTaggedAdditionalCSS(styleTag);
         });
         bootstrapped = true;
-        onMainBootstrap();
+        // delay bootstrap callback until all rendering is good to go
+        Utils.queueMacrotask(() => onMainBootstrap());
+        // onMainBootstrap();
         emitModuleBootstrapEvent(ref, 'main', reason);
         // bootstrapped component: (ref as any)._bootstrapComponents[0];
       },
@@ -203,8 +209,10 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
               });
               setRootView(loadingRef);
               onMainBootstrap = () => {
-                const loadingService = loadingModuleRef.injector.get(LoadingService);
-                loadingService.notifyMainModuleReady();
+                const loadingService = loadingModuleRef.injector.get(NativeScriptLoadingService);
+                loadingModuleRef.injector.get(NgZone).run(() => {
+                  loadingService._notifyMainModuleReady();
+                });
                 loadingService.readyToDestroy$
                   .pipe(
                     filter((ready) => ready),
