@@ -1,7 +1,7 @@
 import '@nativescript/core/globals';
 import '@nativescript/angular/polyfills';
 import '@nativescript/zone-js/dist/pre-zone-polyfills';
-import 'zone.js/dist/zone.js';
+import 'zone.js';
 import '@nativescript/zone-js';
 // import { Label, Observable, Trace, View } from '@nativescript/core';
 // // Trace.setErrorHandler({
