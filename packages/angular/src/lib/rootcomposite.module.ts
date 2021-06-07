@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
-import { Application, ContentView, RootLayout, View, ViewBase } from '@nativescript/core';
+import { Application, ContentView, RootLayout, View } from '@nativescript/core';
 import { APP_ROOT_VIEW, DISABLE_ROOT_VIEW_HANDLING } from './tokens';
-import { getFirstNativeLikeView } from './views';
 
 export class RootViewProxy extends ContentView {
   constructor(private parentRootLayout: RootLayout) {
@@ -21,7 +20,13 @@ export class RootViewProxy extends ContentView {
   }
 }
 
-export function rootLayoutViewFactory() {
+/**
+ * This generates a RootLayout and returns a RootViewProxy.
+ * Setting RootViewProxy.content will add the view to the bottom of the RootLayout
+ * Setting RootViewProxy.content = null will remove the view from the RootLayout
+ * @returns RootViewProxy that will insert content into the start of the RootLayout
+ */
+export function generateRootLayoutAndProxy() {
   let rootView = Application.getRootView();
   if (!rootView || !(rootView instanceof RootLayout)) {
     rootView = new RootLayout();
@@ -35,7 +40,7 @@ export function rootLayoutViewFactory() {
 @NgModule({
   providers: [
     { provide: DISABLE_ROOT_VIEW_HANDLING, useValue: true },
-    { provide: APP_ROOT_VIEW, useFactory: rootLayoutViewFactory },
+    { provide: APP_ROOT_VIEW, useFactory: generateRootLayoutAndProxy },
   ],
 })
 export class RootCompositeModule {}
