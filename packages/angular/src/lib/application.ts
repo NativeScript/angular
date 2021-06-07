@@ -1,9 +1,11 @@
 import { NgModuleRef, PlatformRef } from '@angular/core';
-import { filter, take } from 'rxjs/operators';
-import { Application, ApplicationEventData, Color, LaunchEventData, LayoutBase, profile, removeTaggedAdditionalCSS, StackLayout, TextView, View, Utils } from '@nativescript/core';
+import { filter, map, take } from 'rxjs/operators';
+import { Application, ApplicationEventData, Color, LaunchEventData, LayoutBase, profile, removeTaggedAdditionalCSS, StackLayout, TextView, View, Utils, Trace } from '@nativescript/core';
 import { AppHostAsyncView, AppHostView } from './app-host-view';
 import { LoadingService } from './loading.service';
-import { APP_RENDERED_ROOT_VIEW, APP_ROOT_VIEW, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
+import { APP_ROOT_VIEW, DISABLE_ROOT_VIEW_HANDLING, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
+import { Observable, Subject } from 'rxjs';
+import { NativeScriptDebug } from './trace';
 
 export interface AppLaunchView extends LayoutBase {
   // called when the animation is to begin
@@ -11,12 +13,49 @@ export interface AppLaunchView extends LayoutBase {
   // called when bootstrap is complete and cleanup can begin
   // should resolve when animation is completely finished
   cleanup?: () => Promise<any>;
+
+  // do you want to handle setting this as a rootview manually?
+  __disable_root_view_handling?: boolean;
 }
 
+export type NgModuleReason = 'hotreload' | 'applaunch' | 'appexit';
+
+export type NgModuleEvent =
+  | {
+      moduleType: 'main' | 'loading' | string;
+      reference: NgModuleRef<unknown>;
+      reason: NgModuleReason | string;
+    }
+  | {
+      moduleType: 'platform';
+      reference: PlatformRef;
+      reason: NgModuleReason | string;
+    };
+
+export const preAngularDisposal$ = new Subject<NgModuleEvent>();
+export const postAngularBootstrap$ = new Subject<NgModuleEvent>();
+
+/**
+ * @deprecated
+ */
+export const onBeforeLivesync: Observable<NgModuleRef<any>> = preAngularDisposal$.pipe(
+  filter((v) => v.moduleType === 'main' && v.reason === 'hotreload'),
+  map((v) => v.reference as NgModuleRef<any>)
+);
+/**
+ * @deprecated
+ */
+export const onAfterLivesync: Observable<{
+  moduleRef?: NgModuleRef<any>;
+  error?: Error;
+}> = postAngularBootstrap$.pipe(
+  filter((v) => v.moduleType === 'main'),
+  map((v) => ({ moduleRef: v.reference as NgModuleRef<any> }))
+);
 export interface AppRunOptions<T, K> {
-  appModuleBootstrap: () => Promise<NgModuleRef<T>>;
-  loadingModule?: () => Promise<NgModuleRef<K>>;
-  launchView?: () => AppLaunchView;
+  appModuleBootstrap: (reason: NgModuleReason) => Promise<NgModuleRef<T>>;
+  loadingModule?: (reason: NgModuleReason) => Promise<NgModuleRef<K>>;
+  launchView?: (reason: NgModuleReason) => AppLaunchView;
 }
 
 if (module['hot']) {
@@ -27,32 +66,75 @@ if (module['hot']) {
   };
 }
 
+function emitModuleBootstrapEvent<T>(ref: NgModuleRef<T>, name: 'main' | 'loading', reason: NgModuleReason) {
+  postAngularBootstrap$.next({
+    moduleType: name,
+    reference: ref,
+    reason,
+  });
+}
+
+function destroyRef<T>(ref: NgModuleRef<T>, name: 'main' | 'loading', reason: NgModuleReason): void;
+function destroyRef(ref: PlatformRef, reason: NgModuleReason): void;
+function destroyRef<T>(ref: PlatformRef | NgModuleRef<T>, name?: string, reason?: string): void {
+  if (ref) {
+    if (ref instanceof PlatformRef) {
+      preAngularDisposal$.next({
+        moduleType: 'platform',
+        reference: ref,
+        reason: name,
+      });
+    }
+    if (ref instanceof NgModuleRef) {
+      preAngularDisposal$.next({
+        moduleType: name,
+        reference: ref,
+        reason,
+      });
+    }
+    ref.destroy();
+  }
+}
+
 export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
-  let mainModuleRef = null;
+  let mainModuleRef: NgModuleRef<T> = null;
   let loadingModuleRef: NgModuleRef<K>;
   let platformRef: PlatformRef = null;
-  const updatePlatformRef = (moduleRef: NgModuleRef<any>) => {
+  const updatePlatformRef = (moduleRef: NgModuleRef<T | K>, reason: NgModuleReason) => {
     const newPlatformRef = moduleRef.injector.get(PlatformRef);
     if (newPlatformRef === platformRef) {
       return;
     }
-    if (platformRef) {
-      platformRef.destroy();
-    }
+    destroyRef(platformRef, reason);
     platformRef = newPlatformRef;
     platformRef.onDestroy(() => (platformRef = platformRef === newPlatformRef ? null : platformRef));
   };
   const setRootView = (ref: NgModuleRef<T | K> | View) => {
+    if (ref instanceof NgModuleRef) {
+      if (ref.injector.get(DISABLE_ROOT_VIEW_HANDLING, false)) {
+        return;
+      }
+    } else {
+      if (ref['__disable_root_view_handling']) {
+        return;
+      }
+    }
     Application.getRootView()?._closeAllModalViewsInternal(); // cleanup old rootview
     // TODO: check for leaks when root view isn't properly destroyed
     if (ref instanceof View) {
+      if (NativeScriptDebug.isLogEnabled()) {
+        NativeScriptDebug.bootstrapLog(`Setting RootView to ${ref}`);
+      }
       Application.resetRootView({
         create: () => ref,
       });
       return;
     }
-    const view = ref.injector.get(APP_RENDERED_ROOT_VIEW) as AppHostView | View;
+    const view = ref.injector.get(APP_ROOT_VIEW) as AppHostView | View;
     const newRoot = view instanceof AppHostView ? view.content : view;
+    if (NativeScriptDebug.isLogEnabled()) {
+      NativeScriptDebug.bootstrapLog(`Setting RootView to ${newRoot}`);
+    }
     Application.resetRootView({
       create: () => newRoot,
     });
@@ -64,37 +146,36 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     errorTextBox.color = new Color('red');
     setRootView(errorTextBox);
   };
-  const bootstrapRoot = () => {
+  const bootstrapRoot = (reason: NgModuleReason) => {
     let bootstrapped = false;
     let onMainBootstrap = () => {
       //
     };
-    options.appModuleBootstrap().then(
+    options.appModuleBootstrap(reason).then(
       (ref) => {
         mainModuleRef = ref;
         ref.onDestroy(() => (mainModuleRef = mainModuleRef === ref ? null : mainModuleRef));
-        updatePlatformRef(ref);
+        updatePlatformRef(ref, reason);
         const styleTag = ref.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
         ref.onDestroy(() => {
           removeTaggedAdditionalCSS(styleTag);
         });
         bootstrapped = true;
         onMainBootstrap();
+        emitModuleBootstrapEvent(ref, 'main', reason);
+        setRootView(mainModuleRef);
         // bootstrapped component: (ref as any)._bootstrapComponents[0];
       },
       (err) => showErrorUI(err)
     );
-    // TODO: scheduleMacroTask
-    (<any>Utils).queueMacrotask(() => {
-      if (bootstrapped) {
-        setRootView(mainModuleRef);
-      } else {
+    Utils.queueMacrotask(() => {
+      if (!bootstrapped) {
         if (options.loadingModule) {
-          options.loadingModule().then(
+          options.loadingModule(reason).then(
             (loadingRef) => {
               loadingModuleRef = loadingRef;
               loadingModuleRef.onDestroy(() => (loadingModuleRef = loadingModuleRef === loadingRef ? null : loadingModuleRef));
-              updatePlatformRef(loadingRef);
+              updatePlatformRef(loadingRef, reason);
               const styleTag = loadingModuleRef.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
               loadingRef.onDestroy(() => {
                 removeTaggedAdditionalCSS(styleTag);
@@ -109,16 +190,17 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
                     take(1)
                   )
                   .subscribe(() => {
-                    loadingModuleRef.destroy();
+                    destroyRef(loadingModuleRef, 'loading', reason);
                     loadingModuleRef = null;
                     setRootView(mainModuleRef);
                   });
               };
+              emitModuleBootstrapEvent(loadingModuleRef, 'loading', reason);
             },
             (err) => showErrorUI(err)
           );
         } else if (options.launchView) {
-          let launchView = options.launchView();
+          let launchView = options.launchView(reason);
           setRootView(launchView);
           if (launchView.startAnimation) {
             setTimeout(() => {
@@ -137,32 +219,28 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
                 });
             }
           };
+        } else {
+          NativeScriptDebug.bootstrapLogError('App is bootstrapping asynchronously (likely APP_INITIALIZER) but did not provide a launchView or LoadingModule');
         }
       }
     });
   };
-  const disposePlatform = () => {
-    if (platformRef) {
-      platformRef.destroy();
-      platformRef = null;
-    }
+  const disposePlatform = (reason: NgModuleReason) => {
+    destroyRef(platformRef, reason);
+    platformRef = null;
   };
-  const disposeLastModules = () => {
-    if (loadingModuleRef) {
-      loadingModuleRef.destroy();
-      loadingModuleRef = null;
-    }
-    if (mainModuleRef) {
-      mainModuleRef.destroy();
-      mainModuleRef = null;
-    }
+  const disposeLastModules = (reason: NgModuleReason) => {
+    destroyRef(loadingModuleRef, 'loading', reason);
+    loadingModuleRef = null;
+    destroyRef(mainModuleRef, 'main', reason);
+    mainModuleRef = null;
   };
   const launchCallback = profile('@nativescript/angular/platform-common.launchCallback', (args: LaunchEventData) => {
     args.root = null;
-    bootstrapRoot();
+    bootstrapRoot('applaunch');
   });
   const exitCallback = profile('@nativescript/angular/platform-common.exitCallback', (args: ApplicationEventData) => {
-    disposeLastModules();
+    disposeLastModules('appexit');
   });
 
   Application.on(Application.launchEvent, launchCallback);
@@ -170,33 +248,33 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   if (module['hot']) {
     // handle HMR Application.run
     global['__dispose_app_ng_platform__'] = () => {
-      disposePlatform();
+      disposePlatform('hotreload');
     };
     global['__dispose_app_ng_modules__'] = () => {
-      disposeLastModules();
+      disposeLastModules('hotreload');
     };
     global['__bootstrap_app_ng_modules__'] = () => {
-      bootstrapRoot();
+      bootstrapRoot('hotreload');
     };
     global['__cleanup_ng_hot__'] = () => {
       Application.off(Application.launchEvent, launchCallback);
       Application.off(Application.exitEvent, exitCallback);
-      disposePlatform();
-      disposeLastModules();
+      disposeLastModules('hotreload');
+      disposePlatform('hotreload');
     };
     global['__reboot_ng_modules__'] = (shouldDisposePlatform: boolean = false) => {
+      disposeLastModules('hotreload');
       if (shouldDisposePlatform) {
-        disposePlatform();
+        disposePlatform('hotreload');
       }
-      disposeLastModules();
-      bootstrapRoot();
+      bootstrapRoot('hotreload');
     };
 
     if (!Application.hasLaunched()) {
       Application.run();
       return;
     }
-    bootstrapRoot();
+    bootstrapRoot('hotreload');
     return;
   }
 

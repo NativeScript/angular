@@ -5,7 +5,7 @@ import { AppHostView } from './app-host-view';
 import { NativescriptXhrFactory } from './nativescript-xhr-factory';
 import { NativeScriptRendererFactory } from './nativescript-renderer';
 import { PlatformNamespaceFilter, NAMESPACE_FILTERS } from './property-filter';
-import { APP_RENDERED_ROOT_VIEW, APP_ROOT_VIEW, DEVICE, ENABLE_REUSABE_VIEWS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
+import { APP_ROOT_VIEW, DEVICE, ENABLE_REUSABE_VIEWS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { ViewUtil } from './view-util';
 import { DetachedLoader } from './cdk/detached-loader';
 import { NativeScriptCommonModule } from './nativescript-common.module';
@@ -25,14 +25,14 @@ export function generateRandomId() {
 }
 
 export const NATIVESCRIPT_MODULE_STATIC_PROVIDERS: StaticProvider[] = [
-  { provide: APP_RENDERED_ROOT_VIEW, useFactory: generateFallbackRootView, deps: [[new Optional(), APP_ROOT_VIEW]] },
+  { provide: APP_ROOT_VIEW, useFactory: generateFallbackRootView, deps: [[new Optional(), new SkipSelf(), APP_ROOT_VIEW]] },
   { provide: INJECTOR_SCOPE, useValue: 'root' },
   { provide: ErrorHandler, useFactory: errorHandler, deps: [] },
   { provide: ViewUtil, useClass: ViewUtil, deps: [NAMESPACE_FILTERS, [new Optional(), ENABLE_REUSABE_VIEWS]] },
   {
     provide: NativeScriptRendererFactory,
     useClass: NativeScriptRendererFactory,
-    deps: [APP_RENDERED_ROOT_VIEW, NAMESPACE_FILTERS, NATIVESCRIPT_ROOT_MODULE_ID, [new Optional(), ENABLE_REUSABE_VIEWS]],
+    deps: [APP_ROOT_VIEW, NAMESPACE_FILTERS, NATIVESCRIPT_ROOT_MODULE_ID, [new Optional(), ENABLE_REUSABE_VIEWS]],
   },
   { provide: NATIVESCRIPT_ROOT_MODULE_ID, useFactory: generateRandomId },
   { provide: RendererFactory2, useExisting: NativeScriptRendererFactory },

@@ -1,11 +1,18 @@
-export function NgSafe2(
-  event: string,
+/**
+ * This decorator delays a potentially unsafe event (like loaded/unloaded that will sometimes be called before ngOnInit) to be handled safely by ensuring it's called after a lifecycle hook.
+ * @param runAfterEvent event/function call to wait until the event can be fired ('ngOnInit', 'ngAfterViewInit', ...)
+ * @param options Optional event handling params
+ * @returns decorator
+ */
+export function NativeScriptNgSafeEvent(
+  runAfterEvent: string,
   options: {
     onlyLast?: boolean;
     onlyFirst?: boolean;
     alwaysRunBefore?: string;
   } = {}
 ) {
+  const event = runAfterEvent;
   return function (target: unknown, propertyKey: string, descriptor: PropertyDescriptor) {
     type NgSafeType = {
       events: {

@@ -11,10 +11,10 @@ import { RouterExtensions } from './router-extensions';
 import { FrameService } from '../frame.service';
 import { NSEmptyOutletComponent } from './ns-empty-outlet.component';
 import { NativeScriptCommonModule } from '../../nativescript-common.module';
+import { START_PATH } from '../../tokens';
 
 export { PageRoute } from './page-router-outlet';
 export { RouterExtensions } from './router-extensions';
-export { NSModuleFactoryLoader } from './ns-module-factory-loader';
 export { Outlet, NavigationOptions, LocationState, defaultNavOptions } from './ns-location-utils';
 export { NSRouterLink } from './ns-router-link';
 export { NSRouterLinkActive } from './ns-router-link-active';
@@ -22,8 +22,8 @@ export { PageRouterOutlet } from './page-router-outlet';
 export { NSLocationStrategy } from './ns-location-strategy';
 export { NSEmptyOutletComponent } from './ns-empty-outlet.component';
 
-export function provideLocationStrategy(locationStrategy: NSLocationStrategy, frameService: FrameService): NSLocationStrategy {
-  return locationStrategy ? locationStrategy : new NSLocationStrategy(frameService);
+export function provideLocationStrategy(locationStrategy: NSLocationStrategy, frameService: FrameService, startPath: string): NSLocationStrategy {
+  return locationStrategy ? locationStrategy : new NSLocationStrategy(frameService, startPath);
 }
 
 @NgModule({
@@ -42,7 +42,7 @@ export class NativeScriptRouterModule {
         {
           provide: NSLocationStrategy,
           useFactory: provideLocationStrategy,
-          deps: [[NSLocationStrategy, new Optional(), new SkipSelf()], FrameService],
+          deps: [[NSLocationStrategy, new Optional(), new SkipSelf()], FrameService, [new Optional(), START_PATH]],
         },
         { provide: LocationStrategy, useExisting: NSLocationStrategy },
         NativescriptPlatformLocation,

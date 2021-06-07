@@ -3,7 +3,7 @@ import { DOCUMENT } from '@angular/common';
 import { NativeScriptPlatformRefProxy } from './platform-ref';
 import { AppHostView } from './app-host-view';
 import { Color, GridLayout } from '@nativescript/core';
-import { APP_ROOT_VIEW, defaultPageFactory, PAGE_FACTORY } from './tokens';
+import { defaultPageFactory, PAGE_FACTORY } from './tokens';
 import { AppLaunchView } from './application';
 
 export const defaultPageFactoryProvider = { provide: PAGE_FACTORY, useValue: defaultPageFactory };
@@ -83,5 +83,5 @@ export const platformNativeScriptDynamic = function (options?: AppOptions, extra
     launchView = new GridLayout();
     launchView.backgroundColor = options.backgroundColor || 'white';
   }
-  return new NativeScriptPlatformRefProxy(platformNativeScript([{ provide: APP_ROOT_VIEW, useValue: ngRootView }, ...extraProviders]), launchView);
+  return new NativeScriptPlatformRefProxy(platformNativeScript([...extraProviders]), launchView);
 };

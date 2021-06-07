@@ -4,7 +4,7 @@ import { getViewClass, isKnownView } from './element-registry';
 import { getFirstNativeLikeView, NgView } from './views';
 
 import { NamespaceFilter, NAMESPACE_FILTERS } from './property-filter';
-import { APP_RENDERED_ROOT_VIEW, APP_ROOT_VIEW, ENABLE_REUSABE_VIEWS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
+import { APP_ROOT_VIEW, ENABLE_REUSABE_VIEWS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { NativeScriptDebug } from './trace';
 import { ViewUtil } from './view-util';
 
@@ -20,7 +20,7 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
   private componentRenderers = new Map<string, Renderer2>();
   private defaultRenderer: Renderer2;
 
-  constructor(@Inject(APP_RENDERED_ROOT_VIEW) private rootView: View, @Inject(NAMESPACE_FILTERS) private namespaceFilters: NamespaceFilter[], @Inject(NATIVESCRIPT_ROOT_MODULE_ID) private rootModuleID: string | number, @Optional() @Inject(ENABLE_REUSABE_VIEWS) private reuseViews) {
+  constructor(@Inject(APP_ROOT_VIEW) private rootView: View, @Inject(NAMESPACE_FILTERS) private namespaceFilters: NamespaceFilter[], @Inject(NATIVESCRIPT_ROOT_MODULE_ID) private rootModuleID: string | number, @Optional() @Inject(ENABLE_REUSABE_VIEWS) private reuseViews) {
     if (typeof this.reuseViews !== 'boolean') {
       this.reuseViews = false; // default to false
     }
@@ -89,7 +89,7 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
           view.once('loaded', scheduleResolve);
         }
       }
-      let rootFactory = () => (this.rootView instanceof ContentView ? this.rootView.content : this.rootView);
+      const rootFactory = () => (this.rootView instanceof ContentView ? this.rootView.content : this.rootView);
       if (!rootFactory()) {
         interval = setInterval(() => {
           if (rootFactory()) {

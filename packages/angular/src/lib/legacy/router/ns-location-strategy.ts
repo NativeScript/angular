@@ -20,7 +20,7 @@ export class NSLocationStrategy extends LocationStrategy {
 
   public _modalNavigationDepth = 0;
 
-  constructor(private frameService: FrameService) {
+  constructor(private frameService: FrameService, private startPath?: string) {
     super();
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.routerLog('NSLocationStrategy.constructor()');
@@ -29,7 +29,7 @@ export class NSLocationStrategy extends LocationStrategy {
 
   path(): string {
     if (!this.currentUrlTree) {
-      return '/';
+      return this.startPath || '/';
     }
 
     const state = this.currentOutlet && this.currentOutlet.peekState();

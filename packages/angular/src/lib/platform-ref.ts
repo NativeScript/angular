@@ -1,9 +1,6 @@
 import { CompilerOptions, Injector, NgModuleRef, NgZone, PlatformRef, Type } from '@angular/core';
 import { ɵNgModuleFactory as NgModuleFactory } from '@angular/core';
-import { Application, StackLayout, View } from '@nativescript/core';
-import { AppHostView } from './app-host-view';
 import { AppLaunchView, AppRunOptions, runNativeScriptAngularApp } from './application';
-import { APP_ROOT_VIEW } from './tokens';
 
 /**
  * Provides additional options to the bootstraping process.
