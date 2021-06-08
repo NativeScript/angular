@@ -70,6 +70,17 @@ describe('Zone patches', () => {
     expect(whichZone).toBeUndefined();
   });
 
+  it('should not throw when removing inexisting listener', () => {
+    let whichZone: string;
+    const obs = new Observable();
+    const callback = () => (whichZone = Zone.current.name);
+    obs.removeEventListener('testEvent', callback);
+    Zone.root.run(() => {
+      obs.notify({ eventName: 'testEvent' });
+    });
+    expect(whichZone).toBeUndefined();
+  });
+
   it('should allow duplicate events', () => {
     let whichZone: string;
     const obs = new Observable();
