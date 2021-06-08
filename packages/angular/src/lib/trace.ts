@@ -1,9 +1,5 @@
 import { Trace } from '@nativescript/core';
 
-// Trace.setCategories('ns-renderer,ns-view-util');
-// Trace.setCategories('ns-renderer');
-Trace.enable();
-
 export class NativeScriptDebug {
   static readonly animationsTraceCategory = 'ns-animations';
   static readonly rendererTraceCategory = 'ns-renderer';
