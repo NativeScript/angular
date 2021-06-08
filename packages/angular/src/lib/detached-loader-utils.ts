@@ -37,12 +37,20 @@ export function generateNativeScriptView<T>(
     viewContainerRef?: ViewContainerRef;
     injector: Injector;
     keepNativeViewAttached?: boolean;
+    /**
+     * reuse a detachedLoaderRef. This will override viewContainerRef
+     */
+    detachedLoaderRef?: ComponentRef<DetachedLoader>;
   }
 ) {
+  let detachedLoaderRef: ComponentRef<DetachedLoader> = options.detachedLoaderRef;
+  const reusingDetachedLoader = !!detachedLoaderRef;
+  if (reusingDetachedLoader) {
+    options.viewContainerRef = detachedLoaderRef.instance.vc;
+  }
   const injector = options.viewContainerRef?.injector || options.injector;
   const resolver = options.resolver || injector.get(ComponentFactoryResolver);
-  let detachedLoaderRef: ComponentRef<DetachedLoader>;
-  if (options.viewContainerRef || typeOrTemplate instanceof TemplateRef) {
+  if (!detachedLoaderRef && (options.viewContainerRef || typeOrTemplate instanceof TemplateRef)) {
     detachedLoaderRef = generateDetachedLoader(resolver, injector, options.viewContainerRef);
   }
   let portal: ComponentPortal<T> | TemplatePortal<T>;
@@ -54,9 +62,11 @@ export function generateNativeScriptView<T>(
   const parentView = new ContentView();
   const portalOutlet = new NativeScriptDomPortalOutlet(parentView, resolver, injector.get(ApplicationRef), injector);
   const componentOrTemplateRef: ComponentRef<T> | EmbeddedViewRef<T> = portalOutlet.attach(portal);
-  if (detachedLoaderRef) {
+  componentOrTemplateRef.onDestroy(() => {
+    portalOutlet.dispose();
+  });
+  if (detachedLoaderRef && !reusingDetachedLoader) {
     componentOrTemplateRef.onDestroy(() => {
-      portalOutlet.dispose();
       detachedLoaderRef.destroy();
     });
   }
