@@ -1,6 +1,6 @@
 {
   "name": "@nativescript/angular",
-  "version": "12.0.0-alpha.14",
+  "version": "12.0.0",
   "homepage": "https://nativescript.org/",
   "bugs": "https://github.com/NativeScript/angular/issues",
   "author": "NativeScript TSC",
@@ -10,7 +10,7 @@
     "Angular"
   ],
   "dependencies": {
-    "@nativescript/zone-js": "~2.0.0-alpha.5"
+    "@nativescript/zone-js": "~2.0.0"
   },
   "ngPackage": {
     "lib": {
