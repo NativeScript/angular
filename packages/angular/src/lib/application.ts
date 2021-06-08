@@ -258,7 +258,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
             }
           };
         } else {
-          NativeScriptDebug.bootstrapLogError('App is bootstrapping asynchronously (likely APP_INITIALIZER) but did not provide a launchView or LoadingModule');
+          NativeScriptDebug.bootstrapLog('App is bootstrapping asynchronously (likely APP_INITIALIZER) but did not provide a launchView or LoadingModule.');
         }
       }
     });
