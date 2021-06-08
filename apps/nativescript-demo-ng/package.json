@@ -27,7 +27,7 @@
     "@nativescript/ios": "8.0.0",
     "@nativescript/types": "8.0.0",
     "@nativescript/unit-test-runner": "^2.0.5",
-    "@nativescript/webpack": "dev",
+    "@nativescript/webpack": "beta",
     "@ngtools/webpack": "~12.0.0",
     "@types/jasmine": "^3.7.2",
     "@types/sinon": "^10.0.2",

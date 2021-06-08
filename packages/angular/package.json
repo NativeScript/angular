@@ -2,7 +2,13 @@
   "name": "@nativescript/angular",
   "version": "12.0.0",
   "homepage": "https://nativescript.org/",
-  "bugs": "https://github.com/NativeScript/angular/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NativeScript/angular.git"
+  },
+  "bugs": {
+    "url": "https://github.com/NativeScript/angular/issues"
+  },
   "author": "NativeScript TSC",
   "license": "Apache-2.0",
   "keywords": [
