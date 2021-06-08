@@ -30,7 +30,7 @@ export class NgViewRef<T> implements NgViewRef<T> {
 
   constructor(ref: EmbeddedViewRef<T> | ComponentRef<T>) {
     this.ref = ref;
-    this.view = ref instanceof EmbeddedViewRef ? ref.rootNodes.find((v) => !(v instanceof InvisibleNode)) : ref.location.nativeElement;
+    this.view = ref instanceof ComponentRef ? ref.location.nativeElement : ref.rootNodes.find((v) => !(v instanceof InvisibleNode));
     this.firstNativeLikeView = getFirstNativeLikeView(this.view);
   }
 

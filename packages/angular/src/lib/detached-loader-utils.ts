@@ -28,7 +28,7 @@ export function generateDetachedLoader(resolver: ComponentFactoryResolver, injec
  * For opening modals and others, the firstNativeLikeView should be detached.
  * @param typeOrTemplate ComponentType or TemplateRef that should be instanced
  * @param options options for creating the view
- * @returns ComponentRef or EmbeddedViewRef for the type
+ * @returns NgViewRef
  */
 export function generateNativeScriptView<T>(
   typeOrTemplate: Type<T> | TemplateRef<T>,
@@ -71,6 +71,7 @@ export function generateNativeScriptView<T>(
     });
   }
   const viewRef = new NgViewRef(componentOrTemplateRef);
+  (viewRef as any).detachedLoaderRef = detachedLoaderRef;
   if (!options.keepNativeViewAttached) {
     viewRef.detachNativeLikeView();
   }

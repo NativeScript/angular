@@ -58,6 +58,10 @@ export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
     }
     // At this point the component has been instantiated, so we move it to the location in the DOM
     // where we want it to be rendered.
+    const rootNode = this._getComponentRootNode(componentRef);
+    if (rootNode.parent) {
+      this._viewUtil.removeChild(rootNode.parent as View, rootNode);
+    }
     this._viewUtil.appendChild(this.outletElement, this._getComponentRootNode(componentRef));
 
     return componentRef;
@@ -76,7 +80,12 @@ export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
     // But for the DomPortalOutlet the view can be added everywhere in the DOM
     // (e.g Overlay Container) To move the view to the specified host element. We just
     // re-append the existing root nodes.
-    viewRef.rootNodes.forEach((rootNode) => this._viewUtil.appendChild(this.outletElement, rootNode));
+    viewRef.rootNodes.forEach((rootNode) => {
+      if (rootNode.parent) {
+        this._viewUtil.removeChild(rootNode.parent as View, rootNode);
+      }
+      this._viewUtil.appendChild(this.outletElement, rootNode);
+    });
 
     // Note that we want to detect changes after the nodes have been moved so that
     // any directives inside the portal that are looking at the DOM inside a lifecycle
