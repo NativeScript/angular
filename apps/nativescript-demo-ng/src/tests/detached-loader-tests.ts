@@ -24,11 +24,7 @@ class LoaderComponentBase {
     </StackLayout>
   `,
 })
-export class LoaderComponent extends LoaderComponentBase {
-  ngOnDestroy() {
-    console.log('destroy');
-  }
-}
+export class LoaderComponent extends LoaderComponentBase {}
 
 @Component({
   selector: 'loader-component-on-push',
