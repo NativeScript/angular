@@ -184,7 +184,12 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
         emitModuleBootstrapEvent(ref, 'main', reason);
         // bootstrapped component: (ref as any)._bootstrapComponents[0];
       },
-      (err) => showErrorUI(err)
+      (err) => {
+        bootstrapped = true;
+        NativeScriptDebug.bootstrapLogError(`Error bootstrapping app module:\n${err.message}\n\n${err.stack}`);
+        showErrorUI(err);
+        throw err;
+      }
     );
     Utils.queueMacrotask(() => {
       if (currentBootstrapId !== bootstrapId) {
@@ -226,7 +231,11 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
               };
               emitModuleBootstrapEvent(loadingModuleRef, 'loading', reason);
             },
-            (err) => showErrorUI(err)
+            (err) => {
+              NativeScriptDebug.bootstrapLogError(`Error bootstrapping loading module:\n${err.message}\n\n${err.stack}`);
+              showErrorUI(err);
+              throw err;
+            }
           );
         } else if (options.launchView) {
           let launchView = options.launchView(reason);
