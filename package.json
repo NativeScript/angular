@@ -4,7 +4,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "clean": "npx rimraf hooks node_modules package-lock.json && npm i --legacy-peer-deps",
+    "clean": "npx rimraf hooks node_modules package-lock.json && npm i",
     "clean.all": "npm run clean && nx run nativescript-demo-ng:clean",
     "postinstall": "husky install",
     "nx": "nx",
