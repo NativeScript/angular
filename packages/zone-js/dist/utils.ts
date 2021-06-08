@@ -148,7 +148,8 @@ export function patchNativeScriptEventTarget(global: any, api: _ZonePrivate, api
             const data: ExtendedTaskData = {
               nsTaskData: taskData,
             };
-            const task: ExtendedTask = Zone.current.scheduleEventTask(obj.name + ':' + taskData.eventName, callback, data, schedule, unschedule);
+            const objName = obj.name || obj?.constructor?.name;
+            const task: ExtendedTask = Zone.current.scheduleEventTask(objName + ':' + (eventNameToString ? eventNameToString(eventName) : eventName), callback, data, schedule, unschedule);
             // should clear taskData.target to avoid memory leak
             // issue, https://github.com/angular/angular/issues/20442
             taskData.target = null;
@@ -238,7 +239,8 @@ export function patchNativeScriptEventTarget(global: any, api: _ZonePrivate, api
             const data: ExtendedTaskData = {
               nsTaskData: taskData,
             };
-            const task: ExtendedTask = Zone.current.scheduleEventTask(obj.name + ':' + taskData.eventName, callback, data, schedule, unschedule);
+            const objName = obj.name || obj?.constructor?.name;
+            const task: ExtendedTask = Zone.current.scheduleEventTask(objName + ':' + (eventNameToString ? eventNameToString(eventName) : eventName), callback, data, schedule, unschedule);
             // should clear taskData.target to avoid memory leak
             // issue, https://github.com/angular/angular/issues/20442
             taskData.target = null;
@@ -281,6 +283,9 @@ export function patchNativeScriptEventTarget(global: any, api: _ZonePrivate, api
             const existingTasks: Task[] = symbolEventName && target[symbolEventName];
             const removeAll = !callback; // object.off(event);
             if (existingTasks) {
+              if (removeAll) {
+                target[symbolEventName] = null;
+              }
               for (let i = 0; i < existingTasks.length; i++) {
                 const existingTask = existingTasks[i];
                 if (removeAll) {
@@ -302,9 +307,6 @@ export function patchNativeScriptEventTarget(global: any, api: _ZonePrivate, api
                   existingTask.zone.cancelTask(existingTask);
                   return;
                 }
-              }
-              if (removeAll) {
-                target[symbolEventName] = null;
               }
             }
             return nativeRemoveListener.apply(target, args);
