@@ -19,6 +19,8 @@ const addStyleToCss = profile('"renderer".addStyleToCss', function addStyleToCss
 export class NativeScriptRendererFactory implements RendererFactory2 {
   private componentRenderers = new Map<string, Renderer2>();
   private defaultRenderer: Renderer2;
+  // backwards compatibility with RadListView
+  private viewUtil = new ViewUtil(this.namespaceFilters, this.reuseViews);
 
   constructor(@Inject(APP_ROOT_VIEW) private rootView: View, @Inject(NAMESPACE_FILTERS) private namespaceFilters: NamespaceFilter[], @Inject(NATIVESCRIPT_ROOT_MODULE_ID) private rootModuleID: string | number, @Optional() @Inject(ENABLE_REUSABE_VIEWS) private reuseViews) {
     if (typeof this.reuseViews !== 'boolean') {
