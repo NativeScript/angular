@@ -1,6 +1,6 @@
 {
-  "name": "nativescript-frontend-flavors",
-  "version": "0.0.0",
+  "name": "nativescript-angular",
+  "version": "12.0.1",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -27,7 +27,8 @@
     "update": "nx migrate latest",
     "dep-graph": "nx dep-graph",
     "help": "nx help",
-    "workspace-generator": "nx workspace-generator"
+    "workspace-generator": "nx workspace-generator",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
   },
   "dependencies": {
     "@angular/animations": "~12.0.0",
@@ -65,6 +66,7 @@
     "@types/node": "14.14.33",
     "@typescript-eslint/eslint-plugin": "4.19.0",
     "@typescript-eslint/parser": "4.19.0",
+    "conventional-changelog-cli": "^2.1.1",
     "dotenv": "8.2.0",
     "eslint": "7.22.0",
     "eslint-config-prettier": "8.1.0",
