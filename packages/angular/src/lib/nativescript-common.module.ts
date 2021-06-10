@@ -5,8 +5,9 @@ import { ActionBarComponent, ActionBarScope, ActionItemDirective, NavigationButt
 import { ListViewComponent, TemplateKeyDirective } from './cdk/list-view/list-view.component';
 import { registerNativeScriptViewComponents } from './element-registry';
 import { ModalDialogService } from './legacy/directives/dialogs';
+import { TabViewDirective, TabViewItemDirective } from './cdk/tab-view';
 
-const CDK_COMPONENTS = [ActionBarComponent, ActionBarScope, ActionItemDirective, NavigationButtonDirective, ListViewComponent, TemplateKeyDirective];
+const CDK_COMPONENTS = [ActionBarComponent, ActionBarScope, ActionItemDirective, NavigationButtonDirective, ListViewComponent, TemplateKeyDirective, TabViewDirective, TabViewItemDirective];
 
 registerNativeScriptViewComponents();
 
