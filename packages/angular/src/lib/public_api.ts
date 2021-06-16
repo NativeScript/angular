@@ -2,6 +2,7 @@ export * from './views';
 export * from './tokens';
 export * from './property-filter';
 export * from './view-refs';
+export * from './app-host-view';
 export { AppOptions, COMMON_PROVIDERS, HmrOptions, NativeScriptDocument, NativeScriptSanitizer, defaultPageFactoryProvider, platformNativeScriptDynamic, platformNativeScript } from './platform-nativescript';
 export * from './cdk/detached-loader';
 export { NATIVESCRIPT_MODULE_PROVIDERS, NATIVESCRIPT_MODULE_STATIC_PROVIDERS, NativeScriptModule, errorHandler, generateFallbackRootView, generateRandomId } from './nativescript';
