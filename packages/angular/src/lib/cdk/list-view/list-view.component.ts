@@ -1,5 +1,5 @@
-import { AfterContentInit, ContentChild, Directive, DoCheck, ElementRef, EmbeddedViewRef, EventEmitter, Host, Inject, InjectionToken, Input, IterableDiffer, IterableDiffers, OnDestroy, Output, TemplateRef, ViewChild, ViewContainerRef, ɵisListLikeIterable as isListLikeIterable, NgZone, ɵmarkDirty, Component, ChangeDetectionStrategy } from '@angular/core';
-import { ObservableArray, View, KeyedTemplate, LayoutBase, ItemEventData, TemplatedItemsView, profile, ListView } from '@nativescript/core';
+import { AfterContentInit, ChangeDetectionStrategy, Component, ContentChild, Directive, DoCheck, ElementRef, EmbeddedViewRef, EventEmitter, Host, HostListener, Input, IterableDiffer, IterableDiffers, NgZone, OnDestroy, Output, TemplateRef, ViewChild, ViewContainerRef, ɵisListLikeIterable as isListLikeIterable, ɵmarkDirty } from '@angular/core';
+import { ItemEventData, KeyedTemplate, LayoutBase, ListView, ObservableArray, profile, View } from '@nativescript/core';
 
 import { extractSingleViewRecursive } from '../../element-registry/registry';
 import { NativeScriptDebug } from '../../trace';
@@ -15,8 +15,7 @@ export class NsTemplatedItem<T> implements NgViewTemplate<{ index: number; data:
   constructor(private template: TemplateRef<ItemContext<T>>, public location: ViewContainerRef, private onCreate?: (view: View) => void) {}
   create(context?: { index: number; data: T }): View {
     const viewRef = this.location.createEmbeddedView(this.template, context ? this.setupItemContext(context) : new ItemContext());
-    viewRef.detach(); // create detached
-    viewRef.markForCheck();
+    viewRef.detach(); // create detached, just beware this doesn't always work and the view might run the first CD anyway.
     const resultView = getItemViewRoot(viewRef);
     resultView[NG_VIEW] = viewRef;
     if (this.onCreate) {
@@ -71,6 +70,7 @@ export class NsTemplatedItem<T> implements NgViewTemplate<{ index: number; data:
 
 export interface SetupItemViewArgs<T> {
   view: EmbeddedViewRef<ItemContext<T>>;
+  nativeElement: View;
   data: T;
   index: number;
   context: ItemContext<T>;
@@ -125,8 +125,6 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
 
   constructor(_elementRef: ElementRef, private _iterableDiffers: IterableDiffers, private zone: NgZone) {
     this.templatedItemsView = _elementRef.nativeElement;
-
-    this.templatedItemsView.on('itemLoading', this.onItemLoading, this);
   }
 
   ngAfterContentInit() {
@@ -138,7 +136,6 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
   }
 
   ngOnDestroy() {
-    this.templatedItemsView.off('itemLoading', this.onItemLoading, this);
     this.templatedItemsView = null;
 
     if (this._templateMap) {
@@ -166,7 +163,7 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
       const templates: KeyedTemplate[] = [];
       this._templateMap.forEach((value, key) => {
         templates.push({
-          createView: value.create.bind(value),
+          createView: () => null, // we'll handle creation later, otherwise core will create an invalid template
           key,
         });
       });
@@ -189,6 +186,7 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
     );
   }
 
+  @HostListener('itemLoading', ['$event'])
   @profile
   public onItemLoading(args: ItemEventData) {
     if (!this._templateMap) {
@@ -223,15 +221,15 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
       template = this._templateMap.get(templateKey);
       args.view = template.create({ index, data: currentItem });
     }
-    this.setupViewRef(template.getEmbeddedViewRef(args.view), currentItem, index);
+    this.setupViewRef(template.getEmbeddedViewRef(args.view), currentItem, index, args.view);
 
     template.attach(args.view);
     ɵmarkDirty(this);
   }
 
-  public setupViewRef(viewRef: EmbeddedViewRef<ItemContext<T>>, data: T, index: number): void {
+  public setupViewRef(viewRef: EmbeddedViewRef<ItemContext<T>>, data: T, index: number, nativeElement: View): void {
     const context = viewRef.context;
-    this.setupItemView.next({ view: viewRef, data: data, index: index, context: context });
+    this.setupItemView.next({ view: viewRef, nativeElement, data: data, index: index, context: context });
   }
 
   ngDoCheck() {

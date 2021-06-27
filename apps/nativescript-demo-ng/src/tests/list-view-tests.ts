@@ -1,7 +1,6 @@
 import { Component, Input, NgModule, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core';
 import { TestBed, waitForAsync } from '@angular/core/testing';
 import { ListViewComponent, NativeScriptModule } from '@nativescript/angular';
-import { promiseWait } from '@nativescript/angular/testing';
 // import trace = require("trace");
 // trace.setCategories("ns-list-view, " + trace.categories.Navigation);
 // trace.enable();
@@ -76,6 +75,38 @@ export class TestListViewSelectorComponent {
 }
 
 @Component({
+  selector: 'list-with-template-selector-with-events',
+  template: `
+    <GridLayout>
+      <ListView [items]="myItems" [itemTemplateSelector]="templateSelector" (itemLoading)="dummyEvent($event)">
+        <ng-template nsTemplateKey="first" let-item="item">
+          <StackLayout>
+            <Label [text]="item.name" (loaded)="dummyEvent($event)"></Label>
+            <item-component templateName="first"></item-component>
+          </StackLayout>
+        </ng-template>
+        <ng-template nsTemplateKey="second" let-item="item">
+          <StackLayout>
+            <Label [text]="item.name" (loaded)="dummyEvent($event)"></Label>
+            <item-component templateName="second"></item-component>
+          </StackLayout>
+        </ng-template>
+      </ListView>
+    </GridLayout>
+  `,
+})
+export class TestListViewSelectorWithEventsComponent {
+  public myItems: Array<DataItem> = ITEMS;
+  public templateSelector = (item: DataItem, index: number, items: any) => {
+    return item.id % 2 === 0 ? 'first' : 'second';
+  };
+  constructor() {
+    testTemplates = { first: 0, second: 0 };
+  }
+  dummyEvent(evt) {}
+}
+
+@Component({
   selector: 'list-view-default-item-template',
   template: `
     <GridLayout>
@@ -97,8 +128,10 @@ export class TestDefaultItemTemplateComponent {
   }
 }
 
+const declarations = [TestListViewComponent, TestListViewSelectorComponent, ItemTemplateComponent, TestDefaultItemTemplateComponent, TestListViewSelectorWithEventsComponent];
+
 @NgModule({
-  declarations: [TestListViewComponent, TestListViewSelectorComponent, ItemTemplateComponent, TestDefaultItemTemplateComponent],
+  declarations: [...declarations],
   imports: [NativeScriptModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
@@ -107,7 +140,7 @@ export class ListViewModule {}
 describe('ListView-tests', () => {
   beforeEach(() =>
     TestBed.configureTestingModule({
-      declarations: [TestListViewComponent, TestListViewSelectorComponent, ItemTemplateComponent, TestDefaultItemTemplateComponent],
+      declarations: [...declarations],
       imports: [NativeScriptModule],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents()
@@ -131,6 +164,20 @@ describe('ListView-tests', () => {
       fixture.detectChanges();
       await fixture.whenRenderingDone();
       expect(testTemplates).toEqual({ first: 2, second: 1 });
+    })
+  );
+
+  it(
+    "itemTemplateSelector doesn't break with events",
+    waitForAsync(async () => {
+      try {
+        const fixture = TestBed.createComponent(TestListViewSelectorWithEventsComponent);
+        fixture.autoDetectChanges(true);
+        await fixture.whenRenderingDone();
+        expect(testTemplates).toEqual({ first: 2, second: 1 });
+      } catch (e) {
+        fail(e);
+      }
     })
   );
 
