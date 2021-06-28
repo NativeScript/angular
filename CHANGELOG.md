@@ -1,3 +1,12 @@
+## [12.0.4](https://github.com/NativeScript/angular/compare/12.0.2...12.0.4) (2021-06-28)
+
+
+### Bug Fixes
+
+* **list-view:** ensure templates are in a consistent state on itemLoa… ([#10](https://github.com/NativeScript/angular/issues/10)) ([1c842f8](https://github.com/NativeScript/angular/commit/1c842f880beaa21eaf6bfd77b0d5246a83cfc136))
+
+
+
 ## [12.0.2](https://github.com/NativeScript/angular/compare/12.0.1...12.0.2) (2021-06-17)
 
 

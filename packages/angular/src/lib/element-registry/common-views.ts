@@ -44,6 +44,5 @@ export function registerNativeScriptViewComponents() {
     registerElement('WrapLayout', () => WrapLayout);
     registerElement('FormattedString', () => FormattedString);
     registerElement('Span', () => Span);
-    registerElement('TabView', () => TabView);
   }
 }

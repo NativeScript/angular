@@ -1,20 +1,16 @@
 {
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["src/*"],
-      "@nativescript/core": ["./node_modules/@nativescript/core/index.ts"],
-      "@nativescript/angular": ["../../packages/angular/src/index.ts"],
-      "@nativescript/angular/*": ["../../packages/angular/src/*"],
-      "@nativescript/angular/testing": ["../../packages/angular/testing/src/index.ts"],
-      "@nativescript/angular/polyfills": ["../../packages/angular/polyfills/src/index.ts"],
-      "@nativescript/zone-js": ["../../packages/zone-js/dist/index.ts"],
-      "@nativescript/zone-js/*": ["../../packages/zone-js/*"]
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
     },
-    "types": ["jasmine", "sinon"]
-  },
-  "exclude": ["node_modules", "platforms", "./src/**/*.spec.ts"],
-  "include": ["./src/tests/*.ts"],
-  "files": ["./references.d.ts", "../../packages/angular/references.d.ts", "./src/main.ts", "./src/polyfills.ts"]
+    {
+      "path": "./tsconfig.spec.json"
+    },
+    {
+      "path": "./tsconfig.editor.json"
+    }
+  ]
 }
