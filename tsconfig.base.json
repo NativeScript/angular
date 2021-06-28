@@ -18,8 +18,8 @@
     "paths": {
       "@nativescript/angular": ["packages/angular/src/index.ts"],
       "@nativescript/angular/*": ["packages/angular/src/*"],
-      "@nativescript/angular/testing": ["packages/angular/testing/src/index.ts"],
       "@nativescript/angular/polyfills": ["packages/angular/polyfills/src/index.ts"],
+      "@nativescript/angular/testing": ["packages/angular/testing/src/index.ts"],
       "@nativescript/zone-js": ["packages/zone-js/dist/index.ts"],
       "@nativescript/zone-js/*": ["packages/zone-js/*"]
     }

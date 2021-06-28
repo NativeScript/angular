@@ -5,9 +5,6 @@
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "parserOptions": {
-        "project": ["packages/zone-js/tsconfig.*?.json"]
-      },
       "rules": {}
     },
     {
