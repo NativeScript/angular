@@ -14,6 +14,7 @@ export * from './cdk/list-view';
 export * from './cdk/portal';
 export * from './cdk/dialog';
 export * from './cdk/tab-view';
+export * from './cdk/platform-filters';
 export * from './file-system';
 export * from './nativescript-common.module';
 export * from './loading.service';

@@ -35,6 +35,7 @@ export class PlatformSpecificAttributeComponent {
 const DECLARATIONS = [PlatformSpecificAttributeComponent, AndroidSpecificComponent, IosSpecificComponent];
 @NgModule({
   declarations: DECLARATIONS,
+  imports: [NativeScriptModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class PlatformModule {}
@@ -61,7 +62,8 @@ describe('Platform filter directives', () => {
       fixture.detectChanges();
       const componentRef = fixture.componentRef;
       const componentRoot = componentRef.instance.elementRef.nativeElement;
-      expect(dumpView(componentRoot, true).indexOf('Label') < 0).toBe(true);
+      console.log(dumpView(componentRoot, true));
+      expect(dumpView(componentRoot, true).indexOf('label') < 0).toBe(true);
     });
     it('applies iOS specific attribute', () => {
       const fixture = TestBed.createComponent(PlatformSpecificAttributeComponent);
@@ -94,7 +96,7 @@ describe('Platform filter directives', () => {
       fixture.detectChanges();
       const componentRef = fixture.componentRef;
       const componentRoot = componentRef.instance.elementRef.nativeElement;
-      expect(dumpView(componentRoot, true).indexOf('Label') < 0).toBe(true);
+      expect(dumpView(componentRoot, true).indexOf('label') < 0).toBe(true);
     });
     it('applies Android specific attribute', () => {
       const fixture = TestBed.createComponent(PlatformSpecificAttributeComponent);

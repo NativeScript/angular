@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@nativescript/android": "8.0.0",
-    "@nativescript/ios": "8.0.0"
+    "@nativescript/ios": "8.0.0",
+    "@nativescript/unit-test-runner": "^2.0.5"
   }
 }
