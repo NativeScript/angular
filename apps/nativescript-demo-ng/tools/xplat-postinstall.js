@@ -14,9 +14,11 @@ try {
 }
 
 // Helpful to trigger ngcc after an install to ensure all has processed properly
-const child = childProcess.spawn(/^win/.test(process.platform) ? '..\\..\\node_modules\\.bin\\ngcc' : '../../node_modules/.bin/ngcc', ['--tsconfig', 'tsconfig.app.json', '--properties', 'es2015', 'module', 'main', '--first-only'], {
+const ngccPath = path.join('..', '..', 'node_modules', '.bin', 'ngcc');
+const child = childProcess.spawn(ngccPath, ['--tsconfig', 'tsconfig.app.json', '--properties', 'es2015', 'module', 'main', '--first-only'], {
   cwd: process.cwd(),
   stdio: 'inherit',
+  shell: process.platform == 'win32'
 });
 child.on('close', (code) => {
 
