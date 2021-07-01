@@ -1,6 +1,5 @@
 import { InjectionToken } from '@angular/core';
-import { Page, View } from '@nativescript/core';
-import { Device } from '@nativescript/core';
+import { IDevice, Page, View } from '@nativescript/core';
 
 export const APP_ROOT_VIEW = new InjectionToken<View>('NativeScriptAppRootView');
 export const NATIVESCRIPT_ROOT_MODULE_ID = new InjectionToken<string | number>('NativeScriptRootModuleId');
@@ -18,7 +17,7 @@ export interface PageFactoryOptions {
 }
 
 export const DISABLE_ROOT_VIEW_HANDLING = new InjectionToken<boolean>('NativeScriptDisableRootViewHandling');
-export const DEVICE = new InjectionToken<typeof Device>('NativeScriptDevice');
+export const DEVICE = new InjectionToken<IDevice>('NativeScriptDevice');
 export const PAGE_FACTORY = new InjectionToken<PageFactory>('NativeScriptPageFactory');
 export const defaultPageFactory: PageFactory = function (_opts: PageFactoryOptions) {
   return new Page();
