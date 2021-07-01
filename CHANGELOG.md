@@ -1,3 +1,12 @@
+## [12.0.5](https://github.com/NativeScript/angular/compare/12.0.4...12.0.5) (2021-07-01)
+
+
+### Bug Fixes
+
+* platform filter directives ([#11](https://github.com/NativeScript/angular/issues/11)) ([b3d93b4](https://github.com/NativeScript/angular/commit/b3d93b4ded6a5885bc53a3bc58b5bd1ecccd37cb))
+
+
+
 ## [12.0.4](https://github.com/NativeScript/angular/compare/12.0.2...12.0.4) (2021-06-28)
 
 
