@@ -6,7 +6,8 @@ import { ListViewComponent, TemplateKeyDirective } from './cdk/list-view/list-vi
 import { registerNativeScriptViewComponents } from './element-registry';
 import { ModalDialogService } from './legacy/directives/dialogs';
 import { TabViewDirective, TabViewItemDirective } from './cdk/tab-view';
-import { AndroidFilterComponent, IOSFilterComponent } from './cdk/platform-filters';
+import { AndroidFilterComponent } from './cdk/platform-filters/android-filter.component';
+import { IOSFilterComponent } from './cdk/platform-filters/ios-filter.component';
 
 const CDK_COMPONENTS = [ActionBarComponent, ActionBarScope, ActionItemDirective, NavigationButtonDirective, ListViewComponent, TemplateKeyDirective, TabViewDirective, TabViewItemDirective, AndroidFilterComponent, IOSFilterComponent];
 
