@@ -147,15 +147,15 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
     // The itemTemplateQuery may be changed after list items are added that contain <template> inside,
     // so cache and use only the original template to avoid errors.
     this.fallbackItemTemplate = this.itemTemplateQuery;
-    if (this._templateMap) {
-      // sometimes templates are registered before loader is ready, so we update here
-      this._templateMap.forEach((t) => (t.location = this.loader));
-    } else if (this.fallbackItemTemplate) {
+    if (this.fallbackItemTemplate && !this._templateMap?.has('default')) {
       // apparently you can create a Core ListView without a template...
+      // we also add a fallback default for when the user sets multiple templates but no templateSelector
       this.registerTemplate('default', this.fallbackItemTemplate);
     }
 
     if (this._templateMap) {
+      // sometimes templates are registered before loader is ready, so we update here
+      this._templateMap.forEach((t) => (t.location = this.loader));
       if (NativeScriptDebug.isLogEnabled()) {
         NativeScriptDebug.listViewLog('Setting templates');
       }
@@ -219,6 +219,12 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
       // this should never enter if it creates the view
       const templateKey = typeof lview.itemTemplateSelector === 'function' ? lview.itemTemplateSelector(currentItem, index, items) : 'default';
       template = this._templateMap.get(templateKey);
+      if (!template) {
+        if (NativeScriptDebug.isLogEnabled()) {
+          NativeScriptDebug.listViewError(`Template for key '${templateKey}' not found.`);
+        }
+        return;
+      }
       args.view = template.create({ index, data: currentItem });
     }
     this.setupViewRef(template.getEmbeddedViewRef(args.view), currentItem, index, args.view);
