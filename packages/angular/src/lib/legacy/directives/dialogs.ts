@@ -140,7 +140,7 @@ export class ModalDialogService {
       ɵmarkDirty(componentRef.instance);
       componentViewRef = new NgViewRef(componentRef);
       if (componentViewRef !== componentRef.location.nativeElement) {
-        componentRef.location.nativeElement._ngDialogRoot = componentViewRef;
+        componentRef.location.nativeElement._ngDialogRoot = componentViewRef.firstNativeLikeView;
       }
       // if we don't detach the view from its parent, ios gets mad
       componentViewRef.detachNativeLikeView();

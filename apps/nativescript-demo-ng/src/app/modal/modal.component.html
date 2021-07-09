@@ -1,3 +1,4 @@
-<GridLayout backgroundColor="blue" padding="20" width="100%" height="100%">
-  <Label [nativeDialogClose]="'thanks for clicking modal ' + id" text="in modal" color="white" fontSize="20"></Label>
+<GridLayout backgroundColor="blue" columns="*,*" padding="20" width="100%" height="100%">
+  <Button col="0" [nativeDialogClose]="'thanks for clicking modal ' + id" text="Close modal" fontSize="20"></Button>
+  <Button col="1" (tap)="openNewModal()" text="Open new modal" fontSize="20"></Button>
 </GridLayout>
