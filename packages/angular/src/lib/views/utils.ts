@@ -29,9 +29,6 @@ export function getFirstNativeLikeView(view: View, extractFromNSParent = false) 
     }
     return getFirstNativeLikeView(view.getChildAt(0));
   }
-  if (isContentView(view)) {
-    return getFirstNativeLikeView(view.content);
-  }
 
   if (extractFromNSParent) {
     // const node = view.parentNode;
