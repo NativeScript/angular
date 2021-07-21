@@ -1,3 +1,14 @@
+## [12.0.6](https://github.com/NativeScript/angular/compare/12.0.5...12.0.6) (2021-07-21)
+
+
+### Bug Fixes
+
+* **dialogs:** modal handling ([#18](https://github.com/NativeScript/angular/issues/18)) ([5bfafd1](https://github.com/NativeScript/angular/commit/5bfafd1815e080439929bc5a144efa25cab222c9))
+* **list-view:** always set a default template ([#16](https://github.com/NativeScript/angular/issues/16)) ([44d0d88](https://github.com/NativeScript/angular/commit/44d0d883a6fa4536faa96152e61eddf3f5587a0b))
+* **zone.js:** correctly patch es6 classes ([#15](https://github.com/NativeScript/angular/issues/15)) ([2dca0ce](https://github.com/NativeScript/angular/commit/2dca0ce150bbd7a797cdfc81656b67e7b65351ee))
+
+
+
 ## [12.0.5](https://github.com/NativeScript/angular/compare/12.0.4...12.0.5) (2021-07-01)
 
 
