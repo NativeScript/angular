@@ -331,3 +331,93 @@ export function patchNativeScriptEventTarget(global: any, api: _ZonePrivate, api
 
   return results;
 }
+
+const _global = global;
+
+const zoneSymbol = Zone.__symbol__;
+
+const originalInstanceKey = zoneSymbol('originalInstance');
+
+function getAllPropertyNames(obj: unknown) {
+  const props = new Set<string>();
+
+  do {
+    Object.getOwnPropertyNames(obj).forEach((prop) => {
+      props.add(prop);
+    });
+  } while ((obj = Object.getPrototypeOf(obj)) && obj !== Object.prototype);
+
+  return Array.from(props);
+}
+
+// wrap some native API on `window`
+export function patchClass(className: string, api: _ZonePrivate) {
+  const OriginalClass = _global[className];
+  if (!OriginalClass) return;
+  // keep original class in global
+  _global[zoneSymbol(className)] = OriginalClass;
+
+  _global[className] = function () {
+    const a = api.bindArguments(<any>arguments, className);
+    switch (a.length) {
+      case 0:
+        this[originalInstanceKey] = new OriginalClass();
+        break;
+      case 1:
+        this[originalInstanceKey] = new OriginalClass(a[0]);
+        break;
+      case 2:
+        this[originalInstanceKey] = new OriginalClass(a[0], a[1]);
+        break;
+      case 3:
+        this[originalInstanceKey] = new OriginalClass(a[0], a[1], a[2]);
+        break;
+      case 4:
+        this[originalInstanceKey] = new OriginalClass(a[0], a[1], a[2], a[3]);
+        break;
+      default:
+        throw new Error('Arg list too long.');
+    }
+  };
+
+  // attach original delegate to patched function
+  api.attachOriginToPatched(_global[className], OriginalClass);
+
+  const instance = new OriginalClass(function () {});
+
+  let prop;
+  for (prop of Object.getOwnPropertyNames(instance)) {
+    // https://bugs.webkit.org/show_bug.cgi?id=44721
+    if (className === 'XMLHttpRequest' && prop === 'responseBlob') continue;
+    (function (prop) {
+      if (typeof instance[prop] === 'function') {
+        _global[className].prototype[prop] = function () {
+          return this[originalInstanceKey][prop].apply(this[originalInstanceKey], arguments);
+        };
+      } else {
+        api.ObjectDefineProperty(_global[className].prototype, prop, {
+          set: function (fn) {
+            if (typeof fn === 'function') {
+              this[originalInstanceKey][prop] = api.wrapWithCurrentZone(fn, className + '.' + prop);
+              // keep callback in wrapped function so we can
+              // use it in Function.prototype.toString to return
+              // the native one.
+              api.attachOriginToPatched(this[originalInstanceKey][prop], fn);
+            } else {
+              this[originalInstanceKey][prop] = fn;
+            }
+          },
+          get: function () {
+            return this[originalInstanceKey][prop];
+          },
+        });
+      }
+    })(prop);
+  }
+
+  for (prop in Object.getOwnPropertyNames(OriginalClass)) {
+    if (prop !== 'prototype' && OriginalClass.hasOwnProperty(prop)) {
+      _global[className][prop] = OriginalClass[prop];
+    }
+  }
+}
