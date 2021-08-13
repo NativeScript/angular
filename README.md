@@ -3,7 +3,7 @@
 Clean and setup workspace:
 
 ```
-npm run clean
+yarn clean.all
 ```
 
 Build angular package:

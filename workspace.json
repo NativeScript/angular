@@ -1,14 +1,14 @@
 {
-  "version": 1,
+  "version": 2,
   "projects": {
     "angular": {
       "root": "packages/angular",
       "sourceRoot": "packages/angular/src",
       "projectType": "library",
       "schematics": {},
-      "architect": {
+      "targets": {
         "build": {
-          "builder": "@nrwl/workspace:run-commands",
+          "executor": "@nrwl/workspace:run-commands",
           "outputs": ["dist/packages"],
           "options": {
             "commands": ["node tools/scripts/build-angular.ts angular"],
@@ -16,13 +16,13 @@
           }
         },
         "lint": {
-          "builder": "@nrwl/linter:eslint",
+          "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": ["packages/angular/**/*.ts", "packages/angular/src/**/*.html"]
           }
         },
         "test": {
-          "builder": "@nrwl/jest:jest",
+          "executor": "@nrwl/jest:jest",
           "options": {
             "jestConfig": "packages/angular/jest.config.js",
             "passWithNoTests": true
@@ -41,9 +41,9 @@
           "styleext": "scss"
         }
       },
-      "architect": {
+      "targets": {
         "build": {
-          "builder": "@nativescript/nx:build",
+          "executor": "@nativescript/nx:build",
           "options": {
             "noHmr": true,
             "production": true,
@@ -63,7 +63,7 @@
           }
         },
         "ios": {
-          "builder": "@nativescript/nx:build",
+          "executor": "@nativescript/nx:build",
           "options": {
             "platform": "ios"
           },
@@ -77,7 +77,7 @@
           }
         },
         "android": {
-          "builder": "@nativescript/nx:build",
+          "executor": "@nativescript/nx:build",
           "options": {
             "platform": "android"
           },
@@ -91,19 +91,19 @@
           }
         },
         "clean": {
-          "builder": "@nativescript/nx:build",
+          "executor": "@nativescript/nx:build",
           "options": {
             "clean": true
           }
         },
         "lint": {
-          "builder": "@nrwl/linter:eslint",
+          "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": ["apps/nativescript-demo-ng/**/*.ts", "apps/nativescript-demo-ng/src/**/*.html"]
           }
         },
         "test": {
-          "builder": "@nrwl/jest:jest",
+          "executor": "@nrwl/jest:jest",
           "options": {
             "jestConfig": "apps/nativescript-demo-ng/jest.config.js",
             "tsConfig": "apps/nativescript-demo-ng/tsconfig.spec.json",
@@ -117,9 +117,9 @@
       "root": "packages/zone-js",
       "sourceRoot": "packages/zone-js/src",
       "projectType": "library",
-      "architect": {
+      "targets": {
         "build": {
-          "builder": "@nrwl/node:package",
+          "executor": "@nrwl/node:package",
           "options": {
             "outputPath": "dist/packages/zone-js",
             "tsConfig": "packages/zone-js/tsconfig.lib.json",
@@ -129,13 +129,13 @@
           }
         },
         "lint": {
-          "builder": "@nrwl/linter:eslint",
+          "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": ["packages/zone-js/**/*.ts"]
           }
         },
         "test": {
-          "builder": "@nrwl/jest:jest",
+          "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/packages/zone-js"],
           "options": {
             "jestConfig": "packages/zone-js/jest.config.js",

@@ -33,7 +33,7 @@ $ cd angular
 
 ```
 $ cd angular
-$ npm clean.all
+$ yarn clean.all
 ```
 
 ### Run some of the e2e applications e.g. router-tab-view
@@ -43,14 +43,14 @@ $ npm clean.all
 Install NPM packages (use the local copy of `@nativescript/angular`):
 ```
 $ cd e2e/router-tab-view
-$ npm install
+$ yarn install
 ```
 
 Start the app:
 
 ```
-$ tns run android
-$ tns run ios
+$ ns run android
+$ ns run ios
 ```
 
 Make changes to `@nativescript/angular` and see them applied in the running app.
@@ -60,7 +60,6 @@ Make changes to `@nativescript/angular` and see them applied in the running app.
 Install the NPM dependencies:
 ```
 $ cd apps/nativescript-demo-ng
-$ npm install
 ```
 
 Run the tests:
