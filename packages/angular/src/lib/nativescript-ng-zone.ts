@@ -149,7 +149,7 @@ export class NativeScriptNgZone implements NgZone {
     self.shouldCoalesceRunChangeDetection = shouldCoalesceRunChangeDetection;
     self.lastRequestAnimationFrameId = -1;
     self.nativeRequestAnimationFrame = function (cb) {
-      Utils.mainThreadify(cb);
+      Utils.dispatchToMainThread(cb);
       return currentRafId++;
     };
     forkInnerZoneWithAngularBehavior(self);
@@ -246,6 +246,17 @@ interface NgZonePrivate extends NgZone {
   hasPendingMacrotasks: boolean;
   hasPendingMicrotasks: boolean;
   lastRequestAnimationFrameId: number;
+  /**
+   * A flag to indicate if NgZone is currently inside
+   * checkStable and to prevent re-entry. The flag is
+   * needed because it is possible to invoke the change
+   * detection from within change detection leading to
+   * incorrect behavior.
+   *
+   * For detail, please refer here,
+   * https://github.com/angular/angular/pull/40540
+   */
+  isCheckStableRunning: boolean;
   isStable: boolean;
   /**
    * Optionally specify coalescing event change detections or not.
@@ -294,6 +305,21 @@ interface NgZonePrivate extends NgZone {
 }
 
 function checkStable(zone: NgZonePrivate) {
+  // TODO: @JiaLiPassion, should check zone.isCheckStableRunning to prevent
+  // re-entry. The case is:
+  //
+  // @Component({...})
+  // export class AppComponent {
+  // constructor(private ngZone: NgZone) {
+  //   this.ngZone.onStable.subscribe(() => {
+  //     this.ngZone.run(() => console.log('stable'););
+  //   });
+  // }
+  //
+  // The onStable subscriber run another function inside ngZone
+  // which causes `checkStable()` re-entry.
+  // But this fix causes some issues in g3, so this fix will be
+  // launched in another PR.
   if (zone._nesting == 0 && !zone.hasPendingMicrotasks && !zone.isStable) {
     try {
       zone._nesting++;
@@ -312,7 +338,20 @@ function checkStable(zone: NgZonePrivate) {
 }
 
 function delayChangeDetectionForEvents(zone: NgZonePrivate) {
-  if (zone.lastRequestAnimationFrameId !== -1) {
+  /**
+   * We also need to check _nesting here
+   * Consider the following case with shouldCoalesceRunChangeDetection = true
+   *
+   * ngZone.run(() => {});
+   * ngZone.run(() => {});
+   *
+   * We want the two `ngZone.run()` only trigger one change detection
+   * when shouldCoalesceRunChangeDetection is true.
+   * And because in this case, change detection run in async way(requestAnimationFrame),
+   * so we also need to check the _nesting here to prevent multiple
+   * change detections.
+   */
+  if (zone.isCheckStableRunning || zone.lastRequestAnimationFrameId !== -1) {
     return;
   }
   zone.lastRequestAnimationFrameId = zone.nativeRequestAnimationFrame.call(global, () => {
@@ -331,7 +370,9 @@ function delayChangeDetectionForEvents(zone: NgZonePrivate) {
         () => {
           zone.lastRequestAnimationFrameId = -1;
           updateMicroTaskStatus(zone);
+          zone.isCheckStableRunning = true;
           checkStable(zone);
+          zone.isCheckStableRunning = false;
         },
         undefined,
         () => {},
