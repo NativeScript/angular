@@ -125,7 +125,7 @@ export class NativeScriptNgZone implements NgZone {
    */
   readonly onError: EventEmitter<any> = new EventEmitter(false);
 
-  constructor({ enableLongStackTrace = isDevMode(), shouldCoalesceEventChangeDetection = true, shouldCoalesceRunChangeDetection = true }) {
+  constructor({ enableLongStackTrace = isDevMode(), shouldCoalesceEventChangeDetection = true, shouldCoalesceRunChangeDetection = true } = {}) {
     if (typeof Zone == 'undefined') {
       throw new Error(`In this configuration Angular requires Zone.js`);
     }
