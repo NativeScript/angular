@@ -1,3 +1,3 @@
-module.exports = {
-  projects: ['<rootDir>/packages/angular', '<rootDir>/packages/zone-js'],
-};
+const { getJestProjects } = require('@nrwl/jest');
+
+module.exports = { projects: getJestProjects() };
