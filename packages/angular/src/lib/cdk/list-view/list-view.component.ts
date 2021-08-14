@@ -26,12 +26,12 @@ export class NsTemplatedItem<T> implements NgViewTemplate<{ index: number; data:
   update(view: View, context?: { index: number; data: T }): void {
     const viewRef = this.getEmbeddedViewRef(view);
     this.setupItemContext(context, viewRef);
-    viewRef?.markForCheck();
+    viewRef?.detectChanges();
   }
   attach(view: View): void {
     const viewRef = this.getEmbeddedViewRef(view);
     viewRef?.reattach();
-    viewRef?.markForCheck();
+    viewRef?.detectChanges();
   }
   detach(view: View): void {
     const viewRef = this.getEmbeddedViewRef(view);
@@ -180,10 +180,7 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
       this._templateMap = new Map<string, NsTemplatedItem<T>>();
     }
 
-    this._templateMap.set(
-      key,
-      new NsTemplatedItem<T>(template, this.loader, (v) => this._viewToTemplate.set(v, key))
-    );
+    this._templateMap.set(key, new NsTemplatedItem<T>(template, this.loader, (v) => this._viewToTemplate.set(v, key)));
   }
 
   @HostListener('itemLoading', ['$event'])
