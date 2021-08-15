@@ -307,6 +307,7 @@ export class PageRouterOutlet implements OnDestroy {
     this.changeDetector.markForCheck();
 
     this.activated = loaderRef.instance.loadWithFactory(factory);
+    this.activated.changeDetectorRef.detectChanges();
     this.loadComponentInPage(page, this.activated, { activatedRoute });
 
     this.activated[loaderRefSymbol] = loaderRef;
