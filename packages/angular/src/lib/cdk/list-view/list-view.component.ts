@@ -1,4 +1,4 @@
-import { AfterContentInit, ChangeDetectionStrategy, Component, ContentChild, Directive, DoCheck, ElementRef, EmbeddedViewRef, EventEmitter, Host, HostListener, Input, IterableDiffer, IterableDiffers, NgZone, OnDestroy, Output, TemplateRef, ViewChild, ViewContainerRef, ɵisListLikeIterable as isListLikeIterable, ɵmarkDirty } from '@angular/core';
+import { AfterContentInit, ChangeDetectionStrategy, Component, ContentChild, Directive, DoCheck, ElementRef, EmbeddedViewRef, EventEmitter, forwardRef, Host, HostListener, Inject, InjectionToken, Input, IterableDiffer, IterableDiffers, NgZone, OnDestroy, Output, TemplateRef, ViewChild, ViewContainerRef, ɵisListLikeIterable as isListLikeIterable, ɵmarkDirty } from '@angular/core';
 import { ItemEventData, KeyedTemplate, LayoutBase, ListView, ObservableArray, profile, View } from '@nativescript/core';
 
 import { extractSingleViewRecursive } from '../../element-registry/registry';
@@ -6,6 +6,12 @@ import { NativeScriptDebug } from '../../trace';
 import { NgViewTemplate } from '../../view-refs';
 
 const NG_VIEW = '_ngViewRef';
+
+export interface TemplatedItemsHost<T = any> {
+  registerTemplate(key: string, template: TemplateRef<T>);
+}
+
+export const TEMPLATED_ITEMS_COMPONENT = new InjectionToken<TemplatedItemsHost>('TemplatedItemsComponent');
 
 export class ItemContext<T> {
   constructor(public $implicit?: T, public item?: T, public index?: number, public even?: boolean, public odd?: boolean) {}
@@ -83,8 +89,9 @@ export interface SetupItemViewArgs<T> {
     <ng-container #loader></ng-container>
   </DetachedContainer>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [{ provide: TEMPLATED_ITEMS_COMPONENT, useExisting: forwardRef(() => ListViewComponent) }],
 })
-export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterContentInit {
+export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterContentInit, TemplatedItemsHost {
   public get nativeElement(): ListView {
     return this.templatedItemsView;
   }
@@ -180,7 +187,10 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
       this._templateMap = new Map<string, NsTemplatedItem<T>>();
     }
 
-    this._templateMap.set(key, new NsTemplatedItem<T>(template, this.loader, (v) => this._viewToTemplate.set(v, key)));
+    this._templateMap.set(
+      key,
+      new NsTemplatedItem<T>(template, this.loader, (v) => this._viewToTemplate.set(v, key))
+    );
   }
 
   @HostListener('itemLoading', ['$event'])
@@ -263,7 +273,7 @@ export function getItemViewRoot(viewRef: EmbeddedViewRef<unknown>, rootLocator: 
 // eslint-disable-next-line @angular-eslint/directive-selector
 @Directive({ selector: '[nsTemplateKey],[nsTemplateKeys]' })
 export class TemplateKeyDirective<T> {
-  constructor(private templateRef: TemplateRef<T>, @Host() private comp: ListViewComponent<T>) {}
+  constructor(private templateRef: TemplateRef<T>, @Host() @Inject(TEMPLATED_ITEMS_COMPONENT) private comp: TemplatedItemsHost<T>) {}
 
   @Input()
   set nsTemplateKey(value: string) {
