@@ -131,7 +131,7 @@ export class NativeScriptNgZone implements NgZone {
     }
 
     Zone.assertZonePatched();
-    const self = (this as any) as NgZonePrivate;
+    const self = this as any as NgZonePrivate;
     self._nesting = 0;
 
     self._outer = self._inner = Zone.current;
@@ -149,7 +149,8 @@ export class NativeScriptNgZone implements NgZone {
     self.shouldCoalesceRunChangeDetection = shouldCoalesceRunChangeDetection;
     self.lastRequestAnimationFrameId = -1;
     self.nativeRequestAnimationFrame = function (cb) {
-      Utils.dispatchToMainThread(cb);
+      const nativeDispatchToMainThread = Utils[Zone.__symbol__('dispatchToMainThread')] || Utils.dispatchToMainThread;
+      nativeDispatchToMainThread(cb);
       return currentRafId++;
     };
     forkInnerZoneWithAngularBehavior(self);
@@ -184,7 +185,7 @@ export class NativeScriptNgZone implements NgZone {
    * If a synchronous error happens it will be rethrown and not reported via `onError`.
    */
   run<T>(fn: (...args: any[]) => T, applyThis?: any, applyArgs?: any[]): T {
-    return ((this as any) as NgZonePrivate)._inner.run(fn, applyThis, applyArgs);
+    return (this as any as NgZonePrivate)._inner.run(fn, applyThis, applyArgs);
   }
 
   /**
@@ -200,7 +201,7 @@ export class NativeScriptNgZone implements NgZone {
    * If a synchronous error happens it will be rethrown and not reported via `onError`.
    */
   runTask<T>(fn: (...args: any[]) => T, applyThis?: any, applyArgs?: any[], name?: string): T {
-    const zone = ((this as any) as NgZonePrivate)._inner;
+    const zone = (this as any as NgZonePrivate)._inner;
     const task = zone.scheduleEventTask('NgZoneEvent: ' + name, fn, EMPTY_PAYLOAD, noop, noop);
     try {
       return zone.runTask(task, applyThis, applyArgs);
@@ -214,7 +215,7 @@ export class NativeScriptNgZone implements NgZone {
    * rethrown.
    */
   runGuarded<T>(fn: (...args: any[]) => T, applyThis?: any, applyArgs?: any[]): T {
-    return ((this as any) as NgZonePrivate)._inner.runGuarded(fn, applyThis, applyArgs);
+    return (this as any as NgZonePrivate)._inner.runGuarded(fn, applyThis, applyArgs);
   }
 
   /**
@@ -231,7 +232,7 @@ export class NativeScriptNgZone implements NgZone {
    * Use {@link #run} to reenter the Angular zone and do work that updates the application model.
    */
   runOutsideAngular<T>(fn: (...args: any[]) => T): T {
-    return ((this as any) as NgZonePrivate)._outer.run(fn);
+    return (this as any as NgZonePrivate)._outer.run(fn);
   }
 }
 
