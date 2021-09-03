@@ -212,7 +212,10 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
         NativeScriptDebug.listViewLog(`onItemLoading: ${index} - Reusing existing view`);
       }
 
-      const templateKey = this._viewToTemplate.get(args.view);
+      let templateKey = this._viewToTemplate.get(args.view);
+      if (!templateKey && args.view instanceof LayoutBase && args.view.getChildrenCount() > 0) {
+        templateKey = this._viewToTemplate.get(args.view.getChildAt(0));
+      }
       if (!templateKey) {
         // this template was not created by us
         if (NativeScriptDebug.isLogEnabled()) {
