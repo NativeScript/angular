@@ -3,7 +3,10 @@ import { NativeScriptNgZone, platformNativeScript, runNativeScriptAngularApp } f
 import { AppModule } from './app/app.module';
 
 runNativeScriptAngularApp({
-  appModuleBootstrap: () => platformNativeScript().bootstrapModule(AppModule, { ngZone: new NativeScriptNgZone() }),
+  appModuleBootstrap: () =>
+    platformNativeScript().bootstrapModule(AppModule, {
+      ngZone: new NativeScriptNgZone(),
+    }),
 });
 
 // Comment above and Uncomment below to try without custom NgZone:

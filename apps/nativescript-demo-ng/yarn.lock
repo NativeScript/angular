@@ -8,14 +8,14 @@
   integrity sha512-p7eGwmE2+EvkQ4vt4scIrWqVuXytKv+GiHofrVRME1zUaTNMLSdB9ZyQOukfIvCx09iIufD42wN2a0IkgcDBvw==
 
 "@nativescript/angular@file:../../packages/angular":
-  version "12.1.0-rc.0"
+  version "12.2.0"
   dependencies:
-    "@nativescript/zone-js" "~2.0.1"
+    "@nativescript/zone-js" "~2.2.0"
 
-"@nativescript/core@next":
-  version "8.0.8-next-08-11-2021-1119562320"
-  resolved "https://registry.yarnpkg.com/@nativescript/core/-/core-8.0.8-next-08-11-2021-1119562320.tgz#5d00e7a60aa156d2642f72dcc54e130fb8845156"
-  integrity sha512-vZaVU8GFZDrhI9Vrc1jXbVWySQPmZanD6TXhGx7PrzyUA6gTb2ONd9iK7HTkAMiTHEn6hUA7iOyaq2U/xL3FzQ==
+"@nativescript/core@~8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@nativescript/core/-/core-8.1.0.tgz#3b7bdd1f44c56474e20225e9cde3ee711dc4fb33"
+  integrity sha512-+rWnRQ26PuMND0ZRNa00HFnPsTDo3carYuEkcIafkDgurQ7+UkCoqbOmHXUNc/vur3A69xl269P+1I6Zq0p94Q==
   dependencies:
     "@nativescript/hook" "~2.0.0"
     css-tree "^1.1.2"
@@ -30,10 +30,10 @@
     glob "^7.1.0"
     mkdirp "^1.0.4"
 
-"@nativescript/ios@8.1.0-rc.1":
-  version "8.1.0-rc.1"
-  resolved "https://registry.yarnpkg.com/@nativescript/ios/-/ios-8.1.0-rc.1.tgz#7aa6b9ee4974c4d4dcdee7457e306baabcbfea63"
-  integrity sha512-XguZqksnX0coccJkkgwP45EbPptfcgxnFfV+n5u7bzDVlkY0FW2zzV2OEtzZIQlXA88mSvzfV7jv7K/rvQtixg==
+"@nativescript/ios@8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@nativescript/ios/-/ios-8.1.0.tgz#5b34cf2d30b8d68713d76238fe0e50b6f80eb20c"
+  integrity sha512-coBi409FQKO/Ia/3gBBe1QZAAfi5uwhT179o6sAeRrvsBV2ULDonmcpzKg2alrUcPTj5ESy7KpJ6+f4AkC7Lbg==
 
 "@nativescript/unit-test-runner@^2.0.5":
   version "2.0.5"
@@ -43,10 +43,10 @@
     "@nativescript/hook" "^2.0.0"
     glob-regex "^0.3.2"
 
-"@nativescript/zone-js@~2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@nativescript/zone-js/-/zone-js-2.0.1.tgz#02aeee9286b1c0767af6343e8a5832d10892714f"
-  integrity sha512-sA2Q6AnsXAzCM66zB5z2ZMG7qJXtW7SCTUsRdnlipwd2aVk0XH4A8iMtTadIYMYYhaJl03jVyxVRB8FiSHYMxg==
+"@nativescript/zone-js@~2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@nativescript/zone-js/-/zone-js-2.2.0.tgz#eae932ab4a2021f75c6042412187dc9353e4a351"
+  integrity sha512-B9bwyMHyYHbRdQzWLqCruXzr2a3xifV9v+Fe0BybIB2ZilzmWkClL96amggHdMp0/PXwUn/2iA2XVe+0jwYr+g==
 
 balanced-match@^1.0.0:
   version "1.0.2"

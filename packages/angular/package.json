@@ -1,6 +1,6 @@
 {
   "name": "@nativescript/angular",
-  "version": "12.1.0-rc.5",
+  "version": "12.2.0",
   "homepage": "https://nativescript.org/",
   "repository": {
     "type": "git",
@@ -16,7 +16,7 @@
     "Angular"
   ],
   "dependencies": {
-    "@nativescript/zone-js": "~2.1.0-rc.0"
+    "@nativescript/zone-js": "~2.2.0"
   },
   "ngPackage": {
     "lib": {

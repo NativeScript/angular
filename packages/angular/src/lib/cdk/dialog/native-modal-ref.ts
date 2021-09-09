@@ -14,7 +14,7 @@ import { NgViewRef } from '../../view-refs';
 export class NativeModalRef {
   _id: string;
   stateChanged = new Subject<{ state: 'opened' | 'closed' | 'closing' }>();
-  onDismiss = new Subject();
+  onDismiss = new Subject<void>();
 
   parentView: View;
   portalOutlet: NativeScriptDomPortalOutlet;

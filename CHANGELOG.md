@@ -1,3 +1,22 @@
+# [12.2.0](https://github.com/NativeScript/angular/compare/12.0.6...12.2.0) (2021-09-09)
+
+
+### Bug Fixes
+
+* force trigger CD on navigation ([#27](https://github.com/NativeScript/angular/issues/27)) ([343e139](https://github.com/NativeScript/angular/commit/343e139e845ecb28c407c6f2e29aed820ed60f3c))
+* guard around empty cache ([#34](https://github.com/NativeScript/angular/issues/34)) ([ea8ba37](https://github.com/NativeScript/angular/commit/ea8ba37b08bf4e86d23f593a32e3646527a2fbca))
+* **list-view:** try to unwrap component views ([#33](https://github.com/NativeScript/angular/issues/33)) ([81d7ffb](https://github.com/NativeScript/angular/commit/81d7ffb15c170943f39a8c33071822df80896f76))
+* listview template height handling with detectChanges ([60eeb72](https://github.com/NativeScript/angular/commit/60eeb72d7a9fa241f1a9d9a22a66f59870bb1f3d))
+
+
+### Features
+
+* provide custom optimized NgZone ([#26](https://github.com/NativeScript/angular/issues/26)) ([b99210c](https://github.com/NativeScript/angular/commit/b99210ce753344a25a666d3499ac4c82bcb728ae))
+* provide TEMPLATED_ITEMS_COMPONENT ([#32](https://github.com/NativeScript/angular/issues/32)) ([303b642](https://github.com/NativeScript/angular/commit/303b64281d19d8d6781ca17d873b82efa609f1dc))
+* **zone.js:** patch Utils threading functions ([#31](https://github.com/NativeScript/angular/issues/31)) ([13b2ea8](https://github.com/NativeScript/angular/commit/13b2ea835a199b4f69c192e134cbf9056b1caaf6))
+
+
+
 ## [12.0.6](https://github.com/NativeScript/angular/compare/12.0.5...12.0.6) (2021-07-21)
 
 
