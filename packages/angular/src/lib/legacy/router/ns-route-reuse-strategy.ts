@@ -133,7 +133,7 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
 
     const key = getSnapshotKey(route);
     const isBack = outlet ? outlet.isPageNavigationBack : false;
-    const shouldAttach = isBack && cache.peek().key === key;
+    const shouldAttach = isBack && cache.peek()?.key === key;
 
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.routeReuseStrategyLog(`shouldAttach isBack: ${isBack} key: ${key} result: ${shouldAttach}`);
