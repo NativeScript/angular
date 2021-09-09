@@ -5,7 +5,7 @@
       "root": "packages/angular",
       "sourceRoot": "packages/angular/src",
       "projectType": "library",
-      "schematics": {},
+      "generators": {},
       "targets": {
         "build": {
           "executor": "@nrwl/workspace:run-commands",
@@ -36,7 +36,7 @@
       "sourceRoot": "apps/nativescript-demo-ng/src",
       "projectType": "application",
       "prefix": "nativescript",
-      "schematics": {
+      "generators": {
         "@schematics/angular:component": {
           "styleext": "scss"
         }
