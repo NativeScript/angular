@@ -59,7 +59,7 @@ export const onAfterLivesync: Observable<{
 export interface AppRunOptions<T, K> {
   appModuleBootstrap: (reason: NgModuleReason) => Promise<NgModuleRef<T>>;
   loadingModule?: (reason: NgModuleReason) => Promise<NgModuleRef<K>>;
-  launchView?: (reason: NgModuleReason) => AppLaunchView;
+  launchView?: (reason?: NgModuleReason) => AppLaunchView;
 }
 
 if (module['hot']) {
@@ -276,7 +276,11 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     mainModuleRef = null;
   };
   const launchCallback = profile('@nativescript/angular/platform-common.launchCallback', (args: LaunchEventData) => {
-    args.root = null;
+    if (options?.launchView) {
+      args.root = options.launchView('applaunch');
+    } else {
+      args.root = null;
+    }
     bootstrapRoot('applaunch');
   });
   const exitCallback = profile('@nativescript/angular/platform-common.exitCallback', (args: ApplicationEventData) => {
