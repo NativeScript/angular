@@ -14,4 +14,7 @@ export default {
     discardUncaughtJsExceptions: true,
   },
   appPath: 'src',
+  cli: {
+    packageManager: 'npm',
+  },
 } as NativeScriptConfig;
