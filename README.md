@@ -1,4 +1,6 @@
-# @nativescript/angular 12
+# @nativescript/angular 12+
+
+For usage with NativeScript for Angular 12+ projects.
 
 Clean and setup workspace:
 
@@ -6,14 +8,21 @@ Clean and setup workspace:
 yarn clean.all
 ```
 
-Build angular package:
+## Build packages:
 
 ```
-nx run angular:build
+yarn build
 ```
 
-Run angular demo:
+## Run demo:
 
 ```
 nx run nativescript-demo-ng:ios
+```
+
+## Unit tests for iOS and Android:
+
+```
+yarn test.android
+yarn test.ios
 ```
