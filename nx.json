@@ -22,17 +22,6 @@
       }
     }
   },
-  "projects": {
-    "angular": {
-      "tags": []
-    },
-    "nativescript-demo-ng": {
-      "tags": []
-    },
-    "zone-js": {
-      "tags": []
-    }
-  },
   "workspaceLayout": {
     "appsDir": "apps",
     "libsDir": "packages"
@@ -44,5 +33,8 @@
         "projects": "dependencies"
       }
     ]
+  },
+  "cli": {
+    "defaultCollection": "@nstudio/xplat"
   }
 }

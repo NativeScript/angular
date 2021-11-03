@@ -29,7 +29,8 @@
           },
           "outputs": ["coverage/packages/angular"]
         }
-      }
+      },
+      "tags": []
     },
     "nativescript-demo-ng": {
       "root": "apps/nativescript-demo-ng/",
@@ -111,7 +112,8 @@
             "setupFile": "apps/nativescript-demo-ng/src/test-setup.ts"
           }
         }
-      }
+      },
+      "tags": []
     },
     "zone-js": {
       "root": "packages/zone-js",
@@ -142,10 +144,8 @@
             "passWithNoTests": true
           }
         }
-      }
+      },
+      "tags": []
     }
-  },
-  "cli": {
-    "defaultCollection": "@nstudio/xplat"
   }
 }
