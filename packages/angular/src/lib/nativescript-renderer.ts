@@ -16,6 +16,24 @@ const addStyleToCss = profile('"renderer".addStyleToCss', function addStyleToCss
   }
 });
 
+function runInRootZone<T>(fn: () => T): T {
+  if (typeof Zone === 'undefined') {
+    return fn();
+  }
+  return Zone.root.run(fn);
+}
+
+function inRootZone() {
+  return function (target: Object, key: string | symbol, descriptor: PropertyDescriptor) {
+    const childFunction = descriptor.value;
+    descriptor.value = function (...args: any[]) {
+      const fn = childFunction.bind(this);
+      return runInRootZone(() => fn(...args));
+    };
+    return descriptor;
+  };
+}
+
 export class NativeScriptRendererFactory implements RendererFactory2 {
   private componentRenderers = new Map<string, Renderer2>();
   private defaultRenderer: Renderer2;
@@ -119,6 +137,7 @@ class NativeScriptRenderer implements Renderer2 {
       NativeScriptDebug.rendererLog('NativeScriptRenderer.destroy');
     }
   }
+  @inRootZone()
   createElement(name: string, namespace?: string) {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.createElement: ${name}`);
@@ -134,38 +153,44 @@ class NativeScriptRenderer implements Renderer2 {
     }
     return view;
   }
+  @inRootZone()
   createComment(value: string) {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.createComment ${value}`);
     }
     return this.viewUtil.createComment(value);
   }
+  @inRootZone()
   createText(value: string) {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.createText ${value}`);
     }
     return this.viewUtil.createText(value);
   }
-  destroyNode: (node: any) => void = (node: View) => {
-    if (NativeScriptDebug.enabled) {
-      NativeScriptDebug.rendererLog(`NativeScriptRenderer.destroyNode node: ${node}`);
-    }
-    if (node?.destroyNode) {
-      node?.destroyNode();
-    }
-  };
+  destroyNode: (node: any) => void = (node: View) =>
+    runInRootZone(() => {
+      if (NativeScriptDebug.enabled) {
+        NativeScriptDebug.rendererLog(`NativeScriptRenderer.destroyNode node: ${node}`);
+      }
+      if (node?.destroyNode) {
+        node?.destroyNode();
+      }
+    });
+  @inRootZone()
   appendChild(parent: View, newChild: View): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.appendChild child: ${newChild} parent: ${parent}`);
     }
     this.viewUtil.appendChild(parent, newChild);
   }
+  @inRootZone()
   insertBefore(parent: any, newChild: any, refChild: any): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.insertBefore child: ${newChild} ` + `parent: ${parent} refChild: ${refChild}`);
     }
     this.viewUtil.insertBefore(parent, newChild, refChild);
   }
+  @inRootZone()
   removeChild(parent: any, oldChild: any, isHostElement?: boolean): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.removeChild child: ${oldChild} parent: ${parent}`);
@@ -205,6 +230,7 @@ class NativeScriptRenderer implements Renderer2 {
     }
     return node.nextSibling;
   }
+  @inRootZone()
   setAttribute(el: any, name: string, value: string, namespace?: string): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.setAttribute ${namespace ? namespace + ':' : ''}${el}.${name} = ${value}`);
@@ -216,30 +242,35 @@ class NativeScriptRenderer implements Renderer2 {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.removeAttribute ${namespace ? namespace + ':' : ''}${el}.${name}`);
     }
   }
+  @inRootZone()
   addClass(el: any, name: string): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.addClass ${name}`);
     }
     this.viewUtil.addClass(el, name);
   }
+  @inRootZone()
   removeClass(el: any, name: string): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.removeClass ${name}`);
     }
     this.viewUtil.removeClass(el, name);
   }
+  @inRootZone()
   setStyle(el: any, style: string, value: any, flags?: RendererStyleFlags2): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.setStyle: ${el}, ${style} = ${value}`);
     }
     this.viewUtil.setStyle(el, style, value);
   }
+  @inRootZone()
   removeStyle(el: any, style: string, flags?: RendererStyleFlags2): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog('NativeScriptRenderer.removeStyle: ${styleName}');
     }
     this.viewUtil.removeStyle(el, style);
   }
+  @inRootZone()
   setProperty(el: any, name: string, value: any): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.setProperty ${el}.${name} = ${value}`);
