@@ -137,7 +137,7 @@ function ZoneCanWorkSync() {
  * @returns if global.__drainMicrotaskQueue can be called
  */
 function nativeQueueCanBeDrained(makeTestDrain: boolean) {
-  if (typeof global.__drainMicrotaskQueue !== 'function') {
+  if (typeof (global as any).__drainMicrotaskQueue !== 'function') {
     return false;
   }
   if (!makeTestDrain) {
@@ -145,7 +145,7 @@ function nativeQueueCanBeDrained(makeTestDrain: boolean) {
   }
   let canRunSync = false;
   Promise.resolve().then(() => (canRunSync = true));
-  global.__drainMicrotaskQueue();
+  (global as any).__drainMicrotaskQueue();
   return canRunSync;
 }
 
@@ -162,7 +162,7 @@ function runSynchronously(fn: () => void, done?: () => void): void {
   }
   if (nativeQueueCanBeDrained(true)) {
     fn();
-    global.__drainMicrotaskQueue();
+    (global as any).__drainMicrotaskQueue();
     done?.();
     return;
   }

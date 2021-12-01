@@ -8,7 +8,9 @@
       "@nativescript/core": ["../../node_modules/@nativescript/core"]
     }
   },
+  "files": ["src/index.ts"],
   "angularCompilerOptions": {
-    "compilationMode": "partial"
+    "compilationMode": "partial",
+    "enableResourceInlining": true
   }
 }

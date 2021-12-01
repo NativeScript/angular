@@ -89,7 +89,7 @@
     "karma-sinon": "^1.0.5",
     "karma-webpack": "5.0.0",
     "lint-staged": "^11.0.0",
-    "ng-packagr": "~13.0.0",
+    "ng-packagr": "~13.0.8",
     "postcss": "^8.3.9",
     "postcss-import": "^14.0.2",
     "postcss-preset-env": "^6.7.0",
