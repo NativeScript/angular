@@ -40,22 +40,23 @@
     "@angular/platform-browser": "~13.0.0",
     "@angular/platform-browser-dynamic": "~13.0.0",
     "@angular/router": "~13.0.0",
+    "@nativescript/angular": "^12.2.0",
     "@nativescript/core": "~8.1.0",
     "@nativescript/theme": "~3.0.0",
+    "@ngx-translate/core": "~13.0.0",
     "nativescript-ngx-fonticon": "~7.0.0",
     "rxjs": "^7.3.0",
-    "zone.js": "0.11.4",
-    "@nativescript/angular": "^12.2.0",
-    "@ngx-translate/core": "~13.0.0"
+    "zone.js": "0.11.4"
   },
   "devDependencies": {
+    "@angular-devkit/build-angular": "~13.0.0",
     "@angular-eslint/eslint-plugin": "12.3.1",
     "@angular-eslint/eslint-plugin-template": "12.3.1",
     "@angular-eslint/template-parser": "12.3.1",
     "@angular/compiler-cli": "~13.0.0",
     "@nativescript/types": "~8.1.0",
     "@nativescript/unit-test-runner": "^2.0.5",
-    "@nativescript/webpack": "~5.0.0",
+    "@nativescript/webpack": "5.0.2-alpha.0",
     "@ngtools/webpack": "next",
     "@nrwl/angular": "13.1.3",
     "@nrwl/cli": "13.1.3",
@@ -99,7 +100,7 @@
     "ts-jest": "27.0.5",
     "ts-node": "9.1.1",
     "tslib": "^2.1.0",
-    "typescript": "4.3.5"
+    "typescript": "4.4.2"
   },
   "xplat": {
     "prefix": "nativescript",
