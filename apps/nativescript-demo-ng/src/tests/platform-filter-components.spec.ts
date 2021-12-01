@@ -1,6 +1,6 @@
 // make sure you import mocha-config before @angular/core
 import { Component, ElementRef, NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
-import { dumpView, createDevice } from './test-utils';
+import { dumpView, createDevice } from './test-utils.spec';
 import { DEVICE, NativeScriptCommonModule, NativeScriptModule, registerElement } from '@nativescript/angular';
 import { platformNames } from '@nativescript/core/platform';
 import { TestBed } from '@angular/core/testing';

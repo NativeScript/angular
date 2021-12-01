@@ -1,5 +1,3 @@
-// const filePatterns = ['tests/test-main.ts','tests/**/*.ts', '**/*.spec.ts'];
-const filePatterns = ['tests/test-main.ts', 'tests/**/*.ts'];
 module.exports = function (config) {
   const options = {
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -9,8 +7,8 @@ module.exports = function (config) {
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['jasmine', 'sinon'],
 
-    // list of files / patterns to load in the browser
-    files: filePatterns,
+    // list of files / patterns to load in the browser. Leave empty for webpack projects
+    // files: [],
 
     // list of files to exclude
     exclude: [],
@@ -23,6 +21,13 @@ module.exports = function (config) {
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['mocha'],
+
+    // configure optional coverage, enable via --env.codeCoverage
+    coverageReporter: {
+      dir: require('path').join(__dirname, './coverage'),
+      subdir: '.',
+      reporters: [{ type: 'html' }, { type: 'text-summary' }],
+    },
 
     // web server port
     port: 9876,
@@ -62,41 +67,9 @@ module.exports = function (config) {
     singleRun: false,
   };
 
-  setWebpackPreprocessor(config, options);
-  setWebpack(config, options);
+  if (config._NS && config._NS.env && config._NS.env.codeCoverage) {
+    options.reporters = (options.reporters || []).concat(['coverage']);
+  }
 
   config.set(options);
 };
-module.exports.filePatterns = filePatterns;
-// You can also use RegEx if you'd like:
-// module.exports.filesRegex = /\.\/tests\/.*\.ts$/;
-
-function setWebpackPreprocessor(config, options) {
-  if (config && config.bundle) {
-    if (!options.preprocessors) {
-      options.preprocessors = {};
-    }
-
-    options.files.forEach((file) => {
-      if (!options.preprocessors[file]) {
-        options.preprocessors[file] = [];
-      }
-      options.preprocessors[file].push('webpack');
-    });
-  }
-}
-
-function setWebpack(config, options) {
-  if (config && config.bundle) {
-    const env = {};
-    env[config.platform] = true;
-    env.sourceMap = config.debugBrk;
-    env.appPath = config.appPath;
-    env.karmaWebpack = true;
-    options.webpack = require('./webpack.config')(env);
-    delete options.webpack.entry;
-    delete options.webpack.output.libraryTarget;
-    const invalidPluginsForUnitTesting = ['GenerateBundleStarterPlugin', 'GenerateNativeScriptEntryPointsPlugin'];
-    options.webpack.plugins = options.webpack.plugins.filter((p) => !invalidPluginsForUnitTesting.includes(p.constructor.name));
-  }
-}

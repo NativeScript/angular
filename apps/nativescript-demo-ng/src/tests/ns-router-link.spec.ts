@@ -1,7 +1,7 @@
 import { NSRouterLink } from '@nativescript/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterExtensions } from '@nativescript/angular';
-import { fake, spy, stub } from './test-config';
+import { fake, spy, stub } from './test-config.spec';
 import { SinonStub } from 'sinon';
 import { Label } from '@nativescript/core';
 
@@ -19,7 +19,7 @@ describe('NSRouterLink', () => {
     const el = {
       nativeElement: new Label(),
     };
-    nsRouterLink = new NSRouterLink(null, mockRouter, (mockRouterExtensions as unknown) as RouterExtensions, mockActivatedRoute, el);
+    nsRouterLink = new NSRouterLink(null, mockRouter, mockRouterExtensions as unknown as RouterExtensions, mockActivatedRoute, el);
     urlTreeStub = stub(nsRouterLink, 'urlTree').get(() => null);
   });
 

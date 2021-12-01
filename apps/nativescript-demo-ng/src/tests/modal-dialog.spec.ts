@@ -12,7 +12,7 @@ import { platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic
 // import { NS_COMPILER_PROVIDERS } from "@nativescript/angular/platform";
 import { CommonModule } from '@angular/common';
 
-import { FakeFrameService } from './ns-location-strategy';
+import { FakeFrameService } from './ns-location-strategy.spec';
 const CLOSE_WAIT = isIOS ? 1000 : 0;
 
 @Component({

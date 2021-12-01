@@ -1,6 +1,6 @@
 import { NgView, PlatformNamespaceFilter, ViewClassMeta, ɵViewUtil } from '@nativescript/angular';
 import { Color, Device, platformNames, View } from '@nativescript/core';
-import { createDevice } from './test-utils';
+import { createDevice } from './test-utils.spec';
 type ViewUtil = ɵViewUtil.ViewUtil;
 
 class TestView extends View implements NgView {
