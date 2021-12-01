@@ -123,4 +123,26 @@ describe('Zone patches', () => {
     expect(() => obs.removeEventListener('testEvent', callback)).not.toThrow();
     expect(() => obs.removeEventListener('testEvent')).not.toThrow();
   });
+
+  it('should maintain zone with promises', (done) => {
+    const parentZone = createZone('parent');
+    parentZone.run(async () => {
+      expect(Zone.current.name).toBe('parent');
+      Promise.resolve().then(() => {
+        expect(Zone.current.name).toBe('parent');
+        done();
+      });
+      expect(Zone.current.name).toBe('parent');
+    });
+  });
+
+  it('should downlevel async/await', (done) => {
+    const parentZone = createZone('parent');
+    parentZone.run(async () => {
+      expect(Zone.current.name).toBe('parent');
+      await Promise.resolve();
+      expect(Zone.current.name).toBe('parent');
+      done();
+    });
+  });
 });
