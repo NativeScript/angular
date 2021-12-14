@@ -80,9 +80,9 @@ const appendActionItem = (bar: NgActionBar, item: ActionItem) => {
   template: '<ng-content></ng-content>',
 })
 export class ActionBarComponent {
-  constructor(public element: ElementRef, private page: Page) {
+  constructor(public element: ElementRef, @Optional() private page: Page) {
     if (!this.page) {
-      throw new Error('Inside ActionBarComponent but no Page found in DI.');
+      throw new Error('No Page found in ActionBarComponent.\n' + 'Only a Page can contain an ActionBar, so please ensure ActionBar is only used inside a Component that is routed via page-router-outlet or is contained in a Page.\n' + 'Example for root action bars in AppComponent: <Frame><Page><ActionBar>....</ActionBar></Page></Frame>');
     }
 
     if (isBlank(this.page.actionBarHidden)) {
@@ -99,9 +99,9 @@ export class ActionBarComponent {
 })
 export class ActionBarScope {
   // tslint:disable-line:component-class-suffix
-  constructor(private page: Page) {
+  constructor(@Optional() private page: Page) {
     if (!this.page) {
-      throw new Error('Inside ActionBarScope but no Page found in DI.');
+      throw new Error('Inside ActionBarExtension but no ActionBar found to extend.');
     }
   }
 
