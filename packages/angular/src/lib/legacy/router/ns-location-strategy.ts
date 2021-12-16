@@ -1,5 +1,5 @@
 import { Inject, Injectable, Optional } from '@angular/core';
-import { LocationStrategy } from '@angular/common';
+import { LocationChangeEvent, LocationStrategy } from '@angular/common';
 import { DefaultUrlSerializer, UrlSegmentGroup, UrlTree, ActivatedRouteSnapshot, Params } from '@angular/router';
 import { Frame } from '@nativescript/core';
 import { NativeScriptDebug } from '../../trace';
@@ -243,7 +243,7 @@ export class NSLocationStrategy extends LocationStrategy {
     }
 
     const url = urlSerializer.serialize(this.currentUrlTree);
-    const change = { url: url, pop: pop };
+    const change: LocationChangeEvent = { state, type: 'popstate' };
     for (let fn of this.popStateCallbacks) {
       fn(change);
     }
