@@ -151,7 +151,7 @@ export class PageRouterOutlet implements OnDestroy {
     // In the event that the `parentContexts` has changed the outlet
     // via the creation of another outlet, the `onChildOutletDestroyed`
     // will be skipped
-    if (this.parentContexts.getContext(this.name).outlet === <any>this) {
+    if (this.parentContexts.getContext(this.name)?.outlet === <any>this) {
       // Clear accumulated modal view page cache when page-router-outlet
       // destroyed on modal view closing
       this.parentContexts.onChildOutletDestroyed(this.name);
