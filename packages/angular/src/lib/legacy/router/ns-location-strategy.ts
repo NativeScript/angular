@@ -280,6 +280,19 @@ export class NSLocationStrategy extends LocationStrategy {
       NativeScriptDebug.routerLog('NSLocationStrategy.startGoBack()');
     }
     outlet.isPageNavigationBack = true;
+    // we find all the children and also set their isPageNavigationBack
+    this.outlets
+      .filter((o) => {
+        let parent = o.parent;
+        while (parent) {
+          if (parent === outlet) {
+            return true;
+          }
+          parent = parent.parent;
+        }
+        return false;
+      })
+      .forEach((o) => (o.isPageNavigationBack = true));
 
     this.currentOutlet = outlet;
   }
