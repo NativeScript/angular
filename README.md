@@ -5,7 +5,7 @@ For usage with NativeScript for Angular 12+ projects.
 Clean and setup workspace:
 
 ```
-npm run clean.all
+npm run clean:all
 ```
 
 ## Build packages:
