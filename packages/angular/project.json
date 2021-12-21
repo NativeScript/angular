@@ -5,11 +5,10 @@
   "generators": {},
   "targets": {
     "build": {
-      "executor": "@nrwl/workspace:run-commands",
-      "outputs": ["dist/packages"],
+      "builder": "@angular-devkit/build-angular:ng-packagr",
       "options": {
-        "commands": ["node tools/scripts/build-angular.ts angular"],
-        "parallel": false
+        "tsConfig": "packages/angular/tsconfig.lib.prod.json",
+        "project": "packages/angular/ng-package.json"
       }
     },
     "lint": {
