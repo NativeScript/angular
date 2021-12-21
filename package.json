@@ -4,14 +4,14 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "clean": "npx rimraf hooks node_modules package-lock.json yarn.lock && yarn",
-    "clean.all": "yarn clean && nx run nativescript-demo-ng:clean",
+    "clean": "npx rimraf hooks node_modules package-lock.json yarn.lock && npm i --legacy-peer-deps",
+    "clean.all": "npm run clean && npm run demo:clean",
     "postinstall": "husky install",
     "nx": "nx",
     "start": "nx serve",
     "build": "nx run zone-js:build && nx run angular:build",
-    "test.android": "nx run nativescript-demo-ng:test --args='--platform=android'",
-    "test.ios": "nx run nativescript-demo-ng:test --args='--platform=ios'",
+    "test:android": "nx run nativescript-demo-ng:test --args='--platform=android'",
+    "test:ios": "nx run nativescript-demo-ng:test --args='--platform=ios'",
     "lint": "nx workspace-lint && nx lint",
     "e2e": "nx e2e",
     "affected:apps": "nx affected:apps",
@@ -29,6 +29,9 @@
     "dep-graph": "nx dep-graph",
     "help": "nx help",
     "workspace-generator": "nx workspace-generator",
+    "demo:android": "nx run nativescript-demo-ng:android",
+    "demo:ios": "nx run nativescript-demo-ng:ios",
+    "demo:clean": "nx run nativescript-demo-ng:clean",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
   },
   "dependencies": {
