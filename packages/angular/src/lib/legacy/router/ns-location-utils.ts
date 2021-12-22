@@ -19,7 +19,21 @@ export class Outlet {
   showingModal: boolean;
   modalNavigationDepth: number;
   parent: Outlet;
-  isPageNavigationBack: boolean;
+  _navigatingBackOutlets = new Set<string>();
+  get isPageNavigationBack() {
+    return this._navigatingBackOutlets.size > 0;
+  }
+  set isPageNavigationBack(isBack: boolean) {
+    if (!isBack) {
+      if (this._navigatingBackOutlets.size > 0) {
+        this._navigatingBackOutlets.delete(this._navigatingBackOutlets.values().next().value);
+      }
+    } else {
+      for (const key of this.outletKeys) {
+        this._navigatingBackOutlets.add(key);
+      }
+    }
+  }
 
   // More than one key available when using NSEmptyOutletComponent component
   // in module that lazy loads children (loadChildren) and has outlet name.
