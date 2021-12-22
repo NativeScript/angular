@@ -45,7 +45,7 @@ class DetachedStateCache {
     while (this.cache.length > 0) {
       const state = <any>this.cache.pop().state;
       if (!state.componentRef) {
-        throw new Error('No componentRed found in DetachedRouteHandle');
+        throw new Error('No componentRef found in DetachedRouteHandle');
       }
 
       destroyComponentRef(state.componentRef);

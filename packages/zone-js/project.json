@@ -1,0 +1,32 @@
+{
+  "root": "packages/zone-js",
+  "sourceRoot": "packages/zone-js/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:package",
+      "options": {
+        "outputPath": "dist/packages/zone-js",
+        "tsConfig": "packages/zone-js/tsconfig.lib.json",
+        "packageJson": "packages/zone-js/package.json",
+        "main": "packages/zone-js/dist/index.ts",
+        "assets": ["packages/zone-js/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["packages/zone-js/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/zone-js"],
+      "options": {
+        "jestConfig": "packages/zone-js/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

@@ -7,7 +7,9 @@
 
 # dependencies
 /node_modules
+/packages/*/node_modules
 package-lock.json
+.npmrc
 
 # IDEs and editors
 /.idea
@@ -41,3 +43,5 @@ packages/angular/dist
 # System Files
 .DS_Store
 Thumbs.db
+
+.angular

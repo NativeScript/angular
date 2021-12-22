@@ -32,7 +32,7 @@ class names available for styling your app at https://docs.nativescript.org/ui/t
   </StackLayout>
   <ListView row="1" [items]="items" class="list-group" backgroundColor="#efefef">
     <ng-template let-item="item">
-      <StackLayout [nsRouterLink]="['/item2/item', item.id]" padding="10">
+      <StackLayout [nsRouterLink]="['/item2', item.id]" padding="10">
         <Label [text]="item.name" class="list-group-item"></Label>
       </StackLayout>
     </ng-template>

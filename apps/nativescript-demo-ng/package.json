@@ -7,11 +7,12 @@
   },
   "dependencies": {
     "@nativescript/angular": "file:../../packages/angular",
-    "@nativescript/core": "~8.1.0"
+    "@nativescript/core": "file:../../node_modules/@nativescript/core",
+    "@nativescript-community/ui-material-bottom-navigation": "^6.2.5"
   },
   "devDependencies": {
-    "@nativescript/android": "8.0.0",
-    "@nativescript/ios": "8.1.0",
-    "@nativescript/unit-test-runner": "^2.0.5"
+    "@nativescript/android": "~8.1.1",
+    "@nativescript/ios": "~8.1.0",
+    "@nativescript/unit-test-runner": "^3.0.1"
   }
 }

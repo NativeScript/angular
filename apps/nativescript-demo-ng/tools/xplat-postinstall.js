@@ -7,6 +7,7 @@ const childProcess = require('child_process');
 // Copy potential hooks from root dependencies to app
 const hooksSrc = '../../hooks';
 const hooksDest = 'hooks';
+console.info('Copying ' + hooksSrc + ' -> ' + hooksDest);
 try {
   fs.copySync(hooksSrc, hooksDest);
 } catch (err) {
@@ -14,13 +15,12 @@ try {
 }
 
 // Helpful to trigger ngcc after an install to ensure all has processed properly
-const ngccPath = path.join('..', '..', 'node_modules', '.bin', 'ngcc');
-const child = childProcess.spawn(ngccPath, ['--tsconfig', 'tsconfig.app.json', '--properties', 'es2015', 'module', 'main', '--first-only'], {
-  cwd: process.cwd(),
-  stdio: 'inherit',
-  shell: process.platform == 'win32'
-});
-child.on('close', (code) => {
-
-});
-      
+// const ngccPath = require.resolve('@angular/compiler-cli/ngcc/main-ngcc.js');
+// const child = childProcess.spawn(ngccPath, ['--tsconfig', 'tsconfig.app.json', '--properties', 'es2015', 'module', 'main', '--first-only'], {
+//   cwd: process.cwd(),
+//   shell: process.platform == 'win32',
+// });
+// child.stdout.setEncoding('utf8');
+// child.stdout.on('data', function (data) {
+//   console.log(data);
+// });

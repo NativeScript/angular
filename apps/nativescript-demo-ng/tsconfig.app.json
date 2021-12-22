@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "target": "es2017",
     "baseUrl": ".",
     "outDir": "../../dist/out-tsc",
     "paths": {
@@ -11,10 +12,8 @@
       "@nativescript/angular/polyfills": ["../../packages/angular/polyfills/src/index.ts"],
       "@nativescript/zone-js": ["../../packages/zone-js/dist/index.ts"],
       "@nativescript/zone-js/*": ["../../packages/zone-js/*"]
-    },
-    "types": ["jasmine", "sinon"]
+    }
   },
   "exclude": ["node_modules", "platforms", "./src/**/*.spec.ts"],
-  "include": ["./src/tests/*.ts"],
   "files": ["./references.d.ts", "../../packages/angular/references.d.ts", "./src/main.ts", "./src/polyfills.ts"]
 }

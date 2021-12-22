@@ -20,13 +20,15 @@ import { ActivatedRoute, ActivatedRouteSnapshot, ChildrenOutletContexts, PRIMARY
  *  use this ActivateRoute as a kay for caching.
  */
 export function findTopActivatedRouteNodeForOutlet(activatedRoute: ActivatedRouteSnapshot): ActivatedRouteSnapshot {
-  let outletActivatedRoute = activatedRoute;
+  // TODO: test this and figure it out if it's really no longer needed
+  return activatedRoute;
+  // let outletActivatedRoute = activatedRoute;
 
-  while (outletActivatedRoute.parent && outletActivatedRoute.parent.routeConfig && !outletActivatedRoute.parent.routeConfig.component) {
-    outletActivatedRoute = outletActivatedRoute.parent;
-  }
+  // while (outletActivatedRoute.parent && outletActivatedRoute.parent.routeConfig && !outletActivatedRoute.parent.routeConfig.component) {
+  //   outletActivatedRoute = outletActivatedRoute.parent;
+  // }
 
-  return outletActivatedRoute;
+  // return outletActivatedRoute;
 }
 
 export const pageRouterActivatedSymbol = Symbol('page-router-activated');

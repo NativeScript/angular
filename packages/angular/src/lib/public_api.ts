@@ -30,5 +30,6 @@ export * from './forms';
 export * from './animations';
 export * from './http';
 export * from './legacy';
+export { NativeScriptDebug as ɵNativeScriptAngularDebug } from './trace';
 export * from './nativescript-ng-zone';
 export * from './private-exports';

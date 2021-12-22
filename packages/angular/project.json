@@ -1,0 +1,30 @@
+{
+  "root": "packages/angular",
+  "sourceRoot": "packages/angular/src",
+  "projectType": "library",
+  "generators": {},
+  "targets": {
+    "build": {
+      "builder": "@angular-devkit/build-angular:ng-packagr",
+      "options": {
+        "tsConfig": "packages/angular/tsconfig.lib.prod.json",
+        "project": "packages/angular/ng-package.json"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["packages/angular/**/*.ts", "packages/angular/src/**/*.html"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "options": {
+        "jestConfig": "packages/angular/jest.config.js",
+        "passWithNoTests": true
+      },
+      "outputs": ["coverage/packages/angular"]
+    }
+  },
+  "tags": []
+}

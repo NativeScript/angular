@@ -100,6 +100,78 @@ function destroyRef<T>(ref: PlatformRef | NgModuleRef<T>, name?: string, reason?
   }
 }
 
+function runZoneSyncTask(fn: () => void) {
+  if (typeof Zone === 'undefined') {
+    return;
+  }
+  const zone = Zone.current;
+  const task = zone.scheduleEventTask(
+    'sync_function',
+    fn,
+    {},
+    () => {},
+    () => {}
+  );
+  try {
+    // console.log(task.state);
+    task.invoke();
+    // zone.runTask(task);
+    // console.log(task.state);
+  } finally {
+    zone.cancelTask(task);
+  }
+}
+
+function ZoneCanWorkSync() {
+  let canRunSync = false;
+  runZoneSyncTask(() => {
+    Promise.resolve().then(() => (canRunSync = true));
+  });
+  return canRunSync;
+}
+
+/**
+ * Tests if global.__drainMicrotaskQueue can be used to drain microtasks
+ * Because of Zone.js, even though the native queue might be drained, zone microtasks might not be
+ * @param makeTestDrain should it drain the current microtask queue to ensure the queue can be drained
+ * @returns if global.__drainMicrotaskQueue can be called
+ */
+function nativeQueueCanBeDrained(makeTestDrain: boolean) {
+  if (typeof (global as any).__drainMicrotaskQueue !== 'function') {
+    return false;
+  }
+  if (!makeTestDrain) {
+    return true;
+  }
+  let canRunSync = false;
+  Promise.resolve().then(() => (canRunSync = true));
+  (global as any).__drainMicrotaskQueue();
+  return canRunSync;
+}
+
+/**
+ * Runs a function in the most synchronous way possible
+ * @param fn function to run
+ * @param done function to chain after done
+ */
+function runSynchronously(fn: () => void, done?: () => void): void {
+  if (typeof Zone !== 'undefined' && ZoneCanWorkSync()) {
+    runZoneSyncTask(fn);
+    done?.();
+    return;
+  }
+  if (nativeQueueCanBeDrained(true)) {
+    fn();
+    (global as any).__drainMicrotaskQueue();
+    done?.();
+    return;
+  }
+  fn();
+  if (done) {
+    Utils.queueMacrotask(done);
+  }
+}
+
 export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   let mainModuleRef: NgModuleRef<T> = null;
   let loadingModuleRef: NgModuleRef<K>;
@@ -114,6 +186,8 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     platformRef = newPlatformRef;
     platformRef.onDestroy(() => (platformRef = platformRef === newPlatformRef ? null : platformRef));
   };
+  let launchEventDone = true;
+  let targetRootView: View = null;
   const setRootView = (ref: NgModuleRef<T | K> | View) => {
     if (bootstrapId === -1) {
       // treat edge cases
@@ -129,14 +203,19 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
       }
     }
     Application.getRootView()?._closeAllModalViewsInternal(); // cleanup old rootview
+    NativeScriptDebug.bootstrapLog(`Setting RootView ${launchEventDone ? 'outside of' : 'during'} launch event`);
     // TODO: check for leaks when root view isn't properly destroyed
     if (ref instanceof View) {
       if (NativeScriptDebug.isLogEnabled()) {
         NativeScriptDebug.bootstrapLog(`Setting RootView to ${ref}`);
       }
-      Application.resetRootView({
-        create: () => ref,
-      });
+      if (launchEventDone) {
+        Application.resetRootView({
+          create: () => ref,
+        });
+      } else {
+        targetRootView = ref;
+      }
       return;
     }
     const view = ref.injector.get(APP_ROOT_VIEW) as AppHostView | View;
@@ -144,9 +223,13 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.bootstrapLog(`Setting RootView to ${newRoot}`);
     }
-    Application.resetRootView({
-      create: () => newRoot,
-    });
+    if (launchEventDone) {
+      Application.resetRootView({
+        create: () => newRoot,
+      });
+    } else {
+      targetRootView = newRoot;
+    }
   };
   const showErrorUI = (error: Error) => {
     const message = error.message + '\n\n' + error.stack;
@@ -156,112 +239,128 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     setRootView(errorTextBox);
   };
   const bootstrapRoot = (reason: NgModuleReason) => {
-    bootstrapId = Date.now();
-    const currentBootstrapId = bootstrapId;
-    let bootstrapped = false;
-    let onMainBootstrap = () => {
-      setRootView(mainModuleRef);
-    };
-    options.appModuleBootstrap(reason).then(
-      (ref) => {
-        if (currentBootstrapId !== bootstrapId) {
-          // this module is old and not needed anymore
-          // this may happen when developer uses async app initializer and the user exits the app before this bootstraps
-          ref.destroy();
-          return;
-        }
-        mainModuleRef = ref;
-        ref.onDestroy(() => (mainModuleRef = mainModuleRef === ref ? null : mainModuleRef));
-        updatePlatformRef(ref, reason);
-        const styleTag = ref.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
-        ref.onDestroy(() => {
-          removeTaggedAdditionalCSS(styleTag);
-        });
-        bootstrapped = true;
-        // delay bootstrap callback until all rendering is good to go
-        Utils.queueMacrotask(() => onMainBootstrap());
-        // onMainBootstrap();
-        emitModuleBootstrapEvent(ref, 'main', reason);
-        // bootstrapped component: (ref as any)._bootstrapComponents[0];
-      },
-      (err) => {
-        bootstrapped = true;
-        NativeScriptDebug.bootstrapLogError(`Error bootstrapping app module:\n${err.message}\n\n${err.stack}`);
-        showErrorUI(err);
-        throw err;
-      }
-    );
-    Utils.queueMacrotask(() => {
-      if (currentBootstrapId !== bootstrapId) {
-        return;
-      }
-      if (!bootstrapped) {
-        if (options.loadingModule) {
-          options.loadingModule(reason).then(
-            (loadingRef) => {
+    try {
+      bootstrapId = Date.now();
+      const currentBootstrapId = bootstrapId;
+      let bootstrapped = false;
+      let onMainBootstrap = () => {
+        setRootView(mainModuleRef);
+      };
+      runSynchronously(
+        () =>
+          options.appModuleBootstrap(reason).then(
+            (ref) => {
               if (currentBootstrapId !== bootstrapId) {
                 // this module is old and not needed anymore
                 // this may happen when developer uses async app initializer and the user exits the app before this bootstraps
-                loadingRef.destroy();
+                ref.destroy();
                 return;
               }
-              loadingModuleRef = loadingRef;
-              loadingModuleRef.onDestroy(() => (loadingModuleRef = loadingModuleRef === loadingRef ? null : loadingModuleRef));
-              updatePlatformRef(loadingRef, reason);
-              const styleTag = loadingModuleRef.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
-              loadingRef.onDestroy(() => {
+              mainModuleRef = ref;
+              ref.onDestroy(() => (mainModuleRef = mainModuleRef === ref ? null : mainModuleRef));
+              updatePlatformRef(ref, reason);
+              const styleTag = ref.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
+              ref.onDestroy(() => {
                 removeTaggedAdditionalCSS(styleTag);
               });
-              setRootView(loadingRef);
-              onMainBootstrap = () => {
-                const loadingService = loadingModuleRef.injector.get(NativeScriptLoadingService);
-                loadingModuleRef.injector.get(NgZone).run(() => {
-                  loadingService._notifyMainModuleReady();
-                });
-                loadingService.readyToDestroy$
-                  .pipe(
-                    filter((ready) => ready),
-                    take(1)
-                  )
-                  .subscribe(() => {
-                    destroyRef(loadingModuleRef, 'loading', reason);
-                    loadingModuleRef = null;
-                    setRootView(mainModuleRef);
-                  });
-              };
-              emitModuleBootstrapEvent(loadingModuleRef, 'loading', reason);
+              bootstrapped = true;
+              onMainBootstrap();
+              emitModuleBootstrapEvent(ref, 'main', reason);
+              // bootstrapped component: (ref as any)._bootstrapComponents[0];
             },
             (err) => {
-              NativeScriptDebug.bootstrapLogError(`Error bootstrapping loading module:\n${err.message}\n\n${err.stack}`);
+              bootstrapped = true;
+              NativeScriptDebug.bootstrapLogError(`Error bootstrapping app module:\n${err.message}\n\n${err.stack}`);
               showErrorUI(err);
               throw err;
             }
-          );
-        } else if (options.launchView) {
-          let launchView = options.launchView(reason);
-          setRootView(launchView);
-          if (launchView.startAnimation) {
-            setTimeout(() => {
-              // ensure launch animation is executed after launchView added to view stack
-              launchView.startAnimation();
-            });
+          ),
+        () => {
+          if (currentBootstrapId !== bootstrapId) {
+            return;
           }
-          onMainBootstrap = () => {
-            if (launchView.cleanup) {
-              launchView
-                .cleanup()
-                .catch()
-                .then(() => {
-                  launchView = null;
-                  setRootView(mainModuleRef);
+          if (!bootstrapped) {
+            if (options.loadingModule) {
+              runSynchronously(() =>
+                options.loadingModule(reason).then(
+                  (loadingRef) => {
+                    if (currentBootstrapId !== bootstrapId) {
+                      // this module is old and not needed anymore
+                      // this may happen when developer uses async app initializer and the user exits the app before this bootstraps
+                      loadingRef.destroy();
+                      return;
+                    }
+                    loadingModuleRef = loadingRef;
+                    loadingModuleRef.onDestroy(() => (loadingModuleRef = loadingModuleRef === loadingRef ? null : loadingModuleRef));
+                    updatePlatformRef(loadingRef, reason);
+                    const styleTag = loadingModuleRef.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
+                    loadingRef.onDestroy(() => {
+                      removeTaggedAdditionalCSS(styleTag);
+                    });
+                    setRootView(loadingRef);
+                    onMainBootstrap = () => {
+                      // delay showing the new rootview to avoid flashes
+                      Utils.queueMacrotask(() => {
+                        const loadingService = loadingModuleRef.injector.get(NativeScriptLoadingService);
+                        loadingModuleRef.injector.get(NgZone).run(() => {
+                          loadingService._notifyMainModuleReady();
+                        });
+                        loadingService.readyToDestroy$
+                          .pipe(
+                            filter((ready) => ready),
+                            take(1)
+                          )
+                          .subscribe(() => {
+                            destroyRef(loadingModuleRef, 'loading', reason);
+                            loadingModuleRef = null;
+                            setRootView(mainModuleRef);
+                          });
+                      });
+                    };
+                    emitModuleBootstrapEvent(loadingModuleRef, 'loading', reason);
+                  },
+                  (err) => {
+                    NativeScriptDebug.bootstrapLogError(`Error bootstrapping loading module:\n${err.message}\n\n${err.stack}`);
+                    showErrorUI(err);
+                    throw err;
+                  }
+                )
+              );
+            } else if (options.launchView) {
+              let launchView = options.launchView(reason);
+              setRootView(launchView);
+              if (launchView.startAnimation) {
+                setTimeout(() => {
+                  // ensure launch animation is executed after launchView added to view stack
+                  launchView.startAnimation();
                 });
+              }
+              onMainBootstrap = () => {
+                // delay showing the new rootview to avoid flashes
+                Utils.queueMacrotask(() => {
+                  if (launchView.cleanup) {
+                    launchView
+                      .cleanup()
+                      .catch()
+                      .then(() => {
+                        launchView = null;
+                        setRootView(mainModuleRef);
+                      });
+                  } else {
+                    launchView = null;
+                    setRootView(mainModuleRef);
+                  }
+                });
+              };
+            } else {
+              console.warn('App is bootstrapping asynchronously (likely APP_INITIALIZER) but did not provide a launchView or LoadingModule.');
             }
-          };
-        } else {
-          console.warn('App is bootstrapping asynchronously (likely APP_INITIALIZER) but did not provide a launchView or LoadingModule.');
+          }
         }
-      }
-    });
+      );
+    } catch (err) {
+      NativeScriptDebug.bootstrapLogError(`Error in Bootstrap Function:\n${err.message}\n\n${err.stack}`);
+    }
   };
   const disposePlatform = (reason: NgModuleReason) => {
     destroyRef(platformRef, reason);
@@ -276,15 +375,25 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     mainModuleRef = null;
   };
   const launchCallback = profile('@nativescript/angular/platform-common.launchCallback', (args: LaunchEventData) => {
-    args.root = null;
+    launchEventDone = false;
     bootstrapRoot('applaunch');
+    launchEventDone = true;
+    args.root = targetRootView || null;
   });
   const exitCallback = profile('@nativescript/angular/platform-common.exitCallback', (args: ApplicationEventData) => {
     disposeLastModules('appexit');
   });
 
+  let oldAddEventListener;
+  if (typeof Zone !== 'undefined' && global.NativeScriptGlobals?.events?.[Zone.__symbol__('addEventListener')]) {
+    oldAddEventListener = global.NativeScriptGlobals.events.addEventListener;
+    global.NativeScriptGlobals.events.addEventListener = global.NativeScriptGlobals.events[Zone.__symbol__('addEventListener')];
+  }
   Application.on(Application.launchEvent, launchCallback);
   Application.on(Application.exitEvent, exitCallback);
+  if (oldAddEventListener) {
+    global.NativeScriptGlobals.events.addEventListener = oldAddEventListener;
+  }
   if (module['hot']) {
     // handle HMR Application.run
     global['__dispose_app_ng_platform__'] = () => {
