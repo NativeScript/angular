@@ -1,3 +1,12 @@
+# [13.0.0](https://github.com/NativeScript/angular/compare/12.2.0...13.0.0) (2021-12-22)
+
+
+### Features
+
+* Angular 13 ([#42](https://github.com/NativeScript/angular/issues/42)) ([f80842e](https://github.com/NativeScript/angular/commit/f80842eb0740ed5eb4ff0ef97cab36b98eb365d9))
+
+
+
 # [12.2.0](https://github.com/NativeScript/angular/compare/12.0.6...12.2.0) (2021-09-09)
 
 
