@@ -1,0 +1,15 @@
+<GridLayout rows="*" columns="*">
+  <MDBottomNavigation selectedIndex="0" (loaded)="loadedTabView($event)" (selectedIndexChange)="onIndexChanged($event)">
+    <MDTabStrip class="c-tabs">
+      <MDTabStripItem class="tabstripitem">
+        <Label [text]="tabItems?.start?.title" class="text-center t-12"></Label>
+      </MDTabStripItem>
+    </MDTabStrip>
+
+    <MDTabContentItem backgroundColor="transparent">
+      <GridLayout>
+        <page-router-outlet actionBarVisibility="never" name="startTab"></page-router-outlet>
+      </GridLayout>
+    </MDTabContentItem>
+  </MDBottomNavigation>
+</GridLayout>
