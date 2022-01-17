@@ -1,3 +1,12 @@
+## [13.0.1](https://github.com/NativeScript/angular/compare/13.0.0...13.0.1) (2022-01-17)
+
+
+### Bug Fixes
+
+* use new import.meta.webpackHmr to account for esm ([#51](https://github.com/NativeScript/angular/issues/51)) ([cd934e1](https://github.com/NativeScript/angular/commit/cd934e1adefe48dc0631c621c5f0fec5c2b85bc1))
+
+
+
 # [13.0.0](https://github.com/NativeScript/angular/compare/12.2.0...13.0.0) (2021-12-22)
 
 
