@@ -62,8 +62,8 @@ export interface AppRunOptions<T, K> {
   launchView?: (reason: NgModuleReason) => AppLaunchView;
 }
 
-if (module['hot']) {
-  module['hot'].decline();
+if (import.meta['webpackHot']) {
+  import.meta['webpackHot'].decline();
   global.__onLiveSyncCore = () => {
     Application.getRootView()?._onCssStateChange();
     // all other changes are applied by runNativeScriptAngularApp
@@ -394,7 +394,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   if (oldAddEventListener) {
     global.NativeScriptGlobals.events.addEventListener = oldAddEventListener;
   }
-  if (module['hot']) {
+  if (import.meta['webpackHot']) {
     // handle HMR Application.run
     global['__dispose_app_ng_platform__'] = () => {
       disposePlatform('hotreload');
