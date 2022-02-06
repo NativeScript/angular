@@ -1,3 +1,3 @@
 # @nativescript/angular
 
-NativeScript for Angular v12+
+For usage with NativeScript for Angular 12+ (13, etc.) projects.
