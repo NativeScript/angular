@@ -1,5 +1,6 @@
 import { ApplicationRef, ComponentFactoryResolver, ComponentRef, Injectable, Injector, NgModuleRef, NgZone, Type, ViewContainerRef, ɵmarkDirty } from '@angular/core';
 import { Application, ContentView, Frame, ShowModalOptions, View, ViewBase } from '@nativescript/core';
+import { Subject } from 'rxjs';
 import { AppHostAsyncView, AppHostView } from '../../app-host-view';
 import { DetachedLoader } from '../../cdk/detached-loader';
 import { ComponentPortal } from '../../cdk/portal/common';
@@ -15,9 +16,13 @@ export interface ModalDialogOptions extends BaseShowModalOptions {
   viewContainerRef?: ViewContainerRef;
   moduleRef?: NgModuleRef<any>;
   target?: View;
+  /**
+   * Use context data as component instance properties
+   */
+  useContextAsComponentProps?: boolean;
 }
 
-export interface ShowDialogOptions extends BaseShowModalOptions {
+export interface ShowDialogOptions extends ModalDialogOptions {
   containerRef?: ViewContainerRef;
   /**
    * which container to attach the change detection
@@ -39,7 +44,26 @@ export class ModalDialogParams {
 
 @Injectable()
 export class ModalDialogService {
+  /**
+   * Any opened ModalDialogParams in order of when they were opened (Most recent on top).
+   * This can be used when you need access to ModalDialogParams outside of the component which had them injected.
+   * Each is popped off as modals are closed.
+   */
+  openedModalParams: Array<ModalDialogParams>;
+  _closed$: Subject<ModalDialogParams>;
+
   constructor(private location: NSLocationStrategy, private zone: NgZone, private appRef: ApplicationRef, private defaultInjector: Injector) {}
+
+  /**
+   * Emits anytime a modal is closed with the ModalDialogParams which were injected into the component which is now closing.
+   * For example, can be used to wire up Rx flows outside the scope of just the component being handled.
+   */
+  get closed$() {
+    if (!this._closed$) {
+      this._closed$ = new Subject();
+    }
+    return this._closed$;
+  }
 
   public showModal(type: Type<any>, options: ModalDialogOptions = {}): Promise<any> {
     // if (!options.viewContainerRef) {
@@ -103,6 +127,10 @@ export class ModalDialogService {
       options.doneCallback.apply(undefined, args);
       if (componentViewRef) {
         componentViewRef.firstNativeLikeView.closeModal();
+        const params = this.openedModalParams.pop();
+        if (this._closed$) {
+          this._closed$.next(params);
+        }
         this.location._closeModalNavigation();
         if (detachedLoaderRef || portalOutlet) {
           this.zone.run(() => {
@@ -115,6 +143,10 @@ export class ModalDialogService {
     });
 
     const modalParams = new ModalDialogParams(options.context, closeCallback);
+    if (!this.openedModalParams) {
+      this.openedModalParams = [];
+    }
+    this.openedModalParams.push(modalParams);
 
     const childInjector = Injector.create({
       providers: [{ provide: ModalDialogParams, useValue: modalParams }],
@@ -139,6 +171,11 @@ export class ModalDialogService {
       const componentRef = portalOutlet.attach(portal);
       ɵmarkDirty(componentRef.instance);
       componentViewRef = new NgViewRef(componentRef);
+      if (options.useContextAsComponentProps && options.context) {
+        for (const key in options.context) {
+          (<ComponentRef<any>>componentViewRef.ref).instance[key] = options.context[key];
+        }
+      }
       if (componentViewRef !== componentRef.location.nativeElement) {
         componentRef.location.nativeElement._ngDialogRoot = componentViewRef.firstNativeLikeView;
       }
