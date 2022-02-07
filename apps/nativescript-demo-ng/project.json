@@ -70,11 +70,14 @@
       }
     },
     "test": {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "@nativescript/nx:test",
+      "outputs": ["coverage/apps/nativescript-demo-ng"],
       "options": {
-        "commands": ["ns test {args.platform}"],
-        "cwd": "apps/nativescript-demo-ng",
-        "parallel": false
+        "coverage": false
+      },
+      "configurations": {
+        "android": {},
+        "ios": {}
       }
     }
   },

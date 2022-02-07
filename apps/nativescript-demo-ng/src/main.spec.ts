@@ -4,7 +4,4 @@ import { TestBed } from '@angular/core/testing';
 import { platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 import { NativeScriptTestingModule } from '@nativescript/angular/testing';
 
-TestBed.initTestEnvironment(
-  NativeScriptTestingModule,
-  platformBrowserDynamicTesting() // NS_COMPILER_PROVIDERS)
-);
+TestBed.initTestEnvironment(NativeScriptTestingModule, platformBrowserDynamicTesting(), { teardown: { destroyAfterEach: true } });
