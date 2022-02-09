@@ -1,6 +1,6 @@
-# @nativescript/angular 12+
+# @nativescript/angular
 
-For usage with NativeScript for Angular 12+ projects.
+For usage with NativeScript for Angular 12+ (13, etc.) projects.
 
 Clean and setup workspace:
 

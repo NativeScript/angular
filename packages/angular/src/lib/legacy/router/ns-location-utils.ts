@@ -61,6 +61,15 @@ export class Outlet {
     this.path = path;
   }
 
+  setOutletKeyNavigatingBack(key: string) {
+    const nests = key.split('/');
+    this.outletKeys
+      .filter((k) => k.split('/').length >= nests.length)
+      .forEach((k) => {
+        this._navigatingBackOutlets.add(k);
+      });
+  }
+
   containsFrame(frame: Frame): boolean {
     return this.frames.indexOf(frame) > -1;
   }

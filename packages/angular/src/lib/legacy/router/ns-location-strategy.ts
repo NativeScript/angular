@@ -266,7 +266,7 @@ export class NSLocationStrategy extends LocationStrategy {
   }
 
   // Methods for syncing with page navigation in PageRouterOutlet
-  public _beginBackPageNavigation(frame: Frame) {
+  public _beginBackPageNavigation(frame: Frame, outletKey: string) {
     const outlet: Outlet = this.getOutletByFrame(frame);
 
     if (!outlet || outlet.isPageNavigationBack) {
@@ -279,7 +279,8 @@ export class NSLocationStrategy extends LocationStrategy {
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.routerLog('NSLocationStrategy.startGoBack()');
     }
-    outlet.isPageNavigationBack = true;
+    outlet.setOutletKeyNavigatingBack(outletKey);
+    // outlet.isPageNavigationBack = true;
     // we find all the children and also set their isPageNavigationBack
     this.outlets
       .filter((o) => {
