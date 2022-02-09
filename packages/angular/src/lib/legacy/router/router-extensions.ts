@@ -88,7 +88,6 @@ export class RouterExtensions {
 
   // tslint:disable-next-line:max-line-length
   private findOutletsToBack(options?: BackNavigationOptions): { outletsToBack: Array<Outlet>; outlets: Array<string> } {
-    const outletsToBack: Array<Outlet> = [];
     const rootRoute: ActivatedRoute = this.router.routerState.root;
     let outlets = options.outlets;
     let relativeRoute = options.relativeTo || rootRoute;
@@ -102,21 +101,37 @@ export class RouterExtensions {
       relativeRoute = relativeRoute.parent || relativeRoute;
     }
 
-    const routesToMatch = outlets ? relativeRoute.children : [relativeRoute];
     outlets = outlets || [relativeRoute.outlet];
 
-    for (let index = 0; index < routesToMatch.length; index++) {
-      const currentRoute = routesToMatch[index];
-      if (outlets.some((currentOutlet) => currentOutlet === currentRoute.outlet)) {
-        const outlet = this.findOutletByRoute(currentRoute);
-
-        if (outlet) {
-          outletsToBack.push(outlet);
-        }
-      }
-    }
+    const outletsToBack = this.findOutletsRecursive([...outlets], relativeRoute);
 
     return { outletsToBack: outletsToBack, outlets: outlets };
+  }
+
+  // warning, outlets is mutable!
+  private findOutletsRecursive(outlets: string[], route?: ActivatedRoute) {
+    if (!route || outlets.length === 0) {
+      return [];
+    }
+    const outletsToBack = [];
+    if (outlets.some((currentOutlet) => currentOutlet === route.outlet)) {
+      const outlet = this.findOutletByRoute(route);
+      if (outlet) {
+        outlets.splice(outlets.indexOf(route.outlet), 1);
+        outletsToBack.push(outlet);
+      }
+    }
+    if (!route.children) {
+      return outletsToBack;
+    }
+    for (let index = 0; index < route.children.length; index++) {
+      if (outlets.length === 0) {
+        break;
+      }
+      const currentRoute = route.children[index];
+      outletsToBack.push(...this.findOutletsRecursive(outlets, currentRoute));
+    }
+    return outletsToBack;
   }
 
   private findOutletByRoute(currentRoute: ActivatedRoute): Outlet {
