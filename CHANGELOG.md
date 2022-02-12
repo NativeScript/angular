@@ -1,3 +1,19 @@
+## [13.0.2](https://github.com/NativeScript/angular/compare/13.0.1...13.0.2) (2022-02-12)
+
+
+### Bug Fixes
+
+* restrict nested outlet back navigation scope ([#54](https://github.com/NativeScript/angular/issues/54)) ([5a88bc2](https://github.com/NativeScript/angular/commit/5a88bc2392e66c2afb9eb72d728ded1912d01b98))
+* **zone:** main thread promise handling issue ([44cf00e](https://github.com/NativeScript/angular/commit/44cf00eb044ebfc4852b15534b8ea2ad69610d02))
+
+
+### Features
+
+* **modals:** closed$ and ability to access ModalDialogParams outside of component context ([a18bd18](https://github.com/NativeScript/angular/commit/a18bd187752bc0715bd95da16636ca272d7b04cb))
+* use compilationMode 'full' ([a4972cc](https://github.com/NativeScript/angular/commit/a4972cc759e3a0b4fdc94582d27060b4bcb32de8))
+
+
+
 ## [13.0.1](https://github.com/NativeScript/angular/compare/13.0.0...13.0.1) (2022-01-17)
 
 
