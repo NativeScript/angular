@@ -53,3 +53,7 @@ Zone.__load_patch('nativescript_event_target_api', (g, z, api: any) => {
 Zone.__load_patch('nativescript_patch_class_api', (g, z, api) => {
   api.patchClass = (className: string) => patchClass(className, api);
 });
+
+// Initialize zone microtask queue on main thread
+// TODO: dive into the ios runtime (PromiseProxy) and find a better solution
+Promise.resolve().then(() => {});
