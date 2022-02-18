@@ -51,7 +51,7 @@ export class Outlet {
   isNSEmptyOutlet: boolean;
 
   // Used in reuse-strategy by its children to determine if they should be detached too.
-  shouldDetach: boolean = true;
+  shouldDetach = true;
   constructor(outletKey: string, path: string, pathByOutlets: string, modalNavigationDepth?: number) {
     this.outletKeys = [outletKey];
     this.isPageNavigationBack = false;

@@ -327,8 +327,17 @@ export class PageRouterOutlet implements OnDestroy {
     // Add it to the new page
     this.viewUtil.appendChild(page, componentView);
 
-    const topActivatedRoute = findTopActivatedRouteNodeForOutlet(this._activatedRoute.snapshot);
-    const outletKey = this.locationStrategy.getRouteFullPath(topActivatedRoute);
+    let topActivatedRoute = findTopActivatedRouteNodeForOutlet(this._activatedRoute.snapshot);
+    let outletKey = this.locationStrategy.getRouteFullPath(topActivatedRoute);
+    const thisRouteKey = outletKey;
+    while (!this.locationStrategy.findOutlet(outletKey)) {
+      topActivatedRoute = topActivatedRoute.parent;
+      if (!topActivatedRoute) {
+        NativeScriptDebug.routerError('Could not find outlet for route: ' + thisRouteKey);
+        break;
+      }
+      outletKey = this.locationStrategy.getRouteFullPath(topActivatedRoute);
+    }
 
     const navigatedFromCallback = (<any>global).Zone.current.wrap((args: NavigatedData) => {
       if (args.isBackNavigation) {
