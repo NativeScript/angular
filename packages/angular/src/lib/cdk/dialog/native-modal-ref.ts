@@ -33,8 +33,8 @@ export class NativeModalRef {
     // _ngDialogRoot is the first child of the previously detached proxy.
     // It should have 'viewController' (iOS) or '_dialogFragment' (Android) available for
     // presenting future modal views.
-    if (parentView._ngDialogRoot) {
-      parentView = parentView._ngDialogRoot;
+    while (parentView._modal || parentView._ngDialogRoot) {
+      parentView = parentView._modal || parentView._ngDialogRoot;
     }
     this.parentView = parentView;
 
