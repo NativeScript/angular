@@ -1,3 +1,13 @@
+## [13.0.3](https://github.com/NativeScript/angular/compare/13.0.2...13.0.3) (2022-02-28)
+
+
+### Bug Fixes
+
+* look for correct outlet to back to ([#58](https://github.com/NativeScript/angular/issues/58)) ([b782e36](https://github.com/NativeScript/angular/commit/b782e36236ee11aead05a97462801021b81276ea))
+* nested modal should work under new api ([#59](https://github.com/NativeScript/angular/issues/59)) ([74cc41f](https://github.com/NativeScript/angular/commit/74cc41fffc3a927942edb5c9c077fc2be9df4182))
+
+
+
 ## [13.0.2](https://github.com/NativeScript/angular/compare/13.0.1...13.0.2) (2022-02-12)
 
 
