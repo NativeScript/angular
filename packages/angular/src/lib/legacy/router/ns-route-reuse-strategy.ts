@@ -100,13 +100,18 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
     route = findTopActivatedRouteNodeForOutlet(route);
 
     const outletKey = this.location.getRouteFullPath(route);
-    const outlet = this.location.findOutlet(outletKey, route);
+    let outlet = this.location.findOutlet(outletKey, route);
+    let otherRoute = route;
+    while (!outlet && otherRoute.parent) {
+      otherRoute = otherRoute.parent;
+      outlet = this.location.findOutlet(outletKey, otherRoute);
+    }
     const key = getSnapshotKey(route);
-    const isPageActivated = route[pageRouterActivatedSymbol];
+    const isPageActivated = route[pageRouterActivatedSymbol] || otherRoute[pageRouterActivatedSymbol];
     const isBack = outlet ? outlet.isPageNavigationBack : false;
     let shouldDetach = outlet && !isBack && isPageActivated;
 
-    if (outlet) {
+    if (outlet && otherRoute === route) {
       if (outlet.parent && !outlet.parent.shouldDetach) {
         shouldDetach = false;
       }
@@ -125,7 +130,12 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
     route = findTopActivatedRouteNodeForOutlet(route);
 
     const outletKey = this.location.getRouteFullPath(route);
-    const outlet = this.location.findOutlet(outletKey, route);
+    let outlet = this.location.findOutlet(outletKey, route);
+    let otherRoute = route;
+    while (!outlet && otherRoute.parent) {
+      otherRoute = otherRoute.parent;
+      outlet = this.location.findOutlet(outletKey, otherRoute);
+    }
     const cache = this.cacheByOutlet[outletKey];
     if (!cache) {
       return false;
@@ -139,7 +149,7 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
       NativeScriptDebug.routeReuseStrategyLog(`shouldAttach isBack: ${isBack} key: ${key} result: ${shouldAttach}`);
     }
 
-    if (outlet) {
+    if (outlet && otherRoute === route) {
       outlet.shouldDetach = true;
     }
 
@@ -184,7 +194,12 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
     route = findTopActivatedRouteNodeForOutlet(route);
 
     const outletKey = this.location.getRouteFullPath(route);
-    const outlet = this.location.findOutlet(outletKey, route);
+    let outlet = this.location.findOutlet(outletKey, route);
+    let otherRoute = route;
+    while (!outlet && otherRoute.parent) {
+      otherRoute = otherRoute.parent;
+      outlet = this.location.findOutlet(outletKey, otherRoute);
+    }
     const cache = this.cacheByOutlet[outletKey];
     if (!cache) {
       return null;
