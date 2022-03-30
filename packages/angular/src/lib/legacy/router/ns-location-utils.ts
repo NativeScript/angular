@@ -70,6 +70,15 @@ export class Outlet {
       });
   }
 
+  getValidOutletKeyFromChildKey(key: string) {
+    if (this.outletKeys.includes(key)) {
+      return key;
+    }
+    const nests = key.split('/');
+    const finalOutlets = this.outletKeys.sort((a, b) => b.split('/').length - a.split('/').length).filter((k) => k.split('/').length >= nests.length);
+    return finalOutlets.length > 0 ? finalOutlets[0] : null;
+  }
+
   containsFrame(frame: Frame): boolean {
     return this.frames.indexOf(frame) > -1;
   }

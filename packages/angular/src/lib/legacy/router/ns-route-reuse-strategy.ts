@@ -126,7 +126,8 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
 
     const outletKey = this.location.getRouteFullPath(route);
     const outlet = this.location.findOutlet(outletKey, route);
-    const cache = this.cacheByOutlet[outletKey];
+    const storeKey = outlet?.getValidOutletKeyFromChildKey(outletKey) || outletKey;
+    const cache = this.cacheByOutlet[storeKey];
     if (!cache) {
       return false;
     }
@@ -155,9 +156,11 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
     }
 
     const outletKey = this.location.getRouteFullPath(route);
+    const outlet = this.location.findOutlet(outletKey, route);
+    const storeKey = outlet?.getValidOutletKeyFromChildKey(outletKey) || outletKey;
 
     // tslint:disable-next-line:max-line-length
-    const cache = (this.cacheByOutlet[outletKey] = this.cacheByOutlet[outletKey] || new DetachedStateCache());
+    const cache = (this.cacheByOutlet[storeKey] = this.cacheByOutlet[storeKey] || new DetachedStateCache());
 
     if (state) {
       let isModal = false;
@@ -172,7 +175,7 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
         cache.pop();
 
         if (!cache.length) {
-          delete this.cacheByOutlet[outletKey];
+          delete this.cacheByOutlet[storeKey];
         }
       } else {
         throw new Error("Trying to pop from DetachedStateCache but keys don't match. " + `expected: ${topItem.key} actual: ${key}`);
@@ -185,7 +188,8 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
 
     const outletKey = this.location.getRouteFullPath(route);
     const outlet = this.location.findOutlet(outletKey, route);
-    const cache = this.cacheByOutlet[outletKey];
+    const storeKey = outlet?.getValidOutletKeyFromChildKey(outletKey) || outletKey;
+    const cache = this.cacheByOutlet[storeKey];
     if (!cache) {
       return null;
     }
