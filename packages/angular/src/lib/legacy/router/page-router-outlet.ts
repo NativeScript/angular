@@ -370,7 +370,10 @@ export class PageRouterOutlet implements OnDestroy {
       const clearCallback = () =>
         setTimeout(() => {
           if (this.outlet) {
-            this.routeReuseStrategy.clearCache(this.outlet.outletKeys[0]);
+            // potential alternative fix (only fix children of the current outlet)
+            // const nests = outletKey.split('/');
+            // this.outlet.outletKeys.filter((k) => k.split('/').length >= nests.length).forEach((key) => this.routeReuseStrategy.clearCache(key));
+            this.outlet.outletKeys.forEach((key) => this.routeReuseStrategy.clearCache(key));
           }
         });
 
