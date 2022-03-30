@@ -120,14 +120,39 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
 
     return shouldDetach;
   }
+  protected findValidOutletAndKey(targetRoute: ActivatedRouteSnapshot) {
+    let route = targetRoute;
+    const routeOutletKey = this.location.getRouteFullPath(route);
+    let outletKey = routeOutletKey;
+    let outlet = this.location.findOutlet(outletKey, route);
+    while (!outlet) {
+      if (!route.parent) {
+        return { outlet: null, outletKey: routeOutletKey };
+      }
+      route = route.parent;
+      outletKey = this.location.getRouteFullPath(route);
+      outlet = this.location.findOutlet(outletKey, route);
+    }
+
+    if (outlet) {
+      while (!outlet.outletKeys.includes(outletKey)) {
+        if (!route.parent) {
+          NativeScriptDebug.routeReuseStrategyLog(`Could not find valid outlet key for route: ${targetRoute}.`);
+          return { outlet, outletKey: routeOutletKey };
+        }
+        route = route.parent;
+        outletKey = this.location.getRouteFullPath(route);
+      }
+    }
+
+    return { outlet, outletKey };
+  }
 
   shouldAttach(route: ActivatedRouteSnapshot): boolean {
     route = findTopActivatedRouteNodeForOutlet(route);
 
-    const outletKey = this.location.getRouteFullPath(route);
-    const outlet = this.location.findOutlet(outletKey, route);
-    const storeKey = outlet?.getValidOutletKeyFromChildKey(outletKey) || outletKey;
-    const cache = this.cacheByOutlet[storeKey];
+    const { outlet, outletKey } = this.findValidOutletAndKey(route);
+    const cache = this.cacheByOutlet[outletKey];
     if (!cache) {
       return false;
     }
@@ -155,12 +180,10 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
       NativeScriptDebug.routeReuseStrategyLog(`store key: ${key}, state: ${state}`);
     }
 
-    const outletKey = this.location.getRouteFullPath(route);
-    const outlet = this.location.findOutlet(outletKey, route);
-    const storeKey = outlet?.getValidOutletKeyFromChildKey(outletKey) || outletKey;
+    const { outletKey } = this.findValidOutletAndKey(route);
 
     // tslint:disable-next-line:max-line-length
-    const cache = (this.cacheByOutlet[storeKey] = this.cacheByOutlet[storeKey] || new DetachedStateCache());
+    const cache = (this.cacheByOutlet[outletKey] = this.cacheByOutlet[outletKey] || new DetachedStateCache());
 
     if (state) {
       let isModal = false;
@@ -175,7 +198,7 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
         cache.pop();
 
         if (!cache.length) {
-          delete this.cacheByOutlet[storeKey];
+          delete this.cacheByOutlet[outletKey];
         }
       } else {
         throw new Error("Trying to pop from DetachedStateCache but keys don't match. " + `expected: ${topItem.key} actual: ${key}`);
@@ -186,10 +209,8 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
   retrieve(route: ActivatedRouteSnapshot): DetachedRouteHandle | null {
     route = findTopActivatedRouteNodeForOutlet(route);
 
-    const outletKey = this.location.getRouteFullPath(route);
-    const outlet = this.location.findOutlet(outletKey, route);
-    const storeKey = outlet?.getValidOutletKeyFromChildKey(outletKey) || outletKey;
-    const cache = this.cacheByOutlet[storeKey];
+    const { outlet, outletKey } = this.findValidOutletAndKey(route);
+    const cache = this.cacheByOutlet[outletKey];
     if (!cache) {
       return null;
     }
