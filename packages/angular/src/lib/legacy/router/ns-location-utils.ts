@@ -13,6 +13,7 @@ export interface NavigationOptions {
   clearHistory?: boolean;
   animated?: boolean;
   transition?: NavigationTransition;
+  replaceUrl?: boolean;
 }
 
 export class Outlet {

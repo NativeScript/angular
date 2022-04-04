@@ -255,6 +255,19 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
     }
   }
 
+  popCache(outletKey: string) {
+    const cache = this.cacheByOutlet[outletKey];
+
+    if (cache) {
+      if (cache.peek()) {
+        const state: any = cache.pop()?.state;
+        if (state?.componentRef) {
+          destroyComponentRef(state?.componentRef);
+        }
+      }
+    }
+  }
+
   clearModalCache(outletKey: string) {
     const cache = this.cacheByOutlet[outletKey];
 
