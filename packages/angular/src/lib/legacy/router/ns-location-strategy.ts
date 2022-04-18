@@ -558,6 +558,11 @@ export class NSLocationStrategy extends LocationStrategy {
       }
 
       return true;
+    } else {
+      if (lastState && equalStateUrls) {
+        // update query params for last state
+        lastState.queryParams = { ...queryParams };
+      }
     }
 
     return false;
