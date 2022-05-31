@@ -5,6 +5,7 @@ import { NamespaceFilter } from './property-filter';
 
 import { NativeScriptDebug } from './trace';
 import { NgLayoutBase } from './views/view-types';
+import { isCssVariable } from '@nativescript/core/ui/core/properties';
 
 const ELEMENT_NODE_TYPE = 1;
 const XML_ATTRIBUTES = Object.freeze(['style', 'rows', 'columns', 'fontAttributes']);
@@ -497,10 +498,21 @@ export class ViewUtil {
   }
 
   public setStyle(view: View, styleName: string, value: any) {
-    view.style[styleName] = value;
+    if (isCssVariable(styleName)) {
+      view.style.setUnscopedCssVariable(styleName, value);
+      view._onCssStateChange();
+    } else {
+      view.style[styleName] = value;
+    }
   }
 
   public removeStyle(view: View, styleName: string) {
-    view.style[styleName] = unsetValue;
+    if (isCssVariable(styleName)) {
+      // TODO: expose this on core
+      (view.style as any).unscopedCssVariables.delete(styleName);
+      view._onCssStateChange();
+    } else {
+      view.style[styleName] = unsetValue;
+    }
   }
 }
