@@ -1,7 +1,7 @@
 import { Attribute, ChangeDetectorRef, ComponentFactory, ComponentFactoryResolver, ComponentRef, Directive, Inject, InjectionToken, Injector, OnDestroy, EventEmitter, Output, Type, ViewContainerRef, ElementRef, InjectFlags, NgZone } from '@angular/core';
 import { ActivatedRoute, ActivatedRouteSnapshot, ChildrenOutletContexts, PRIMARY_OUTLET } from '@angular/router';
 
-import { Frame, Page, NavigatedData, profile } from '@nativescript/core';
+import { Frame, Page, NavigatedData, profile, NavigationEntry } from '@nativescript/core';
 
 import { BehaviorSubject } from 'rxjs';
 
@@ -241,7 +241,25 @@ export class PageRouterOutlet implements OnDestroy {
     this._activatedRoute = activatedRoute;
     this.markActivatedRoute(activatedRoute);
 
-    this.locationStrategy._finishBackPageNavigation(this.frame);
+    // we have a child with the same name, so we don't finish the back nav
+    if (this.isFinalPageRouterOutlet()) {
+      this.locationStrategy._finishBackPageNavigation(this.frame);
+    }
+  }
+
+  private isFinalPageRouterOutlet() {
+    let children = this.parentContexts.getContext(this.name)?.children;
+    while (children) {
+      const childContext = children.getContext(this.name);
+      if (!childContext || !childContext.outlet) {
+        return true;
+      }
+      if (childContext.outlet instanceof PageRouterOutlet) {
+        return false;
+      }
+      children = childContext.children;
+    }
+    return true;
   }
 
   /**
@@ -265,7 +283,9 @@ export class PageRouterOutlet implements OnDestroy {
       if (NativeScriptDebug.isLogEnabled()) {
         NativeScriptDebug.routerLog('Currently in page back navigation - component should be reattached instead of activated.');
       }
-      this.locationStrategy._finishBackPageNavigation(this.frame);
+      if (this.isFinalPageRouterOutlet()) {
+        this.locationStrategy._finishBackPageNavigation(this.frame);
+      }
     }
 
     if (NativeScriptDebug.isLogEnabled()) {
@@ -364,20 +384,36 @@ export class PageRouterOutlet implements OnDestroy {
     });
 
     const navOptions = this.locationStrategy._beginPageNavigation(this.frame);
+    const isReplace = navOptions.replaceUrl && !navOptions.clearHistory;
 
     // Clear refCache if navigation with clearHistory
     if (navOptions.clearHistory) {
       const clearCallback = () =>
         setTimeout(() => {
           if (this.outlet) {
-            this.routeReuseStrategy.clearCache(this.outlet.outletKeys[0]);
+            // potential alternative fix (only fix children of the current outlet)
+            // const nests = outletKey.split('/');
+            // this.outlet.outletKeys.filter((k) => k.split('/').length >= nests.length).forEach((key) => this.routeReuseStrategy.clearCache(key));
+            this.outlet.outletKeys.forEach((key) => this.routeReuseStrategy.clearCache(key));
+          }
+        });
+
+      page.once(Page.navigatedToEvent, clearCallback);
+    } else if (navOptions.replaceUrl) {
+      const clearCallback = () =>
+        setTimeout(() => {
+          if (this.outlet) {
+            // potential alternative fix (only fix children of the current outlet)
+            // const nests = outletKey.split('/');
+            // this.outlet.outletKeys.filter((k) => k.split('/').length >= nests.length).forEach((key) => this.routeReuseStrategy.popCache(key));
+            this.outlet.outletKeys.forEach((key) => this.routeReuseStrategy.popCache(key));
           }
         });
 
       page.once(Page.navigatedToEvent, clearCallback);
     }
 
-    this.frame.navigate({
+    const navigationEntry: NavigationEntry = {
       create() {
         return page;
       },
@@ -385,7 +421,13 @@ export class PageRouterOutlet implements OnDestroy {
       clearHistory: navOptions.clearHistory,
       animated: navOptions.animated,
       transition: navOptions.transition,
-    });
+    };
+
+    if (isReplace && this.frame.currentPage) {
+      this.frame.replacePage(navigationEntry);
+    } else {
+      this.frame.navigate(navigationEntry);
+    }
   }
 
   // Find and mark the top activated route as an activated one.
