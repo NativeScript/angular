@@ -29,6 +29,9 @@ module.exports = function (config) {
       reporters: [{ type: 'html' }, { type: 'text-summary' }],
     },
 
+    // web server hostname
+    hostname: '127.0.0.1',
+
     // web server port
     port: 9876,
 

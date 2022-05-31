@@ -144,7 +144,7 @@ function simulatePageNavigation(strategy: NSLocationStrategy, url: string, frame
 }
 
 function simulatePageBack(strategy: NSLocationStrategy, frame: any) {
-  strategy._beginBackPageNavigation(frame);
+  strategy._beginBackPageNavigation(frame, '');
   strategy.back();
   strategy._finishBackPageNavigation(frame);
 }
