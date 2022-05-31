@@ -1,3 +1,14 @@
+## [13.0.4](https://github.com/NativeScript/angular/compare/13.0.3...13.0.4) (2022-05-31)
+
+
+### Bug Fixes
+
+* correctly zone patch FileReader ([#67](https://github.com/NativeScript/angular/issues/67)) ([ff71723](https://github.com/NativeScript/angular/commit/ff71723a5e21cc279bc9c65f0b8d4dbdd24e6176))
+* resolve routing component cleanup, preserve query params and replaceUrl ([#69](https://github.com/NativeScript/angular/issues/69)) ([69f94bf](https://github.com/NativeScript/angular/commit/69f94bfb49eef5f079bb81d43a54e7247003845b))
+* support css variables in dynamic style ([#68](https://github.com/NativeScript/angular/issues/68)) ([8fa3c1d](https://github.com/NativeScript/angular/commit/8fa3c1deb464ebbad18b176984dec087f16c4e7f))
+
+
+
 ## [13.0.3](https://github.com/NativeScript/angular/compare/13.0.2...13.0.3) (2022-02-28)
 
 
