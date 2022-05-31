@@ -1,10 +1,9 @@
 {
-  "root": "packages/zone-js",
   "sourceRoot": "packages/zone-js/src",
   "projectType": "library",
   "targets": {
     "build": {
-      "executor": "@nrwl/node:package",
+      "executor": "@nrwl/js:tsc",
       "options": {
         "outputPath": "dist/packages/zone-js",
         "tsConfig": "packages/zone-js/tsconfig.lib.json",
@@ -23,7 +22,7 @@
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/packages/zone-js"],
       "options": {
-        "jestConfig": "packages/zone-js/jest.config.js",
+        "jestConfig": "packages/zone-js/jest.config.ts",
         "passWithNoTests": true
       }
     }

@@ -1,5 +1,4 @@
 {
-  "root": "apps/nativescript-demo-ng/",
   "sourceRoot": "apps/nativescript-demo-ng/src",
   "projectType": "application",
   "prefix": "nativescript",
