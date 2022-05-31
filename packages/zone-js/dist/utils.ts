@@ -386,7 +386,7 @@ export function patchClass(className: string, api: _ZonePrivate) {
   const instance = new OriginalClass(function () {});
 
   let prop;
-  for (prop of Object.getOwnPropertyNames(instance)) {
+  for (prop of getAllProperties(instance)) {
     // https://bugs.webkit.org/show_bug.cgi?id=44721
     if (className === 'XMLHttpRequest' && prop === 'responseBlob') continue;
     (function (prop) {
@@ -415,9 +415,23 @@ export function patchClass(className: string, api: _ZonePrivate) {
     })(prop);
   }
 
-  for (prop in Object.getOwnPropertyNames(OriginalClass)) {
-    if (prop !== 'prototype' && OriginalClass.hasOwnProperty(prop)) {
+  for (prop of Object.getOwnPropertyNames(OriginalClass)) {
+    if (prop !== 'prototype' && OriginalClass.hasOwnProperty(prop) && isWritable(_global[className], prop)) {
       _global[className][prop] = OriginalClass[prop];
     }
   }
+}
+
+function getAllProperties(toCheck: any, lastProto = Object.prototype) {
+  const props = [];
+  let obj = toCheck;
+  do {
+    props.push(...Object.getOwnPropertyNames(obj));
+  } while ((obj = Object.getPrototypeOf(obj)) && obj !== lastProto);
+
+  return Array.from(new Set(props));
+}
+
+function isWritable<T extends Object>(obj: T, key: keyof T) {
+  return Object.getOwnPropertyDescriptor(obj, key)?.writable ?? true;
 }
