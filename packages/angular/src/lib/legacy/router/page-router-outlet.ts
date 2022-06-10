@@ -1,5 +1,5 @@
-import { Attribute, ChangeDetectorRef, ComponentFactory, ComponentFactoryResolver, ComponentRef, Directive, Inject, InjectionToken, Injector, OnDestroy, EventEmitter, Output, Type, ViewContainerRef, ElementRef, InjectFlags, NgZone } from '@angular/core';
-import { ActivatedRoute, ActivatedRouteSnapshot, ChildrenOutletContexts, PRIMARY_OUTLET } from '@angular/router';
+import { Attribute, ChangeDetectorRef, ComponentFactory, ComponentFactoryResolver, ComponentRef, Directive, Inject, InjectionToken, Injector, OnDestroy, EventEmitter, Output, Type, ViewContainerRef, ElementRef, InjectFlags, NgZone, EnvironmentInjector } from '@angular/core';
+import { ActivatedRoute, ActivatedRouteSnapshot, ChildrenOutletContexts, Data, PRIMARY_OUTLET, RouterOutletContract } from '@angular/router';
 
 import { Frame, Page, NavigatedData, profile, NavigationEntry } from '@nativescript/core';
 
@@ -54,7 +54,7 @@ registerElement('page-router-outlet', () => Frame);
 // eslint-disable-next-line @angular-eslint/directive-selector
 @Directive({ selector: 'page-router-outlet' }) // tslint:disable-line:directive-selector
 // eslint-disable-next-line @angular-eslint/directive-class-suffix
-export class PageRouterOutlet implements OnDestroy {
+export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
   // tslint:disable-line:directive-class-suffix
   private activated: ComponentRef<any> | null = null;
   private _activatedRoute: ActivatedRoute | null = null;
@@ -65,6 +65,9 @@ export class PageRouterOutlet implements OnDestroy {
   private isEmptyOutlet: boolean;
   private viewUtil: ViewUtil;
   private frame: Frame;
+
+  attachEvents: EventEmitter<unknown> = new EventEmitter();
+  detachEvents: EventEmitter<unknown> = new EventEmitter();
 
   // eslint-disable-next-line @angular-eslint/no-output-rename
   @Output('activate') activateEvents = new EventEmitter<any>(); // tslint:disable-line:no-output-rename
@@ -103,6 +106,13 @@ export class PageRouterOutlet implements OnDestroy {
     }
 
     return this._activatedRoute;
+  }
+
+  get activatedRouteData(): Data {
+    if (this._activatedRoute) {
+      return this._activatedRoute.snapshot.data;
+    }
+    return {};
   }
 
   constructor(
@@ -222,6 +232,7 @@ export class PageRouterOutlet implements OnDestroy {
     const component = this.activated;
     this.activated = null;
     this._activatedRoute = null;
+    this.detachEvents.emit(component.instance);
     return component;
   }
 
@@ -245,6 +256,7 @@ export class PageRouterOutlet implements OnDestroy {
     if (this.isFinalPageRouterOutlet()) {
       this.locationStrategy._finishBackPageNavigation(this.frame);
     }
+    this.attachEvents.emit(ref.instance);
   }
 
   private isFinalPageRouterOutlet() {
@@ -267,7 +279,7 @@ export class PageRouterOutlet implements OnDestroy {
    * This method in turn is responsible for calling the `routerOnActivate` hook of its child.
    */
   @profile
-  activateWith(activatedRoute: ActivatedRoute, resolver: ComponentFactoryResolver | null): void {
+  activateWith(activatedRoute: ActivatedRoute, resolver: ComponentFactoryResolver | EnvironmentInjector | null): void {
     this.outlet = this.outlet || this.getOutlet(activatedRoute.snapshot);
     if (!this.outlet) {
       if (NativeScriptDebug.isLogEnabled()) {
@@ -302,12 +314,21 @@ export class PageRouterOutlet implements OnDestroy {
     this.activateEvents.emit(this.activated.instance);
   }
 
-  private activateOnGoForward(activatedRoute: ActivatedRoute, loadedResolver: ComponentFactoryResolver): void {
+  private activateOnGoForward(activatedRoute: ActivatedRoute, loadedResolver: ComponentFactoryResolver | EnvironmentInjector): void {
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.routerLog('PageRouterOutlet.activate() forward navigation - ' + 'create detached loader in the loader container');
     }
 
-    const factory = this.getComponentFactory(activatedRoute, loadedResolver);
+    let resolver: ComponentFactoryResolver;
+    let ourInjector = this.location.injector;
+    if (!(loadedResolver instanceof ComponentFactoryResolver)) {
+      ourInjector = loadedResolver;
+      resolver = loadedResolver?.get(ComponentFactoryResolver);
+    } else {
+      resolver = loadedResolver;
+    }
+
+    const factory = this.getComponentFactory(activatedRoute, resolver);
     const page = this.pageFactory({
       isNavigation: true,
       componentType: factory.componentType,
@@ -323,7 +344,7 @@ export class PageRouterOutlet implements OnDestroy {
         { provide: ChildrenOutletContexts, useValue: this.parentContexts.getOrCreateContext(this.name).children },
         { provide: PageService, useClass: PageService },
       ],
-      parent: this.location.injector,
+      parent: ourInjector,
     });
 
     const childInjector = new DestructibleInjector(destructables, injector);

@@ -28,6 +28,10 @@ export class NSLocationStrategy extends LocationStrategy {
     }
   }
 
+  getState(): unknown {
+    return this.currentOutlet && this.currentOutlet.peekState();
+  }
+
   path(): string {
     if (!this.currentUrlTree) {
       return this.startPath || '/';
