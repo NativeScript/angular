@@ -4,5 +4,6 @@
     "angular": "packages/angular",
     "nativescript-demo-ng": "apps/nativescript-demo-ng",
     "zone-js": "packages/zone-js"
-  }
+  },
+  "$schema": "./node_modules/nx/schemas/workspace-schema.json"
 }
