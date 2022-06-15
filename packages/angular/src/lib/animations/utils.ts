@@ -1,9 +1,6 @@
 import { KeyframeAnimation, KeyframeAnimationInfo, KeyframeDeclaration, KeyframeInfo, parseKeyframeDeclarations, animationTimingFunctionConverter } from '@nativescript/core';
 
-export interface Keyframe {
-  [key: string]: string | number;
-  offset: number;
-}
+export type Keyframe = Map<string, string | number> & { offset: number };
 
 const DASH_CASE_REGEXP = /-+([a-z0-9])/g;
 export function dashCaseToCamelCase(input: string): string {

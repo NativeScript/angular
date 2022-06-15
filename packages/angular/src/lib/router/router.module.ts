@@ -131,9 +131,6 @@ export function provideLocationInitialized(startpath: string | Promise<string>) 
   declarations: [
     /* NSRouterLink, NSRouterLinkActive, PageRouterOutlet, NSEmptyOutletComponent */
   ],
-  entryComponents: [
-    /* NSEmptyOutletComponent */
-  ],
   imports: [RouterModule, NativeScriptCommonModule],
   exports: [RouterModule /* NSRouterLink, NSRouterLinkActive, PageRouterOutlet, NSEmptyOutletComponent */],
   schemas: [NO_ERRORS_SCHEMA],
