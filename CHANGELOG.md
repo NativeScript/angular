@@ -1,3 +1,12 @@
+# [14.0.0](https://github.com/NativeScript/angular/compare/13.0.4...14.0.0) (2022-06-15)
+
+
+### Features
+
+* Angular 14 ([#72](https://github.com/NativeScript/angular/issues/72)) ([af32ad7](https://github.com/NativeScript/angular/commit/af32ad7dd8a0eedb1702917e8207fcb55230b900))
+
+
+
 ## [13.0.4](https://github.com/NativeScript/angular/compare/13.0.3...13.0.4) (2022-05-31)
 
 
