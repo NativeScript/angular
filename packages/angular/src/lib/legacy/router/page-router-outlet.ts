@@ -480,7 +480,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
   }
 
   private getComponentFactory(activatedRoute: ActivatedRoute, loadedResolver: ComponentFactoryResolver): ComponentFactory<any> {
-    const { component } = activatedRoute.routeConfig;
+    const component = activatedRoute.routeConfig.component || activatedRoute.component;
 
     return loadedResolver ? loadedResolver.resolveComponentFactory(component) : this.componentFactoryResolver.resolveComponentFactory(component);
   }
