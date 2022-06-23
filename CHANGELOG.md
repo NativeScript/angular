@@ -1,3 +1,12 @@
+## [14.0.1](https://github.com/NativeScript/angular/compare/14.0.0...14.0.1) (2022-06-23)
+
+
+### Bug Fixes
+
+* handle standalone component routing with loadComponent ([#73](https://github.com/NativeScript/angular/issues/73)) ([4a5ea46](https://github.com/NativeScript/angular/commit/4a5ea4675c5cb576add6ea0afc96c4b11e395d88))
+
+
+
 # [14.0.0](https://github.com/NativeScript/angular/compare/13.0.4...14.0.0) (2022-06-15)
 
 
