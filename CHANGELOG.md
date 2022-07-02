@@ -1,3 +1,13 @@
+## [14.0.3](https://github.com/NativeScript/angular/compare/14.0.1...14.0.3) (2022-07-02)
+
+
+### Bug Fixes
+
+* load pages in location instead of in appRef ([#74](https://github.com/NativeScript/angular/issues/74)) ([33d4dc6](https://github.com/NativeScript/angular/commit/33d4dc6f836b40128b9abb12307f3b7f822c6c75))
+* remove deep import of @nativescript/core ([0aacde2](https://github.com/NativeScript/angular/commit/0aacde244b1a8ba759d0adc10267218de8cc73b5))
+
+
+
 ## [14.0.1](https://github.com/NativeScript/angular/compare/14.0.0...14.0.1) (2022-06-23)
 
 
