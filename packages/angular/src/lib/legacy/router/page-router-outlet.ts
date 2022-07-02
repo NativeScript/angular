@@ -352,7 +352,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     loaderRef.onDestroy(() => childInjector.destroy());
     this.changeDetector.markForCheck();
 
-    this.activated = loaderRef.instance.loadWithFactory(factory);
+    this.activated = loaderRef.instance.loadWithFactoryInLocation(factory);
     this.activated.changeDetectorRef.detectChanges();
     this.loadComponentInPage(page, this.activated, { activatedRoute });
 

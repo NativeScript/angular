@@ -16,7 +16,9 @@ registerElement('DetachedContainer', () => ProxyViewContainer, {
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'DetachedContainer',
-  template: `<Placeholder #loader></Placeholder><ng-container #vc></ng-container><ng-content></ng-content>`,
+  template: `<Placeholder #loader></Placeholder>
+    <ng-container #vc></ng-container>
+    <ng-content></ng-content>`,
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class DetachedLoader implements OnDestroy {
@@ -33,7 +35,7 @@ export class DetachedLoader implements OnDestroy {
     return new TemplatePortal(templateRef, this.vc, context);
   }
 
-  private loadInLocation(componentType: Type<any>): ComponentRef<any> {
+  private loadInAppRef(componentType: Type<any>): ComponentRef<any> {
     const factory = this.resolver.resolveComponentFactory(componentType);
     const componentRef = factory.create(this.containerRef.injector);
     this.appRef.attachView(componentRef.hostView);
@@ -52,6 +54,10 @@ export class DetachedLoader implements OnDestroy {
     return componentRef;
   }
 
+  private loadInLocation(componentType: Type<any>): ComponentRef<any> {
+    return this.vc.createComponent(componentType);
+  }
+
   public ngOnDestroy() {
     this.disposeFunctions.forEach((fn) => fn());
   }
@@ -65,14 +71,22 @@ export class DetachedLoader implements OnDestroy {
    */
   public loadComponent(componentType: Type<any>): Promise<ComponentRef<any>> {
     Trace.write('DetachedLoader.loadComponent', 'detached-loader');
-    return Promise.resolve(this.loadInLocation(componentType));
+    return Promise.resolve(this.loadInAppRef(componentType));
   }
 
   /**
    * @deprecated use Portals
    */
   public loadComponentSync(componentType: Type<any>): ComponentRef<any> {
-    Trace.write('DetachedLoader.loadComponent', 'detached-loader');
+    Trace.write('DetachedLoader.loadComponentSync', 'detached-loader');
+    return this.loadInAppRef(componentType);
+  }
+
+  /**
+   * @deprecated use Portals
+   */
+  public loadComponentInLocation(componentType: Type<any>): ComponentRef<any> {
+    Trace.write('DetachedLoader.loadComponentInLocation', 'detached-loader');
     return this.loadInLocation(componentType);
   }
 
@@ -88,5 +102,12 @@ export class DetachedLoader implements OnDestroy {
       componentRef.destroy();
     });
     return componentRef;
+  }
+
+  /**
+   * @deprecated use Portals
+   */
+  public loadWithFactoryInLocation<T>(factory: ComponentFactory<T>): ComponentRef<T> {
+    return this.vc.createComponent(factory);
   }
 }
