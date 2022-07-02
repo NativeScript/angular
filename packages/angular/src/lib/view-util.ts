@@ -5,7 +5,12 @@ import { NamespaceFilter } from './property-filter';
 
 import { NativeScriptDebug } from './trace';
 import { NgLayoutBase } from './views/view-types';
-import { isCssVariable } from '@nativescript/core/ui/core/properties';
+
+// Note: this utility exists from deep core import however results in
+// Module not found: Error: Can't resolve '@nativescript/core/ui/core/properties'
+function isCssVariable(property: string) {
+  return /^--[^,\s]+?$/.test(property);
+}
 
 const ELEMENT_NODE_TYPE = 1;
 const XML_ATTRIBUTES = Object.freeze(['style', 'rows', 'columns', 'fontAttributes']);
