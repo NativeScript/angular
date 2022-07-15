@@ -37,6 +37,10 @@ class DetachedStateCache {
     return this.cache[this.cache.length - 1];
   }
 
+  public has(key: string): boolean {
+    return !!this.cache.find((cacheItem) => cacheItem.key === key);
+  }
+
   public clear() {
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.routeReuseStrategyLog(`DetachedStateCache.clear() ${this.cache.length} items will be destroyed`);
@@ -159,7 +163,9 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
 
     const key = getSnapshotKey(route);
     const isBack = outlet ? outlet.isPageNavigationBack : false;
-    const shouldAttach = isBack && cache.peek()?.key === key;
+    // instead of checking if the last cache item is this, we check if the key exists
+    // if exists, it means we're going back multiple times, so we should attach
+    const shouldAttach = isBack && cache.has(key);
 
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.routeReuseStrategyLog(`shouldAttach isBack: ${isBack} key: ${key} result: ${shouldAttach}`);
@@ -217,9 +223,26 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
 
     const key = getSnapshotKey(route);
     const isBack = outlet ? outlet.isPageNavigationBack : false;
-    const cachedItem = cache.peek();
 
     let state = null;
+    let cachedItem = null;
+    let backTimes = 1;
+    if (isBack && cache.has(key)) {
+      console.log('looking for', key);
+      // eslint-disable-next-line no-cond-assign
+      while ((cachedItem = cache.peek())) {
+        console.log(cachedItem.key);
+        if (cachedItem.key === key && backTimes >= outlet.navigatingBackTimes) {
+          console.log('found', key);
+          outlet.navigatingBackTimes = 1;
+          break;
+        }
+        backTimes++;
+        const oldItem = cache.pop();
+        destroyComponentRef((oldItem.state as any)?.componentRef);
+      }
+    }
+    // const cachedItem = cache.peek();
     if (isBack && cachedItem && cachedItem.key === key) {
       state = cachedItem.state;
     }

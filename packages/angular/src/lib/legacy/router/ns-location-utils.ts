@@ -21,6 +21,7 @@ export class Outlet {
   modalNavigationDepth: number;
   parent: Outlet;
   _navigatingBackOutlets = new Set<string>();
+  navigatingBackTimes = 1;
   get isPageNavigationBack() {
     return this._navigatingBackOutlets.size > 0;
   }

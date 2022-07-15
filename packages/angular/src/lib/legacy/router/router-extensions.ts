@@ -11,6 +11,7 @@ export type ExtendedNavigationExtras = NavigationExtras & NavigationOptions;
 export interface BackNavigationOptions {
   outlets?: Array<string>;
   relativeTo?: ActivatedRoute | null;
+  numberOfBackNavigations?: number;
 }
 
 @Injectable({
@@ -80,7 +81,7 @@ export class RouterExtensions {
         if (outletToBack.isPageNavigationBack) {
           NativeScriptDebug.routerError('Attempted to call startGoBack while going back:');
         } else {
-          this.locationStrategy.back(outletToBack);
+          this.locationStrategy.back(outletToBack, null, options.numberOfBackNavigations || 1);
         }
       });
     }

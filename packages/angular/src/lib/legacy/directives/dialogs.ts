@@ -82,8 +82,8 @@ export class ModalDialogService {
     // _ngDialogRoot is the first child of the previously detached proxy.
     // It should have 'viewController' (iOS) or '_dialogFragment' (Android) available for
     // presenting future modal views.
-    if (parentView._ngDialogRoot) {
-      parentView = parentView._ngDialogRoot;
+    while (parentView._modal || parentView._ngDialogRoot) {
+      parentView = parentView._modal || parentView._ngDialogRoot;
     }
 
     // resolve from particular module (moduleRef)
@@ -176,8 +176,8 @@ export class ModalDialogService {
           (<ComponentRef<any>>componentViewRef.ref).instance[key] = options.context[key];
         }
       }
-      if (componentViewRef !== componentRef.location.nativeElement) {
-        componentRef.location.nativeElement._ngDialogRoot = componentViewRef.firstNativeLikeView;
+      if (componentViewRef.firstNativeLikeView !== componentViewRef.view) {
+        (componentViewRef.view as any)._ngDialogRoot = componentViewRef.firstNativeLikeView;
       }
       // if we don't detach the view from its parent, ios gets mad
       componentViewRef.detachNativeLikeView();

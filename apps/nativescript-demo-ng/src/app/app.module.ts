@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { ItemsComponent } from './item/items.component';
 import { ItemDetailComponent } from './item/item-detail.component';
 import { ModalComponent } from './modal/modal.component';
+import { Nav1Component } from './route-tests';
 
 /**
  * To test tab named outlets, can uncomment imports and declarations
@@ -27,6 +28,7 @@ import { ModalComponent } from './modal/modal.component';
     ItemsComponent,
     ItemDetailComponent,
     ModalComponent,
+    Nav1Component,
     // HomeComponent
   ],
   providers: [],

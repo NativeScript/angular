@@ -161,7 +161,7 @@ export class NSLocationStrategy extends LocationStrategy {
     throw new Error('NSLocationStrategy.forward() - not implemented');
   }
 
-  back(outlet?: Outlet, frame?: Frame): void {
+  back(outlet?: Outlet, frame?: Frame, times = 1): void {
     this.currentOutlet = outlet || this.currentOutlet;
 
     if (this.currentOutlet.isPageNavigationBack) {
@@ -202,7 +202,23 @@ export class NSLocationStrategy extends LocationStrategy {
 
         const frameToBack: Frame = this.currentOutlet.getFrameToBack();
         if (frameToBack) {
-          frameToBack.goBack();
+          if (times > frameToBack.backStack.length) {
+            times = frameToBack.backStack.length;
+          }
+          if (times > 1 && frameToBack.backStack.length >= times) {
+            this.currentOutlet.navigatingBackTimes = times;
+            console.log('going back', times);
+            const entry = frameToBack.backStack[frameToBack.backStack.length - times];
+            // const statesToPop = this.currentOutlet.states.slice(-(times - 1), -1);
+            console.log(this.currentOutlet.states.length);
+            this.currentOutlet.states = [...this.currentOutlet.states.slice(0, -times), this.currentOutlet.states[this.currentOutlet.states.length - 1]];
+            console.log(this.currentOutlet.states.length);
+            frameToBack.goBack(entry);
+            // statesToPop.forEach((state) => this.)
+          } else {
+            this.currentOutlet.navigatingBackTimes = 1;
+            frameToBack.goBack();
+          }
         }
       } else {
         // Nested navigation - just pop the state

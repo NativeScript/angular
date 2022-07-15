@@ -6,13 +6,17 @@ import { ItemsComponent } from './item/items.component';
 import { ItemDetailComponent } from './item/item-detail.component';
 // import { HomeComponent } from './home/home.component';
 // import { BootGuardService } from './boot-guard.service';
+import { Nav1Component } from './route-tests';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/rootlazy', pathMatch: 'full' },
+  { path: '', redirectTo: '/nav1', pathMatch: 'full' },
   { path: 'items', component: ItemsComponent },
   { path: 'item/:id', component: ItemDetailComponent },
   { path: 'item2', loadChildren: () => import('./item2/item2.module').then((m) => m.Item2Module) },
   { path: 'rootlazy', loadChildren: () => import('./item3/item3.module').then((m) => m.Item3Module) },
+  { path: 'nav1', component: Nav1Component },
+  { path: 'nav2', component: Nav1Component },
+  { path: 'nav3', component: Nav1Component },
 
   /**
    * Test tab named outlets
