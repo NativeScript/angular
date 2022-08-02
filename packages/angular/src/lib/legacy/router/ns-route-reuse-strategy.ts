@@ -99,10 +99,14 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
   shouldDetach(route: ActivatedRouteSnapshot): boolean {
     route = findTopActivatedRouteNodeForOutlet(route);
 
-    const outletKey = this.location.getRouteFullPath(route);
-    const outlet = this.location.findOutlet(outletKey, route);
+    const { outlet } = this.findValidOutletAndKey(route);
     const key = getSnapshotKey(route);
-    const isPageActivated = route[pageRouterActivatedSymbol];
+
+    let isPageActivated = false;
+    let tmp = route;
+    while (!(isPageActivated = tmp[pageRouterActivatedSymbol]) && tmp.parent) {
+      tmp = tmp.parent;
+    }
     const isBack = outlet ? outlet.isPageNavigationBack : false;
     let shouldDetach = outlet && !isBack && isPageActivated;
 
