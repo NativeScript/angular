@@ -1,3 +1,12 @@
+## [14.0.4](https://github.com/NativeScript/angular/compare/14.0.3...14.0.4) (2022-08-05)
+
+
+### Bug Fixes
+
+* router outlet back navigation resilience ([#79](https://github.com/NativeScript/angular/issues/79)) ([bebcde2](https://github.com/NativeScript/angular/commit/bebcde23c4d6a392638c23ec1e2bc63b06a9b43e))
+
+
+
 ## [14.0.3](https://github.com/NativeScript/angular/compare/14.0.1...14.0.3) (2022-07-02)
 
 
