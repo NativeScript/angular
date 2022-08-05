@@ -76,7 +76,9 @@
         "coverage": false
       },
       "configurations": {
-        "android": {},
+        "android": {
+          "platform": "android"
+        },
         "ios": {}
       }
     }
