@@ -99,6 +99,9 @@ export class ViewUtil {
     if (!isDetachedElement(child)) {
       const nextVisual = this.findNextVisual(next);
       this.addToVisualTree(extendedParent, extendedChild, nextVisual);
+    } else if (isInvisibleNode(extendedChild)) {
+      const nextVisual = this.findNextVisual(next);
+      this.addInvisibleNode(extendedParent, extendedChild, nextVisual);
     }
     // printNgTree(extendedChild);
   }
@@ -160,6 +163,17 @@ export class ViewUtil {
     }
   }
 
+  private addInvisibleNode(parent: NgView, child: NgView, next: NgView): void {
+    if (parent.meta?.insertInvisibleNode) {
+      parent.meta.insertInvisibleNode(parent, child, next);
+    } else {
+      if (child instanceof TextNode) {
+        (parent as any).text = child.text;
+        child.registerTextChange((t) => ((parent as any).text = t), parent);
+      }
+    }
+  }
+
   private insertToLayout(parent: NgLayoutBase, child: NgView, next: NgView): void {
     if (child.parent === parent) {
       this.removeLayoutChild(parent, child);
@@ -199,6 +213,8 @@ export class ViewUtil {
     this.removeFromList(extendedParent, extendedChild);
     if (!isDetachedElement(extendedChild)) {
       this.removeFromVisualTree(extendedParent, extendedChild);
+    } else if (isInvisibleNode(extendedChild)) {
+      this.removeInvisibleNode(extendedParent, extendedChild);
     }
   }
 
@@ -288,6 +304,16 @@ export class ViewUtil {
       parent.content = null;
     } else if (isView(parent)) {
       parent._removeView(child);
+    }
+  }
+
+  private removeInvisibleNode(parent: NgView, child: NgView) {
+    if (parent.meta?.removeInvisibleNode) {
+      parent.meta.removeInvisibleNode(parent, child);
+    } else {
+      if (child instanceof TextNode) {
+        child.unregisterTextChange(parent);
+      }
     }
   }
 

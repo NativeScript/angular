@@ -1,7 +1,7 @@
 import { Inject, Injectable, NgZone, Optional, Renderer2, RendererFactory2, RendererStyleFlags2, RendererType2, ViewEncapsulation } from '@angular/core';
 import { addTaggedAdditionalCSS, Application, ContentView, Device, getViewById, Observable, profile, Utils, View } from '@nativescript/core';
 import { getViewClass, isKnownView } from './element-registry';
-import { getFirstNativeLikeView, NgView } from './views';
+import { getFirstNativeLikeView, NgView, TextNode } from './views';
 
 import { NamespaceFilter, NAMESPACE_FILTERS } from './property-filter';
 import { APP_ROOT_VIEW, ENABLE_REUSABE_VIEWS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
@@ -280,6 +280,9 @@ class NativeScriptRenderer implements Renderer2 {
   setValue(node: any, value: string): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.setValue renderNode: ${node}, value: ${value}`);
+    }
+    if (node instanceof TextNode) {
+      node.text = value;
     }
     // throw new Error("Method not implemented.");
   }

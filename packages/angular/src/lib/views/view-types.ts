@@ -21,6 +21,8 @@ export interface ViewClassMeta {
   skipAddToDom?: boolean;
   insertChild?: (parent: any, child: any, next?: any) => void;
   removeChild?: (parent: any, child: any) => void;
+  insertInvisibleNode?: (parent: any, child: any, next?: any) => void;
+  removeInvisibleNode?: (parent: any, child: any) => void;
 }
 
 export type NgLayoutBase = LayoutBase & ViewExtensions;
