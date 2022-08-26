@@ -1,4 +1,4 @@
-import { AfterContentInit, ChangeDetectionStrategy, Component, ContentChild, Directive, DoCheck, ElementRef, EmbeddedViewRef, EventEmitter, forwardRef, Host, HostListener, Inject, InjectionToken, Input, IterableDiffer, IterableDiffers, NgZone, OnDestroy, Output, TemplateRef, ViewChild, ViewContainerRef, ɵisListLikeIterable as isListLikeIterable, ɵmarkDirty } from '@angular/core';
+import { AfterContentInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, Directive, DoCheck, ElementRef, EmbeddedViewRef, EventEmitter, forwardRef, Host, HostListener, Inject, InjectionToken, Input, IterableDiffer, IterableDiffers, OnDestroy, Output, TemplateRef, ViewChild, ViewContainerRef, ɵisListLikeIterable as isListLikeIterable } from '@angular/core';
 import { ItemEventData, KeyedTemplate, LayoutBase, ListView, ObservableArray, profile, View } from '@nativescript/core';
 
 import { extractSingleViewRecursive } from '../../element-registry/registry';
@@ -130,7 +130,7 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
     this.templatedItemsView.items = this._items;
   }
 
-  constructor(_elementRef: ElementRef, private _iterableDiffers: IterableDiffers, private zone: NgZone) {
+  constructor(_elementRef: ElementRef, private readonly _iterableDiffers: IterableDiffers, private readonly _changeDetectorRef: ChangeDetectorRef) {
     this.templatedItemsView = _elementRef.nativeElement;
   }
 
@@ -187,10 +187,7 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
       this._templateMap = new Map<string, NsTemplatedItem<T>>();
     }
 
-    this._templateMap.set(
-      key,
-      new NsTemplatedItem<T>(template, this.loader, (v) => this._viewToTemplate.set(v, key))
-    );
+    this._templateMap.set(key, new NsTemplatedItem<T>(template, this.loader, (v) => this._viewToTemplate.set(v, key)));
   }
 
   @HostListener('itemLoading', ['$event'])
@@ -240,7 +237,7 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
     this.setupViewRef(template.getEmbeddedViewRef(args.view), currentItem, index, args.view);
 
     template.attach(args.view);
-    ɵmarkDirty(this);
+    this._changeDetectorRef.detectChanges();
   }
 
   public setupViewRef(viewRef: EmbeddedViewRef<ItemContext<T>>, data: T, index: number, nativeElement: View): void {

@@ -1,4 +1,4 @@
-import { ApplicationRef, ComponentFactoryResolver, ComponentRef, Injectable, Injector, NgModuleRef, NgZone, Type, ViewContainerRef, ɵmarkDirty } from '@angular/core';
+import { ApplicationRef, ComponentFactoryResolver, ComponentRef, Injectable, Injector, NgModuleRef, NgZone, Type, ViewContainerRef, ɵdetectChanges as detectChanges } from '@angular/core';
 import { Application, ContentView, Frame, ShowModalOptions, View, ViewBase } from '@nativescript/core';
 import { Subject } from 'rxjs';
 import { AppHostAsyncView, AppHostView } from '../../app-host-view';
@@ -169,7 +169,7 @@ export class ModalDialogService {
       const portal = new ComponentPortal(options.type);
       portalOutlet = new NativeScriptDomPortalOutlet(targetView, options.resolver, this.appRef, childInjector);
       const componentRef = portalOutlet.attach(portal);
-      ɵmarkDirty(componentRef.instance);
+      detectChanges(componentRef.instance);
       componentViewRef = new NgViewRef(componentRef);
       if (options.useContextAsComponentProps && options.context) {
         for (const key in options.context) {

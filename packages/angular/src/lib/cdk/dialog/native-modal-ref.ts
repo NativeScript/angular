@@ -1,4 +1,4 @@
-import { ApplicationRef, ComponentFactoryResolver, ComponentRef, EmbeddedViewRef, Injector, Optional, ViewContainerRef, ɵmarkDirty } from '@angular/core';
+import { ApplicationRef, ComponentFactoryResolver, ComponentRef, EmbeddedViewRef, Injector, Optional, ViewContainerRef, ɵdetectChanges as detectChanges } from '@angular/core';
 import { ContentView, View, Application, Frame } from '@nativescript/core';
 import { fromEvent, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
@@ -100,7 +100,7 @@ export class NativeModalRef {
     const targetView = new ContentView();
     this.portalOutlet = new NativeScriptDomPortalOutlet(targetView, this._config.componentFactoryResolver || this._injector.get(ComponentFactoryResolver), this._injector.get(ApplicationRef), this._injector);
     const componentRef = this.portalOutlet.attach(portal);
-    ɵmarkDirty(componentRef.instance);
+    detectChanges(componentRef.instance);
     this.modalViewRef = new NgViewRef(componentRef);
     if (this.modalViewRef.firstNativeLikeView !== this.modalViewRef.view) {
       (<any>this.modalViewRef.view)._ngDialogRoot = this.modalViewRef.firstNativeLikeView;
