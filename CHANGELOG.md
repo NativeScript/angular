@@ -1,3 +1,18 @@
+# [14.2.0](https://github.com/NativeScript/angular/compare/14.0.4...14.2.0) (2022-08-27)
+
+
+### Bug Fixes
+
+* patch showModal call in zone ([#83](https://github.com/NativeScript/angular/issues/83)) ([7b8389e](https://github.com/NativeScript/angular/commit/7b8389e69096313a899af316dc7e9349be139db4))
+
+
+### Features
+
+* Angular 14.2.0 ([#84](https://github.com/NativeScript/angular/issues/84)) ([5a976a2](https://github.com/NativeScript/angular/commit/5a976a29c966bfde94af5297e97003cfb860dc3e))
+* support adding TextNode elements (automatically sets text property by default) ([#80](https://github.com/NativeScript/angular/issues/80)) ([1be9c3a](https://github.com/NativeScript/angular/commit/1be9c3a441023f4fa7cc0fce1e9bdcf3e0fd8aa4))
+
+
+
 ## [14.0.4](https://github.com/NativeScript/angular/compare/14.0.3...14.0.4) (2022-08-05)
 
 
