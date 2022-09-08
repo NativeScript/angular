@@ -90,7 +90,10 @@ export class ViewUtil {
       // no previous or next, append to the parent
       previous = extendedParent.lastChild; // this can still be undefined if the parent has no children!
     }
-    this.insertInList(extendedParent, extendedChild, previous, next);
+    // Note: handle case with listview nodes
+    if (extendedChild !== previous && extendedChild !== next) {
+      this.insertInList(extendedParent, extendedChild, previous, next);
+    }
 
     if (isInvisibleNode(child)) {
       extendedChild.parentNode = extendedParent;
