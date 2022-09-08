@@ -1,3 +1,12 @@
+## [14.2.1](https://github.com/NativeScript/angular/compare/14.2.0...14.2.1) (2022-09-08)
+
+
+### Bug Fixes
+
+* listview node handling ([455d21d](https://github.com/NativeScript/angular/commit/455d21db486d73613e79e5cc78cd172144491cfb))
+
+
+
 # [14.2.0](https://github.com/NativeScript/angular/compare/14.0.4...14.2.0) (2022-08-27)
 
 
