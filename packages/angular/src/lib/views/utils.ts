@@ -31,9 +31,9 @@ export function getFirstNativeLikeView(view: View, extractFromNSParent = false) 
   }
 
   if (extractFromNSParent) {
-    // const node = view.parentNode;
+    const node = view.parentNode;
     detachViewFromParent(view);
-    // view.parentNode = node;
+    view.parentNode = node;
   }
   return view;
 }
