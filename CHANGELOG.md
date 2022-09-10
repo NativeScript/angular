@@ -1,3 +1,12 @@
+## [14.2.2](https://github.com/NativeScript/angular/compare/14.2.1...14.2.2) (2022-09-10)
+
+
+### Bug Fixes
+
+* better handling of parentNode on detached elements ([#86](https://github.com/NativeScript/angular/issues/86)) ([8777f57](https://github.com/NativeScript/angular/commit/8777f5713ceb1c39c817b4c8e846817a1128161d))
+
+
+
 ## [14.2.1](https://github.com/NativeScript/angular/compare/14.2.0...14.2.1) (2022-09-08)
 
 
