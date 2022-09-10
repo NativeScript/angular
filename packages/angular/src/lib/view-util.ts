@@ -90,12 +90,9 @@ export class ViewUtil {
       // no previous or next, append to the parent
       previous = extendedParent.lastChild; // this can still be undefined if the parent has no children!
     }
-    // Note: handle case with listview nodes
-    if (extendedChild !== previous && extendedChild !== next) {
-      this.insertInList(extendedParent, extendedChild, previous, next);
-    }
+    this.insertInList(extendedParent, extendedChild, previous, next);
 
-    if (isInvisibleNode(child)) {
+    if (isDetachedElement(child) || isInvisibleNode(child)) {
       extendedChild.parentNode = extendedParent;
     }
 
@@ -212,6 +209,7 @@ export class ViewUtil {
 
     const extendedParent = this.ensureNgViewExtensions(parent);
     const extendedChild = this.ensureNgViewExtensions(child);
+    extendedChild.parentNode = null;
 
     this.removeFromList(extendedParent, extendedChild);
     if (!isDetachedElement(extendedChild)) {
