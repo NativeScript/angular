@@ -61,13 +61,14 @@ export class NativeDialogRef<T, R = any> {
       .subscribe(() => {
         clearTimeout(this._closeFallbackTimeout);
         this._finishDialogClose();
+        this._afterClosed.next(this._result);
+        this._afterClosed.complete();
       });
 
     _nativeModalRef.onDismiss.subscribe(() => {
       this._beforeClosed.next(this._result);
       this._beforeClosed.complete();
-      this._afterClosed.next(this._result);
-      this._afterClosed.complete();
+
       this.componentInstance = null!;
       _nativeModalRef.dispose();
     });
@@ -98,7 +99,11 @@ export class NativeDialogRef<T, R = any> {
         // amount of time plus 100ms. We don't need to run this outside the NgZone, because for the
         // vast majority of cases the timeout will have been cleared before it has the chance to fire.
         this._closeFallbackTimeout = setTimeout(
-          () => this._finishDialogClose(),
+          () => {
+            this._finishDialogClose();
+            this._afterClosed.next(this._result);
+            this._afterClosed.complete();
+          },
           //event.totalTime + 100);
           100
         );

@@ -354,6 +354,8 @@ export class NSLocationStrategy extends LocationStrategy {
       this.currentOutlet = outlet;
       this.currentOutlet.showingModal = false;
       this.callPopState(this.currentOutlet.peekState(), false);
+      // this is needed because angular does a setTimeout on onPopState, so if we don't do this we might end up with inconsistent state
+      return new Promise((resolve) => setTimeout(resolve, 0));
     }
   }
 
