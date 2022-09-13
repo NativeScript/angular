@@ -22,6 +22,7 @@ export class NativeModalRef {
   modalViewRef: NgViewRef<any>;
 
   private _closeCallback: () => void;
+  private _isDismissed = false;
 
   constructor(private _config: NativeDialogConfig, private _injector: Injector, @Optional() private location?: NSLocationStrategy) {
     let parentView = this._config.viewContainerRef?.element.nativeElement || Application.getRootView();
@@ -38,10 +39,12 @@ export class NativeModalRef {
     }
     this.parentView = parentView;
 
-    this._closeCallback = once(() => {
+    this._closeCallback = once(async () => {
       this.stateChanged.next({ state: 'closing' });
-      this.modalViewRef.firstNativeLikeView?.closeModal();
-      this.location?._closeModalNavigation();
+      if (!this._isDismissed) {
+        this.modalViewRef.firstNativeLikeView?.closeModal();
+      }
+      await this.location?._closeModalNavigation();
       // this.detachedLoaderRef?.destroy();
       if (this.modalViewRef?.firstNativeLikeView.isLoaded) {
         fromEvent(this.modalViewRef.firstNativeLikeView, 'unloaded')
@@ -81,8 +84,8 @@ export class NativeModalRef {
     this.parentView.showModal(this.modalViewRef.firstNativeLikeView, {
       context: null,
       ...userOptions,
-      closeCallback: () => {
-        this.location?._closeModalNavigation();
+      closeCallback: async () => {
+        await this.location?._closeModalNavigation();
         this.onDismiss.next();
         this.onDismiss.complete();
       },
@@ -113,8 +116,9 @@ export class NativeModalRef {
     this.parentView.showModal(this.modalViewRef.firstNativeLikeView, {
       context: null,
       ...userOptions,
-      closeCallback: () => {
-        this.location?._closeModalNavigation();
+      closeCallback: async () => {
+        this._isDismissed = true;
+        this._closeCallback(); // close callback can only be called once, so we call it here to setup the exit events
         this.onDismiss.next();
         this.onDismiss.complete();
       },

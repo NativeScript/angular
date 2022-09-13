@@ -123,7 +123,7 @@ export class ModalDialogService {
     let detachedLoaderRef: ComponentRef<DetachedLoader>;
     let portalOutlet: NativeScriptDomPortalOutlet;
 
-    const closeCallback = once((...args) => {
+    const closeCallback = once(async (...args) => {
       options.doneCallback.apply(undefined, args);
       if (componentViewRef) {
         componentViewRef.firstNativeLikeView.closeModal();
@@ -131,7 +131,7 @@ export class ModalDialogService {
         if (this._closed$) {
           this._closed$.next(params);
         }
-        this.location._closeModalNavigation();
+        await this.location._closeModalNavigation();
         if (detachedLoaderRef || portalOutlet) {
           this.zone.run(() => {
             portalOutlet?.dispose();
