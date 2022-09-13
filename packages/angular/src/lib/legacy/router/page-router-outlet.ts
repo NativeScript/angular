@@ -1,5 +1,5 @@
-import { Attribute, ChangeDetectorRef, ComponentFactory, ComponentFactoryResolver, ComponentRef, Directive, Inject, InjectionToken, Injector, OnDestroy, EventEmitter, Output, Type, ViewContainerRef, ElementRef, InjectFlags, NgZone, EnvironmentInjector } from '@angular/core';
-import { ActivatedRoute, ActivatedRouteSnapshot, ChildrenOutletContexts, Data, PRIMARY_OUTLET, RouterOutletContract } from '@angular/router';
+import { Attribute, ChangeDetectorRef, ComponentFactory, ComponentFactoryResolver, ComponentRef, Directive, Inject, InjectionToken, Injector, OnDestroy, EventEmitter, Output, Type, ViewContainerRef, ElementRef, InjectFlags, NgZone, EnvironmentInjector, inject } from '@angular/core';
+import { ActivatedRoute, ActivatedRouteSnapshot, ChildrenOutletContexts, Data, PRIMARY_OUTLET, Router, RouterOutletContract } from '@angular/router';
 
 import { Frame, Page, NavigatedData, profile, NavigationEntry } from '@nativescript/core';
 
@@ -10,11 +10,12 @@ import { NativeScriptDebug } from '../../trace';
 import { DetachedLoader } from '../../cdk/detached-loader';
 import { ViewUtil } from '../../view-util';
 import { NSLocationStrategy } from './ns-location-strategy';
-import { Outlet } from './ns-location-utils';
+import { defaultNavOptions, Outlet } from './ns-location-utils';
 import { NSRouteReuseStrategy } from './ns-route-reuse-strategy';
 import { findTopActivatedRouteNodeForOutlet, pageRouterActivatedSymbol, loaderRefSymbol, destroyComponentRef } from './page-router-outlet-utils';
 import { registerElement } from '../../element-registry';
 import { PageService } from '../../cdk/frame-page/page.service';
+import { ExtendedNavigationExtras } from './router-extensions';
 
 export class PageRoute {
   activatedRoute: BehaviorSubject<ActivatedRoute>;
@@ -65,6 +66,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
   private isEmptyOutlet: boolean;
   private viewUtil: ViewUtil;
   private frame: Frame;
+  private router = inject(Router);
 
   attachEvents: EventEmitter<unknown> = new EventEmitter();
   detachEvents: EventEmitter<unknown> = new EventEmitter();
@@ -404,7 +406,8 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
       }
     });
 
-    const navOptions = this.locationStrategy._beginPageNavigation(this.frame);
+    this.locationStrategy._beginPageNavigation(this.frame);
+    const navOptions = { ...defaultNavOptions, ...(this.router.getCurrentNavigation().extras || {}) } as ExtendedNavigationExtras;
     const isReplace = navOptions.replaceUrl && !navOptions.clearHistory;
 
     // Clear refCache if navigation with clearHistory
