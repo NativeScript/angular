@@ -1,3 +1,13 @@
+## [14.2.3](https://github.com/NativeScript/angular/compare/14.2.2...14.2.3) (2022-09-13)
+
+
+### Bug Fixes
+
+* correctly reassign siblings in linked list ([#89](https://github.com/NativeScript/angular/issues/89)) ([a7527c9](https://github.com/NativeScript/angular/commit/a7527c99f392faadf6d84a42823eb798de3c151a))
+* modal beforeClosed and afterClosed consistency between platforms ([#87](https://github.com/NativeScript/angular/issues/87)) ([ad3e47c](https://github.com/NativeScript/angular/commit/ad3e47c40af5f07aae6fc1fccf6f8ce49d457384))
+
+
+
 ## [14.2.2](https://github.com/NativeScript/angular/compare/14.2.1...14.2.2) (2022-09-10)
 
 
