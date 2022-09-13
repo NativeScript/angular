@@ -224,6 +224,7 @@ export class ViewUtil {
       NativeScriptDebug.viewUtilLog(`ViewUtil.removeFromList parent: ${parent} child: ${child}`);
     }
 
+    // only child. null everything
     if (parent.firstChild === child && parent.lastChild === child) {
       parent.firstChild = null;
       parent.lastChild = null;
@@ -232,22 +233,29 @@ export class ViewUtil {
       return;
     }
 
+    const previous = child.previousSibling;
+    const next = child.nextSibling;
+    // is first child, make the next sibling the first child (can be null)
     if (parent.firstChild === child) {
-      parent.firstChild = child.nextSibling;
+      parent.firstChild = next;
     }
 
-    const previous = child.previousSibling;
+    // is last child, make the previous sibling the last child (can be null)
     if (parent.lastChild === child) {
       parent.lastChild = previous;
     }
 
+    // we have a previous sibling, make it point to the next sibling
     if (previous) {
-      previous.nextSibling = child.nextSibling;
-      if (child.nextSibling) {
-        child.nextSibling.previousSibling = previous;
-      }
+      previous.nextSibling = next;
     }
 
+    // we have a next sibling, make it point to the previous
+    if (next) {
+      next.previousSibling = previous;
+    }
+
+    // finally, null the siblings
     child.nextSibling = null;
     child.previousSibling = null;
   }
