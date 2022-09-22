@@ -30,7 +30,8 @@ const parseAnimationKeyframe = (styles: Keyframe): KeyframeInfo => ({
 const getKeyframeDuration = (styles: Keyframe): number => styles.offset;
 
 function getDeclarations(styles: Keyframe): KeyframeDeclaration[] {
-  const unparsedDeclarations: KeyframeDeclaration[] = Object.keys(styles).map((property) => ({ property, value: styles[property] }));
+  const keys = Array.from(styles.keys());
+  const unparsedDeclarations: KeyframeDeclaration[] = keys.map((property) => ({ property, value: styles.get(property) }));
 
   return parseKeyframeDeclarations(unparsedDeclarations);
 }
