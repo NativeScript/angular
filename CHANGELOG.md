@@ -1,3 +1,12 @@
+## [14.2.4](https://github.com/NativeScript/angular/compare/14.2.3...14.2.4) (2022-09-22)
+
+
+### Bug Fixes
+
+* **animations:** no known animation properties specified ([#91](https://github.com/NativeScript/angular/issues/91)) ([3c80919](https://github.com/NativeScript/angular/commit/3c80919a2083ae2c085cd7356f4c88f9b943657c))
+
+
+
 ## [14.2.3](https://github.com/NativeScript/angular/compare/14.2.2...14.2.3) (2022-09-13)
 
 
