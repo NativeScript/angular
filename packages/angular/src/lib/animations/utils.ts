@@ -31,7 +31,7 @@ const getKeyframeDuration = (styles: Keyframe): number => styles.offset;
 
 function getDeclarations(styles: Keyframe): KeyframeDeclaration[] {
   const keys = Array.from(styles.keys());
-  const unparsedDeclarations: KeyframeDeclaration[] = keys.map((property) => ({ property, value: styles[property] }));
+  const unparsedDeclarations: KeyframeDeclaration[] = keys.map((property) => ({ property, value: styles.get(property) }));
 
   return parseKeyframeDeclarations(unparsedDeclarations);
 }
