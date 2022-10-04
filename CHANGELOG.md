@@ -1,3 +1,12 @@
+## [14.2.5](https://github.com/NativeScript/angular/compare/14.2.4...14.2.5) (2022-10-04)
+
+
+### Bug Fixes
+
+* remove child from previous parent if needed due to animations ([#93](https://github.com/NativeScript/angular/issues/93)) ([5040000](https://github.com/NativeScript/angular/commit/50400006f4d071b3752416351072db25a8c8a3af))
+
+
+
 ## [14.2.4](https://github.com/NativeScript/angular/compare/14.2.3...14.2.4) (2022-09-22)
 
 
