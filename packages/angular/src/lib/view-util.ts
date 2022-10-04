@@ -80,6 +80,12 @@ export class ViewUtil {
     const extendedParent = this.ensureNgViewExtensions(parent);
     const extendedChild = this.ensureNgViewExtensions(child);
 
+    // this should never enter, as angular is supposed to remove the child from the previous parent before calling this
+    // but when angular animations are enabled, the removal might be delayed, so we need to ensure this view is not anywhere
+    // this seems to only happens to CommentNodes
+    if (extendedChild.parentNode) {
+      this.removeChild(extendedChild.parentNode, extendedChild);
+    }
     // if there's a next child, previous is the previousSibling of it
     if (next) {
       previous = next.previousSibling;
