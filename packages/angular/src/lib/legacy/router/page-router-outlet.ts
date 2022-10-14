@@ -25,12 +25,17 @@ export class PageRoute {
   }
 }
 
+function isComponentFactoryResolver(item: any): item is ComponentFactoryResolver {
+  return !!item.resolveComponentFactory;
+}
+
 export class DestructibleInjector implements Injector {
   private refs = new Set<any>();
-  constructor(private destructableProviders: ProviderSet, private parent: Injector) {}
+  constructor(private destructibleProviders: ProviderSet, private parent: Injector) {}
   get<T>(token: Type<T> | InjectionToken<T>, notFoundValue?: T, flags?: InjectFlags): T {
     const ref = this.parent.get(token, notFoundValue, flags);
-    if (this.destructableProviders.has(token)) {
+    // if we're skipping ourselves then it's not our responsibility to destroy
+    if (!(flags & InjectFlags.SkipSelf) && this.destructibleProviders.has(token)) {
       this.refs.add(ref);
     }
     return ref;
@@ -131,7 +136,8 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     private ngZone: NgZone,
     private router: Router,
     elRef: ElementRef,
-    viewUtil: ViewUtil
+    viewUtil: ViewUtil,
+    private environmentInjector: EnvironmentInjector
   ) {
     this.isEmptyOutlet = isEmptyOutlet;
     this.frame = elRef.nativeElement;
@@ -310,34 +316,24 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
 
     this.markActivatedRoute(activatedRoute);
 
-    resolver = resolver || this.resolver;
-
-    this.activateOnGoForward(activatedRoute, resolver);
+    this.activateOnGoForward(activatedRoute, resolver || this.environmentInjector);
     this.activateEvents.emit(this.activated.instance);
   }
 
-  private activateOnGoForward(activatedRoute: ActivatedRoute, loadedResolver: ComponentFactoryResolver | EnvironmentInjector): void {
+  private activateOnGoForward(activatedRoute: ActivatedRoute, resolverOrInjector: ComponentFactoryResolver | EnvironmentInjector): void {
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.routerLog('PageRouterOutlet.activate() forward navigation - ' + 'create detached loader in the loader container');
     }
 
-    let resolver: ComponentFactoryResolver;
-    let ourInjector = this.location.injector;
-    if (!(loadedResolver instanceof ComponentFactoryResolver)) {
-      ourInjector = loadedResolver;
-      resolver = loadedResolver?.get(ComponentFactoryResolver);
-    } else {
-      resolver = loadedResolver;
-    }
-
-    const factory = this.getComponentFactory(activatedRoute, resolver);
+    const component = this.getComponentType(activatedRoute);
     const page = this.pageFactory({
       isNavigation: true,
-      componentType: factory.componentType,
+      componentType: component,
     });
+    const location = this.location;
 
-    const destructables = new Set([]);
-    const injector = Injector.create({
+    const destructibles = new Set([PageService]);
+    const parentInjector = Injector.create({
       providers: [
         { provide: Page, useValue: page },
         { provide: Frame, useValue: this.frame },
@@ -346,15 +342,22 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
         { provide: ChildrenOutletContexts, useValue: this.parentContexts.getOrCreateContext(this.name).children },
         { provide: PageService, useClass: PageService },
       ],
-      parent: ourInjector,
+      parent: location.injector,
     });
 
-    const childInjector = new DestructibleInjector(destructables, injector);
-    const loaderRef = this.location.createComponent(this.detachedLoaderFactory, this.location.length, childInjector, []);
-    loaderRef.onDestroy(() => childInjector.destroy());
+    const injector = new DestructibleInjector(destructibles, parentInjector);
+    let loaderRef: ComponentRef<DetachedLoader>;
+    if (isComponentFactoryResolver(resolverOrInjector)) {
+      const factory = resolverOrInjector.resolveComponentFactory(DetachedLoader);
+      loaderRef = location.createComponent(factory, location.length, injector);
+    } else {
+      const environmentInjector = resolverOrInjector;
+      loaderRef = location.createComponent(DetachedLoader, { index: location.length, injector, environmentInjector });
+    }
+    loaderRef.onDestroy(() => injector.destroy());
     this.changeDetector.markForCheck();
 
-    this.activated = loaderRef.instance.loadWithFactoryInLocation(factory);
+    this.activated = loaderRef.instance.loadComponentInLocation(component);
     this.activated.changeDetectorRef.detectChanges();
     this.loadComponentInPage(page, this.activated, { activatedRoute });
 
@@ -482,10 +485,8 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     }
   }
 
-  private getComponentFactory(activatedRoute: ActivatedRoute, loadedResolver: ComponentFactoryResolver): ComponentFactory<any> {
-    const component = activatedRoute.routeConfig.component || activatedRoute.component;
-
-    return loadedResolver ? loadedResolver.resolveComponentFactory(component) : this.componentFactoryResolver.resolveComponentFactory(component);
+  private getComponentType(activatedRoute: ActivatedRoute): Type<any> {
+    return activatedRoute.routeConfig.component || activatedRoute.component;
   }
 
   private getOutlet(activatedRouteSnapshot: ActivatedRouteSnapshot): Outlet {
