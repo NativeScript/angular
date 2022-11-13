@@ -1,4 +1,5 @@
 {
+  "name": "angular",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/angular/src",
   "projectType": "library",
@@ -23,7 +24,7 @@
         "jestConfig": "packages/angular/jest.config.ts",
         "passWithNoTests": true
       },
-      "outputs": ["coverage/packages/angular"]
+      "outputs": ["{workspaceRoot}/coverage/packages/angular"]
     }
   },
   "tags": []

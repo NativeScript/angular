@@ -1,4 +1,5 @@
 {
+  "name": "nativescript-demo-ng",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/nativescript-demo-ng/src",
   "projectType": "application",
@@ -71,7 +72,7 @@
     },
     "test": {
       "executor": "@nativescript/nx:test",
-      "outputs": ["coverage/apps/nativescript-demo-ng"],
+      "outputs": ["{workspaceRoot}/coverage/apps/nativescript-demo-ng"],
       "options": {
         "coverage": false
       },
