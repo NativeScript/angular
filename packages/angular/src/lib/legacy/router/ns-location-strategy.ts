@@ -40,8 +40,8 @@ export class NSLocationStrategy extends LocationStrategy {
       return '/';
     }
 
-    let tree = this.currentUrlTree;
-    let changedOutlet = this.getSegmentGroupByOutlet(this.currentOutlet);
+    const tree = this.currentUrlTree;
+    const changedOutlet = this.getSegmentGroupByOutlet(this.currentOutlet);
 
     // Handle case where the user declares a component at path "/".
     // The url serializer doesn't parse this url as having a primary outlet.
@@ -108,7 +108,7 @@ export class NSLocationStrategy extends LocationStrategy {
         currentSegmentGroup.root = urlTreeRoot;
 
         const outletPath = this.getSegmentGroupFullPath(currentTree);
-        let outletKey = this.getOutletKey(outletPath, outletName);
+        const outletKey = this.getOutletKey(outletPath, outletName);
         let outlet = this.findOutlet(outletKey);
 
         const parentOutletName = currentTree.outlet || '';
@@ -186,7 +186,7 @@ export class NSLocationStrategy extends LocationStrategy {
       }
       this.callPopState(state, true);
     } else {
-      let state = this.currentOutlet.peekState();
+      const state = this.currentOutlet.peekState();
       if (state && state.isPageNavigation) {
         // This was a page navigation - so navigate through frame.
         if (NativeScriptDebug.isLogEnabled()) {
@@ -235,7 +235,7 @@ export class NSLocationStrategy extends LocationStrategy {
   private callPopState(state: LocationState, pop: boolean = true, outlet?: Outlet) {
     outlet = outlet || this.currentOutlet;
     const urlSerializer = new DefaultUrlSerializer();
-    let changedOutlet = this.getSegmentGroupByOutlet(outlet);
+    const changedOutlet = this.getSegmentGroupByOutlet(outlet);
 
     if (state && changedOutlet) {
       this.updateSegmentGroup(this.currentUrlTree.root, changedOutlet, state.segmentGroup);
@@ -247,7 +247,7 @@ export class NSLocationStrategy extends LocationStrategy {
 
     const url = urlSerializer.serialize(this.currentUrlTree);
     const change: LocationChangeEvent = { state, type: 'popstate' };
-    for (let fn of this.popStateCallbacks) {
+    for (const fn of this.popStateCallbacks) {
       fn(change);
     }
   }
@@ -485,7 +485,7 @@ export class NSLocationStrategy extends LocationStrategy {
 
   findOutlet(outletKey: string, activatedRouteSnapshot?: ActivatedRouteSnapshot): Outlet {
     let outlet: Outlet = this.outlets.find((currentOutlet) => {
-      let equalModalDepth = currentOutlet.modalNavigationDepth === this._modalNavigationDepth;
+      const equalModalDepth = currentOutlet.modalNavigationDepth === this._modalNavigationDepth;
       return equalModalDepth && currentOutlet.outletKeys.indexOf(outletKey) > -1;
     });
 
@@ -494,7 +494,7 @@ export class NSLocationStrategy extends LocationStrategy {
     if (!outlet && activatedRouteSnapshot) {
       const pathByOutlets = this.getPathByOutlets(activatedRouteSnapshot);
       outlet = this.outlets.find((currentOutlet) => {
-        let equalModalDepth = currentOutlet.modalNavigationDepth === this._modalNavigationDepth;
+        const equalModalDepth = currentOutlet.modalNavigationDepth === this._modalNavigationDepth;
         return equalModalDepth && currentOutlet.pathByOutlets === pathByOutlets;
       });
     }
@@ -504,7 +504,7 @@ export class NSLocationStrategy extends LocationStrategy {
 
   private findOutletByModal(modalNavigation: number, isShowingModal?: boolean): Outlet {
     return this.outlets.find((outlet) => {
-      let equalModalDepth = outlet.modalNavigationDepth === modalNavigation;
+      const equalModalDepth = outlet.modalNavigationDepth === modalNavigation;
       return isShowingModal ? equalModalDepth && outlet.showingModal : equalModalDepth;
     });
   }
