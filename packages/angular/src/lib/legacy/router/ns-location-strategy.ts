@@ -1,12 +1,11 @@
-import { Inject, Injectable, Optional } from '@angular/core';
 import { LocationChangeEvent, LocationStrategy } from '@angular/common';
-import { DefaultUrlSerializer, UrlSegmentGroup, UrlTree, ActivatedRouteSnapshot, Params } from '@angular/router';
+import { Inject, Injectable, Optional } from '@angular/core';
+import { ActivatedRouteSnapshot, DefaultUrlSerializer, Params, UrlSegmentGroup, UrlTree } from '@angular/router';
 import { Frame } from '@nativescript/core';
-import { NativeScriptDebug } from '../../trace';
-import { isPresent } from '../../utils/lang-facade';
-import { FrameService } from '../frame.service';
-import { Outlet, NavigationOptions, LocationState, defaultNavOptions } from './ns-location-utils';
 import { START_PATH } from '../../tokens';
+import { NativeScriptDebug } from '../../trace';
+import { FrameService } from '../frame.service';
+import { defaultNavOptions, LocationState, NavigationOptions, Outlet } from './ns-location-utils';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +15,6 @@ export class NSLocationStrategy extends LocationStrategy {
   private currentOutlet: Outlet;
 
   private popStateCallbacks = new Array<(_: any) => any>();
-  private _currentNavigationOptions: NavigationOptions;
   private currentUrlTree: UrlTree;
 
   public _modalNavigationDepth = 0;
@@ -359,7 +357,7 @@ export class NSLocationStrategy extends LocationStrategy {
     }
   }
 
-  public _beginPageNavigation(frame: Frame): NavigationOptions {
+  public _beginPageNavigation(frame: Frame, options?: NavigationOptions): NavigationOptions {
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.routerLog('NSLocationStrategy._beginPageNavigation()');
     }
@@ -371,29 +369,15 @@ export class NSLocationStrategy extends LocationStrategy {
       lastState.isPageNavigation = true;
     }
 
-    const navOptions = this._currentNavigationOptions || defaultNavOptions;
+    const navOptions = options || defaultNavOptions;
+
     if (navOptions.clearHistory) {
       if (NativeScriptDebug.isLogEnabled()) {
         NativeScriptDebug.routerLog('NSLocationStrategy._beginPageNavigation clearing states history');
       }
       this.currentOutlet.states = [lastState];
     }
-
-    this._currentNavigationOptions = undefined;
     return navOptions;
-  }
-
-  public _setNavigationOptions(options: NavigationOptions) {
-    this._currentNavigationOptions = {
-      clearHistory: isPresent(options.clearHistory) ? options.clearHistory : false,
-      animated: isPresent(options.animated) ? options.animated : true,
-      transition: options.transition,
-      replaceUrl: options.replaceUrl,
-    };
-
-    if (NativeScriptDebug.isLogEnabled()) {
-      NativeScriptDebug.routerLog('NSLocationStrategy._setNavigationOptions(' + `${JSON.stringify(this._currentNavigationOptions)})`);
-    }
   }
 
   public _getOutlets(): Array<Outlet> {

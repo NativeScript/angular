@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Router, UrlTree, NavigationExtras, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, NavigationBehaviorOptions, NavigationExtras, Router, UrlTree } from '@angular/router';
+import { NativeScriptDebug } from '../../trace';
+import { FrameService } from '../frame.service';
 import { NSLocationStrategy } from './ns-location-strategy';
 import { NavigationOptions, Outlet } from './ns-location-utils';
-import { FrameService } from '../frame.service';
-import { NativeScriptDebug } from '../../trace';
 import { findTopActivatedRouteNodeForOutlet } from './page-router-outlet-utils';
 
 export type ExtendedNavigationExtras = NavigationExtras & NavigationOptions;
+export type ExtendedNavigationBehaviorOptions = NavigationBehaviorOptions & NavigationOptions;
 
 export interface BackNavigationOptions {
   outlets?: Array<string>;
@@ -20,17 +21,11 @@ export class RouterExtensions {
   constructor(public router: Router, public locationStrategy: NSLocationStrategy, public frameService: FrameService) {}
 
   public navigate(commands: any[], extras?: ExtendedNavigationExtras): Promise<boolean> {
-    if (extras) {
-      this.locationStrategy._setNavigationOptions(extras);
-    }
     return this.router.navigate(commands, extras);
   }
 
-  public navigateByUrl(url: string | UrlTree, options?: NavigationOptions): Promise<boolean> {
-    if (options) {
-      this.locationStrategy._setNavigationOptions(options);
-    }
-    return this.router.navigateByUrl(url);
+  public navigateByUrl(url: string | UrlTree, options?: ExtendedNavigationBehaviorOptions): Promise<boolean> {
+    return this.router.navigateByUrl(url, options);
   }
 
   public back(backNavigationOptions?: BackNavigationOptions) {

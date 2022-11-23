@@ -406,8 +406,8 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
       }
     });
 
-    this.locationStrategy._beginPageNavigation(this.frame);
     const navOptions = { ...defaultNavOptions, ...(this.router.getCurrentNavigation().extras || {}) } as ExtendedNavigationExtras;
+    this.locationStrategy._beginPageNavigation(this.frame, navOptions);
     const isReplace = navOptions.replaceUrl && !navOptions.clearHistory;
 
     // Clear refCache if navigation with clearHistory
