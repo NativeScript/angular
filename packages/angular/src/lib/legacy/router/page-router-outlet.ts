@@ -66,7 +66,6 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
   private isEmptyOutlet: boolean;
   private viewUtil: ViewUtil;
   private frame: Frame;
-  private router = inject(Router);
 
   attachEvents: EventEmitter<unknown> = new EventEmitter();
   detachEvents: EventEmitter<unknown> = new EventEmitter();
@@ -130,6 +129,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     @Inject(PAGE_FACTORY) private pageFactory: PageFactory,
     private routeReuseStrategy: NSRouteReuseStrategy,
     private ngZone: NgZone,
+    private router: Router,
     elRef: ElementRef,
     viewUtil: ViewUtil
   ) {
