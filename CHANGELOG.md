@@ -1,3 +1,14 @@
+## [14.2.6](https://github.com/NativeScript/angular/compare/14.2.5...14.2.6) (2022-11-23)
+
+
+### Bug Fixes
+
+* read navigation extras from the router navigation instead of using stored values ([#88](https://github.com/NativeScript/angular/issues/88)) ([2e475f9](https://github.com/NativeScript/angular/commit/2e475f95f31d023c1d49f870e7c1d1290341840a))
+* use changeDetectorRef.detectChanges() instead of detectChanges() private api ([#99](https://github.com/NativeScript/angular/issues/99)) ([4e33561](https://github.com/NativeScript/angular/commit/4e335613e6fd23ed541a89691c0842975ab789c1))
+* use correct EnvironmentalInjector in page-router-outlet ([#94](https://github.com/NativeScript/angular/issues/94)) ([6623002](https://github.com/NativeScript/angular/commit/66230021603140cb352a335057687b1bd49438f6))
+
+
+
 ## [14.2.5](https://github.com/NativeScript/angular/compare/14.2.4...14.2.5) (2022-10-04)
 
 
