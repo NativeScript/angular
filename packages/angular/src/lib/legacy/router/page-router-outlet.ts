@@ -1,5 +1,5 @@
-import { Attribute, ChangeDetectorRef, ComponentFactory, ComponentFactoryResolver, ComponentRef, Directive, Inject, InjectionToken, Injector, OnDestroy, EventEmitter, Output, Type, ViewContainerRef, ElementRef, InjectFlags, NgZone, EnvironmentInjector } from '@angular/core';
-import { ActivatedRoute, ActivatedRouteSnapshot, ChildrenOutletContexts, Data, PRIMARY_OUTLET, RouterOutletContract } from '@angular/router';
+import { Attribute, ChangeDetectorRef, ComponentFactory, ComponentFactoryResolver, ComponentRef, Directive, Inject, InjectionToken, Injector, OnDestroy, EventEmitter, Output, Type, ViewContainerRef, ElementRef, InjectFlags, NgZone, EnvironmentInjector, inject } from '@angular/core';
+import { ActivatedRoute, ActivatedRouteSnapshot, ChildrenOutletContexts, Data, PRIMARY_OUTLET, Router, RouterOutletContract } from '@angular/router';
 
 import { Frame, Page, NavigatedData, profile, NavigationEntry } from '@nativescript/core';
 
@@ -10,11 +10,12 @@ import { NativeScriptDebug } from '../../trace';
 import { DetachedLoader } from '../../cdk/detached-loader';
 import { ViewUtil } from '../../view-util';
 import { NSLocationStrategy } from './ns-location-strategy';
-import { Outlet } from './ns-location-utils';
+import { defaultNavOptions, Outlet } from './ns-location-utils';
 import { NSRouteReuseStrategy } from './ns-route-reuse-strategy';
 import { findTopActivatedRouteNodeForOutlet, pageRouterActivatedSymbol, loaderRefSymbol, destroyComponentRef } from './page-router-outlet-utils';
 import { registerElement } from '../../element-registry';
 import { PageService } from '../../cdk/frame-page/page.service';
+import { ExtendedNavigationExtras } from './router-extensions';
 
 export class PageRoute {
   activatedRoute: BehaviorSubject<ActivatedRoute>;
@@ -128,6 +129,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     @Inject(PAGE_FACTORY) private pageFactory: PageFactory,
     private routeReuseStrategy: NSRouteReuseStrategy,
     private ngZone: NgZone,
+    private router: Router,
     elRef: ElementRef,
     viewUtil: ViewUtil
   ) {
@@ -404,7 +406,8 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
       }
     });
 
-    const navOptions = this.locationStrategy._beginPageNavigation(this.frame);
+    const navOptions = { ...defaultNavOptions, ...(this.router.getCurrentNavigation().extras || {}) } as ExtendedNavigationExtras;
+    this.locationStrategy._beginPageNavigation(this.frame, navOptions);
     const isReplace = navOptions.replaceUrl && !navOptions.clearHistory;
 
     // Clear refCache if navigation with clearHistory
