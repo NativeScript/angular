@@ -13,7 +13,6 @@ on:
 jobs:
   build:
     name: Build affected projects
-    needs: lint
     runs-on: ubuntu-latest
 
     steps:
