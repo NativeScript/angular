@@ -11,8 +11,8 @@
     "@nativescript-community/ui-material-bottom-navigation": "^7.0.0"
   },
   "devDependencies": {
-    "@nativescript/android": "~8.3.0",
-    "@nativescript/ios": "~8.3.0",
+    "@nativescript/android": "~8.4.0",
+    "@nativescript/ios": "~8.4.0",
     "@nativescript/unit-test-runner": "^3.0.1"
   }
 }
