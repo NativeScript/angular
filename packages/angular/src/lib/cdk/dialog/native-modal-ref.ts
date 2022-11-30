@@ -1,15 +1,15 @@
-import { ApplicationRef, ComponentFactoryResolver, ComponentRef, EmbeddedViewRef, Injector, Optional, ViewContainerRef, ɵdetectChanges as detectChanges } from '@angular/core';
-import { ContentView, View, Application, Frame } from '@nativescript/core';
+import { ApplicationRef, ComponentFactoryResolver, ComponentRef, EmbeddedViewRef, Injector, Optional, ViewContainerRef } from '@angular/core';
+import { Application, ContentView, Frame, View } from '@nativescript/core';
 import { fromEvent, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { AppHostAsyncView, AppHostView } from '../../app-host-view';
 import { NSLocationStrategy } from '../../legacy/router/ns-location-strategy';
 import { once } from '../../utils/general';
+import { NgViewRef } from '../../view-refs';
 import { DetachedLoader } from '../detached-loader';
 import { ComponentPortal, TemplatePortal } from '../portal/common';
 import { NativeScriptDomPortalOutlet } from '../portal/nsdom-portal-outlet';
 import { NativeDialogConfig } from './dialog-config';
-import { NgViewRef } from '../../view-refs';
 
 export class NativeModalRef {
   _id: string;
@@ -103,7 +103,7 @@ export class NativeModalRef {
     const targetView = new ContentView();
     this.portalOutlet = new NativeScriptDomPortalOutlet(targetView, this._config.componentFactoryResolver || this._injector.get(ComponentFactoryResolver), this._injector.get(ApplicationRef), this._injector);
     const componentRef = this.portalOutlet.attach(portal);
-    detectChanges(componentRef.instance);
+    componentRef.changeDetectorRef.detectChanges();
     this.modalViewRef = new NgViewRef(componentRef);
     if (this.modalViewRef.firstNativeLikeView !== this.modalViewRef.view) {
       (<any>this.modalViewRef.view)._ngDialogRoot = this.modalViewRef.firstNativeLikeView;

@@ -1,17 +1,18 @@
 {
   "npmScope": "nativescript",
   "affected": {
-    "defaultBase": "master"
+    "defaultBase": "main"
   },
   "tasksRunnerOptions": {
     "default": {
-      "runner": "nx/tasks-runners/default",
+      "runner": "@nrwl/nx-cloud",
       "options": {
         "useDaemonProcess": false,
         "cacheableOperations": ["build", "lint", "test", "e2e"],
         "canTrackAnalytics": false,
         "showUsageWarnings": true,
-        "parallel": 1
+        "parallel": 2,
+        "accessToken": "NWJjY2UzMjctM2Q2Yy00ODZlLWExYjktNzE3YTRmMzRmMWQwfHJlYWQ="
       }
     }
   },

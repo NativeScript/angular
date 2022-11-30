@@ -1,6 +1,6 @@
 // make sure you import mocha-config before @angular/core
 import { DefaultUrlSerializer, UrlTree } from '@angular/router';
-import { FrameService, LocationState, NSLocationStrategy, Outlet } from '@nativescript/angular';
+import { FrameService, LocationState, NavigationOptions, NSLocationStrategy, Outlet } from '@nativescript/angular';
 import { BackstackEntry, Frame, NavigationEntry, Page, View } from '@nativescript/core';
 
 export class FakeFrameService extends FrameService {
@@ -134,13 +134,13 @@ function createState(url: string, outletName: string, isPageNav: boolean = false
   };
 }
 
-function simulatePageNavigation(strategy: NSLocationStrategy, url: string, frame: any, outletName?: string) {
+function simulatePageNavigation(strategy: NSLocationStrategy, url: string, frame: any, outletName?: string, options?: NavigationOptions) {
   outletName = outletName || 'primary';
   strategy.pushState(null, null, url, null);
 
   const outlet: Outlet = strategy.findOutlet(outletName);
   outlet.frames.push(frame);
-  strategy._beginPageNavigation(frame);
+  strategy._beginPageNavigation(frame, options);
 }
 
 function simulatePageBack(strategy: NSLocationStrategy, frame: any) {
@@ -479,8 +479,7 @@ describe('NSLocationStrategy', () => {
     const frame = new FakeFrame();
     const outletName = 'primary';
     // Act
-    strategy._setNavigationOptions({ clearHistory: true });
-    simulatePageNavigation(strategy, '/cleared', frame, outletName);
+    simulatePageNavigation(strategy, '/cleared', frame, outletName, { clearHistory: true });
     const outlet: Outlet = strategy.findOutlet(outletName);
     // Assert
     assertStatesEqual(outlet.states, [createState('/cleared', outletName, true)]);
@@ -494,8 +493,7 @@ describe('NSLocationStrategy', () => {
     const outletName2 = 'test2';
 
     // Act
-    strategy._setNavigationOptions({ clearHistory: true });
-    simulatePageNavigation(strategy, '/(test1:cleared//test2:test2)', frame, outletName);
+    simulatePageNavigation(strategy, '/(test1:cleared//test2:test2)', frame, outletName, { clearHistory: true });
     simulatePageNavigation(strategy, '/(test1:cleared//test2:test2)', frame2, outletName2);
     const expectedStatesTest1: Array<LocationState> = [createState('/(test1:cleared//test2:test2)', outletName, true)];
     const expectedStatesTest2: Array<LocationState> = [createState('/(test1:cleared//test2:test2)', outletName2, true)];

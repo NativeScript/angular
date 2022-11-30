@@ -135,6 +135,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     @Inject(PAGE_FACTORY) private pageFactory: PageFactory,
     private routeReuseStrategy: NSRouteReuseStrategy,
     private ngZone: NgZone,
+    private router: Router,
     elRef: ElementRef,
     viewUtil: ViewUtil,
     private environmentInjector: EnvironmentInjector
@@ -409,8 +410,8 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
       }
     });
 
-    this.locationStrategy._beginPageNavigation(this.frame);
     const navOptions = { ...defaultNavOptions, ...(this.router.getCurrentNavigation().extras || {}) } as ExtendedNavigationExtras;
+    this.locationStrategy._beginPageNavigation(this.frame, navOptions);
     const isReplace = navOptions.replaceUrl && !navOptions.clearHistory;
 
     // Clear refCache if navigation with clearHistory
