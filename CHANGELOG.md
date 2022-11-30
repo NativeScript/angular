@@ -1,3 +1,19 @@
+## [15.0.0](https://github.com/NativeScript/angular/compare/14.2.7...15.0.0) (2022-11-30)
+
+### Features
+
+* Angular 15 support ([#97](https://github.com/NativeScript/angular/issues/97)) ([51ad39e](https://github.com/NativeScript/angular/commit/51ad39e6c52f99d9e1249efeecc2e61d339cd061))
+  
+
+## [14.2.7](https://github.com/NativeScript/angular/compare/14.2.6...14.2.7) (2022-11-30)
+
+
+### Bug Fixes
+
+* **router:** fix navigation when clearing history and navigating before the navigatedTo event fires ([#100](https://github.com/NativeScript/angular/issues/100)) ([f276f56](https://github.com/NativeScript/angular/commit/f276f5690a9e6dd99fb2a613343fd7f07f8bab33))
+
+
+
 ## [14.2.6](https://github.com/NativeScript/angular/compare/14.2.5...14.2.6) (2022-11-23)
 
 
