@@ -29,6 +29,17 @@ function isComponentFactoryResolver(item: any): item is ComponentFactoryResolver
   return !!item.resolveComponentFactory;
 }
 
+function callableOnce<T>(fn: (...args: T[]) => void) {
+  let called = false;
+  return (...args: T[]) => {
+    if (called) {
+      return;
+    }
+    called = true;
+    return fn(...args);
+  };
+}
+
 export class DestructibleInjector implements Injector {
   private refs = new Set<any>();
   constructor(private destructibleProviders: ProviderSet, private parent: Injector) {}
@@ -71,6 +82,10 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
   private isEmptyOutlet: boolean;
   private viewUtil: ViewUtil;
   private frame: Frame;
+  // this function is used to clear the outlet cache (clear history)
+  // usually it's cleared in `navigatedTo`, but on quick navigation, the event will be fired after angular already added more things to the cache
+  // so now we call this if the component is detached or deactivated (meaning it's mid-navigation, before cache manipulation)
+  private postNavFunction: () => void;
 
   attachEvents: EventEmitter<unknown> = new EventEmitter();
   detachEvents: EventEmitter<unknown> = new EventEmitter();
@@ -209,6 +224,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     if (!this.isActivated) {
       return;
     }
+    this.postNavFunction?.();
 
     const c = this.activated.instance;
     destroyComponentRef(this.activated);
@@ -233,6 +249,8 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.routerLog(`PageRouterOutlet.detach() - ${routeToString(this._activatedRoute)}`);
     }
+
+    this.postNavFunction?.();
 
     // Detach from ChangeDetection
     this.activated.hostView.detach();
@@ -413,28 +431,45 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     this.locationStrategy._beginPageNavigation(this.frame, navOptions);
     const isReplace = navOptions.replaceUrl && !navOptions.clearHistory;
 
+    const currentRoute = this.activatedRoute;
     // Clear refCache if navigation with clearHistory
     if (navOptions.clearHistory) {
+      this.outlet.outletKeys.forEach((key) => this.routeReuseStrategy.markCacheForClear(key));
+      const wipeCache = callableOnce(() => {
+        if (this.postNavFunction === wipeCache) {
+          this.postNavFunction = null;
+        }
+        if (this.outlet && this.activatedRoute === currentRoute) {
+          // potential alternative fix (only fix children of the current outlet)
+          // const nests = outletKey.split('/');
+          // this.outlet.outletKeys.filter((k) => k.split('/').length >= nests.length).forEach((key) => this.routeReuseStrategy.clearCache(key));
+          this.outlet.outletKeys.forEach((key) => this.routeReuseStrategy.clearMarkedCache(key));
+        }
+      });
+      this.postNavFunction = wipeCache;
       const clearCallback = () =>
         setTimeout(() => {
-          if (this.outlet) {
-            // potential alternative fix (only fix children of the current outlet)
-            // const nests = outletKey.split('/');
-            // this.outlet.outletKeys.filter((k) => k.split('/').length >= nests.length).forEach((key) => this.routeReuseStrategy.clearCache(key));
-            this.outlet.outletKeys.forEach((key) => this.routeReuseStrategy.clearCache(key));
-          }
+          wipeCache();
         });
 
       page.once(Page.navigatedToEvent, clearCallback);
     } else if (navOptions.replaceUrl) {
+      this.outlet.outletKeys.forEach((key) => this.routeReuseStrategy.markCacheForPop(key));
+      const popCache = callableOnce(() => {
+        if (this.postNavFunction === popCache) {
+          this.postNavFunction = null;
+        }
+        if (this.outlet && this.activatedRoute === currentRoute) {
+          // potential alternative fix (only fix children of the current outlet)
+          // const nests = outletKey.split('/');
+          // this.outlet.outletKeys.filter((k) => k.split('/').length >= nests.length).forEach((key) => this.routeReuseStrategy.popCache(key));
+          this.outlet.outletKeys.forEach((key) => this.routeReuseStrategy.clearMarkedCache(key));
+        }
+      });
+      this.postNavFunction = popCache;
       const clearCallback = () =>
         setTimeout(() => {
-          if (this.outlet) {
-            // potential alternative fix (only fix children of the current outlet)
-            // const nests = outletKey.split('/');
-            // this.outlet.outletKeys.filter((k) => k.split('/').length >= nests.length).forEach((key) => this.routeReuseStrategy.popCache(key));
-            this.outlet.outletKeys.forEach((key) => this.routeReuseStrategy.popCache(key));
-          }
+          popCache();
         });
 
       page.once(Page.navigatedToEvent, clearCallback);
