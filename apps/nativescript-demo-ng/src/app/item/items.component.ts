@@ -12,7 +12,7 @@ import { ModalDialogService, NativeDialogService } from '@nativescript/angular';
   templateUrl: './items.component.html',
 })
 export class ItemsComponent implements OnInit {
-  message = 'Hello Angular 13!';
+  message = 'Hello Angular 15!';
   items: Array<Item>;
 
   constructor(private itemService: ItemService, private nativeDialog: NativeDialogService, private modalDialog: ModalDialogService, private http: HttpClient) {}

@@ -1,4 +1,4 @@
-import { Attribute, ChangeDetectorRef, ComponentFactory, ComponentFactoryResolver, ComponentRef, Directive, Inject, InjectionToken, Injector, OnDestroy, EventEmitter, Output, Type, ViewContainerRef, ElementRef, InjectFlags, NgZone, EnvironmentInjector, inject } from '@angular/core';
+import { Attribute, ChangeDetectorRef, ComponentFactory, ComponentFactoryResolver, ComponentRef, Directive, Inject, InjectionToken, Injector, OnDestroy, EventEmitter, Output, Type, ViewContainerRef, ElementRef, InjectFlags, NgZone, EnvironmentInjector, inject, InjectOptions } from '@angular/core';
 import { ActivatedRoute, ActivatedRouteSnapshot, ChildrenOutletContexts, Data, PRIMARY_OUTLET, Router, RouterOutletContract } from '@angular/router';
 
 import { Frame, Page, NavigatedData, profile, NavigationEntry } from '@nativescript/core';
@@ -43,12 +43,20 @@ function callableOnce<T>(fn: (...args: T[]) => void) {
 export class DestructibleInjector implements Injector {
   private refs = new Set<any>();
   constructor(private destructibleProviders: ProviderSet, private parent: Injector) {}
-  get<T>(token: Type<T> | InjectionToken<T>, notFoundValue?: T, flags?: InjectFlags): T {
+  get<T>(token: Type<T> | InjectionToken<T>, notFoundValue?: T, flags?: InjectOptions | InjectFlags): T {
     const ref = this.parent.get(token, notFoundValue, flags);
+
     // if we're skipping ourselves then it's not our responsibility to destroy
-    if (!(flags & InjectFlags.SkipSelf) && this.destructibleProviders.has(token)) {
-      this.refs.add(ref);
+    if (typeof flags === 'number') {
+      if (!(flags & InjectFlags.SkipSelf) && this.destructibleProviders.has(token)) {
+        this.refs.add(ref);
+      }
+    } else {
+      if (!flags?.skipSelf && this.destructibleProviders.has(token)) {
+        this.refs.add(ref);
+      }
     }
+
     return ref;
   }
   destroy() {

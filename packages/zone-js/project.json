@@ -1,4 +1,5 @@
 {
+  "name": "zone-js",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/zone-js/src",
   "projectType": "library",
@@ -21,7 +22,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/packages/zone-js"],
+      "outputs": ["{workspaceRoot}/coverage/packages/zone-js"],
       "options": {
         "jestConfig": "packages/zone-js/jest.config.ts",
         "passWithNoTests": true
