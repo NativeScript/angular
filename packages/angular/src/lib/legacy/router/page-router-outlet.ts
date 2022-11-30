@@ -434,6 +434,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     const currentRoute = this.activatedRoute;
     // Clear refCache if navigation with clearHistory
     if (navOptions.clearHistory) {
+      this.outlet.outletKeys.forEach((key) => this.routeReuseStrategy.markCacheForClear(key));
       const wipeCache = callableOnce(() => {
         if (this.postNavFunction === wipeCache) {
           this.postNavFunction = null;
@@ -442,7 +443,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
           // potential alternative fix (only fix children of the current outlet)
           // const nests = outletKey.split('/');
           // this.outlet.outletKeys.filter((k) => k.split('/').length >= nests.length).forEach((key) => this.routeReuseStrategy.clearCache(key));
-          this.outlet.outletKeys.forEach((key) => this.routeReuseStrategy.clearCache(key));
+          this.outlet.outletKeys.forEach((key) => this.routeReuseStrategy.clearMarkedCache(key));
         }
       });
       this.postNavFunction = wipeCache;
@@ -453,6 +454,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
 
       page.once(Page.navigatedToEvent, clearCallback);
     } else if (navOptions.replaceUrl) {
+      this.outlet.outletKeys.forEach((key) => this.routeReuseStrategy.markCacheForPop(key));
       const popCache = callableOnce(() => {
         if (this.postNavFunction === popCache) {
           this.postNavFunction = null;
@@ -461,7 +463,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
           // potential alternative fix (only fix children of the current outlet)
           // const nests = outletKey.split('/');
           // this.outlet.outletKeys.filter((k) => k.split('/').length >= nests.length).forEach((key) => this.routeReuseStrategy.popCache(key));
-          this.outlet.outletKeys.forEach((key) => this.routeReuseStrategy.popCache(key));
+          this.outlet.outletKeys.forEach((key) => this.routeReuseStrategy.clearMarkedCache(key));
         }
       });
       this.postNavFunction = popCache;

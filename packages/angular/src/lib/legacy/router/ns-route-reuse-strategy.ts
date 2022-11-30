@@ -9,6 +9,7 @@ interface CacheItem {
   key: string;
   state: DetachedRouteHandle;
   isModal: boolean;
+  markedForDeletion?: boolean;
 }
 
 const getSnapshotKey = function (snapshot: ActivatedRouteSnapshot): string {
@@ -49,6 +50,28 @@ class DetachedStateCache {
       }
 
       destroyComponentRef(state.componentRef);
+    }
+  }
+
+  public markCurrentForClear() {
+    for (const item of this.cache) {
+      item.markedForDeletion = true;
+    }
+  }
+
+  public clearMarked() {
+    // try to preserve same order as .clear()
+    for (let i = this.cache.length - 1; i >= 0; i--) {
+      const cacheItem = this.cache[i];
+      if (cacheItem.markedForDeletion) {
+        const state = <any>cacheItem.state;
+        if (!state.componentRef) {
+          throw new Error('No componentRef found in DetachedRouteHandle');
+        }
+
+        destroyComponentRef(state.componentRef);
+        this.cache.splice(i, 1);
+      }
     }
   }
 
@@ -259,6 +282,14 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
     }
   }
 
+  markCacheForClear(outletKey: string) {
+    const cache = this.cacheByOutlet[outletKey];
+
+    if (cache) {
+      cache.markCurrentForClear();
+    }
+  }
+
   popCache(outletKey: string) {
     const cache = this.cacheByOutlet[outletKey];
 
@@ -269,6 +300,25 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
           destroyComponentRef(state?.componentRef);
         }
       }
+    }
+  }
+
+  markCacheForPop(outletKey: string) {
+    const cache = this.cacheByOutlet[outletKey];
+
+    if (cache) {
+      const item = cache.peek();
+      if (item) {
+        item.markedForDeletion = true;
+      }
+    }
+  }
+
+  clearMarkedCache(outletKey: string) {
+    const cache = this.cacheByOutlet[outletKey];
+
+    if (cache) {
+      cache.clearMarked();
     }
   }
 
