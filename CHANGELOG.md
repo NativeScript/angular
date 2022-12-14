@@ -1,3 +1,12 @@
+## [14.2.8](https://github.com/NativeScript/angular/compare/14.2.7...14.2.8) (2022-12-14)
+
+
+### Bug Fixes
+
+* use inject in ListViewComponent ([#103](https://github.com/NativeScript/angular/issues/103)) ([d448d3b](https://github.com/NativeScript/angular/commit/d448d3b24b8b4823c80d5c6b09662914de8f617a))
+
+
+
 ## [14.2.6](https://github.com/NativeScript/angular/compare/14.2.5...14.2.6) (2022-11-23)
 
 
