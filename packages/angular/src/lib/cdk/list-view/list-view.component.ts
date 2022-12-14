@@ -1,4 +1,4 @@
-import { AfterContentInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, Directive, DoCheck, ElementRef, EmbeddedViewRef, EventEmitter, forwardRef, Host, HostListener, Inject, InjectionToken, Input, IterableDiffer, IterableDiffers, OnDestroy, Output, TemplateRef, ViewChild, ViewContainerRef, ɵisListLikeIterable as isListLikeIterable } from '@angular/core';
+import { AfterContentInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, Directive, DoCheck, ElementRef, EmbeddedViewRef, EventEmitter, forwardRef, Host, HostListener, inject, Inject, InjectionToken, Input, IterableDiffer, IterableDiffers, NgZone, OnDestroy, Output, TemplateRef, ViewChild, ViewContainerRef, ɵisListLikeIterable as isListLikeIterable } from '@angular/core';
 import { ItemEventData, KeyedTemplate, LayoutBase, ListView, ObservableArray, profile, View } from '@nativescript/core';
 
 import { extractSingleViewRecursive } from '../../element-registry/registry';
@@ -96,7 +96,12 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
     return this.templatedItemsView;
   }
 
-  protected templatedItemsView: ListView;
+  private readonly _iterableDiffers: IterableDiffers = inject(IterableDiffers);
+  private readonly _changeDetectorRef: ChangeDetectorRef = inject(ChangeDetectorRef);
+  private readonly _elementRef: ElementRef = inject(ElementRef);
+
+  // I believe this only exists so this can be inherited and people can override it.
+  protected templatedItemsView: ListView = this._elementRef.nativeElement;
   protected _items: T[] | ObservableArray<T>;
   protected _differ: IterableDiffer<T>;
   protected _templateMap: Map<string, NsTemplatedItem<T>>;
@@ -130,8 +135,24 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
     this.templatedItemsView.items = this._items;
   }
 
-  constructor(_elementRef: ElementRef, private readonly _iterableDiffers: IterableDiffers, private readonly _changeDetectorRef: ChangeDetectorRef) {
-    this.templatedItemsView = _elementRef.nativeElement;
+  /**
+   * @deprecated
+   */
+  constructor(_elementRef: ElementRef);
+  /**
+   * @deprecated
+   */
+  constructor(_elementRef: ElementRef, _iterableDiffers: IterableDiffers, _changeDetectorRef: ChangeDetectorRef);
+  /**
+   * @deprecated
+   */
+  constructor(_elementRef: ElementRef, _iterableDiffers: IterableDiffers, _ngZone: NgZone);
+  constructor();
+  // this elementRef is only here for backwards compatibility reasons
+  constructor(_elementRef?: ElementRef) {
+    if (_elementRef) {
+      this.templatedItemsView = _elementRef.nativeElement;
+    }
   }
 
   ngAfterContentInit() {
