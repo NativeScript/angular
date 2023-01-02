@@ -1,7 +1,7 @@
-import { View, unsetValue, Placeholder, ContentView, LayoutBase, ProxyViewContainer } from '@nativescript/core';
+import { unsetValue, View } from '@nativescript/core';
 import { getViewClass, getViewMeta, isKnownView } from './element-registry';
-import { CommentNode, NgView, TextNode, ViewExtensions, isDetachedElement, isInvisibleNode, isView, isContentView, isLayout } from './views';
 import { NamespaceFilter } from './property-filter';
+import { CommentNode, isContentView, isDetachedElement, isInvisibleNode, isLayout, isView, NgView, TextNode } from './views';
 
 import { NativeScriptDebug } from './trace';
 import { NgLayoutBase } from './views/view-types';
@@ -61,6 +61,7 @@ function printSiblingsTree(view: NgView) {
   console.log(`${view} previousSiblings: ${previousSiblings} nextSiblings: ${nextSiblings}`);
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 const propertyMaps: Map<Function, Map<string, string>> = new Map<Function, Map<string, string>>();
 
 export class ViewUtil {
@@ -371,10 +372,10 @@ export class ViewUtil {
   }
 
   private ensureNgViewExtensions(view: View): NgView {
-    if (view.hasOwnProperty('meta')) {
+    if (Object.hasOwnProperty.call(view, 'meta')) {
       return view as NgView;
     } else {
-      const name = view.cssType;
+      const name = view.cssType || view.typeName;
       const ngView = this.setNgViewExtensions(view, name);
 
       return ngView;
@@ -501,8 +502,8 @@ export class ViewUtil {
     }
 
     if (!propertyMaps.has(type)) {
-      let propMap = new Map<string, string>();
-      for (let propName in instance) {
+      const propMap = new Map<string, string>();
+      for (const propName in instance) {
         // tslint:disable:forin
         propMap.set(propName.toLowerCase(), propName);
       }
@@ -532,14 +533,14 @@ export class ViewUtil {
   }
 
   private setClasses(view: NgView, classesValue: string): void {
-    let classes = classesValue.split(whiteSpaceSplitter);
+    const classes = classesValue.split(whiteSpaceSplitter);
     this.cssClasses(view).clear();
     classes.forEach((className) => this.cssClasses(view).set(className, true));
     this.syncClasses(view);
   }
 
   private syncClasses(view: NgView): void {
-    let classValue = (<any>Array).from(this.cssClasses(view).keys()).join(' ');
+    const classValue = (<any>Array).from(this.cssClasses(view).keys()).join(' ');
     view.className = classValue;
   }
 

@@ -1,5 +1,5 @@
 import { AbsoluteLayout, ActivityIndicator, Button, ContentView, DatePicker, DockLayout, FlexboxLayout, FormattedString, Frame, GridLayout, HtmlView, Image, Label, ListPicker, ListView, Page, Placeholder, Progress, ProxyViewContainer, Repeater, RootLayout, ScrollView, SearchBar, SegmentedBar, SegmentedBarItem, Slider, Span, StackLayout, Switch, TabView, TextField, TextView, TimePicker, WebView, WrapLayout } from '@nativescript/core';
-import { frameMeta } from './metas';
+import { formattedStringMeta, frameMeta, textBaseMeta } from './metas';
 import { registerElement } from './registry';
 
 // Register default NativeScript components
@@ -9,7 +9,7 @@ export function registerNativeScriptViewComponents() {
     (<any>global).__ngRegisteredViews = true;
     registerElement('AbsoluteLayout', () => AbsoluteLayout);
     registerElement('ActivityIndicator', () => ActivityIndicator);
-    registerElement('Button', () => Button);
+    registerElement('Button', () => Button, textBaseMeta);
     registerElement('ContentView', () => ContentView);
     registerElement('DatePicker', () => DatePicker);
     registerElement('DockLayout', () => DockLayout);
@@ -19,7 +19,7 @@ export function registerNativeScriptViewComponents() {
     registerElement('Image', () => Image);
     // Parse5 changes <Image> tags to <img>. WTF!
     registerElement('img', () => Image);
-    registerElement('Label', () => Label);
+    registerElement('Label', () => Label, textBaseMeta);
     registerElement('ListPicker', () => ListPicker);
     registerElement('ListView', () => ListView);
     registerElement('Page', () => Page);
@@ -37,12 +37,12 @@ export function registerNativeScriptViewComponents() {
     registerElement('FlexboxLayout', () => FlexboxLayout);
     registerElement('Switch', () => Switch);
     registerElement('TabView', () => TabView);
-    registerElement('TextField', () => TextField);
-    registerElement('TextView', () => TextView);
+    registerElement('TextField', () => TextField, textBaseMeta);
+    registerElement('TextView', () => TextView, textBaseMeta);
     registerElement('TimePicker', () => TimePicker);
     registerElement('WebView', () => WebView);
     registerElement('WrapLayout', () => WrapLayout);
-    registerElement('FormattedString', () => FormattedString);
+    registerElement('FormattedString', () => FormattedString, formattedStringMeta);
     registerElement('Span', () => Span);
   }
 }
