@@ -7,7 +7,7 @@ import { Label } from '@nativescript/core';
 
 describe('NSRouterLink', () => {
   const mockRouter = {} as Router;
-  let mockRouterExtensions = {
+  const mockRouterExtensions = {
     navigateByUrl: fake(),
     navigate: fake(),
   };

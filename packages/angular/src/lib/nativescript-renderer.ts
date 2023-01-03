@@ -24,9 +24,9 @@ function runInRootZone<T>(fn: () => T): T {
 }
 
 function inRootZone() {
-  return function (target: Object, key: string | symbol, descriptor: PropertyDescriptor) {
+  return function (target: unknown, key: string | symbol, descriptor: PropertyDescriptor) {
     const childFunction = descriptor.value;
-    descriptor.value = function (...args: any[]) {
+    descriptor.value = function (...args: unknown[]) {
       const fn = childFunction.bind(this);
       return runInRootZone(() => fn(...args));
     };

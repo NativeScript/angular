@@ -6,7 +6,6 @@
     "postinstall": "node ./tools/xplat-postinstall.js"
   },
   "dependencies": {
-    "@nativescript/angular": "file:../../packages/angular",
     "@nativescript/core": "file:../../node_modules/@nativescript/core",
     "@nativescript-community/ui-material-bottom-navigation": "^7.0.0"
   },

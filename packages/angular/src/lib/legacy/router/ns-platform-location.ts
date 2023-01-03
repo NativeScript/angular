@@ -5,6 +5,11 @@ import { NativeScriptDebug } from '../../trace';
 
 @Injectable()
 export class NativescriptPlatformLocation extends PlatformLocation {
+  readonly hostname: string;
+  readonly href: string;
+  readonly port: string;
+  readonly protocol: string;
+
   constructor(private locationStrategy: NSLocationStrategy) {
     super();
     if (NativeScriptDebug.isLogEnabled()) {
@@ -16,22 +21,21 @@ export class NativescriptPlatformLocation extends PlatformLocation {
     return undefined;
   }
 
-  readonly hostname: string;
-  readonly href: string;
-  readonly port: string;
-  readonly protocol: string;
-
   getBaseHrefFromDOM(): string {
     return '/';
   }
 
   onPopState(fn: LocationChangeListener): VoidFunction {
     this.locationStrategy.onPopState(fn);
-    return () => {};
+    return () => {
+      //
+    };
   }
 
   onHashChange(_fn: LocationChangeListener): VoidFunction {
-    return () => {};
+    return () => {
+      //
+    };
   }
 
   get search(): string {

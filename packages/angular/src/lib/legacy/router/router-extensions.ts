@@ -130,11 +130,9 @@ export class RouterExtensions {
   }
 
   private findOutletByRoute(currentRoute: ActivatedRoute): Outlet {
-    let outlet;
-
     const currentRouteSnapshop = findTopActivatedRouteNodeForOutlet(currentRoute.snapshot);
     const outletKey = this.locationStrategy.getRouteFullPath(currentRouteSnapshop);
-    outlet = this.locationStrategy.findOutlet(outletKey, currentRouteSnapshop);
+    const outlet = this.locationStrategy.findOutlet(outletKey, currentRouteSnapshop);
 
     return outlet;
   }

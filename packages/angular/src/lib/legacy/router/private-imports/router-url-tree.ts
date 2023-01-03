@@ -19,7 +19,7 @@ function equalSegmentGroups(container: UrlSegmentGroup, containee: UrlSegmentGro
   if (container.numberOfChildren !== containee.numberOfChildren) {
     return false;
   }
-  for (let c in containee.children) {
+  for (const c in containee.children) {
     if (!container.children[c]) {
       return false;
     }
@@ -48,7 +48,7 @@ function containsSegmentGroupHelper(container: UrlSegmentGroup, containee: UrlSe
     if (!equalPath(container.segments, containeePaths)) {
       return false;
     }
-    for (let c in containee.children) {
+    for (const c in containee.children) {
       if (!container.children[c]) {
         return false;
       }

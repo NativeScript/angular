@@ -140,7 +140,7 @@ export class NSRouterLink implements AfterViewInit {
       transition = <NavigationTransition>this.pageTransition;
     }
 
-    let duration = +this.pageTransitionDuration;
+    const duration = +this.pageTransitionDuration;
     if (!isNaN(duration)) {
       transition = transition || {};
       transition.duration = duration;

@@ -15,6 +15,7 @@ export class FakeFrameService extends FrameService {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export class FakeFrame extends View implements Frame {
   backStack: Array<BackstackEntry>;
@@ -35,7 +36,9 @@ export class FakeFrame extends View implements Frame {
     }
   }
 
-  navigate(entry: any) {}
+  navigate(entry: any) {
+    //
+  }
 
   constructor(private backCB?: () => void) {
     super();

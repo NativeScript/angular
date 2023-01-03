@@ -73,8 +73,8 @@ export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
    * @returns Reference to the created embedded view.
    */
   attachTemplatePortal<C>(portal: TemplatePortal<C>): EmbeddedViewRef<C> {
-    let viewContainer = portal.viewContainerRef;
-    let viewRef = viewContainer.createEmbeddedView(portal.templateRef, portal.context);
+    const viewContainer = portal.viewContainerRef;
+    const viewRef = viewContainer.createEmbeddedView(portal.templateRef, portal.context);
 
     // The method `createEmbeddedView` will add the view as a child of the viewContainer.
     // But for the DomPortalOutlet the view can be added everywhere in the DOM
@@ -93,7 +93,7 @@ export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
     viewRef.detectChanges();
 
     this.setDisposeFn(() => {
-      let index = viewContainer.indexOf(viewRef);
+      const index = viewContainer.indexOf(viewRef);
       if (index !== -1) {
         viewContainer.remove(index);
       }

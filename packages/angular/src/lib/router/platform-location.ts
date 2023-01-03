@@ -47,7 +47,9 @@ export class NativescriptPlatformLocation extends PlatformLocation {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.routerLog('NativescriptPlatformLocation.onHashChange');
     }
-    return () => {};
+    return () => {
+      //
+    };
     // throw new Error("Method not implemented.");
   }
   get href(): string {

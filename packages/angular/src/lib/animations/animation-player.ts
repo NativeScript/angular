@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/ban-types */
 import { AnimationPlayer } from '@angular/animations';
 import { View, EventData, KeyframeAnimation } from '@nativescript/core';
 

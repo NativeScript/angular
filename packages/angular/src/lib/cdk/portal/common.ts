@@ -36,7 +36,7 @@ export abstract class Portal<T> {
 
   /** Detach this portal from its host */
   detach(): void {
-    let host = this._attachedHost;
+    const host = this._attachedHost;
 
     if (host != null) {
       this._attachedHost = null;
@@ -174,7 +174,7 @@ export abstract class BasePortalOutlet implements PortalOutlet {
   private _disposeFn: (() => void) | null;
 
   /** Whether this host has already been permanently disposed. */
-  private _isDisposed: boolean = false;
+  private _isDisposed = false;
 
   /** Whether this host has an attached portal. */
   hasAttached(): boolean {
@@ -223,6 +223,7 @@ export abstract class BasePortalOutlet implements PortalOutlet {
   abstract attachTemplatePortal<C>(portal: TemplatePortal<C>): EmbeddedViewRef<C>;
 
   // @breaking-change 10.0.0 `attachDomPortal` to become a required abstract method.
+  // eslint-disable-next-line @typescript-eslint/member-ordering
   readonly attachDomPortal: null | ((portal: DomPortal) => any) = null;
 
   /** Detaches a previously attached portal. */

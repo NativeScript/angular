@@ -5,8 +5,12 @@ import { isBlank } from '../../utils/lang-facade';
 
 export class BaseValueAccessor<TView extends View> implements ControlValueAccessor {
   private pendingChangeNotification: any = 0;
-  onChange = (_) => {};
-  onTouched = () => {};
+  onChange: (change: any) => void = () => {
+    //
+  };
+  onTouched = () => {
+    //
+  };
 
   constructor(public view: TView) {}
 
@@ -30,7 +34,9 @@ export class BaseValueAccessor<TView extends View> implements ControlValueAccess
     this.view.isEnabled = !isDisabled;
   }
 
-  writeValue(_: any) {}
+  writeValue(_: any) {
+    //
+  }
 
   protected normalizeValue(value: any): any {
     return isBlank(value) ? unsetValue : value;

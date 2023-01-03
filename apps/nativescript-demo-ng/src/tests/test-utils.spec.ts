@@ -3,7 +3,7 @@ import { TextBase } from '@nativescript/core/ui/text-base';
 import { Device } from '@nativescript/core/platform';
 
 function getChildren(view: View): Array<View> {
-  let children: Array<View> = [];
+  const children: Array<View> = [];
   (<any>view).eachChildView((child) => {
     children.push(child);
     return true;
@@ -19,14 +19,14 @@ export function dumpView(view: View, verbose: boolean = false): string {
   }
   nodeName = nodeName.toLocaleLowerCase();
 
-  let output = ['(', nodeName];
+  const output = ['(', nodeName];
   if (verbose) {
     if (view instanceof TextBase) {
       output.push('[text=', view.text, ']');
     }
   }
 
-  let children = getChildren(view)
+  const children = getChildren(view)
     .map((c) => dumpView(c, verbose))
     .join(', ');
   if (children) {

@@ -12,6 +12,7 @@ export class HomeComponent {
   tabItems: { [key: string]: { index: number; title?: string; iconSource?: string; textTransform?: string } } = {};
   private _tabs = ['start'];
   private _hasInitTab: { start?: boolean } = {};
+  private _tabView: TabView;
 
   constructor(
     private _ngZone: NgZone,
@@ -28,14 +29,15 @@ export class HomeComponent {
     this._viewTab(0);
   }
 
-  private _tabView;
   onIndexChanged(e) {
     if (e && e.object) {
       this._tabView = <TabView>e.object;
     }
   }
 
-  loadedTabView(args) {}
+  loadedTabView(args) {
+    //
+  }
 
   private _viewTab(index: number) {
     let route;

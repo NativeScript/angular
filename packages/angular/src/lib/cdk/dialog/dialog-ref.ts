@@ -1,4 +1,4 @@
-import { fromEvent, Observable, Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import { NativeModalRef } from './native-modal-ref';
 
@@ -69,6 +69,7 @@ export class NativeDialogRef<T, R = any> {
       this._beforeClosed.next(this._result);
       this._beforeClosed.complete();
 
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.componentInstance = null!;
       _nativeModalRef.dispose();
     });

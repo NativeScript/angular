@@ -13,6 +13,7 @@ export function throwIfAlreadyLoaded(parentModule: any, moduleName: string) {
  * Utility method which will only fire the callback once ever
  * @param fn callback to call only once
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function once(fn: Function) {
   let wasCalled = false;
 
@@ -22,6 +23,7 @@ export function once(fn: Function) {
     }
 
     wasCalled = true;
+    // eslint-disable-next-line prefer-spread, prefer-rest-params
     fn.apply(null, arguments);
   };
 }

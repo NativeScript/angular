@@ -85,7 +85,7 @@ class DetachedStateCache {
       let modalCacheCleared = false;
 
       while (!modalCacheCleared) {
-        let cacheItem = this.peek();
+        const cacheItem = this.peek();
         const state = <any>cacheItem.state;
 
         if (!state.componentRef) {

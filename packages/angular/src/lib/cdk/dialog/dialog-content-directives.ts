@@ -19,7 +19,6 @@ import { NativeDialogRef } from './dialog-ref';
   selector: '[native-dialog-close], [nativeDialogClose]',
   exportAs: 'nativeDialogClose',
 })
-// eslint-disable-next-line @angular-eslint/directive-class-suffix
 export class NativeDialogCloseDirective implements OnInit, OnChanges {
   /** Dialog close input. */
   @Input('native-dialog-close') dialogResult: any;

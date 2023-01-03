@@ -114,7 +114,8 @@
   },
   "lint-staged": {
     "**/*.{js,ts,scss,json,html}": [
-      "nx format:write --files"
+      "nx format:write --files",
+      "nx affected:lint --fix --files"
     ]
   }
 }

@@ -21,6 +21,7 @@ const TIME_VALUE_ACCESSOR = {
 @Directive({
   selector: 'TimePicker[ngModel],TimePicker[formControlName],TimePicker[formControl],' + 'timepicker[ngModel],timepicker[formControlName],timepicker[formControl],' + 'timePicker[ngModel],timePicker[formControlName],timePicker[formControl],' + 'time-picker[ngModel],time-picker[formControlName],time-picker[formControl]',
   providers: [TIME_VALUE_ACCESSOR],
+  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
   host: {
     '(timeChange)': 'onChange($event.value)',
   },

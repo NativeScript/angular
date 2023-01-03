@@ -21,6 +21,7 @@ const NUMBER_VALUE_ACCESSOR = {
 @Directive({
   selector: 'Slider[ngModel],Slider[formControlName],Slider[formControl],' + 'slider[ngModel],slider[formControlName],slider[formControl]',
   providers: [NUMBER_VALUE_ACCESSOR],
+  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
   host: {
     '(valueChange)': 'onChange($event.value)',
   },

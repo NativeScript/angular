@@ -21,6 +21,7 @@ const DATE_VALUE_ACCESSOR = {
 @Directive({
   selector: 'DatePicker[ngModel],DatePicker[formControlName],DatePicker[formControl],' + 'datepicker[ngModel],datepicker[formControlName],datepicker[formControl],' + 'datePicker[ngModel],datePicker[formControlName],datePicker[formControl],' + 'date-picker[ngModel],date-picker[formControlName],date-picker[formControl]',
   providers: [DATE_VALUE_ACCESSOR],
+  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
   host: {
     '(dateChange)': 'onChange($event.value)',
   },

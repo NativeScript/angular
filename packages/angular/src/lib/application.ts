@@ -109,8 +109,12 @@ function runZoneSyncTask(fn: () => void) {
     'sync_function',
     fn,
     {},
-    () => {},
-    () => {}
+    () => {
+      //
+    },
+    () => {
+      //
+    }
   );
   try {
     // console.log(task.state);

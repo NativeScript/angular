@@ -97,6 +97,7 @@ export class ActionBarComponent {
   selector: 'ActionBarExtension',
   template: '',
 })
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class ActionBarScope {
   // tslint:disable-line:component-class-suffix
   constructor(@Optional() private page: Page) {

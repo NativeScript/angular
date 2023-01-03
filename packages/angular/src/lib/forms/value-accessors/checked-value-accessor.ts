@@ -21,6 +21,7 @@ const CHECKED_VALUE_ACCESSOR = {
 @Directive({
   selector: 'Switch[ngModel],Switch[formControlName],Switch[formControl],' + 'switch[ngModel],switch[formControlName],switch[formControl]',
   providers: [CHECKED_VALUE_ACCESSOR],
+  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
   host: {
     '(checkedChange)': 'onChange($event.value)',
   },

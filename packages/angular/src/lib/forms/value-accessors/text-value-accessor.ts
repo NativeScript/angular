@@ -35,6 +35,7 @@ export type TextView = { text: string } & View;
     'searchbar[ngModel],searchbar[formControlName],searchbar[formControl],' +
     'search-bar[ngModel], search-bar[formControlName],search-bar[formControl]',
   providers: [TEXT_VALUE_ACCESSOR],
+  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
   host: {
     '(blur)': 'onTouched()',
     '(textChange)': 'onChange($event.value)',

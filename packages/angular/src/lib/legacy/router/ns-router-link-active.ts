@@ -58,7 +58,7 @@ export class NSRouterLinkActive implements OnChanges, OnDestroy, AfterContentIni
 
   private classes: string[] = [];
   private subscription: Subscription;
-  private active: boolean = false;
+  private active = false;
 
   @Input() nsRouterLinkActiveOptions: { exact: boolean } = { exact: false };
 
@@ -79,7 +79,7 @@ export class NSRouterLinkActive implements OnChanges, OnDestroy, AfterContentIni
     this.update();
   }
 
-  @Input('nsRouterLinkActive')
+  @Input()
   set nsRouterLinkActive(data: string[] | string) {
     if (Array.isArray(data)) {
       this.classes = <any>data;
@@ -88,10 +88,10 @@ export class NSRouterLinkActive implements OnChanges, OnDestroy, AfterContentIni
     }
   }
 
-  ngOnChanges(_: {}): any {
+  ngOnChanges() {
     this.update();
   }
-  ngOnDestroy(): any {
+  ngOnDestroy() {
     this.subscription.unsubscribe();
   }
 

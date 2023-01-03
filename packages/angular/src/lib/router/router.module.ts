@@ -16,7 +16,7 @@ export function getBootstrapListener(r: RouterInitializer) {
 
 @Injectable()
 export class ModalRouterInitializer {
-  private initNavigation: boolean = false;
+  private initNavigation = false;
   private resultOfPreactivationDone = new Subject<void>();
 
   constructor(private injector: Injector) {}
@@ -47,7 +47,7 @@ export class ModalRouterInitializer {
 
 @Injectable()
 export class RouterInitializer {
-  private initNavigation: boolean = false;
+  private initNavigation = false;
   private resultOfPreactivationDone = new Subject<void>();
 
   constructor(private injector: Injector) {}
@@ -55,6 +55,7 @@ export class RouterInitializer {
   appInitializer(): Promise<any> {
     const p: Promise<any> = this.injector.get(LOCATION_INITIALIZED, Promise.resolve(null));
     return p.then(() => {
+      // eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-non-null-assertion
       let resolve: Function = null!;
       const res = new Promise((r) => (resolve = r));
       const router: any = this.injector.get(Router);
@@ -63,11 +64,7 @@ export class RouterInitializer {
       if (opts.initialNavigation === 'disabled') {
         router.setUpLocationChangeListener();
         resolve(true);
-      } else if (
-        // TODO: enabled is deprecated as of v11, can be removed in v13
-        opts.initialNavigation === 'enabled' ||
-        opts.initialNavigation === 'enabledBlocking'
-      ) {
+      } else if (opts.initialNavigation === 'enabledBlocking') {
         router.hooks.afterPreactivation = () => {
           // only the initial navigation should be delayed
           if (!this.initNavigation) {
@@ -107,6 +104,7 @@ export class RouterInitializer {
     preloader.setUpPreloading();
     // routerScroller.init();
     router.resetRootComponentType(ref.componentTypes[0]);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.resultOfPreactivationDone.next(null!);
     this.resultOfPreactivationDone.complete();
   }
@@ -137,7 +135,7 @@ export function provideLocationInitialized(startpath: string | Promise<string>) 
 })
 export class NativeScriptRouterModule {
   static forRoot(routes: Routes, config?: ExtraOptions): ModuleWithProviders<NativeScriptRouterModule> {
-    let routerProviders = RouterModule.forRoot(routes, config).providers;
+    const routerProviders = RouterModule.forRoot(routes, config).providers;
     return {
       ngModule: NativeScriptRouterModule,
       providers: [

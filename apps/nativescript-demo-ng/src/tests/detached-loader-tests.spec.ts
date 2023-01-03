@@ -35,6 +35,7 @@ export class LoaderComponent extends LoaderComponentBase {}
     </StackLayout>
   `,
 })
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class LoaderComponentOnPush extends LoaderComponentBase {}
 
 @NgModule({

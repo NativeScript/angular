@@ -27,7 +27,7 @@ let testTemplates: { first: number; second: number };
 })
 export class TestListViewComponent {
   public myItems: Array<DataItem> = ITEMS;
-  public counter: number = 0;
+  public counter = 0;
   onSetupItemView(args) {
     this.counter++;
   }
@@ -103,7 +103,9 @@ export class TestListViewSelectorWithEventsComponent {
   constructor() {
     testTemplates = { first: 0, second: 0 };
   }
-  dummyEvent(evt) {}
+  dummyEvent(evt) {
+    //
+  }
 }
 
 @Component({
@@ -146,49 +148,37 @@ describe('ListView-tests', () => {
     }).compileComponents()
   );
 
-  it(
-    'setupItemView is called for every item',
-    waitForAsync(async () => {
-      const fixture = TestBed.createComponent(TestListViewComponent);
-      fixture.detectChanges();
-      const component = fixture.componentRef.instance;
-      await fixture.whenRenderingDone();
-      expect(component.counter).toBe(3);
-    })
-  );
+  it('setupItemView is called for every item', waitForAsync(async () => {
+    const fixture = TestBed.createComponent(TestListViewComponent);
+    fixture.detectChanges();
+    const component = fixture.componentRef.instance;
+    await fixture.whenRenderingDone();
+    expect(component.counter).toBe(3);
+  }));
 
-  it(
-    'itemTemplateSelector selects templates',
-    waitForAsync(async () => {
-      const fixture = TestBed.createComponent(TestListViewSelectorComponent);
-      fixture.detectChanges();
+  it('itemTemplateSelector selects templates', waitForAsync(async () => {
+    const fixture = TestBed.createComponent(TestListViewSelectorComponent);
+    fixture.detectChanges();
+    await fixture.whenRenderingDone();
+    expect(testTemplates).toEqual({ first: 2, second: 1 });
+  }));
+
+  it("itemTemplateSelector doesn't break with events", waitForAsync(async () => {
+    try {
+      const fixture = TestBed.createComponent(TestListViewSelectorWithEventsComponent);
+      fixture.autoDetectChanges(true);
       await fixture.whenRenderingDone();
       expect(testTemplates).toEqual({ first: 2, second: 1 });
-    })
-  );
+    } catch (e) {
+      fail(e);
+    }
+  }));
 
-  it(
-    "itemTemplateSelector doesn't break with events",
-    waitForAsync(async () => {
-      try {
-        const fixture = TestBed.createComponent(TestListViewSelectorWithEventsComponent);
-        fixture.autoDetectChanges(true);
-        await fixture.whenRenderingDone();
-        expect(testTemplates).toEqual({ first: 2, second: 1 });
-      } catch (e) {
-        fail(e);
-      }
-    })
-  );
-
-  it(
-    "'defaultTemplate' does not throw when list-view is scrolled",
-    waitForAsync(async () => {
-      const fixture = TestBed.createComponent(TestDefaultItemTemplateComponent);
-      fixture.detectChanges();
-      const component = fixture.componentRef.instance;
-      await fixture.whenRenderingDone();
-      expect(component.onScrollListViewTo.bind(component)).not.toThrow();
-    })
-  );
+  it("'defaultTemplate' does not throw when list-view is scrolled", waitForAsync(async () => {
+    const fixture = TestBed.createComponent(TestDefaultItemTemplateComponent);
+    fixture.detectChanges();
+    const component = fixture.componentRef.instance;
+    await fixture.whenRenderingDone();
+    expect(component.onScrollListViewTo.bind(component)).not.toThrow();
+  }));
 });

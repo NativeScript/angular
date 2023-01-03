@@ -6,11 +6,10 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import { ComponentFactoryResolver, ComponentRef, Directive, EmbeddedViewRef, EventEmitter, NgModule, OnDestroy, OnInit, Output, TemplateRef, ViewContainerRef, Inject, Renderer2 } from '@angular/core';
+import { ComponentFactoryResolver, ComponentRef, Directive, EmbeddedViewRef, EventEmitter, NgModule, OnDestroy, OnInit, Output, Renderer2, TemplateRef, ViewContainerRef } from '@angular/core';
 import { View } from '@nativescript/core';
-import { DOCUMENT } from '@angular/common';
-import { BasePortalOutlet, ComponentPortal, Portal, TemplatePortal, DomPortal } from './common';
 import { CommentNode } from '../../views/invisible-nodes';
+import { BasePortalOutlet, ComponentPortal, DomPortal, Portal, TemplatePortal } from './common';
 
 /**
  * Directive version of a `TemplatePortal`. Because the directive *is* a TemplatePortal,
@@ -41,6 +40,7 @@ export type CdkPortalOutletAttachedRef = ComponentRef<any> | EmbeddedViewRef<any
 @Directive({
   selector: '[cdkPortalOutlet]',
   exportAs: 'cdkPortalOutlet',
+  // eslint-disable-next-line @angular-eslint/no-inputs-metadata-property
   inputs: ['portal: cdkPortalOutlet'],
 })
 export class CdkPortalOutlet extends BasePortalOutlet implements OnInit, OnDestroy {
@@ -181,9 +181,11 @@ export class CdkPortalOutlet extends BasePortalOutlet implements OnInit, OnDestr
 
     // The directive could be set on a template which will result in a comment
     // node being the root. Use the comment's parent node if that is the case.
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return (!(nativeElement instanceof CommentNode) ? nativeElement : nativeElement.parentNode!) as View;
   }
 
+  // eslint-disable-next-line @typescript-eslint/member-ordering
   static ngAcceptInputType_portal: Portal<any> | null | undefined | '';
 }
 

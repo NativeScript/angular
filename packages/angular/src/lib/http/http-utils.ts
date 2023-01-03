@@ -35,7 +35,7 @@ export function processLocalFileRequest<T>(url: string, nsFileSystem: NSFileSyst
             observer.error(errorResponse(url, errorResult, 200));
           }
         },
-        (err: Object) => {
+        (err: unknown) => {
           observer.error(errorResponse(url, err, 400));
         }
       );
