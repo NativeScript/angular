@@ -1,4 +1,4 @@
-import { ContentView, LayoutBase, ProxyViewContainer, View } from '@nativescript/core';
+import { ContentView, LayoutBase, ProxyViewContainer, View, ViewBase } from '@nativescript/core';
 import { InvisibleNode } from './invisible-nodes';
 import type { NgContentView, NgLayoutBase, NgView } from './view-types';
 
