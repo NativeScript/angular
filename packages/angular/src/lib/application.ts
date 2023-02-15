@@ -60,6 +60,7 @@ export interface AppRunOptions<T, K> {
   appModuleBootstrap: (reason: NgModuleReason) => Promise<NgModuleRef<T>>;
   loadingModule?: (reason: NgModuleReason) => Promise<NgModuleRef<K>>;
   launchView?: (reason: NgModuleReason) => AppLaunchView;
+  embedded?: boolean;
 }
 
 if (import.meta['webpackHot']) {
@@ -213,10 +214,10 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
       if (NativeScriptDebug.isLogEnabled()) {
         NativeScriptDebug.bootstrapLog(`Setting RootView to ${ref}`);
       }
-      if (launchEventDone) {
-        Application.resetRootView({
-          create: () => ref,
-        });
+      if (options.embedded) {
+        Application.run({ create: () => ref });
+      } else if (launchEventDone) {
+        Application.resetRootView({ create: () => ref });
       } else {
         targetRootView = ref;
       }
@@ -227,10 +228,10 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.bootstrapLog(`Setting RootView to ${newRoot}`);
     }
-    if (launchEventDone) {
-      Application.resetRootView({
-        create: () => newRoot,
-      });
+    if (options.embedded) {
+      Application.run({ create: () => newRoot });
+    } else if (launchEventDone) {
+      Application.resetRootView({ create: () => newRoot });
     } else {
       targetRootView = newRoot;
     }
@@ -393,7 +394,9 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     oldAddEventListener = global.NativeScriptGlobals.events.addEventListener;
     global.NativeScriptGlobals.events.addEventListener = global.NativeScriptGlobals.events[Zone.__symbol__('addEventListener')];
   }
-  Application.on(Application.launchEvent, launchCallback);
+  if (!options.embedded) {
+    Application.on(Application.launchEvent, launchCallback);
+  }
   Application.on(Application.exitEvent, exitCallback);
   if (oldAddEventListener) {
     global.NativeScriptGlobals.events.addEventListener = oldAddEventListener;
@@ -431,5 +434,9 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     return;
   }
 
-  Application.run();
+  if (options.embedded) {
+    bootstrapRoot('applaunch');
+  } else {
+    Application.run();
+  }
 }
