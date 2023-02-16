@@ -1,3 +1,17 @@
+## [15.0.2](https://github.com/NativeScript/angular/compare/15.0.1...15.0.2) (2023-02-16)
+
+
+### Bug Fixes
+
+* add meta for TextBase and FormattedString ([#104](https://github.com/NativeScript/angular/issues/104)) ([8413e8e](https://github.com/NativeScript/angular/commit/8413e8e049d2bea3bf5a7833ea044663c0065eea))
+
+
+### Features
+
+* support embedded applications ([#107](https://github.com/NativeScript/angular/issues/107)) ([08df232](https://github.com/NativeScript/angular/commit/08df232f0cb07f4567c415b4d50de9bdeb19ca89))
+
+
+
 ## [15.0.1](https://github.com/NativeScript/angular/compare/15.0.0...15.0.1) (2022-12-14)
 
 
