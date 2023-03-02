@@ -21,7 +21,7 @@ export * from './nativescript-common.module';
 export * from './loading.service';
 export * from './detached-loader-utils';
 // export * from './router/router.module';
-export { AppLaunchView, AppRunOptions, NgModuleEvent, NgModuleReason, disableRootViewHanding, onAfterLivesync, onBeforeLivesync, postAngularBootstrap$, preAngularDisposal$, runNativeScriptAngularApp } from './application';
+export { AppLaunchView, AppRunOptions, NgModuleEvent, NgModuleReason, disableRootViewHanding, onAfterLivesync, onBeforeLivesync, postAngularBootstrap$, preAngularDisposal$, runNativeScriptAngularApp, ApplicationConfig, bootstrapApplication } from './application';
 export * from './element-registry';
 export * from './nativescript-xhr-factory';
 export { EmulatedRenderer, NativeScriptRendererFactory, COMPONENT_VARIABLE as ɵCOMPONENT_VARIABLE, CONTENT_ATTR as ɵCONTENT_ATTR, HOST_ATTR as ɵHOST_ATTR } from './nativescript-renderer';

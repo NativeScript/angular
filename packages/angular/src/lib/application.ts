@@ -1,4 +1,4 @@
-import { NgModuleRef, NgZone, PlatformRef } from '@angular/core';
+import { ApplicationRef, EnvironmentProviders, NgModuleRef, NgZone, PlatformRef, Provider, Type, ɵinternalCreateApplication as internalCreateApplication } from '@angular/core';
 import { filter, map, take } from 'rxjs/operators';
 import { Application, ApplicationEventData, Color, LaunchEventData, LayoutBase, profile, removeTaggedAdditionalCSS, StackLayout, TextView, View, Utils, Trace } from '@nativescript/core';
 import { AppHostView } from './app-host-view';
@@ -6,6 +6,7 @@ import { NativeScriptLoadingService } from './loading.service';
 import { APP_ROOT_VIEW, DISABLE_ROOT_VIEW_HANDLING, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { Observable, Subject } from 'rxjs';
 import { NativeScriptDebug } from './trace';
+import { NATIVESCRIPT_MODULE_PROVIDERS, NATIVESCRIPT_MODULE_STATIC_PROVIDERS } from './nativescript';
 
 export interface AppLaunchView extends LayoutBase {
   // called when the animation is to begin
@@ -27,7 +28,7 @@ export type NgModuleReason = 'hotreload' | 'applaunch' | 'appexit';
 export type NgModuleEvent =
   | {
       moduleType: 'main' | 'loading' | string;
-      reference: NgModuleRef<unknown>;
+      reference: NgModuleRef<unknown> | ApplicationRef;
       reason: NgModuleReason | string;
     }
   | {
@@ -57,9 +58,29 @@ export const onAfterLivesync: Observable<{
   map((v) => ({ moduleRef: v.reference as NgModuleRef<any> }))
 );
 export interface AppRunOptions<T, K> {
-  appModuleBootstrap: (reason: NgModuleReason) => Promise<NgModuleRef<T>>;
-  loadingModule?: (reason: NgModuleReason) => Promise<NgModuleRef<K>>;
+  /**
+   * Runs when the app is launched or during HMR.
+   * May not run immediately if the app was started in background (e.g. push notification)
+   * @param reason reason for bootstrap. @see {NgModuleReason}
+   * @returns Promise to the bootstrapped NgModuleRef
+   */
+  appModuleBootstrap: (reason: NgModuleReason) => Promise<NgModuleRef<T> | ApplicationRef>;
+  /**
+   * Loads a custom NgModule for the loading screen.
+   * This loads only if appModuleBootstrap doesn't resolve synchronously (e.g. async APP_INITIALIZER).
+   * @param reason reason for bootstrap. @see {NgModuleReason}
+   * @returns Promise to the bootstrapped NgModuleRef. Must resolve immediately (no async initialization)
+   */
+  loadingModule?: (reason: NgModuleReason) => Promise<NgModuleRef<K> | ApplicationRef>;
+  /**
+   * Simpler than loadingModule, this will show a view while the app is bootstrapping asynchronously.
+   * @param reason reason for bootstrap. @see {NgModuleReason}
+   * @returns View that will be shown while app boots
+   */
   launchView?: (reason: NgModuleReason) => AppLaunchView;
+  /**
+   * Wether we are running in an embedded context (e.g. embedding NativeScript in an existing app)
+   */
   embedded?: boolean;
 }
 
@@ -71,7 +92,7 @@ if (import.meta['webpackHot']) {
   };
 }
 
-function emitModuleBootstrapEvent<T>(ref: NgModuleRef<T>, name: 'main' | 'loading', reason: NgModuleReason) {
+function emitModuleBootstrapEvent<T>(ref: NgModuleRef<T> | ApplicationRef, name: 'main' | 'loading', reason: NgModuleReason) {
   postAngularBootstrap$.next({
     moduleType: name,
     reference: ref,
@@ -79,9 +100,9 @@ function emitModuleBootstrapEvent<T>(ref: NgModuleRef<T>, name: 'main' | 'loadin
   });
 }
 
-function destroyRef<T>(ref: NgModuleRef<T>, name: 'main' | 'loading', reason: NgModuleReason): void;
+function destroyRef<T>(ref: NgModuleRef<T> | ApplicationRef, name: 'main' | 'loading', reason: NgModuleReason): void;
 function destroyRef(ref: PlatformRef, reason: NgModuleReason): void;
-function destroyRef<T>(ref: PlatformRef | NgModuleRef<T>, name?: string, reason?: string): void {
+function destroyRef<T>(ref: PlatformRef | ApplicationRef | NgModuleRef<T>, name?: string, reason?: string): void {
   if (ref) {
     if (ref instanceof PlatformRef) {
       preAngularDisposal$.next({
@@ -90,7 +111,7 @@ function destroyRef<T>(ref: PlatformRef | NgModuleRef<T>, name?: string, reason?
         reason: name,
       });
     }
-    if (ref instanceof NgModuleRef) {
+    if (ref instanceof NgModuleRef || ref instanceof ApplicationRef) {
       preAngularDisposal$.next({
         moduleType: name,
         reference: ref,
@@ -177,12 +198,29 @@ function runSynchronously(fn: () => void, done?: () => void): void {
   }
 }
 
+function createProvidersConfig(options?: ApplicationConfig) {
+  return {
+    appProviders: [...NATIVESCRIPT_MODULE_PROVIDERS, ...NATIVESCRIPT_MODULE_STATIC_PROVIDERS, ...(options?.providers ?? [])],
+    // platformProviders: INTERNAL_BROWSER_PLATFORM_PROVIDERS
+  };
+}
+
+export interface ApplicationConfig {
+  /**
+   * List of providers that should be available to the root component and all its children.
+   */
+  providers: Array<Provider | EnvironmentProviders>;
+}
+export function bootstrapApplication(rootComponent: Type<unknown>, options?: ApplicationConfig): Promise<ApplicationRef> {
+  return internalCreateApplication({ rootComponent, ...createProvidersConfig(options) });
+}
+
 export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
-  let mainModuleRef: NgModuleRef<T> = null;
-  let loadingModuleRef: NgModuleRef<K>;
+  let mainModuleRef: NgModuleRef<T> | ApplicationRef = null;
+  let loadingModuleRef: NgModuleRef<K> | ApplicationRef;
   let platformRef: PlatformRef = null;
   let bootstrapId = -1;
-  const updatePlatformRef = (moduleRef: NgModuleRef<T | K>, reason: NgModuleReason) => {
+  const updatePlatformRef = (moduleRef: NgModuleRef<T | K> | ApplicationRef, reason: NgModuleReason) => {
     const newPlatformRef = moduleRef.injector.get(PlatformRef);
     if (newPlatformRef === platformRef) {
       return;
@@ -193,12 +231,12 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   };
   let launchEventDone = true;
   let targetRootView: View = null;
-  const setRootView = (ref: NgModuleRef<T | K> | View) => {
+  const setRootView = (ref: NgModuleRef<T | K> | ApplicationRef | View) => {
     if (bootstrapId === -1) {
       // treat edge cases
       return;
     }
-    if (ref instanceof NgModuleRef) {
+    if (ref instanceof NgModuleRef || ref instanceof ApplicationRef) {
       if (ref.injector.get(DISABLE_ROOT_VIEW_HANDLING, false)) {
         return;
       }
@@ -262,10 +300,11 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
                 return;
               }
               mainModuleRef = ref;
-              ref.onDestroy(() => (mainModuleRef = mainModuleRef === ref ? null : mainModuleRef));
+
+              (ref instanceof ApplicationRef ? ref.components[0] : ref).onDestroy(() => (mainModuleRef = mainModuleRef === ref ? null : mainModuleRef));
               updatePlatformRef(ref, reason);
               const styleTag = ref.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
-              ref.onDestroy(() => {
+              (ref instanceof ApplicationRef ? ref.components[0] : ref).onDestroy(() => {
                 removeTaggedAdditionalCSS(styleTag);
               });
               bootstrapped = true;
@@ -296,10 +335,10 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
                       return;
                     }
                     loadingModuleRef = loadingRef;
-                    loadingModuleRef.onDestroy(() => (loadingModuleRef = loadingModuleRef === loadingRef ? null : loadingModuleRef));
+                    (loadingModuleRef instanceof ApplicationRef ? loadingModuleRef.components[0] : loadingModuleRef).onDestroy(() => (loadingModuleRef = loadingModuleRef === loadingRef ? null : loadingModuleRef));
                     updatePlatformRef(loadingRef, reason);
                     const styleTag = loadingModuleRef.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
-                    loadingRef.onDestroy(() => {
+                    (loadingModuleRef instanceof ApplicationRef ? loadingModuleRef.components[0] : loadingModuleRef).onDestroy(() => {
                       removeTaggedAdditionalCSS(styleTag);
                     });
                     setRootView(loadingRef);
