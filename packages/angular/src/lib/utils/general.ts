@@ -32,3 +32,14 @@ export function once(fn: Function) {
 export interface ComponentType<T> {
   new (...args: any[]): T;
 }
+
+export function isListLikeIterable(obj: any): boolean {
+  if (!isJsObject(obj)) return false;
+  return Array.isArray(obj) ||
+      (!(obj instanceof Map) &&  // JS Map are iterables but return entries as [k, v]
+       Symbol.iterator in obj);  // JS Iterable have a Symbol.iterator prop
+}
+
+export function isJsObject(o: any): boolean {
+  return o !== null && (typeof o === 'function' || typeof o === 'object');
+}
