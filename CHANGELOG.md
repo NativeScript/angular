@@ -1,3 +1,13 @@
+# [15.2.0](https://github.com/NativeScript/angular/compare/15.0.2...15.2.0) (2023-03-11)
+
+
+### Features
+
+* support standalone components bootstrap ([#108](https://github.com/NativeScript/angular/issues/108)) ([55eb884](https://github.com/NativeScript/angular/commit/55eb884d2c1b00925804ad33280dca4a92c743fd))
+* support for Angular 15.2+ fixing some minor breaking changes with ListViewComponent
+
+
+
 ## [15.0.2](https://github.com/NativeScript/angular/compare/15.0.1...15.0.2) (2023-02-16)
 
 
