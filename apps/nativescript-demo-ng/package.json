@@ -7,11 +7,11 @@
   },
   "dependencies": {
     "@nativescript/core": "file:../../node_modules/@nativescript/core",
-    "@nativescript-community/ui-material-bottom-navigation": "^7.0.0"
+    "@nativescript-community/ui-material-bottom-navigation": "^7.1.3"
   },
   "devDependencies": {
-    "@nativescript/android": "~8.4.0",
-    "@nativescript/ios": "~8.4.0",
+    "@nativescript/android": "~8.5.0",
+    "@nativescript/ios": "~8.5.0",
     "@nativescript/unit-test-runner": "^3.0.1"
   }
 }

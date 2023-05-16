@@ -7,6 +7,7 @@ class TestView extends View implements NgView {
   public meta: ViewClassMeta = { skipAddToDom: false };
   public nodeType = 1;
   public nodeName = 'TestView';
+  // @ts-ignore
   public parentNode: NgView = null;
   public previousSibling: NgView;
   public nextSibling: NgView;

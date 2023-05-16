@@ -51,7 +51,7 @@ export class SuccessComponent {
 @NgModule({
   declarations: [FailComponent, SuccessComponent, ModalComponent],
   exports: [FailComponent, SuccessComponent, ModalComponent],
-  entryComponents: [ModalComponent],
+  // entryComponents: [ModalComponent],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class EntryComponentsTestModule {}
