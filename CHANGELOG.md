@@ -1,3 +1,11 @@
+# [16.0.0](https://github.com/NativeScript/angular/compare/15.2.0...16.0.0) (2023-05-15)
+
+
+### Features
+
+* support for Angular 16+ ([#113](https://github.com/NativeScript/angular/pull/113)) ([7ff3232](https://github.com/NativeScript/angular/commit/7ff32322a57ae490b01aff35c4e2cb1d0370cc09))
+
+
 # [15.2.0](https://github.com/NativeScript/angular/compare/15.0.2...15.2.0) (2023-03-11)
 
 
