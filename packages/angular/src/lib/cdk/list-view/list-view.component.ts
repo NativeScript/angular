@@ -1,4 +1,4 @@
-import { AfterContentInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, Directive, DoCheck, ElementRef, EmbeddedViewRef, EventEmitter, forwardRef, Host, HostListener, inject, Inject, InjectionToken, Input, IterableDiffer, IterableDiffers, NgZone, OnDestroy, Output, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterContentInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, Directive, DoCheck, ElementRef, EmbeddedViewRef, EventEmitter, forwardRef, Host, HostListener, inject, Inject, InjectionToken, Input, IterableDiffer, IterableDiffers, NgZone, NO_ERRORS_SCHEMA, OnDestroy, Output, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { ItemEventData, KeyedTemplate, LayoutBase, ListView, ObservableArray, profile, View } from '@nativescript/core';
 
 import { extractSingleViewRecursive } from '../../element-registry/registry';
@@ -94,6 +94,7 @@ export interface SetupItemViewArgs<T> {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DetachedLoader],
   providers: [{ provide: TEMPLATED_ITEMS_COMPONENT, useExisting: forwardRef(() => ListViewComponent) }],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterContentInit, TemplatedItemsHost {
   public get nativeElement(): ListView {
