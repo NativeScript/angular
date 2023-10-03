@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core';
 import { Page } from '@nativescript/core';
 import { PageRouterOutlet } from './page-router-outlet';
 
@@ -6,6 +6,8 @@ import { PageRouterOutlet } from './page-router-outlet';
   // tslint:disable-next-line:component-selector
   selector: 'ns-empty-outlet',
   template: "<page-router-outlet isEmptyOutlet='true'></page-router-outlet>",
+  standalone: true,
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class NSEmptyOutletComponent {
   @ViewChild(PageRouterOutlet, { read: PageRouterOutlet, static: false }) pageRouterOutlet: PageRouterOutlet;

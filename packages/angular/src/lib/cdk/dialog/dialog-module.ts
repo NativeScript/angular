@@ -3,7 +3,7 @@ import { NativeDialogCloseDirective } from './dialog-content-directives';
 import { NativeDialogService } from './dialog-services';
 
 @NgModule({
-  declarations: [NativeDialogCloseDirective],
+  imports: [NativeDialogCloseDirective],
   exports: [NativeDialogCloseDirective],
   providers: [NativeDialogService],
 })

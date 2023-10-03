@@ -18,6 +18,7 @@ import { BasePortalOutlet, ComponentPortal, DomPortal, Portal, TemplatePortal } 
 @Directive({
   selector: '[cdkPortal]',
   exportAs: 'cdkPortal',
+  standalone: true,
 })
 export class CdkPortal extends TemplatePortal {
   constructor(templateRef: TemplateRef<any>, viewContainerRef: ViewContainerRef) {
@@ -40,6 +41,7 @@ export type CdkPortalOutletAttachedRef = ComponentRef<any> | EmbeddedViewRef<any
 @Directive({
   selector: '[cdkPortalOutlet]',
   exportAs: 'cdkPortalOutlet',
+  standalone: true,
   // eslint-disable-next-line @angular-eslint/no-inputs-metadata-property
   inputs: ['portal: cdkPortalOutlet'],
 })
@@ -190,7 +192,7 @@ export class CdkPortalOutlet extends BasePortalOutlet implements OnInit, OnDestr
 }
 
 @NgModule({
+  imports: [CdkPortal, CdkPortalOutlet],
   exports: [CdkPortal, CdkPortalOutlet],
-  declarations: [CdkPortal, CdkPortalOutlet],
 })
 export class PortalModule {}

@@ -51,6 +51,7 @@ import { NSRouterLink } from './ns-router-link';
 @Directive({
   selector: '[nsRouterLinkActive]',
   exportAs: 'routerLinkActive',
+  standalone: true,
 })
 export class NSRouterLinkActive implements OnChanges, OnDestroy, AfterContentInit {
   // tslint:disable-line:max-line-length directive-class-suffix

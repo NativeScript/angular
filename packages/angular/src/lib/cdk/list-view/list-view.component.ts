@@ -1,10 +1,10 @@
-import { AfterContentInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, Directive, DoCheck, ElementRef, EmbeddedViewRef, EventEmitter, forwardRef, Host, HostListener, inject, Inject, InjectionToken, Input, IterableDiffer, IterableDiffers, NgZone, OnDestroy, Output, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterContentInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, Directive, DoCheck, ElementRef, EmbeddedViewRef, EventEmitter, forwardRef, Host, HostListener, inject, Inject, InjectionToken, Input, IterableDiffer, IterableDiffers, NgZone, NO_ERRORS_SCHEMA, OnDestroy, Output, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { ItemEventData, KeyedTemplate, LayoutBase, ListView, ObservableArray, profile, View } from '@nativescript/core';
 
 import { extractSingleViewRecursive } from '../../element-registry/registry';
 import { NativeScriptDebug } from '../../trace';
-import { NgViewTemplate } from '../../view-refs';
 import { isListLikeIterable } from '../../utils/general';
+import { NgViewTemplate } from '../../view-refs';
 
 const NG_VIEW = '_ngViewRef';
 
@@ -89,8 +89,10 @@ export interface SetupItemViewArgs<T> {
   template: `<DetachedContainer>
     <ng-container #loader></ng-container>
   </DetachedContainer>`,
+  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [{ provide: TEMPLATED_ITEMS_COMPONENT, useExisting: forwardRef(() => ListViewComponent) }],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterContentInit, TemplatedItemsHost {
   public get nativeElement(): ListView {
@@ -293,7 +295,10 @@ export function getItemViewRoot(viewRef: EmbeddedViewRef<unknown>, rootLocator: 
 }
 
 // eslint-disable-next-line @angular-eslint/directive-selector
-@Directive({ selector: '[nsTemplateKey],[nsTemplateKeys]' })
+@Directive({
+  selector: '[nsTemplateKey],[nsTemplateKeys]',
+  standalone: true,
+})
 export class TemplateKeyDirective<T> {
   constructor(private templateRef: TemplateRef<T>, @Host() @Inject(TEMPLATED_ITEMS_COMPONENT) private comp: TemplatedItemsHost<T>) {}
 

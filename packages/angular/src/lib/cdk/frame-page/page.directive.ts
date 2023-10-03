@@ -9,6 +9,7 @@ export function customPageFactory(v: PageDirective) {
 @Directive({
   // eslint-disable-next-line @angular-eslint/directive-selector
   selector: 'Page',
+  standalone: true,
   providers: [
     {
       provide: Page,

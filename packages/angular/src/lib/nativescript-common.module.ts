@@ -14,8 +14,7 @@ const CDK_COMPONENTS = [ActionBarComponent, ActionBarScope, ActionItemDirective,
 registerNativeScriptViewComponents();
 
 @NgModule({
-  imports: [CommonModule, FramePageModule],
-  declarations: [...CDK_COMPONENTS],
+  imports: [CommonModule, FramePageModule, ...CDK_COMPONENTS],
   exports: [CommonModule, FramePageModule, ...CDK_COMPONENTS],
   providers: [ModalDialogService],
   schemas: [NO_ERRORS_SCHEMA],
