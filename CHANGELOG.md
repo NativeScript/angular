@@ -1,3 +1,17 @@
+## [16.0.1](https://github.com/NativeScript/angular/compare/16.0.0...16.0.1) (2023-10-10)
+
+
+### Bug Fixes
+
+* **zone-js:** polyfill for queueMicrotask ([1e3a851](https://github.com/NativeScript/angular/commit/1e3a8510f314003c023d926fd715a03097f02b74)), closes [/github.com/NativeScript/angular/issues/118#issuecomment-1605432322](https://github.com//github.com/NativeScript/angular/issues/118/issues/issuecomment-1605432322)
+
+
+### Features
+
+* visionos platform filter ([#123](https://github.com/NativeScript/angular/issues/123)) ([b760502](https://github.com/NativeScript/angular/commit/b76050215ba04091b8df7d5b04b265a26a33b7fc))
+
+
+
 # [16.0.0](https://github.com/NativeScript/angular/compare/15.2.0...16.0.0) (2023-05-15)
 
 
