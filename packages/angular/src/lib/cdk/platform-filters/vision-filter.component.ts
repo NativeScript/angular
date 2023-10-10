@@ -11,6 +11,8 @@ export class VisionOSFilterComponent {
   public show: boolean;
 
   constructor(@Inject(DEVICE) device: IDevice) {
-    this.show = device.os === platformNames.visionos;
+    // Note: casting any to be backwards compatible
+    // Available in 8.6+ only
+    this.show = device.os === (platformNames as any).visionos;
   }
 }
