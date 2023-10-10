@@ -16,6 +16,7 @@ export * from './cdk/dialog';
 export * from './cdk/tab-view';
 export * from './cdk/platform-filters/android-filter.component';
 export * from './cdk/platform-filters/ios-filter.component';
+export * from './cdk/platform-filters/vision-filter.component';
 export * from './file-system';
 export * from './nativescript-common.module';
 export * from './loading.service';
