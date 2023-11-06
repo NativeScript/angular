@@ -12,7 +12,7 @@ import { ModalDialogService, NativeDialogService } from '@nativescript/angular';
   templateUrl: './items.component.html',
 })
 export class ItemsComponent implements OnInit {
-  message = 'Hello Angular 16!';
+  message = 'Hello Angular 17!';
   items: Array<Item>;
 
   constructor(private itemService: ItemService, private nativeDialog: NativeDialogService, private modalDialog: ModalDialogService, private http: HttpClient) {}
@@ -28,7 +28,11 @@ export class ItemsComponent implements OnInit {
   }
 
   openModal() {
-    const ref = this.nativeDialog.open(ModalComponent);
+    const ref = this.nativeDialog.open(ModalComponent, {
+      nativeOptions: {
+        fullscreen: !!global.isAndroid
+      }
+    });
     ref.afterOpened().subscribe(() => console.log('after openend'));
     ref.beforeClosed().subscribe((result) => console.log('beforeClosed', result));
     ref.afterClosed().subscribe((result) => console.log('afterClosed', result));

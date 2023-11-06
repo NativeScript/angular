@@ -16,6 +16,7 @@
     "Angular"
   ],
   "dependencies": {
-    "@nativescript/zone-js": "^3.0.0"
+    "@nativescript/zone-js": "^3.0.0",
+    "performance-now": "^2.1.0"
   }
 }
