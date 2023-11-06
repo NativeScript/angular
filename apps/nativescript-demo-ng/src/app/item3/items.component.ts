@@ -14,8 +14,18 @@ import { ModalDialogService, NativeDialogService } from '@nativescript/angular';
 export class ItemsComponent implements OnInit {
   message = 'Hello Angular 17!';
   items: Array<Item>;
+  borderRadius: number;
+  fontSize: number;
 
-  constructor(private itemService: ItemService, private nativeDialog: NativeDialogService, private modalDialog: ModalDialogService, private http: HttpClient) {}
+  constructor(private itemService: ItemService, private nativeDialog: NativeDialogService, private modalDialog: ModalDialogService, private http: HttpClient) {
+    if (global.isAndroid) {
+      this.borderRadius = 25;
+      this.fontSize = 15;
+    } else {
+      this.borderRadius = 25;
+      this.fontSize = 18;
+    }
+  }
 
   ngOnInit(): void {
     console.log('ItemsComponent ngOnInit');

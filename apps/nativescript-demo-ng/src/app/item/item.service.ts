@@ -41,11 +41,11 @@ export class ItemService {
       logo: '~/assets/solid.png'
     },
     {
-      color: '#eb4e27',
+      color: '#b7462a',
       logo: '~/assets/svelte.png'
     },
     {
-      color: '#64b788',
+      color: '#286f47',
       logo: '~/assets/vue.png'
     }
   ];
