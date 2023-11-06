@@ -1,8 +1,8 @@
-// placeholder for when we actually need some polyfills
-
 import { installPolyfills } from "@nativescript/core/globals";
 
 export const nsNgPolyfills = true;
+
+// Angular 17 uses performance.mark in @angular/core
 let loadTime = Date.now();
 export const globalPolyfills = {
     performance: {
@@ -10,7 +10,7 @@ export const globalPolyfills = {
             return Date.now() - loadTime;
         },
         mark(name: string, options: any) {
-
+            // Note: we could add impl
         }
     }
 }

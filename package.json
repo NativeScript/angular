@@ -99,7 +99,6 @@
     "ng-packagr": "17.0.0-rc.1",
     "nx": "17.0.3",
     "nyc": "15.1.0",
-    "performance-now": "^2.1.0",
     "postcss": "^8.4.16",
     "postcss-import": "15.1.0",
     "postcss-preset-env": "9.3.0",
