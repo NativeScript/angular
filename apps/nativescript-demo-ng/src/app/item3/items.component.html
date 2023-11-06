@@ -25,8 +25,7 @@ class names available for styling your app at https://docs.nativescript.org/ui/t
 <GridLayout rows="auto,,*" class="page">
   <StackLayout row="0" padding="10">
     <Label [text]="message" class="h1 text-center c-light-blue"></Label>
-    <Label text="NativeScript loves you...all." class="h2 text-center c-light-blue" marginTop="20" marginBottom="5"></Label>
-    <Image src="https://angular.io/assets/images/logos/angular/angular.png" horizontalAlignment="center" width="120" verticalAlignment="top"></Image>
+    <Image src="~/assets/angular.png" horizontalAlignment="center" width="200" verticalAlignment="top" marginBottom="10"></Image>
     <Button (tap)="openModal()" text="Taste the Rainbow 🌈" [borderRadius]="borderRadius" [fontSize]="fontSize" backgroundColor="#00d2ff" color="#fff" margin="0" width="100%" fontWeight="bold" height="50"></Button>
     <Button (tap)="fetchTodos()" text="Make a native Http networking request" [borderRadius]="borderRadius" [fontSize]="fontSize" padding="0" backgroundColor="#00d2ff" color="#fff" marginTop="10" width="100%" fontWeight="bold" height="50"></Button>
   </StackLayout>
