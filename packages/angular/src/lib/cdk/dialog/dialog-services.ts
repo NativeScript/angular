@@ -76,7 +76,7 @@ export abstract class _NativeDialogBase<C extends NativeModalRef> implements OnD
   open<T, D = any, R = any>(componentOrTemplateRef: ComponentType<T> | TemplateRef<T>, config?: NativeDialogConfig<D>): NativeDialogRef<T, R> {
     config = _applyConfigDefaults(config, this._defaultOptions || new NativeDialogConfig());
 
-    if (config.id && this.getDialogById(config.id) && (typeof ngDevMode === 'undefined' || ngDevMode)) {
+    if (config.id && this.getDialogById(config.id) && (typeof global.ngDevMode === 'undefined' || global.ngDevMode)) {
       throw Error(`Dialog with id "${config.id}" exists already. The dialog id must be unique.`);
     }
     const dialogRef = this._attachDialogContent<T, R>(componentOrTemplateRef, config);

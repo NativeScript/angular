@@ -65,7 +65,7 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nx/eslint:lint",
       "options": {
         "lintFilePatterns": ["apps/nativescript-demo-ng/**/*.ts", "apps/nativescript-demo-ng/src/**/*.html"]
       }
