@@ -17,7 +17,7 @@ class LoaderComponentBase {
 }
 
 @Component({
-  selector: 'loader-component-on-push',
+  selector: 'loader-component',
   template: `
     <StackLayout>
       <DetachedContainer #loader></DetachedContainer>

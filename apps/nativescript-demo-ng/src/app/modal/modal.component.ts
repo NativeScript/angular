@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit, Optional, ViewContainerRef, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, Optional, ViewContainerRef, inject } from '@angular/core';
 import { ModalDialogService, NativeDialogRef, NativeDialogService } from '@nativescript/angular';
 import { ItemService } from '../item/item.service';
 
@@ -12,7 +12,12 @@ export class ModalComponent implements OnInit, OnDestroy {
   logo: string;
   color: string;
 
-  constructor(@Optional() private ref: NativeDialogRef<ModalComponent>, private nativeDialog: NativeDialogService, private modalDialog: ModalDialogService, private vcRef: ViewContainerRef) {
+  constructor(
+    @Optional() private ref: NativeDialogRef<ModalComponent>,
+    private nativeDialog: NativeDialogService,
+    private modalDialog: ModalDialogService,
+    private vcRef: ViewContainerRef,
+  ) {
     this.logo = this.itemService.flavors[this.itemService.currentFlavor].logo;
     this.color = this.itemService.flavors[this.itemService.currentFlavor].color;
   }
@@ -21,8 +26,8 @@ export class ModalComponent implements OnInit, OnDestroy {
     this.itemService.currentFlavor++;
     this.nativeDialog.open(ModalComponent, {
       nativeOptions: {
-        fullscreen: !!global.isAndroid
-      }
+        fullscreen: !!global.isAndroid,
+      },
     });
     // this.modalDialog.showModal(ModalComponent, {
     //   viewContainerRef: this.vcRef

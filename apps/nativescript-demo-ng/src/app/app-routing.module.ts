@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
-import { NativeScriptRouterModule, NSEmptyOutletComponent } from '@nativescript/angular';
 import { Routes } from '@angular/router';
+import { NativeScriptRouterModule } from '@nativescript/angular';
 
-import { ItemsComponent } from './item/items.component';
 import { ItemDetailComponent } from './item/item-detail.component';
+import { ItemsComponent } from './item/items.component';
 // import { HomeComponent } from './home/home.component';
 // import { BootGuardService } from './boot-guard.service';
 
@@ -21,7 +21,7 @@ const routes: Routes = [
   // {
   //   path: 'home',
   //   component: HomeComponent,
-  //   canActivate: [BootGuardService],
+  //   canActivate: [() => Promise.resolve(true)],
   //   children: [
   //     {
   //       path: 'start',
