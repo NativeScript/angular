@@ -24,8 +24,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/packages/zone-js"],
       "options": {
-        "jestConfig": "packages/zone-js/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "packages/zone-js/jest.config.ts"
       }
     }
   },
