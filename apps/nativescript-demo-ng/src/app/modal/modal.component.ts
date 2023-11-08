@@ -24,14 +24,14 @@ export class ModalComponent implements OnInit, OnDestroy {
 
   openNewModal() {
     this.itemService.currentFlavor++;
-    this.nativeDialog.open(ModalComponent, {
+    const ref = this.nativeDialog.open(ModalComponent, {
       nativeOptions: {
         fullscreen: !!global.isAndroid,
       },
     });
-    // this.modalDialog.showModal(ModalComponent, {
-    //   viewContainerRef: this.vcRef
-    // });
+    ref.afterClosed().subscribe(() => {
+      this.itemService.currentFlavor--;
+    });
   }
   ngOnInit() {
     console.log('modal init');

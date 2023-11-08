@@ -62,7 +62,7 @@
     "@nativescript/types": "~8.6.0",
     "@nativescript/unit-test-runner": "^3.0.4",
     "@nativescript/webpack": "~5.0.12",
-    "@ngtools/webpack": "17.0.0-rc.3",
+    "@ngtools/webpack": "17.0.0",
     "@nstudio/angular": "17.0.1",
     "@nstudio/nativescript": "17.0.1",
     "@nstudio/nativescript-angular": "17.0.1",
