@@ -111,7 +111,7 @@ export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
    */
   attachDomPortal = (portal: DomPortal) => {
     const element = portal.element;
-    if (!element.parentNode && (typeof ngDevMode === 'undefined' || ngDevMode)) {
+    if (!element.parentNode && (typeof global.ngDevMode === 'undefined' || global.ngDevMode)) {
       throw Error('DOM portal content must be attached to a parent node.');
     }
 

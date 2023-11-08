@@ -1,9 +1,10 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["node", "./references"],
+    "types": ["node"],
     "outDir": "../../dist/out-tsc"
   },
   "exclude": ["**/*.spec.ts", "dist/**/*", "jest.config.ts"],
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts"],
+  "files": ["references.d.ts"]
 }

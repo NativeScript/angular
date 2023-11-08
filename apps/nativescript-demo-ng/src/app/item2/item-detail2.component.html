@@ -1,9 +1,17 @@
-<ActionBar title="Details" class="action-bar"></ActionBar>
-<FlexboxLayout flexDirection="column" class="page">
+<ActionBar title="Get Started!" class="action-bar"></ActionBar>
+<!-- <FlexboxLayout flexDirection="column" class="page">
   <FlexboxLayout class="m-15">
     <Label class="h2" [text]="item.id + '. '"></Label>
     <Label class="h2" [text]="item.name"></Label>
   </FlexboxLayout>
   <Label class="h4 m-l-15" [text]="item.role"></Label>
   <Button text="GO BACK!" (tap)="goBack()"></Button>
-</FlexboxLayout>
+</FlexboxLayout> -->
+
+<GridLayout class="page" rows="auto,*" padding="10">
+  <!-- <Label marginTop="20" fontSize="18" textAlignment="center" [text]="item.name"></Label> -->
+  <GridLayout row="1" rows="auto,auto" columns="">
+    <Label marginTop="20" fontSize="45" text="Congrats to the Angular Team!" class="c-light-blue" textWrap="true" textAlignment="center" fontWeight="bold"></Label>
+    <Label row="1" marginTop="20" fontSize="35" text="👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏👏" class="c-light-blue" textWrap="true" textAlignment="center" textWrap="true"></Label>
+  </GridLayout>
+</GridLayout>
