@@ -1,3 +1,13 @@
+# [17.0.0](https://github.com/NativeScript/angular/compare/16.0.1...17.0.0) (2023-11-08)
+
+
+### Features
+
+* added control flow syntax example ([bff2380](https://github.com/NativeScript/angular/commit/bff23800271aab56f1d4017108c53a3b8dd8987c))
+* Angular 17 support ([#124](https://github.com/NativeScript/angular/issues/124)) ([308b3b5](https://github.com/NativeScript/angular/commit/308b3b5243dc2c2cac59395ea238071f6b16de48))
+
+
+
 ## [16.0.1](https://github.com/NativeScript/angular/compare/16.0.0...16.0.1) (2023-10-10)
 
 
