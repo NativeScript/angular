@@ -43,8 +43,7 @@ export const NATIVESCRIPT_MODULE_STATIC_PROVIDERS: StaticProvider[] = [
 export const NATIVESCRIPT_MODULE_PROVIDERS: Provider[] = [{ provide: ViewportScroller, useClass: NullViewportScroller }];
 
 @NgModule({
-  imports: [ApplicationModule, NativeScriptCommonModule],
-  declarations: [DetachedLoader],
+  imports: [ApplicationModule, DetachedLoader, NativeScriptCommonModule],
   providers: [...NATIVESCRIPT_MODULE_STATIC_PROVIDERS, ...NATIVESCRIPT_MODULE_PROVIDERS],
   exports: [ApplicationModule, DetachedLoader, NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],

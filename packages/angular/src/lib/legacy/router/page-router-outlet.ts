@@ -77,7 +77,10 @@ const routeToString = function (activatedRoute: ActivatedRoute | ActivatedRouteS
 
 registerElement('page-router-outlet', () => Frame);
 // eslint-disable-next-line @angular-eslint/directive-selector
-@Directive({ selector: 'page-router-outlet' }) // tslint:disable-line:directive-selector
+@Directive({ 
+  selector: 'page-router-outlet',
+  standalone: true,
+}) // tslint:disable-line:directive-selector
 export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
   // tslint:disable-line:directive-class-suffix
   private activated: ComponentRef<any> | null = null;

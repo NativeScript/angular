@@ -33,7 +33,10 @@ export type QueryParamsHandling = 'merge' | 'preserve' | '';
  * instead look in the current component"s children for the route.
  * And if the segment begins with `../`, the router will go up one level.
  */
-@Directive({ selector: '[nsRouterLink]' })
+@Directive({ 
+  selector: '[nsRouterLink]', 
+  standalone: true,
+})
 export class NSRouterLink implements AfterViewInit {
   // tslint:disable-line:directive-class-suffix
   @Input() target: string;
