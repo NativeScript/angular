@@ -1,4 +1,5 @@
 /* eslint-disable @angular-eslint/component-selector */
+import { NgIf } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { platformNames, IDevice } from '@nativescript/core';
 import { DEVICE } from '../../tokens';
@@ -6,6 +7,8 @@ import { DEVICE } from '../../tokens';
 @Component({
   selector: 'visionos',
   template: `<ng-content *ngIf="show"></ng-content>`,
+  standalone: true,
+  imports: [NgIf]
 })
 export class VisionOSFilterComponent {
   public show: boolean;

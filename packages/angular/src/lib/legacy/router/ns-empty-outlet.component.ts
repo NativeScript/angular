@@ -6,6 +6,8 @@ import { PageRouterOutlet } from './page-router-outlet';
   // tslint:disable-next-line:component-selector
   selector: 'ns-empty-outlet',
   template: "<page-router-outlet isEmptyOutlet='true'></page-router-outlet>",
+  standalone: true,
+  imports: [PageRouterOutlet],
 })
 export class NSEmptyOutletComponent {
   @ViewChild(PageRouterOutlet, { read: PageRouterOutlet, static: false }) pageRouterOutlet: PageRouterOutlet;

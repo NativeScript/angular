@@ -1,8 +1,8 @@
-import { ComponentRef, ComponentFactory, ViewContainerRef, Component, Type, ComponentFactoryResolver, ChangeDetectorRef, ApplicationRef, OnDestroy, TemplateRef, ViewChild, Injector } from '@angular/core';
+import { ApplicationRef, ChangeDetectorRef, Component, ComponentFactory, ComponentFactoryResolver, ComponentRef, Injector, NO_ERRORS_SCHEMA, OnDestroy, TemplateRef, Type, ViewChild, ViewContainerRef } from '@angular/core';
 import { ProxyViewContainer, Trace } from '@nativescript/core';
-import { ComponentPortal, TemplatePortal } from './portal';
-import type { ComponentType } from '../utils/general';
 import { registerElement } from '../element-registry';
+import type { ComponentType } from '../utils/general';
+import { ComponentPortal, TemplatePortal } from './portal';
 
 registerElement('DetachedContainer', () => ProxyViewContainer, {
   skipAddToDom: true,
@@ -19,6 +19,8 @@ registerElement('DetachedContainer', () => ProxyViewContainer, {
   template: `<Placeholder #loader></Placeholder>
     <ng-container #vc></ng-container>
     <ng-content></ng-content>`,
+  standalone: true,
+  schemas: [NO_ERRORS_SCHEMA],
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class DetachedLoader implements OnDestroy {
