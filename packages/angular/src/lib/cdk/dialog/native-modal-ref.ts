@@ -24,8 +24,13 @@ export class NativeModalRef {
   private _closeCallback: () => void;
   private _isDismissed = false;
 
-  constructor(private _config: NativeDialogConfig, private _injector: Injector, @Optional() private location?: NSLocationStrategy) {
-    let parentView = this._config.viewContainerRef?.element.nativeElement || Application.getRootView();
+  constructor(
+    private _config: NativeDialogConfig,
+    private _injector: Injector,
+    @Optional() private location?: NSLocationStrategy,
+  ) {
+    const nativeElement = this._config.renderIn === 'root' ? Application.getRootView() : this._config.renderIn === 'viewContainerRef' ? this._config.viewContainerRef?.element.nativeElement : this._config.renderIn;
+    let parentView = nativeElement || Application.getRootView();
 
     if ((parentView instanceof AppHostView || parentView instanceof AppHostAsyncView) && parentView.ngAppRoot) {
       parentView = parentView.ngAppRoot;
