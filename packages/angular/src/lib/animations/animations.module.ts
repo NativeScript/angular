@@ -4,6 +4,7 @@ import { AnimationBuilder, ɵBrowserAnimationBuilder as BrowserAnimationBuilder 
 
 import { AnimationDriver, ɵAnimationRendererFactory as AnimationRendererFactory, ɵAnimationStyleNormalizer as AnimationStyleNormalizer, ɵWebAnimationsStyleNormalizer as WebAnimationsStyleNormalizer, ɵAnimationEngine as AnimationEngine } from '@angular/animations/browser';
 
+// import { NativeScriptModule } from "../nativescript.module";
 import { NativeScriptRendererFactory } from '../nativescript-renderer';
 import { NativeScriptAnimationDriver } from './animation-driver';
 import { throwIfAlreadyLoaded } from '../utils/general';
