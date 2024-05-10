@@ -1,3 +1,13 @@
+# [17.1.0](https://github.com/NativeScript/angular/compare/17.0.0...17.1.0) (2024-05-10)
+
+
+### Bug Fixes
+
+* animations ([#132](https://github.com/NativeScript/angular/issues/132)) ([ad576bf](https://github.com/NativeScript/angular/commit/ad576bfea2830637933bb1fe5d90bd97e2b187c8))
+* InjectableAnimationEngine constructor ([c5f3a45](https://github.com/NativeScript/angular/commit/c5f3a450fe8fcce6e7108b2ab6ee2d2517db8978))
+
+
+
 # [17.0.0](https://github.com/NativeScript/angular/compare/16.0.1...17.0.0) (2023-11-08)
 
 
