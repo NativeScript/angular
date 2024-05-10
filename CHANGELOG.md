@@ -1,3 +1,12 @@
+## [17.1.1](https://github.com/NativeScript/angular/compare/17.1.0...17.1.1) (2024-05-10)
+
+
+### Bug Fixes
+
+* InjectableAnimationEngine constructor optional scheduler ([58d2254](https://github.com/NativeScript/angular/commit/58d2254b4a5a6340684dc93f6ee74f67514a0867))
+
+
+
 # [17.1.0](https://github.com/NativeScript/angular/compare/17.0.0...17.1.0) (2024-05-10)
 
 
