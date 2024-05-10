@@ -1,4 +1,4 @@
-import { NgModule, Injectable, Inject, NgZone, RendererFactory2, Optional, SkipSelf, ɵChangeDetectionScheduler as ChangeDetectionScheduler } from '@angular/core';
+import { NgModule, Injectable, Inject, NgZone, RendererFactory2, Optional, SkipSelf, ɵChangeDetectionScheduler as ChangeDetectionScheduler, inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { AnimationBuilder, ɵBrowserAnimationBuilder as BrowserAnimationBuilder } from '@angular/animations';
 
@@ -12,8 +12,8 @@ import { NativeScriptCommonModule } from '../nativescript-common.module';
 
 @Injectable()
 export class InjectableAnimationEngine extends AnimationEngine {
-  constructor(@Inject(DOCUMENT) doc: any, driver: AnimationDriver, normalizer: AnimationStyleNormalizer, scheduler: ChangeDetectionScheduler) {
-    super(doc, driver, normalizer, scheduler);
+  constructor(@Inject(DOCUMENT) doc: any, driver: AnimationDriver, normalizer: AnimationStyleNormalizer) {
+    super(doc, driver, normalizer, inject(ChangeDetectionScheduler, {optional: true}));
   }
 }
 
