@@ -1,7 +1,4 @@
 {
-  "affected": {
-    "defaultBase": "main"
-  },
   "tasksRunnerOptions": {
     "default": {
       "options": {
@@ -25,10 +22,6 @@
       "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"],
       "cache": true
     },
-    "lint": {
-      "inputs": ["default", "{workspaceRoot}/.eslintrc.json"],
-      "cache": true
-    },
     "@nx/jest:jest": {
       "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"],
       "cache": true,
@@ -41,6 +34,10 @@
           "codeCoverage": true
         }
       }
+    },
+    "@nx/eslint:lint": {
+      "inputs": ["default", "{workspaceRoot}/.eslintrc.json"],
+      "cache": true
     }
   },
   "namedInputs": {
@@ -50,5 +47,7 @@
   },
   "useDaemonProcess": false,
   "nxCloudAccessToken": "NWJjY2UzMjctM2Q2Yy00ODZlLWExYjktNzE3YTRmMzRmMWQwfHJlYWQ=",
-  "parallel": 2
+  "parallel": 2,
+  "useInferencePlugins": false,
+  "defaultBase": "main"
 }

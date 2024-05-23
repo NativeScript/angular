@@ -4,6 +4,7 @@
   "sourceRoot": "apps/nativescript-demo-ng/src",
   "projectType": "application",
   "prefix": "nativescript",
+  "tags": [],
   "generators": {
     "@schematics/angular:component": {
       "styleext": "scss"
@@ -65,10 +66,7 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint",
-      "options": {
-        "lintFilePatterns": ["apps/nativescript-demo-ng/**/*.ts", "apps/nativescript-demo-ng/src/**/*.html"]
-      }
+      "executor": "@nx/eslint:lint"
     },
     "test": {
       "executor": "@nativescript/nx:test",
@@ -85,6 +83,5 @@
         }
       }
     }
-  },
-  "tags": []
+  }
 }
