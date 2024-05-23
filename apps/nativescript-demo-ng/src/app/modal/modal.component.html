@@ -1,8 +1,9 @@
-<GridLayout [backgroundColor]="color" rows="*,auto,auto" padding="20" width="100%" height="100%">
-  <Image [src]="logo" stretch="aspectFit" width="200" marginTop="50" />
+<GridLayout [backgroundColor]="'#d63681'" rows="*,auto,auto" padding="0" width="100%" height="100%">
+  <!-- <Image [src]="logo" stretch="aspectFit" width="200" marginTop="50" /> -->
+  <Image src="~/assets/ng-18.png" stretch="aspectFit" width="100%" marginTop="0" (loaded)="loadedImg($event)" />
 
-  @if (this.itemService.currentFlavor + 1 !== this.itemService.flavors.length) {
+  <!-- @if (this.itemService.currentFlavor + 1 !== this.itemService.flavors.length) {
     <Button row="1" (tap)="openNewModal()" text="Taste Another" fontSize="20" borderRadius="25"></Button>
-  }
+  } -->
   <Button row="2" [nativeDialogClose]="'thanks for clicking modal ' + id" text="Close" fontSize="20" marginTop="30" borderRadius="25"></Button>
 </GridLayout>
