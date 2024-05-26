@@ -13,7 +13,7 @@ import { NativeScriptCommonModule } from '../nativescript-common.module';
 @Injectable()
 export class InjectableAnimationEngine extends AnimationEngine {
   constructor(@Inject(DOCUMENT) doc: any, driver: AnimationDriver, normalizer: AnimationStyleNormalizer) {
-    super(doc, driver, normalizer, inject(ChangeDetectionScheduler, {optional: true}));
+    super(doc, driver, normalizer);
   }
 }
 

@@ -7,13 +7,13 @@ import { Item } from './item';
 })
 export class ItemService {
   private items = new Array<Item>(
-    { id: 1, name: 'The', role: 'Goalkeeper' },
-    { id: 3, name: 'JavaScript', role: 'Defender' },
-    { id: 4, name: 'Ecosystem', role: 'Midfielder' },
-    { id: 5, name: 'Is', role: 'Midfielder' },
-    { id: 6, name: 'For', role: 'Midfielder' },
-    { id: 7, name: 'Everyone.', role: 'Midfielder' },
-    { id: 8, name: 'Welcome beginners,', role: 'Midfielder' },
+    { id: 1, name: 'Minko Gechev', role: 'Goalkeeper' },
+    { id: 3, name: 'Pawel Kozlowski', role: 'Defender' },
+    { id: 4, name: 'Alex Rickabaugh', role: 'Midfielder' },
+    { id: 5, name: 'Jessica Janiuk', role: 'Midfielder' },
+    { id: 6, name: 'Emma Twersky', role: 'Midfielder' },
+    { id: 7, name: 'Joey Perrott', role: 'Midfielder' },
+    { id: 8, name: 'Dylan Hunn', role: 'Midfielder' },
     { id: 9, name: 'intermediate,', role: 'Forward' },
     { id: 10, name: 'and advanced programmers.', role: 'Forward' },
     { id: 11, name: 'Celebrate web tech', role: 'Forward' },
