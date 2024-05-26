@@ -1,3 +1,12 @@
+# [18.0.0](https://github.com/NativeScript/angular/compare/17.1.1...18.0.0) (2024-05-26)
+
+
+### Features
+
+* Angular 18 support ([#134](https://github.com/NativeScript/angular/issues/134)) ([4f6e156](https://github.com/NativeScript/angular/commit/4f6e156dc4cda0f1159ab3ef9125596ea0e1531a))
+
+
+
 ## [17.1.1](https://github.com/NativeScript/angular/compare/17.1.0...17.1.1) (2024-05-10)
 
 
