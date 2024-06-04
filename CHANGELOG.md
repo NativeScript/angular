@@ -1,3 +1,12 @@
+## [18.0.1](https://github.com/NativeScript/angular/compare/18.0.0...18.0.1) (2024-06-04)
+
+
+### Features
+
+* allow tracking of dom changes and preventing events from firing during one ([#133](https://github.com/NativeScript/angular/issues/133)) ([a009096](https://github.com/NativeScript/angular/commit/a009096c7ad7944792514ba819a6f9782b690b8c))
+
+
+
 # [18.0.0](https://github.com/NativeScript/angular/compare/17.1.1...18.0.0) (2024-05-26)
 
 
