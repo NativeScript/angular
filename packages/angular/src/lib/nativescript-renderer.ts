@@ -1,10 +1,10 @@
-import { Inject, Injectable, NgZone, Optional, Renderer2, RendererFactory2, RendererStyleFlags2, RendererType2, ViewEncapsulation } from '@angular/core';
+import { Inject, Injectable, Injector, NgZone, Optional, Renderer2, RendererFactory2, RendererStyleFlags2, RendererType2, ViewEncapsulation, inject, runInInjectionContext } from '@angular/core';
 import { addTaggedAdditionalCSS, Application, ContentView, Device, getViewById, Observable, profile, Utils, View } from '@nativescript/core';
 import { getViewClass, isKnownView } from './element-registry';
 import { getFirstNativeLikeView, NgView, TextNode } from './views';
 
 import { NamespaceFilter, NAMESPACE_FILTERS } from './property-filter';
-import { APP_ROOT_VIEW, ENABLE_REUSABE_VIEWS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
+import { APP_ROOT_VIEW, ENABLE_REUSABE_VIEWS, NATIVESCRIPT_ROOT_MODULE_ID, PREVENT_SPECIFIC_EVENTS_DURING_CD } from './tokens';
 import { NativeScriptDebug } from './trace';
 import { ViewUtil } from './view-util';
 
@@ -34,17 +34,68 @@ function inRootZone() {
   };
 }
 
+@Injectable({
+  providedIn: 'root',
+})
+export class NativeScriptRendererHelperService {
+  private _executingDomChanges = 0;
+  get executingDomChanges() {
+    return this._executingDomChanges;
+  }
+  get isExecutingDomChanges() {
+    return this._executingDomChanges > 0;
+  }
+  beginDomChanges() {
+    this._executingDomChanges++;
+  }
+  endDomChanges() {
+    this._executingDomChanges--;
+  }
+  executeDomChange<T>(fn: () => T): T {
+    try {
+      this.beginDomChanges();
+      return fn();
+    } finally {
+      this.endDomChanges();
+    }
+  }
+}
+
+function modifiesDom() {
+  return function (
+    target: {
+      _rendererHelper: NativeScriptRendererHelperService;
+    },
+    key: string | symbol,
+    descriptor: PropertyDescriptor,
+  ) {
+    const childFunction = descriptor.value;
+    descriptor.value = function (...args: unknown[]) {
+      const fn = childFunction.bind(this);
+      return this._rendererHelper.executeDomChange(() => fn(...args));
+    };
+    return descriptor;
+  };
+}
+
 export class NativeScriptRendererFactory implements RendererFactory2 {
   private componentRenderers = new Map<string, Renderer2>();
   private defaultRenderer: Renderer2;
   // backwards compatibility with RadListView
+  private rootView = inject(APP_ROOT_VIEW);
+  private namespaceFilters = inject(NAMESPACE_FILTERS);
+  private rootModuleID = inject(NATIVESCRIPT_ROOT_MODULE_ID);
+  private reuseViews = inject(ENABLE_REUSABE_VIEWS, {
+    optional: true,
+  });
+  private injector = inject(Injector);
   private viewUtil = new ViewUtil(this.namespaceFilters, this.reuseViews);
 
-  constructor(@Inject(APP_ROOT_VIEW) private rootView: View, @Inject(NAMESPACE_FILTERS) private namespaceFilters: NamespaceFilter[], @Inject(NATIVESCRIPT_ROOT_MODULE_ID) private rootModuleID: string | number, @Optional() @Inject(ENABLE_REUSABE_VIEWS) private reuseViews) {
+  constructor() {
     if (typeof this.reuseViews !== 'boolean') {
       this.reuseViews = false; // default to false
     }
-    this.defaultRenderer = new NativeScriptRenderer(rootView, namespaceFilters, this.reuseViews);
+    this.defaultRenderer = new NativeScriptRenderer(this.rootView);
   }
   createRenderer(hostElement: any, type: RendererType2): Renderer2 {
     if (NativeScriptDebug.enabled) {
@@ -77,7 +128,9 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
       type.styles.map((s) => s.toString()).forEach((v) => addStyleToCss(v, this.rootModuleID));
       renderer = this.defaultRenderer;
     } else {
-      renderer = new EmulatedRenderer(type, hostElement, this.namespaceFilters, this.rootModuleID, this.reuseViews);
+      runInInjectionContext(this.injector, () => {
+        renderer = new EmulatedRenderer(type, hostElement);
+      });
       (<EmulatedRenderer>renderer).applyToHost(hostElement);
     }
 
@@ -126,9 +179,23 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
 }
 
 class NativeScriptRenderer implements Renderer2 {
+  private namespaceFilters = inject(NAMESPACE_FILTERS);
+  private reuseViews = inject(ENABLE_REUSABE_VIEWS, {
+    optional: true,
+  });
   private viewUtil = new ViewUtil(this.namespaceFilters, this.reuseViews);
+  _rendererHelper = inject(NativeScriptRendererHelperService);
+  private specificPreventedEvents = new Set(
+    inject(PREVENT_SPECIFIC_EVENTS_DURING_CD, {
+      optional: true,
+    }) ?? [],
+  );
+  private preventChangeEvents =
+    inject(PREVENT_SPECIFIC_EVENTS_DURING_CD, {
+      optional: true,
+    }) ?? false;
 
-  constructor(private rootView: View, private namespaceFilters?: NamespaceFilter[], private reuseViews?: boolean) {}
+  constructor(private rootView: View) {}
   get data(): { [key: string]: any } {
     throw new Error('Method not implemented.');
   }
@@ -138,6 +205,7 @@ class NativeScriptRenderer implements Renderer2 {
     }
   }
   @inRootZone()
+  @modifiesDom()
   createElement(name: string, namespace?: string) {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.createElement: ${name}`);
@@ -154,6 +222,7 @@ class NativeScriptRenderer implements Renderer2 {
     return view;
   }
   @inRootZone()
+  @modifiesDom()
   createComment(value: string) {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.createComment ${value}`);
@@ -161,6 +230,7 @@ class NativeScriptRenderer implements Renderer2 {
     return this.viewUtil.createComment(value);
   }
   @inRootZone()
+  @modifiesDom()
   createText(value: string) {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.createText ${value}`);
@@ -177,6 +247,7 @@ class NativeScriptRenderer implements Renderer2 {
       }
     });
   @inRootZone()
+  @modifiesDom()
   appendChild(parent: View, newChild: View): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.appendChild child: ${newChild} parent: ${parent}`);
@@ -184,6 +255,7 @@ class NativeScriptRenderer implements Renderer2 {
     this.viewUtil.appendChild(parent, newChild);
   }
   @inRootZone()
+  @modifiesDom()
   insertBefore(parent: any, newChild: any, refChild: any): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.insertBefore child: ${newChild} ` + `parent: ${parent} refChild: ${refChild}`);
@@ -191,6 +263,7 @@ class NativeScriptRenderer implements Renderer2 {
     this.viewUtil.insertBefore(parent, newChild, refChild);
   }
   @inRootZone()
+  @modifiesDom()
   removeChild(parent: any, oldChild: any, isHostElement?: boolean): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.removeChild child: ${oldChild} parent: ${parent}`);
@@ -231,6 +304,7 @@ class NativeScriptRenderer implements Renderer2 {
     return node.nextSibling;
   }
   @inRootZone()
+  @modifiesDom()
   setAttribute(el: any, name: string, value: string, namespace?: string): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.setAttribute ${namespace ? namespace + ':' : ''}${el}.${name} = ${value}`);
@@ -243,6 +317,7 @@ class NativeScriptRenderer implements Renderer2 {
     }
   }
   @inRootZone()
+  @modifiesDom()
   addClass(el: any, name: string): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.addClass ${name}`);
@@ -250,6 +325,7 @@ class NativeScriptRenderer implements Renderer2 {
     this.viewUtil.addClass(el, name);
   }
   @inRootZone()
+  @modifiesDom()
   removeClass(el: any, name: string): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.removeClass ${name}`);
@@ -257,6 +333,7 @@ class NativeScriptRenderer implements Renderer2 {
     this.viewUtil.removeClass(el, name);
   }
   @inRootZone()
+  @modifiesDom()
   setStyle(el: any, style: string, value: any, flags?: RendererStyleFlags2): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.setStyle: ${el}, ${style} = ${value}`);
@@ -264,6 +341,7 @@ class NativeScriptRenderer implements Renderer2 {
     this.viewUtil.setStyle(el, style, value);
   }
   @inRootZone()
+  @modifiesDom()
   removeStyle(el: any, style: string, flags?: RendererStyleFlags2): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog('NativeScriptRenderer.removeStyle: ${styleName}');
@@ -271,12 +349,15 @@ class NativeScriptRenderer implements Renderer2 {
     this.viewUtil.removeStyle(el, style);
   }
   @inRootZone()
+  @modifiesDom()
   setProperty(el: any, name: string, value: any): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.setProperty ${el}.${name} = ${value}`);
     }
     this.viewUtil.setProperty(el, name, value);
   }
+  @inRootZone()
+  @modifiesDom()
   setValue(node: any, value: string): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.setValue renderNode: ${node}, value: ${value}`);
@@ -291,17 +372,26 @@ class NativeScriptRenderer implements Renderer2 {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.listen: ${eventName}`);
     }
-    target.on(eventName, callback);
+    let modifiedCallback = callback;
+    if ((this.preventChangeEvents && eventName.endsWith('Change')) || this.specificPreventedEvents.has(eventName)) {
+      modifiedCallback = (...args) => {
+        if (this._rendererHelper.isExecutingDomChanges) {
+          return;
+        }
+        return callback(...args);
+      };
+    }
+    target.on(eventName, modifiedCallback);
     if (eventName === View.loadedEvent && target.isLoaded) {
       // we must create a new obervable here to ensure that the event goes through whatever zone patches are applied
       const obs = new Observable();
-      obs.once(eventName, callback);
+      obs.once(eventName, modifiedCallback);
       obs.notify({
         eventName,
         object: target,
       });
     }
-    return () => target.off(eventName, callback);
+    return () => target.off(eventName, modifiedCallback);
   }
 }
 
@@ -328,9 +418,10 @@ const addScopedStyleToCss = profile(`"renderer".addScopedStyleToCss`, function a
 export class EmulatedRenderer extends NativeScriptRenderer {
   private contentAttr: string;
   private hostAttr: string;
+  private rootModuleId = inject(NATIVESCRIPT_ROOT_MODULE_ID);
 
-  constructor(component: RendererType2, rootView: View, namespaceFilters: NamespaceFilter[], private rootModuleId: string | number, reuseViews: boolean) {
-    super(rootView, namespaceFilters, reuseViews);
+  constructor(component: RendererType2, rootView: View) {
+    super(rootView);
 
     const componentId = component.id.replace(ATTR_SANITIZER, '_');
     this.contentAttr = replaceNgAttribute(CONTENT_ATTR, componentId);
@@ -357,6 +448,8 @@ export class EmulatedRenderer extends NativeScriptRenderer {
   }
 
   @profile
+  @inRootZone()
+  @modifiesDom()
   private addStyles(styles: (string | any[])[], componentId: string) {
     styles
       .map((s) => s.toString())

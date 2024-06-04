@@ -22,3 +22,6 @@ export const PAGE_FACTORY = new InjectionToken<PageFactory>('NativeScriptPageFac
 export const defaultPageFactory: PageFactory = function (_opts: PageFactoryOptions) {
   return new Page();
 };
+
+export const PREVENT_CHANGE_EVENTS_DURING_CD = new InjectionToken<boolean>('NativeScriptPreventChangeEventsDuringCd');
+export const PREVENT_SPECIFIC_EVENTS_DURING_CD = new InjectionToken<string[]>('NativeScriptPreventSpecificEventsDuringCd');
