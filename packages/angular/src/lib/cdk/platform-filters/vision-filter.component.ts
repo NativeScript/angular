@@ -5,7 +5,10 @@ import { DEVICE } from '../../tokens';
 
 @Component({
   selector: 'visionos',
-  template: `<ng-content *ngIf="show"></ng-content>`,
+  template: `@if (show) { 
+    <ng-content></ng-content>
+  }`,
+  standalone: true,
 })
 export class VisionOSFilterComponent {
   public show: boolean;
