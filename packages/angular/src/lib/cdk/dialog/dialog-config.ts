@@ -7,7 +7,7 @@
  */
 
 import { ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
-import { ShowModalOptions } from '@nativescript/core';
+import { ShowModalOptions, View } from '@nativescript/core';
 
 export type NativeShowModalOptions = Partial<Omit<ShowModalOptions, 'cancelable' | 'closeCallback'>>;
 /**
@@ -21,6 +21,9 @@ export class NativeDialogConfig<D = any> {
    * content will be rendered.
    */
   viewContainerRef?: ViewContainerRef;
+
+  /** Where to render the actual dialog in. By default it renders using the native view of the ViewContainerRef */
+  renderIn: 'root' | 'viewContainerRef' | View = 'viewContainerRef';
 
   /** ID for the dialog. If omitted, a unique one will be generated. */
   id?: string;
