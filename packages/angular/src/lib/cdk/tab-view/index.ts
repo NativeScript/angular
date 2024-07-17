@@ -14,6 +14,7 @@ export interface TabViewItemDef {
 
 @Directive({
   selector: 'TabView', // eslint-disable-line @angular-eslint/directive-selector
+  standalone: true,
 })
 export class TabViewDirective implements AfterViewInit {
   public tabView: TabView;
@@ -49,6 +50,7 @@ export class TabViewDirective implements AfterViewInit {
 
 @Directive({
   selector: '[tabItem]', // eslint-disable-line @angular-eslint/directive-selector
+  standalone: true,
 })
 export class TabViewItemDirective implements OnInit {
   private item: TabViewItem;

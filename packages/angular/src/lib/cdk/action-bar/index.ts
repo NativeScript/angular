@@ -78,6 +78,7 @@ const appendActionItem = (bar: NgActionBar, item: ActionItem) => {
 @Component({
   selector: 'ActionBar',
   template: '<ng-content></ng-content>',
+  standalone: true,
 })
 export class ActionBarComponent {
   constructor(public element: ElementRef, @Optional() private page: Page) {
@@ -96,6 +97,7 @@ export class ActionBarComponent {
 @Component({
   selector: 'ActionBarExtension',
   template: '',
+  standalone: true,
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class ActionBarScope {
@@ -130,6 +132,7 @@ export class ActionBarScope {
 
 @Directive({
   selector: 'ActionItem', // tslint:disable-line:directive-selector
+  standalone: true,
 })
 export class ActionItemDirective implements OnDestroy {
   constructor(public element: ElementRef, @Optional() private ownerScope: ActionBarScope) {
@@ -147,6 +150,7 @@ export class ActionItemDirective implements OnDestroy {
 
 @Directive({
   selector: 'NavigationButton', // tslint:disable-line:directive-selector
+  standalone: true,
 })
 export class NavigationButtonDirective implements OnDestroy {
   constructor(public element: ElementRef, @Optional() private ownerScope: ActionBarScope) {

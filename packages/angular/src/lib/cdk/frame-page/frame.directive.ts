@@ -8,6 +8,7 @@ export function customFrameDirectiveFactory(v: FrameDirective) {
 @Directive({
   // eslint-disable-next-line @angular-eslint/directive-selector
   selector: 'Frame',
+  standalone: true,
   providers: [
     {
       provide: Frame,

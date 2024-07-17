@@ -3,8 +3,9 @@ import { ItemEventData, KeyedTemplate, LayoutBase, ListView, ObservableArray, pr
 
 import { extractSingleViewRecursive } from '../../element-registry/registry';
 import { NativeScriptDebug } from '../../trace';
-import { NgViewTemplate } from '../../view-refs';
 import { isListLikeIterable } from '../../utils/general';
+import { NgViewTemplate } from '../../view-refs';
+import { DetachedLoader } from '../detached-loader';
 
 const NG_VIEW = '_ngViewRef';
 
@@ -89,7 +90,9 @@ export interface SetupItemViewArgs<T> {
   template: `<DetachedContainer>
     <ng-container #loader></ng-container>
   </DetachedContainer>`,
+  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DetachedLoader],
   providers: [{ provide: TEMPLATED_ITEMS_COMPONENT, useExisting: forwardRef(() => ListViewComponent) }],
 })
 export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterContentInit, TemplatedItemsHost {
@@ -293,7 +296,10 @@ export function getItemViewRoot(viewRef: EmbeddedViewRef<unknown>, rootLocator: 
 }
 
 // eslint-disable-next-line @angular-eslint/directive-selector
-@Directive({ selector: '[nsTemplateKey],[nsTemplateKeys]' })
+@Directive({
+  selector: '[nsTemplateKey],[nsTemplateKeys]',
+  standalone: true,
+})
 export class TemplateKeyDirective<T> {
   constructor(private templateRef: TemplateRef<T>, @Host() @Inject(TEMPLATED_ITEMS_COMPONENT) private comp: TemplatedItemsHost<T>) {}
 

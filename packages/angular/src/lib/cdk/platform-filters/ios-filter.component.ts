@@ -1,11 +1,14 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Inject } from '@angular/core';
-import { platformNames, IDevice } from '@nativescript/core';
+import { IDevice, platformNames } from '@nativescript/core';
 import { DEVICE } from '../../tokens';
 
 @Component({
   selector: 'ios',
-  template: `<ng-content *ngIf="show"></ng-content>`,
+  template: `@if (show) { 
+    <ng-content></ng-content>
+  }`,
+  standalone: true,
 })
 export class IOSFilterComponent {
   public show: boolean;

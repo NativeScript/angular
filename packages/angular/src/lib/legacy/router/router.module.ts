@@ -26,10 +26,11 @@ export function provideLocationStrategy(locationStrategy: NSLocationStrategy, fr
   return locationStrategy ? locationStrategy : new NSLocationStrategy(frameService, startPath);
 }
 
+const ROUTER_COMPONENTS = [NSRouterLink, NSRouterLinkActive, PageRouterOutlet, NSEmptyOutletComponent];
+
 @NgModule({
-  declarations: [NSRouterLink, NSRouterLinkActive, PageRouterOutlet, NSEmptyOutletComponent],
-  imports: [RouterModule, NativeScriptCommonModule],
-  exports: [RouterModule, NSRouterLink, NSRouterLinkActive, PageRouterOutlet, NSEmptyOutletComponent],
+  imports: [RouterModule, NativeScriptCommonModule, ...ROUTER_COMPONENTS],
+  exports: [RouterModule, ...ROUTER_COMPONENTS],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class NativeScriptRouterModule {
