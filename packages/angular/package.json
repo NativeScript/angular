@@ -16,7 +16,7 @@
     "Angular"
   ],
   "dependencies": {
-    "@nativescript/zone-js": "^3.0.0"
+    "@nativescript/zone-js": "^3.0.4"
   },
   "sideEffects": [
     "**/nativescript-angular-polyfills.mjs",
