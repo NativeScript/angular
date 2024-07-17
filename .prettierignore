@@ -18,3 +18,5 @@
 **/apps/*nativescript/src/assets/*.css
 **/xplat/nativescript/scss/fonticons/*.css
 **/xplat/nativescript*/plugins/**/*
+/.nx/cache
+/.nx/workspace-data

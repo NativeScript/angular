@@ -1,3 +1,64 @@
+## [18.0.1](https://github.com/NativeScript/angular/compare/18.0.0...18.0.1) (2024-06-04)
+
+
+### Features
+
+* allow tracking of dom changes and preventing events from firing during one ([#133](https://github.com/NativeScript/angular/issues/133)) ([a009096](https://github.com/NativeScript/angular/commit/a009096c7ad7944792514ba819a6f9782b690b8c))
+
+
+
+# [18.0.0](https://github.com/NativeScript/angular/compare/17.1.1...18.0.0) (2024-05-26)
+
+
+### Features
+
+* Angular 18 support ([#134](https://github.com/NativeScript/angular/issues/134)) ([4f6e156](https://github.com/NativeScript/angular/commit/4f6e156dc4cda0f1159ab3ef9125596ea0e1531a))
+
+
+
+## [17.1.1](https://github.com/NativeScript/angular/compare/17.1.0...17.1.1) (2024-05-10)
+
+
+### Bug Fixes
+
+* InjectableAnimationEngine constructor optional scheduler ([58d2254](https://github.com/NativeScript/angular/commit/58d2254b4a5a6340684dc93f6ee74f67514a0867))
+
+
+
+# [17.1.0](https://github.com/NativeScript/angular/compare/17.0.0...17.1.0) (2024-05-10)
+
+
+### Bug Fixes
+
+* animations ([#132](https://github.com/NativeScript/angular/issues/132)) ([ad576bf](https://github.com/NativeScript/angular/commit/ad576bfea2830637933bb1fe5d90bd97e2b187c8))
+* InjectableAnimationEngine constructor ([c5f3a45](https://github.com/NativeScript/angular/commit/c5f3a450fe8fcce6e7108b2ab6ee2d2517db8978))
+
+
+
+# [17.0.0](https://github.com/NativeScript/angular/compare/16.0.1...17.0.0) (2023-11-08)
+
+
+### Features
+
+* added control flow syntax example ([bff2380](https://github.com/NativeScript/angular/commit/bff23800271aab56f1d4017108c53a3b8dd8987c))
+* Angular 17 support ([#124](https://github.com/NativeScript/angular/issues/124)) ([308b3b5](https://github.com/NativeScript/angular/commit/308b3b5243dc2c2cac59395ea238071f6b16de48))
+
+
+
+## [16.0.1](https://github.com/NativeScript/angular/compare/16.0.0...16.0.1) (2023-10-10)
+
+
+### Bug Fixes
+
+* **zone-js:** polyfill for queueMicrotask ([1e3a851](https://github.com/NativeScript/angular/commit/1e3a8510f314003c023d926fd715a03097f02b74)), closes [/github.com/NativeScript/angular/issues/118#issuecomment-1605432322](https://github.com//github.com/NativeScript/angular/issues/118/issues/issuecomment-1605432322)
+
+
+### Features
+
+* visionos platform filter ([#123](https://github.com/NativeScript/angular/issues/123)) ([b760502](https://github.com/NativeScript/angular/commit/b76050215ba04091b8df7d5b04b265a26a33b7fc))
+
+
+
 # [16.0.0](https://github.com/NativeScript/angular/compare/15.2.0...16.0.0) (2023-05-15)
 
 

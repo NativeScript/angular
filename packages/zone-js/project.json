@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/zone-js/src",
   "projectType": "library",
+  "tags": [],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
@@ -15,19 +16,14 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
-      "options": {
-        "lintFilePatterns": ["packages/zone-js/**/*.ts"]
-      }
+      "executor": "@nx/eslint:lint"
     },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/packages/zone-js"],
       "options": {
-        "jestConfig": "packages/zone-js/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "packages/zone-js/jest.config.ts"
       }
     }
-  },
-  "tags": []
+  }
 }

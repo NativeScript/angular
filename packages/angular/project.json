@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/angular/src",
   "projectType": "library",
+  "tags": [],
   "generators": {},
   "targets": {
     "build": {
@@ -13,19 +14,14 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
-      "options": {
-        "lintFilePatterns": ["packages/angular/**/*.ts", "packages/angular/src/**/*.html"]
-      }
+      "executor": "@nx/eslint:lint"
     },
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "packages/angular/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "packages/angular/jest.config.ts"
       },
       "outputs": ["{workspaceRoot}/coverage/packages/angular"]
     }
-  },
-  "tags": []
+  }
 }

@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import { ComponentFactoryResolver, ComponentRef, Directive, EmbeddedViewRef, EventEmitter, NgModule, OnDestroy, OnInit, Output, Renderer2, TemplateRef, ViewContainerRef } from '@angular/core';
+import { ComponentRef, Directive, EmbeddedViewRef, EventEmitter, NgModule, OnDestroy, OnInit, Output, Renderer2, TemplateRef, ViewContainerRef } from '@angular/core';
 import { View } from '@nativescript/core';
 import { CommentNode } from '../../views/invisible-nodes';
 import { BasePortalOutlet, ComponentPortal, DomPortal, Portal, TemplatePortal } from './common';
@@ -52,7 +52,7 @@ export class CdkPortalOutlet extends BasePortalOutlet implements OnInit, OnDestr
   /** Reference to the currently-attached component/view ref. */
   private _attachedRef: CdkPortalOutletAttachedRef;
 
-  constructor(private _componentFactoryResolver: ComponentFactoryResolver, private _viewContainerRef: ViewContainerRef, private renderer: Renderer2) {
+  constructor(private _viewContainerRef: ViewContainerRef, private renderer: Renderer2) {
     super();
   }
 
@@ -112,9 +112,10 @@ export class CdkPortalOutlet extends BasePortalOutlet implements OnInit, OnDestr
     // in the application tree. Otherwise use the location of this PortalOutlet.
     const viewContainerRef = portal.viewContainerRef != null ? portal.viewContainerRef : this._viewContainerRef;
 
-    const resolver = portal.componentFactoryResolver || this._componentFactoryResolver;
-    const componentFactory = resolver.resolveComponentFactory<T>(portal.component);
-    const ref = viewContainerRef.createComponent<T>(componentFactory, viewContainerRef.length, portal.injector || viewContainerRef.injector);
+    // const resolver = portal.componentFactoryResolver || this._componentFactoryResolver;
+    // const componentFactory = resolver.resolveComponentFactory<T>(portal.component);
+    const ref = viewContainerRef.createComponent(portal.component);
+    // const ref = viewContainerRef.createComponent<T>(portal.component, viewContainerRef.length, portal.injector || viewContainerRef.injector);
 
     // If we're using a view container that's different from the injected one (e.g. when the portal
     // specifies its own) we need to move the component into the outlet, otherwise it'll be rendered
@@ -156,7 +157,7 @@ export class CdkPortalOutlet extends BasePortalOutlet implements OnInit, OnDestr
    */
   attachDomPortal = (portal: DomPortal) => {
     const element = portal.element;
-    if (!element.parentNode && (typeof ngDevMode === 'undefined' || ngDevMode)) {
+    if (!element.parentNode && (typeof global.ngDevMode === 'undefined' || global.ngDevMode)) {
       throw Error('DOM portal content must be attached to a parent node.');
     }
 

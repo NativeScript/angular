@@ -3,7 +3,7 @@ import { NgModule, Component, ViewContainerRef, NO_ERRORS_SCHEMA } from '@angula
 import { Page, Frame, isIOS } from '@nativescript/core';
 import { ModalDialogParams, ModalDialogService } from '@nativescript/angular';
 
-import { ComponentFixture, TestBed, async, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { nsTestBedRender, nsTestBedAfterEach, nsTestBedBeforeEach, NATIVESCRIPT_TESTING_PROVIDERS, NativeScriptTestingModule } from '@nativescript/angular/testing';
 import { NSLocationStrategy, Outlet } from '@nativescript/angular';
 import { FrameService } from '@nativescript/angular';
@@ -45,7 +45,12 @@ export class FailComponent {
   </GridLayout>`,
 })
 export class SuccessComponent {
-  constructor(public service: ModalDialogService, public vcRef: ViewContainerRef, public locationStrategy: NSLocationStrategy, public fakeFrameService: FrameService) {}
+  constructor(
+    public service: ModalDialogService,
+    public vcRef: ViewContainerRef,
+    public locationStrategy: NSLocationStrategy,
+    public fakeFrameService: FrameService,
+  ) {}
 }
 
 @NgModule({
@@ -89,64 +94,55 @@ describe('modal-dialog', () => {
     }
   });
 
-  it(
-    'showModal does not throws when there is no viewContainer provided',
-    waitForAsync(async () => {
-      const fixture = TestBed.createComponent(FailComponent);
-      const service = <ModalDialogService>fixture.componentRef.instance.service;
-      await fixture.whenRenderingDone();
-      // expect(() => service.showModal(ModalComponent, {})).toThrow("No viewContainerRef: Make sure you pass viewContainerRef in ModalDialogOptions.");
-      expect(() => service.showModal(ModalComponent, {})).not.toThrow();
-    })
-  );
+  it('showModal does not throws when there is no viewContainer provided', waitForAsync(async () => {
+    const fixture = TestBed.createComponent(FailComponent);
+    const service = <ModalDialogService>fixture.componentRef.instance.service;
+    await fixture.whenRenderingDone();
+    // expect(() => service.showModal(ModalComponent, {})).toThrow("No viewContainerRef: Make sure you pass viewContainerRef in ModalDialogOptions.");
+    expect(() => service.showModal(ModalComponent, {})).not.toThrow();
+  }));
 
-  it(
-    'showModal succeeds when there is viewContainer provided',
-    waitForAsync(async () => {
-      const fixture = TestBed.createComponent(SuccessComponent);
-      const service = fixture.componentRef.instance.service;
-      const locStrategy = fixture.componentRef.instance.locationStrategy;
-      await fixture.whenRenderingDone();
-      const outlet = new Outlet('primary', null, 'primary', 0);
-      let parentView = fixture.componentRef.instance.vcRef.element.nativeElement;
-      parentView = parentView.page && parentView.page.frame;
-      outlet.frames.push(parentView);
-      locStrategy._getOutlets().push(outlet);
+  it('showModal succeeds when there is viewContainer provided', waitForAsync(async () => {
+    const fixture = TestBed.createComponent(SuccessComponent);
+    const service = fixture.componentRef.instance.service;
+    const locStrategy = fixture.componentRef.instance.locationStrategy;
+    await fixture.whenRenderingDone();
+    const outlet = new Outlet('primary', null, 'primary', 0);
+    let parentView = fixture.componentRef.instance.vcRef.element.nativeElement;
+    parentView = parentView.page && parentView.page.frame;
+    outlet.frames.push(parentView);
+    locStrategy._getOutlets().push(outlet);
 
-      locStrategy.pushState(null, 'test', '/test', null);
+    locStrategy.pushState(null, 'test', '/test', null);
 
-      const comp = fixture.componentRef.instance;
-      service.showModal(ModalComponent, { viewContainerRef: comp.vcRef }).catch((e) => fail(e));
-    })
-  );
+    const comp = fixture.componentRef.instance;
+    service.showModal(ModalComponent, { viewContainerRef: comp.vcRef }).catch((e) => fail(e));
+  }));
 
-  it(
-    'showModal passes modal params and gets result when resolved',
-    waitForAsync(async () => {
-      const context = { property: 'my context' };
-      const fixture = TestBed.createComponent(SuccessComponent);
+  it('showModal passes modal params and gets result when resolved', waitForAsync(async () => {
+    const context = { property: 'my context' };
+    const fixture = TestBed.createComponent(SuccessComponent);
 
-      const service = <ModalDialogService>fixture.componentRef.instance.service;
-      const locStrategy = <NSLocationStrategy>fixture.componentRef.instance.locationStrategy;
-      const outlet = new Outlet('primary', null, 'primary', 0);
+    const service = <ModalDialogService>fixture.componentRef.instance.service;
+    const locStrategy = <NSLocationStrategy>fixture.componentRef.instance.locationStrategy;
+    const outlet = new Outlet('primary', null, 'primary', 0);
 
-      let parentView = fixture.componentRef.instance.vcRef.element.nativeElement;
-      parentView = parentView.page && parentView.page.frame;
-      outlet.frames.push(parentView);
-      locStrategy._getOutlets().push(outlet);
+    let parentView = fixture.componentRef.instance.vcRef.element.nativeElement;
+    parentView = parentView.page && parentView.page.frame;
+    outlet.frames.push(parentView);
+    locStrategy._getOutlets().push(outlet);
 
-      locStrategy.pushState(null, 'test', '/test', null);
+    locStrategy.pushState(null, 'test', '/test', null);
 
-      const comp = <SuccessComponent>fixture.componentRef.instance;
-      service
-        .showModal(ModalComponent, {
-          viewContainerRef: comp.vcRef,
-          context: context,
-        })
-        .then((res) => {
-          expect(res).toEqual(context);
-        })
-        .catch((e) => fail(e));
-    })
-  );
+    const comp = <SuccessComponent>fixture.componentRef.instance;
+    service
+      .showModal(ModalComponent, {
+        viewContainerRef: comp.vcRef,
+        context: context,
+      })
+      .then((res) => {
+        expect(res).toEqual(context);
+      })
+      .catch((e) => fail(e));
+  }));
 });

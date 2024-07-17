@@ -12,6 +12,17 @@ refer to http://docs.nativescript.org/ui/theme.
 @import '@nativescript/theme/css/core.css';
 @import '@nativescript/theme/css/default.css';
 
+Button {
+  border: 0;
+  background-color: transparent;
+  text-transform: none;
+  min-width: 0;
+  min-height: 0;
+  android-elevation: 0;
+  android-dynamic-elevation-offset: 0;
+  color: #fff;
+}
+
 .h1 {
   font-weight: bold;
   margin: 10 0 0;

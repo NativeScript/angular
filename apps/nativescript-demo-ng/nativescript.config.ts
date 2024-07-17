@@ -11,7 +11,7 @@ export default {
     discardUncaughtJsExceptions: true,
   },
   ios: {
-    discardUncaughtJsExceptions: true,
+    discardUncaughtJsExceptions: false,
   },
   appPath: 'src',
   cli: {

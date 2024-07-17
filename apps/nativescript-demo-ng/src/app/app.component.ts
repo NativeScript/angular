@@ -1,4 +1,4 @@
-import { Component, ViewContainerRef } from '@angular/core';
+import { Component, ViewContainerRef, OnInit, OnDestroy } from '@angular/core';
 
 // registerElement('ns-app', () => GridLayout);
 @Component({
@@ -6,7 +6,7 @@ import { Component, ViewContainerRef } from '@angular/core';
   moduleId: module.id,
   templateUrl: './app.component.html',
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
   constructor(private vcRef: ViewContainerRef) {}
   ngOnInit() {
     console.log('ngOnInit');

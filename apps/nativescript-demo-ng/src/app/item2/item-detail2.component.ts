@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RouterExtensions } from '@nativescript/angular';
 
@@ -10,10 +10,14 @@ import { ItemService } from '../item/item.service';
   moduleId: module.id,
   templateUrl: './item-detail2.component.html',
 })
-export class ItemDetailComponent implements OnInit {
+export class ItemDetailComponent implements OnInit, OnDestroy {
   item: Item;
 
-  constructor(private itemService: ItemService, private route: ActivatedRoute, private router: RouterExtensions) {
+  constructor(
+    private itemService: ItemService,
+    private route: ActivatedRoute,
+    private router: RouterExtensions,
+  ) {
     console.log('ItemDetail2Component construct');
   }
 
