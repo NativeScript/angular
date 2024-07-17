@@ -1,4 +1,4 @@
-import { Component, NgZone } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterExtensions } from '@nativescript/angular';
 import { Page, TabView } from '@nativescript/core';
@@ -8,7 +8,7 @@ import { Page, TabView } from '@nativescript/core';
   selector: 'demo-home',
   templateUrl: './home.component.html',
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   tabItems: { [key: string]: { index: number; title?: string; iconSource?: string; textTransform?: string } } = {};
   private _tabs = ['start'];
   private _hasInitTab: { start?: boolean } = {};
@@ -20,7 +20,7 @@ export class HomeComponent {
     private _activeRoute: ActivatedRoute,
     private _page: Page,
     private _ngRouter: Router,
-    private _router: RouterExtensions
+    private _router: RouterExtensions,
   ) {
     this._initMenu();
   }

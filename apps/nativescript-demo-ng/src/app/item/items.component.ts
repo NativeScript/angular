@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { Item } from './item';
@@ -11,11 +11,16 @@ import { ModalDialogService, NativeDialogService } from '@nativescript/angular';
   moduleId: module.id,
   templateUrl: './items.component.html',
 })
-export class ItemsComponent implements OnInit {
+export class ItemsComponent implements OnInit, OnDestroy {
   message = 'Hello Angular 18!';
   items: Array<Item>;
 
-  constructor(private itemService: ItemService, private nativeDialog: NativeDialogService, private modalDialog: ModalDialogService, private http: HttpClient) {}
+  constructor(
+    private itemService: ItemService,
+    private nativeDialog: NativeDialogService,
+    private modalDialog: ModalDialogService,
+    private http: HttpClient,
+  ) {}
 
   ngOnInit(): void {
     console.log('ItemsComponent ngOnInit');

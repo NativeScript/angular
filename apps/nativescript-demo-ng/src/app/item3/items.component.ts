@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { Item } from '../item/item';
@@ -11,13 +11,18 @@ import { ModalDialogService, NativeDialogService } from '@nativescript/angular';
   moduleId: module.id,
   templateUrl: './items.component.html',
 })
-export class ItemsComponent implements OnInit {
+export class ItemsComponent implements OnInit, OnDestroy {
   message = 'Hello Angular 18';
   items: Array<Item>;
   borderRadius: number;
   fontSize: number;
 
-  constructor(private itemService: ItemService, private nativeDialog: NativeDialogService, private modalDialog: ModalDialogService, private http: HttpClient) {
+  constructor(
+    private itemService: ItemService,
+    private nativeDialog: NativeDialogService,
+    private modalDialog: ModalDialogService,
+    private http: HttpClient,
+  ) {
     if (global.isAndroid) {
       this.borderRadius = 25;
       this.fontSize = 15;
@@ -40,8 +45,8 @@ export class ItemsComponent implements OnInit {
   openModal() {
     const ref = this.nativeDialog.open(ModalComponent, {
       nativeOptions: {
-        fullscreen: !!global.isAndroid
-      }
+        fullscreen: !!global.isAndroid,
+      },
     });
     ref.afterOpened().subscribe(() => console.log('after openend'));
     ref.beforeClosed().subscribe((result) => console.log('beforeClosed', result));
