@@ -1,5 +1,5 @@
 import { LocationChangeEvent, LocationStrategy } from '@angular/common';
-import { Inject, Injectable, Optional } from '@angular/core';
+import { Inject, Injectable, Optional, OnDestroy } from '@angular/core';
 import { ActivatedRouteSnapshot, DefaultUrlSerializer, Params, UrlSegmentGroup, UrlTree } from '@angular/router';
 import { Frame } from '@nativescript/core';
 import { START_PATH } from '../../tokens';
@@ -10,7 +10,7 @@ import { defaultNavOptions, LocationState, NavigationOptions, Outlet } from './n
 @Injectable({
   providedIn: 'root',
 })
-export class NSLocationStrategy extends LocationStrategy {
+export class NSLocationStrategy extends LocationStrategy implements OnDestroy {
   private outlets: Array<Outlet> = [];
   private currentOutlet: Outlet;
 
@@ -19,7 +19,10 @@ export class NSLocationStrategy extends LocationStrategy {
 
   public _modalNavigationDepth = 0;
 
-  constructor(private frameService: FrameService, @Inject(START_PATH) @Optional() private startPath?: string) {
+  constructor(
+    private frameService: FrameService,
+    @Inject(START_PATH) @Optional() private startPath?: string,
+  ) {
     super();
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.routerLog('NSLocationStrategy.constructor()');
