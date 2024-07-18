@@ -23,7 +23,7 @@ export class NativeDialogConfig<D = any> {
   viewContainerRef?: ViewContainerRef;
 
   /** Where to render the actual dialog in. By default it renders using the native view of the ViewContainerRef */
-  renderIn: 'root' | 'viewContainerRef' | View = 'viewContainerRef';
+  renderIn?: 'root' | 'viewContainerRef' | View = 'viewContainerRef';
 
   /** ID for the dialog. If omitted, a unique one will be generated. */
   id?: string;
