@@ -1,3 +1,12 @@
+## [18.1.1](https://github.com/NativeScript/angular/compare/18.1.0...18.1.1) (2024-07-18)
+
+
+### Bug Fixes
+
+* **dialog:** renderIn optional ([b9a3763](https://github.com/NativeScript/angular/commit/b9a376302efdfb6b098b8cc91f65501b21d12564))
+
+
+
 # [18.1.0](https://github.com/NativeScript/angular/compare/18.0.1...18.1.0) (2024-07-18)
 
 
