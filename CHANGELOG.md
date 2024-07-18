@@ -1,3 +1,14 @@
+# [18.1.0](https://github.com/NativeScript/angular/compare/18.0.1...18.1.0) (2024-07-18)
+
+
+### Features
+
+* allow providing custom dialog view ([#126](https://github.com/NativeScript/angular/issues/126)) ([16bfffb](https://github.com/NativeScript/angular/commit/16bfffbf3767560d63054334f46689e00c34a998))
+* make nativescript identify as browser in angular ([#136](https://github.com/NativeScript/angular/issues/136)) ([c49fb86](https://github.com/NativeScript/angular/commit/c49fb862aaa15050a4edbb289412686e793e4129))
+* standalone component architecture ([#122](https://github.com/NativeScript/angular/issues/122)) ([5f873e8](https://github.com/NativeScript/angular/commit/5f873e88eda6bd0f68182173f283fdad18064253))
+
+
+
 ## [18.0.1](https://github.com/NativeScript/angular/compare/18.0.0...18.0.1) (2024-06-04)
 
 
