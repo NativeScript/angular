@@ -268,7 +268,7 @@ class NativeScriptRenderer implements Renderer2 {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.removeChild child: ${oldChild} parent: ${parent}`);
     }
-    this.viewUtil.removeChild(parent, oldChild);
+    this.viewUtil.removeChild(parent ?? oldChild.parentNode, oldChild);
   }
   selectRootElement(selectorOrNode: any, preserveContent?: boolean) {
     if (NativeScriptDebug.enabled) {
