@@ -1,3 +1,12 @@
+## [18.1.3](https://github.com/NativeScript/angular/compare/18.1.1...18.1.3) (2024-09-18)
+
+
+### Bug Fixes
+
+* fallback to parentNode on removeChild (undocumented breaking change from https://github.com/angular/angular/pull/57203) ([a93c771](https://github.com/NativeScript/angular/commit/a93c771eee38d65857de38deb48dd5ac1506c09e))
+
+
+
 ## [18.1.1](https://github.com/NativeScript/angular/compare/18.1.0...18.1.1) (2024-07-18)
 
 
