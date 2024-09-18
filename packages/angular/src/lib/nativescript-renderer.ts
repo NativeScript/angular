@@ -266,7 +266,7 @@ class NativeScriptRenderer implements Renderer2 {
   @modifiesDom()
   removeChild(parent: any, oldChild: any, isHostElement?: boolean): void {
     if (NativeScriptDebug.enabled) {
-      NativeScriptDebug.rendererLog(`NativeScriptRenderer.removeChild child: ${oldChild} parent: ${parent}`);
+      NativeScriptDebug.rendererLog(`NativeScriptRenderer.removeChild child: ${oldChild} parent: ${parent} oldChild.parentNode: ${oldChild?.parentNode}`);
     }
     this.viewUtil.removeChild(parent ?? oldChild.parentNode, oldChild);
   }
