@@ -15,5 +15,10 @@
   ],
   "compilerOptions": {
     "target": "es2020"
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": true,
+    "strictDomLocalRefTypes": false,
+    "strictDomEventTypes": false
   }
 }
