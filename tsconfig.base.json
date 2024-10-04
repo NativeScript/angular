@@ -21,7 +21,8 @@
       "@nativescript/angular/polyfills": ["packages/angular/polyfills/src/index.ts"],
       "@nativescript/angular/testing": ["packages/angular/testing/src/index.ts"],
       "@nativescript/zone-js": ["packages/zone-js/dist/index.ts"],
-      "@nativescript/zone-js/*": ["packages/zone-js/*"]
+      "@nativescript/zone-js/*": ["packages/zone-js/*"],
+      "angular-devkit": ["packages/angular-devkit/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp", "apps/nativescript-*"],
