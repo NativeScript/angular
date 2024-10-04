@@ -1,0 +1,17 @@
+{
+  "name": "angular-devkit",
+  "version": "0.0.1",
+  "dependencies": {
+    "@nx/devkit": "19.7.4",
+    "tslib": "^2.3.0",
+    "@nx/js": "19.7.4",
+    "typescript": "~5.5.0",
+    "@phenomnomnominal/tsquery": "5.0.1",
+    "@typescript-eslint/type-utils": "7.18.0",
+    "semver": "7.6.3"
+  },
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "typings": "./src/index.d.ts",
+  "generators": "./generators.json"
+}

@@ -38,6 +38,11 @@
     "@nx/eslint:lint": {
       "inputs": ["default", "{workspaceRoot}/.eslintrc.json"],
       "cache": true
+    },
+    "@nx/js:tsc": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
     }
   },
   "namedInputs": {
@@ -49,5 +54,10 @@
   "nxCloudAccessToken": "NWJjY2UzMjctM2Q2Yy00ODZlLWExYjktNzE3YTRmMzRmMWQwfHJlYWQ=",
   "parallel": 2,
   "useInferencePlugins": false,
-  "defaultBase": "main"
+  "defaultBase": "main",
+  "release": {
+    "version": {
+      "preVersionCommand": "yarn nx run-many -t build"
+    }
+  }
 }
