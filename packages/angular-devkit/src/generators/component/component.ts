@@ -1,5 +1,5 @@
 import type { Tree } from '@nx/devkit';
-import { formatFiles, generateFiles, joinPathFragments } from '@nx/devkit';
+import { convertNxGenerator, formatFiles, generateFiles, joinPathFragments } from '@nx/devkit';
 import { addToNgModule } from '../utils';
 import { getInstalledAngularVersionInfo } from '../utils/version-utils';
 import { exportComponentInEntryPoint, findModuleFromOptions, normalizeOptions, setGeneratorDefaults } from './lib';
@@ -58,3 +58,5 @@ export async function componentGenerator(tree: Tree, rawOptions: Schema) {
 }
 
 export default componentGenerator;
+
+export const componentSchematic = convertNxGenerator(componentGenerator);

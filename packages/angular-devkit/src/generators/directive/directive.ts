@@ -1,5 +1,5 @@
 import type { Tree } from '@nx/devkit';
-import { formatFiles, generateFiles, joinPathFragments } from '@nx/devkit';
+import { convertNxGenerator, formatFiles, generateFiles, joinPathFragments } from '@nx/devkit';
 import { addToNgModule, findModule } from '../utils';
 import { normalizeOptions } from './lib';
 import type { Schema } from './schema';
@@ -32,3 +32,5 @@ export async function directiveGenerator(tree: Tree, schema: Schema) {
 }
 
 export default directiveGenerator;
+
+export const directiveSchematic = convertNxGenerator(directiveGenerator);
