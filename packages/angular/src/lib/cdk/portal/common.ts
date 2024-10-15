@@ -20,7 +20,7 @@ export abstract class Portal<T> {
 
   /** Attach this portal to a host. */
   attach(host: PortalOutlet): T {
-    if (typeof global.ngDevMode === 'undefined' || global.ngDevMode) {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) {
       if (host == null) {
         throwNullPortalOutletError();
       }
@@ -41,7 +41,7 @@ export abstract class Portal<T> {
     if (host != null) {
       this._attachedHost = null;
       host.detach();
-    } else if (typeof global.ngDevMode === 'undefined' || global.ngDevMode) {
+    } else if (typeof ngDevMode === 'undefined' || ngDevMode) {
       throwNoPortalAttachedError();
     }
   }
@@ -187,7 +187,7 @@ export abstract class BasePortalOutlet implements PortalOutlet {
 
   /** Attaches a portal. */
   attach(portal: Portal<any>): any {
-    if (typeof global.ngDevMode === 'undefined' || global.ngDevMode) {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) {
       if (!portal) {
         throwNullPortalError();
       }
@@ -213,7 +213,7 @@ export abstract class BasePortalOutlet implements PortalOutlet {
       return this.attachDomPortal(portal);
     }
 
-    if (typeof global.ngDevMode === 'undefined' || global.ngDevMode) {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) {
       throwUnknownPortalTypeError();
     }
   }

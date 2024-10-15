@@ -53,7 +53,15 @@ export abstract class _NativeDialogBase<C extends NativeModalRef> implements OnD
     return parent ? parent._getAfterAllClosed() : this._afterAllClosedAtThisLevel;
   }
 
-  constructor(private _injector: Injector, private _defaultOptions: NativeDialogConfig | undefined, private _parentDialog: _NativeDialogBase<C> | undefined, private _dialogRefConstructor: Type<NativeDialogRef<any>>, private _nativeModalType: Type<C>, private _dialogDataToken: InjectionToken<any>, private locationStrategy: NSLocationStrategy) {}
+  constructor(
+    private _injector: Injector,
+    private _defaultOptions: NativeDialogConfig | undefined,
+    private _parentDialog: _NativeDialogBase<C> | undefined,
+    private _dialogRefConstructor: Type<NativeDialogRef<any>>,
+    private _nativeModalType: Type<C>,
+    private _dialogDataToken: InjectionToken<any>,
+    private locationStrategy: NSLocationStrategy,
+  ) {}
 
   /**
    * Opens a modal dialog containing the given component.
@@ -76,7 +84,7 @@ export abstract class _NativeDialogBase<C extends NativeModalRef> implements OnD
   open<T, D = any, R = any>(componentOrTemplateRef: ComponentType<T> | TemplateRef<T>, config?: NativeDialogConfig<D>): NativeDialogRef<T, R> {
     config = _applyConfigDefaults(config, this._defaultOptions || new NativeDialogConfig());
 
-    if (config.id && this.getDialogById(config.id) && (typeof global.ngDevMode === 'undefined' || global.ngDevMode)) {
+    if (config.id && this.getDialogById(config.id) && (typeof ngDevMode === 'undefined' || ngDevMode)) {
       throw Error(`Dialog with id "${config.id}" exists already. The dialog id must be unique.`);
     }
     const dialogRef = this._attachDialogContent<T, R>(componentOrTemplateRef, config);
@@ -141,7 +149,7 @@ export abstract class _NativeDialogBase<C extends NativeModalRef> implements OnD
       //     detachedLoaderRef.instance.createTemplatePortal(options.templateRef);
       nativeModalRef.attachTemplatePortal(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        new TemplatePortal<T>(componentOrTemplateRef, null!, <any>{ $implicit: config.data, dialogRef })
+        new TemplatePortal<T>(componentOrTemplateRef, null!, <any>{ $implicit: config.data, dialogRef }),
       );
     } else {
       const injector = this._createInjector<T>(config, dialogRef);

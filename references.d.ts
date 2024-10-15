@@ -7,7 +7,6 @@ declare namespace NodeJS {
     interface Global {
         __runtimeVersion: any;
         TNS_ENV: string;
-        ngDevMode: unknown | null;
     }
 }
 

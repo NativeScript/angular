@@ -52,7 +52,10 @@ export class CdkPortalOutlet extends BasePortalOutlet implements OnInit, OnDestr
   /** Reference to the currently-attached component/view ref. */
   private _attachedRef: CdkPortalOutletAttachedRef;
 
-  constructor(private _viewContainerRef: ViewContainerRef, private renderer: Renderer2) {
+  constructor(
+    private _viewContainerRef: ViewContainerRef,
+    private renderer: Renderer2,
+  ) {
     super();
   }
 
@@ -157,7 +160,7 @@ export class CdkPortalOutlet extends BasePortalOutlet implements OnInit, OnDestr
    */
   attachDomPortal = (portal: DomPortal) => {
     const element = portal.element;
-    if (!element.parentNode && (typeof global.ngDevMode === 'undefined' || global.ngDevMode)) {
+    if (!element.parentNode && (typeof ngDevMode === 'undefined' || ngDevMode)) {
       throw Error('DOM portal content must be attached to a parent node.');
     }
 

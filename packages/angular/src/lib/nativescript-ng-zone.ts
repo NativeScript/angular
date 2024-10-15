@@ -149,8 +149,10 @@ export class NativeScriptNgZone implements NgZone {
     self.shouldCoalesceRunChangeDetection = shouldCoalesceRunChangeDetection;
     self.lastRequestAnimationFrameId = -1;
     self.nativeRequestAnimationFrame = function (cb) {
-      const nativeDispatchToMainThread = Utils[Zone.__symbol__('dispatchToMainThread')] || Utils.dispatchToMainThread;
-      nativeDispatchToMainThread(cb);
+      // const nativeDispatchToMainThread = Utils[Zone.__symbol__('dispatchToMainThread')] || Utils.dispatchToMainThread;
+      // nativeDispatchToMainThread(cb);
+      const nativeDispatchToMainThread = global[Zone.__symbol__('setTimeout')] || global.setTimeout;
+      nativeDispatchToMainThread(cb, 1000);
       return currentRafId++;
     };
     forkInnerZoneWithAngularBehavior(self);
@@ -377,7 +379,7 @@ function delayChangeDetectionForEvents(zone: NgZonePrivate) {
         },
         undefined,
         () => {},
-        () => {}
+        () => {},
       );
     }
     zone.fakeTopEventTask.invoke();

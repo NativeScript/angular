@@ -24,7 +24,7 @@ export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
     private _componentFactoryResolver: ComponentFactoryResolver,
     private _appRef: ApplicationRef,
     private _defaultInjector: Injector,
-    @Optional() viewUtil?: ViewUtil
+    @Optional() viewUtil?: ViewUtil,
   ) {
     super();
     this._viewUtil = viewUtil || this._defaultInjector.get(ViewUtil);
@@ -111,7 +111,7 @@ export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
    */
   attachDomPortal = (portal: DomPortal) => {
     const element = portal.element;
-    if (!element.parentNode && (typeof global.ngDevMode === 'undefined' || global.ngDevMode)) {
+    if (!element.parentNode && (typeof ngDevMode === 'undefined' || ngDevMode)) {
       throw Error('DOM portal content must be attached to a parent node.');
     }
 
