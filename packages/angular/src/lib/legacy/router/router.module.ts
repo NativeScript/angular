@@ -12,6 +12,7 @@ import { FrameService } from '../frame.service';
 import { NSEmptyOutletComponent } from './ns-empty-outlet.component';
 import { NativeScriptCommonModule } from '../../nativescript-common.module';
 import { START_PATH } from '../../tokens';
+import { withComponentInputBinding } from '../../router/router-component-input-binder';
 
 export { PageRoute } from './page-router-outlet';
 export { RouterExtensions } from './router-extensions';
@@ -50,6 +51,7 @@ export class NativeScriptRouterModule {
         RouterExtensions,
         NSRouteReuseStrategy,
         { provide: RouteReuseStrategy, useExisting: NSRouteReuseStrategy },
+        config?.bindToComponentInputs ? withComponentInputBinding().ɵproviders : [],
       ],
     };
   }
