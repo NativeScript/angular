@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "SchematicsAngularPipe",
+  "title": "Angular Pipe Options Schema",
+  "type": "object",
+  "cli": "nx",
+  "additionalProperties": false,
+  "description": "Creates an Angular pipe.",
+  "properties": {
+    "path": {
+      "type": "string",
+      "description": "The path at which to create the pipe file, relative to the workspace root.",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What is the path of the new pipe?"
+    },
+    "name": {
+      "type": "string",
+      "description": "The name of the pipe.",
+      "x-prompt": "What name would you like to use for the pipe?"
+    },
+    "skipTests": {
+      "type": "boolean",
+      "description": "Do not create \"spec.ts\" test files for the new pipe.",
+      "default": false
+    },
+    "skipImport": {
+      "type": "boolean",
+      "default": false,
+      "description": "Do not import this pipe into the owning NgModule."
+    },
+    "standalone": {
+      "description": "Whether the generated pipe is standalone.",
+      "type": "boolean",
+      "default": true
+    },
+    "module": {
+      "type": "string",
+      "description": "The filename of the declaring NgModule.",
+      "alias": "m"
+    },
+    "export": {
+      "type": "boolean",
+      "default": false,
+      "description": "The declaring NgModule exports this pipe."
+    },
+    "skipFormat": {
+      "type": "boolean",
+      "default": false,
+      "description": "Skip formatting of files."
+    }
+  },
+  "required": ["path"]
+}
