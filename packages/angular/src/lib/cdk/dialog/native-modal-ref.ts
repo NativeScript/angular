@@ -1,4 +1,4 @@
-import { ApplicationRef, ComponentFactoryResolver, ComponentRef, EmbeddedViewRef, Injector, Optional, ViewContainerRef } from '@angular/core';
+import { ApplicationRef, ComponentFactoryResolver, ComponentRef, createComponent, EmbeddedViewRef, Injector, Optional, ViewContainerRef } from '@angular/core';
 import { Application, ContentView, Frame, View } from '@nativescript/core';
 import { fromEvent, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
@@ -62,12 +62,15 @@ export class NativeModalRef {
   }
 
   _generateDetachedContainer(vcRef?: ViewContainerRef) {
-    const detachedFactory = (this._config.componentFactoryResolver || this._injector.get(ComponentFactoryResolver)).resolveComponentFactory(DetachedLoader);
     if (vcRef) {
-      this.detachedLoaderRef = vcRef.createComponent(detachedFactory);
+      this.detachedLoaderRef = vcRef.createComponent(DetachedLoader);
     } else {
-      this.detachedLoaderRef = detachedFactory.create(this._config.viewContainerRef?.injector || this._injector);
-      this._injector.get(ApplicationRef).attachView(this.detachedLoaderRef.hostView);
+      const appRef = this._injector.get(ApplicationRef);
+      this.detachedLoaderRef = createComponent(DetachedLoader, {
+        environmentInjector: appRef.injector,
+        elementInjector: this._config.injector || this._config.viewContainerRef?.injector || this._injector,
+      });
+      appRef.attachView(this.detachedLoaderRef.hostView);
     }
     this.detachedLoaderRef.changeDetectorRef.detectChanges();
   }

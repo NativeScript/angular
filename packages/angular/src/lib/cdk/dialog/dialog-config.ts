@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import { ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
+import { ViewContainerRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { ShowModalOptions, View } from '@nativescript/core';
 
 export type NativeShowModalOptions = Partial<Omit<ShowModalOptions, 'cancelable' | 'closeCallback'>>;
@@ -21,6 +21,12 @@ export class NativeDialogConfig<D = any> {
    * content will be rendered.
    */
   viewContainerRef?: ViewContainerRef;
+
+  /**
+   * Injector used for the instantiation of the component to be attached. If provided,
+   * takes precedence over the injector indirectly provided by `ViewContainerRef`.
+   */
+  injector?: Injector;
 
   /** Where to render the actual dialog in. By default it renders using the native view of the ViewContainerRef */
   renderIn?: 'root' | 'viewContainerRef' | View = 'viewContainerRef';
@@ -44,7 +50,9 @@ export class NativeDialogConfig<D = any> {
    */
   closeOnNavigation?: boolean = true;
 
-  /** Alternate `ComponentFactoryResolver` to use when resolving the associated component. */
+  /** Alternate `ComponentFactoryResolver` to use when resolving the associated component.
+   * @deprecated
+   */
   componentFactoryResolver?: ComponentFactoryResolver;
 
   nativeOptions?: NativeShowModalOptions = {};
