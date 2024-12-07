@@ -1,14 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Item } from './item';
 import { ItemService } from './item.service';
+import { NativeScriptCommonModule } from '@nativescript/angular';
 
 @Component({
   selector: 'ns-details',
   moduleId: module.id,
   templateUrl: './item-detail.component.html',
-  standalone: false,
+  imports: [NativeScriptCommonModule],
+  standalone: true,
+  schemas: [NO_ERRORS_SCHEMA]
 })
 export class ItemDetailComponent implements OnInit {
   item: Item;

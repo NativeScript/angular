@@ -1,12 +1,14 @@
-import { Component, OnDestroy, OnInit, Optional, ViewContainerRef, inject } from '@angular/core';
-import { ModalDialogService, NativeDialogRef, NativeDialogService } from '@nativescript/angular';
+import { Component, NO_ERRORS_SCHEMA, OnDestroy, OnInit, Optional, ViewContainerRef, inject } from '@angular/core';
+import { ModalDialogService, NativeDialogModule, NativeDialogRef, NativeDialogService, NativeScriptCommonModule } from '@nativescript/angular';
 import { ItemService } from '../item/item.service';
 import { View } from '@nativescript/core';
 
 @Component({
   selector: 'ns-modal',
   templateUrl: `./modal.component.html`,
-  standalone: false,
+  imports: [NativeScriptCommonModule, NativeDialogModule],
+  standalone: true,
+  schemas: [NO_ERRORS_SCHEMA]
 })
 export class ModalComponent implements OnInit, OnDestroy {
   id = Math.floor(Math.random() * 1000);

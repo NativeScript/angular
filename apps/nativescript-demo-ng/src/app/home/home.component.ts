@@ -1,13 +1,14 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RouterExtensions } from '@nativescript/angular';
+import { RouterExtensions, NativeScriptCommonModule } from '@nativescript/angular';
 import { Page, TabView } from '@nativescript/core';
 
 @Component({
   moduleId: module.id,
   selector: 'demo-home',
   templateUrl: './home.component.html',
-  standalone: false,
+  imports: [NativeScriptCommonModule],
+  standalone: true,
 })
 export class HomeComponent implements OnInit {
   tabItems: { [key: string]: { index: number; title?: string; iconSource?: string; textTransform?: string } } = {};
