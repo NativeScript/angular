@@ -1,0 +1,9 @@
+
+<StackLayout>
+  <Label [text]="'Name (routerparam): '+name()"></Label>
+  <Label [text]="'Id (queryparam): '+id()"></Label>
+  @for(name of data(); track name) {
+    <Label [text]="'item - '+name"></Label>
+  }
+  <Button text="Redirect to other route" (tap)="navigationTo()"></Button>
+</StackLayout>
