@@ -7,14 +7,15 @@ import { ItemService } from './item.service';
 @Component({
   selector: 'ns-details',
   moduleId: module.id,
-  templateUrl: './item-detail.component.html'
+  templateUrl: './item-detail.component.html',
+  standalone: false,
 })
 export class ItemDetailComponent implements OnInit {
   item: Item;
 
   constructor(
     private itemService: ItemService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {

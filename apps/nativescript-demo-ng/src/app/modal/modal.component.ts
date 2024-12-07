@@ -6,6 +6,7 @@ import { View } from '@nativescript/core';
 @Component({
   selector: 'ns-modal',
   templateUrl: `./modal.component.html`,
+  standalone: false,
 })
 export class ModalComponent implements OnInit, OnDestroy {
   id = Math.floor(Math.random() * 1000);
@@ -46,15 +47,16 @@ export class ModalComponent implements OnInit, OnDestroy {
   loadedImg(args) {
     this.img = args.object as View;
     const scaleImage = (up: boolean) => {
-      this.img.animate({
-        scale: { x: up ? 1.5 : 1.0, y: up ? 1.5 : 1.0},
-        translate: { x: up ? -100 : 0, y: 0},
-        duration: 1000,
-
-      }).then(() => {
-        scaleImage(up ? false : true);
-      })
-    }
+      this.img
+        .animate({
+          scale: { x: up ? 1.5 : 1.0, y: up ? 1.5 : 1.0 },
+          translate: { x: up ? -100 : 0, y: 0 },
+          duration: 1000,
+        })
+        .then(() => {
+          scaleImage(up ? false : true);
+        });
+    };
     scaleImage(true);
   }
 }

@@ -9,6 +9,7 @@ import { ItemService } from '../item/item.service';
   selector: 'ns-details2',
   moduleId: module.id,
   templateUrl: './item-detail2.component.html',
+  standalone: false,
 })
 export class ItemDetailComponent implements OnInit, OnDestroy {
   item: Item;

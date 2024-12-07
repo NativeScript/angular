@@ -16,11 +16,21 @@ export interface TemplatedItemsHost<T = any> {
 export const TEMPLATED_ITEMS_COMPONENT = new InjectionToken<TemplatedItemsHost>('TemplatedItemsComponent');
 
 export class ItemContext<T> {
-  constructor(public $implicit?: T, public item?: T, public index?: number, public even?: boolean, public odd?: boolean) {}
+  constructor(
+    public $implicit?: T,
+    public item?: T,
+    public index?: number,
+    public even?: boolean,
+    public odd?: boolean,
+  ) {}
 }
 
 export class NsTemplatedItem<T> implements NgViewTemplate<{ index: number; data: T }> {
-  constructor(private template: TemplateRef<ItemContext<T>>, public location: ViewContainerRef, private onCreate?: (view: View) => void) {}
+  constructor(
+    private template: TemplateRef<ItemContext<T>>,
+    public location: ViewContainerRef,
+    private onCreate?: (view: View) => void,
+  ) {}
   create(context?: { index: number; data: T }): View {
     const viewRef = this.location.createEmbeddedView(this.template, context ? this.setupItemContext(context) : new ItemContext());
     viewRef.detach(); // create detached, just beware this doesn't always work and the view might run the first CD anyway.
@@ -90,7 +100,6 @@ export interface SetupItemViewArgs<T> {
   template: `<DetachedContainer>
     <ng-container #loader></ng-container>
   </DetachedContainer>`,
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DetachedLoader],
   providers: [{ provide: TEMPLATED_ITEMS_COMPONENT, useExisting: forwardRef(() => ListViewComponent) }],
@@ -301,7 +310,10 @@ export function getItemViewRoot(viewRef: EmbeddedViewRef<unknown>, rootLocator: 
   standalone: true,
 })
 export class TemplateKeyDirective<T> {
-  constructor(private templateRef: TemplateRef<T>, @Host() @Inject(TEMPLATED_ITEMS_COMPONENT) private comp: TemplatedItemsHost<T>) {}
+  constructor(
+    private templateRef: TemplateRef<T>,
+    @Host() @Inject(TEMPLATED_ITEMS_COMPONENT) private comp: TemplatedItemsHost<T>,
+  ) {}
 
   @Input()
   set nsTemplateKey(value: string) {

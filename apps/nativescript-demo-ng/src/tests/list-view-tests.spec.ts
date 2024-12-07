@@ -1,12 +1,15 @@
-import { Component, Input, NgModule, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core';
+import { Component, Input, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core';
 import { TestBed, waitForAsync } from '@angular/core/testing';
-import { ListViewComponent, NativeScriptModule } from '@nativescript/angular';
+import { ListViewComponent, TemplateKeyDirective } from '@nativescript/angular';
 // import trace = require("trace");
 // trace.setCategories("ns-list-view, " + trace.categories.Navigation);
 // trace.enable();
 
 class DataItem {
-  constructor(public id: number, public name: string) {}
+  constructor(
+    public id: number,
+    public name: string,
+  ) {}
 }
 
 const ITEMS = [new DataItem(0, 'data item 0'), new DataItem(1, 'data item 1'), new DataItem(2, 'data item 2')];
@@ -24,6 +27,8 @@ let testTemplates: { first: number; second: number };
       </ListView>
     </GridLayout>
   `,
+  imports: [ListViewComponent],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class TestListViewComponent {
   public myItems: Array<DataItem> = ITEMS;
@@ -63,6 +68,8 @@ export class ItemTemplateComponent {
       </ListView>
     </GridLayout>
   `,
+  imports: [ListViewComponent, TemplateKeyDirective, ItemTemplateComponent],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class TestListViewSelectorComponent {
   public myItems: Array<DataItem> = ITEMS;
@@ -94,6 +101,8 @@ export class TestListViewSelectorComponent {
       </ListView>
     </GridLayout>
   `,
+  imports: [ListViewComponent, TemplateKeyDirective, ItemTemplateComponent],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class TestListViewSelectorWithEventsComponent {
   public myItems: Array<DataItem> = ITEMS;
@@ -115,6 +124,8 @@ export class TestListViewSelectorWithEventsComponent {
       <ListView #listView [items]="myItems"></ListView>
     </GridLayout>
   `,
+  imports: [ListViewComponent],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class TestDefaultItemTemplateComponent {
   public myItems: Array<DataItem>;
@@ -132,20 +143,12 @@ export class TestDefaultItemTemplateComponent {
 
 const declarations = [TestListViewComponent, TestListViewSelectorComponent, ItemTemplateComponent, TestDefaultItemTemplateComponent, TestListViewSelectorWithEventsComponent];
 
-@NgModule({
-  declarations: [...declarations],
-  imports: [NativeScriptModule],
-  schemas: [NO_ERRORS_SCHEMA],
-})
-export class ListViewModule {}
-
 describe('ListView-tests', () => {
   beforeEach(() =>
     TestBed.configureTestingModule({
-      declarations: [...declarations],
-      imports: [NativeScriptModule],
+      imports: declarations,
       schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents()
+    }).compileComponents(),
   );
 
   it('setupItemView is called for every item', waitForAsync(async () => {

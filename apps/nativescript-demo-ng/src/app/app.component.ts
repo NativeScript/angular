@@ -5,6 +5,7 @@ import { Component, ViewContainerRef, OnInit, OnDestroy } from '@angular/core';
   selector: 'ns-app',
   moduleId: module.id,
   templateUrl: './app.component.html',
+  standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
   constructor(private vcRef: ViewContainerRef) {}

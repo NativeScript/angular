@@ -10,9 +10,10 @@ import { ModalDialogService, NativeDialogService } from '@nativescript/angular';
   selector: 'ns-items',
   moduleId: module.id,
   templateUrl: './items.component.html',
+  standalone: false,
 })
 export class ItemsComponent implements OnInit, OnDestroy {
-  message = 'Hello Angular 18';
+  message = 'Hello Angular 19';
   items: Array<Item>;
   borderRadius: number;
   fontSize: number;

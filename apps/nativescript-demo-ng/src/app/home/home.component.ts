@@ -7,6 +7,7 @@ import { Page, TabView } from '@nativescript/core';
   moduleId: module.id,
   selector: 'demo-home',
   templateUrl: './home.component.html',
+  standalone: false,
 })
 export class HomeComponent implements OnInit {
   tabItems: { [key: string]: { index: number; title?: string; iconSource?: string; textTransform?: string } } = {};
