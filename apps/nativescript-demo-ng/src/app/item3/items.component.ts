@@ -1,18 +1,21 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, NO_ERRORS_SCHEMA } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { Item } from '../item/item';
 import { ItemService } from '../item/item.service';
 import { ModalComponent } from '../modal/modal.component';
-import { ModalDialogService, NativeDialogService } from '@nativescript/angular';
+import { ModalDialogService, NativeDialogService, NativeScriptCommonModule, NativeScriptRouterModule } from '@nativescript/angular';
 
 @Component({
   selector: 'ns-items',
   moduleId: module.id,
   templateUrl: './items.component.html',
+  imports: [NativeScriptCommonModule, NativeScriptRouterModule],
+  standalone: true,
+  schemas: [NO_ERRORS_SCHEMA]
 })
 export class ItemsComponent implements OnInit, OnDestroy {
-  message = 'Hello Angular 18';
+  message = 'Hello Angular 19';
   items: Array<Item>;
   borderRadius: number;
   fontSize: number;

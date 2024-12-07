@@ -9,8 +9,11 @@ In many cases you may want to use the NativeScript core theme instead
 of writing your own CSS rules. For a full list of class names in the theme
 refer to http://docs.nativescript.org/ui/theme.
 */
-@import '@nativescript/theme/css/core.css';
-@import '@nativescript/theme/css/default.css';
+/* @import '@nativescript/theme/css/core.css';
+@import '@nativescript/theme/css/default.css'; */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 Button {
   border: 0;
@@ -23,11 +26,18 @@ Button {
   color: #fff;
 }
 
-.h1 {
+.h-center {
+  horizontal-align: center;
+}
+.h-right {
+  horizontal-align: right;
+}
+
+/* .h1 {
   font-weight: bold;
   margin: 10 0 0;
 }
 
 .c-light-blue {
   color: #65ADF1;
-}
+} */
