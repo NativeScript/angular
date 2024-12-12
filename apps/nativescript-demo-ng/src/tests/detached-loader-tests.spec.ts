@@ -1,6 +1,6 @@
 // make sure you import mocha-config before @angular/core
-import { NgModule, Directive, ChangeDetectionStrategy, Component, ViewChild, NO_ERRORS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ChangeDetectionStrategy, Component, Directive, NgModule, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { DetachedLoader, NativeScriptModule } from '@nativescript/angular';
 import { NativeScriptTestingModule } from '@nativescript/angular/testing';
 // import { NS_COMPILER_PROVIDERS } from "@nativescript/angular/platform";
@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   template: `<StackLayout><Label text="COMPONENT"></Label></StackLayout>`,
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class TestComponent {}
 
@@ -23,6 +24,8 @@ class LoaderComponentBase {
       <DetachedContainer #loader></DetachedContainer>
     </StackLayout>
   `,
+  imports: [DetachedLoader],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class LoaderComponent extends LoaderComponentBase {}
 
@@ -34,13 +37,14 @@ export class LoaderComponent extends LoaderComponentBase {}
       <DetachedContainer #loader></DetachedContainer>
     </StackLayout>
   `,
+  imports: [DetachedLoader],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class LoaderComponentOnPush extends LoaderComponentBase {}
 
 @NgModule({
-  declarations: [LoaderComponent, LoaderComponentOnPush, TestComponent],
-  imports: [NativeScriptModule, NativeScriptTestingModule, CommonModule],
+  imports: [LoaderComponent, LoaderComponentOnPush, TestComponent],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class EntryComponentsTestModule {}
@@ -48,8 +52,7 @@ describe('DetachedLoader', function () {
   // this.timeout(4000);
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [LoaderComponent, LoaderComponentOnPush, TestComponent],
-      imports: [NativeScriptModule, NativeScriptTestingModule, CommonModule],
+      imports: [NativeScriptModule, NativeScriptTestingModule, CommonModule, LoaderComponent, LoaderComponentOnPush, TestComponent],
       schemas: [NO_ERRORS_SCHEMA],
     });
     return TestBed.compileComponents();

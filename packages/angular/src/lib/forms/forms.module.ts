@@ -5,9 +5,8 @@ import { TextValueAccessor, CheckedValueAccessor, DateValueAccessor, TimeValueAc
 export * from './value-accessors';
 
 @NgModule({
-  declarations: [TextValueAccessor, CheckedValueAccessor, DateValueAccessor, TimeValueAccessor, SelectedIndexValueAccessor, NumberValueAccessor],
   providers: [],
-  imports: [FormsModule],
+  imports: [FormsModule, TextValueAccessor, CheckedValueAccessor, DateValueAccessor, TimeValueAccessor, SelectedIndexValueAccessor, NumberValueAccessor],
   exports: [FormsModule, TextValueAccessor, CheckedValueAccessor, DateValueAccessor, TimeValueAccessor, SelectedIndexValueAccessor, NumberValueAccessor],
 })
 export class NativeScriptFormsModule {}

@@ -24,9 +24,9 @@ import { ModalComponent } from './modal/modal.component';
   ],
   declarations: [
     AppComponent,
-    ItemsComponent,
-    ItemDetailComponent,
-    ModalComponent,
+    // ItemsComponent,
+    // ItemDetailComponent,
+    // ModalComponent,
     // HomeComponent
   ],
   providers: [],

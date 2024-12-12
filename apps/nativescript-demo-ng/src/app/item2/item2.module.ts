@@ -5,7 +5,7 @@ import { Items2RoutingModule } from './item2-routing.module';
 
 @NgModule({
   imports: [NativeScriptCommonModule, Items2RoutingModule],
-  declarations: [ItemDetailComponent],
+  // declarations: [ItemDetailComponent],
   exports: [Items2RoutingModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
