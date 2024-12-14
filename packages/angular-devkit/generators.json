@@ -1,0 +1,22 @@
+{
+  "generators": {
+    "component": {
+      "factory": "./src/generators/component/component",
+      "schema": "./src/generators/component/schema.json",
+      "aliases": ["c"],
+      "description": "Generate an Angular Component."
+    },
+    "directive": {
+      "factory": "./src/generators/directive/directive",
+      "schema": "./src/generators/directive/schema.json",
+      "aliases": ["d"],
+      "description": "Generate an Angular directive."
+    },
+    "pipe": {
+      "factory": "./src/generators/pipe/pipe",
+      "schema": "./src/generators/pipe/schema.json",
+      "description": "Generate an Angular Pipe",
+      "aliases": ["p"]
+    }
+  }
+}

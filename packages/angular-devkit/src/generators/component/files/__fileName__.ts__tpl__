@@ -1,0 +1,19 @@
+import { <% if(changeDetection !== 'Default') { %>ChangeDetectionStrategy, <% }%>Component<% if(!!viewEncapsulation) { %>, ViewEncapsulation<% }%><% if(standalone) { %>, NO_ERRORS_SCHEMA<% }%> } from '@angular/core';<% if(standalone) {%>
+import { NativeScriptCommonModule } from '@nativescript/angular';<% } %>
+
+@Component({<% if(!skipSelector) {%>
+  selector: '<%= selector %>',<%}%><% if(standalone) {%>
+  standalone: true,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],<%}%><% if(inlineTemplate) { %>
+  template: `<p><%= name %> works!</p>`<% } else { %>
+  templateUrl: './<%= fileName %>.html'<% } if (angularMajorVersion < 17) { if(inlineStyle) { %>,
+  styles: [
+  ]<% } else if (style !== 'none') { %>,
+  styleUrls: ['./<%= fileName %>.<%= style %>']<% } %><% } else { if(inlineStyle) { %>,
+  styles: ``<% } else if (style !== 'none') { %>,
+  styleUrl: './<%= fileName %>.<%= style %>'<% } %><% } %><% if(!!viewEncapsulation) { %>,
+  encapsulation: ViewEncapsulation.<%= viewEncapsulation %><% } if (changeDetection !== 'Default') { %>,
+  changeDetection: ChangeDetectionStrategy.<%= changeDetection %><% } %>
+})
+export class <%= symbolName %> {}
