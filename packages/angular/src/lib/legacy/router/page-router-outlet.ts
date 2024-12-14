@@ -16,6 +16,7 @@ import { findTopActivatedRouteNodeForOutlet, pageRouterActivatedSymbol, loaderRe
 import { registerElement } from '../../element-registry';
 import { PageService } from '../../cdk/frame-page/page.service';
 import { ExtendedNavigationExtras } from './router-extensions';
+import { INPUT_BINDER } from '../../router/router-component-input-binder';
 
 export class PageRoute {
   activatedRoute: BehaviorSubject<ActivatedRoute>;
@@ -146,6 +147,13 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     return {};
   }
 
+  /** @internal */
+  get activatedComponentRef(): ComponentRef<any> | null {
+    return this.activated;
+  }
+  
+  private inputBinder = inject(INPUT_BINDER, { optional: true });
+
   constructor(
     private parentContexts: ChildrenOutletContexts,
     private location: ViewContainerRef,
@@ -176,6 +184,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
 
     this.viewUtil = viewUtil;
     this.detachedLoaderFactory = resolver.resolveComponentFactory(DetachedLoader);
+
   }
 
   setActionBarVisibility(actionBarVisibility: string): void {
@@ -217,6 +226,8 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
       this.deactivateEvents.emit(c);
       this.activated = null;
     }
+
+    this.inputBinder?.unsubscribeFromRouteData(this);
   }
 
   deactivate(): void {
@@ -345,6 +356,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     this.markActivatedRoute(activatedRoute);
 
     this.activateOnGoForward(activatedRoute, resolver || this.environmentInjector);
+    this.inputBinder?.bindActivatedRouteToOutletComponent(this);
     this.activateEvents.emit(this.activated.instance);
   }
 
