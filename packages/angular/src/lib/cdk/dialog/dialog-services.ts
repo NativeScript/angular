@@ -71,7 +71,7 @@ export class NativeDialog implements OnDestroy {
   private _defaultOptions = inject(NATIVE_DIALOG_DEFAULT_OPTIONS, {
     optional: true,
   });
-  private _parentDialog = inject(NativeDialogService, { optional: true, skipSelf: true });
+  private _parentDialog = inject(NativeDialog, { optional: true, skipSelf: true });
   private _dialogRefConstructor: Type<NativeDialogRef<any>> = NativeDialogRef;
   private _nativeModalType = NativeModalRef;
   private _dialogDataToken = NATIVE_DIALOG_DATA;
