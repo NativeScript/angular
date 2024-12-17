@@ -1,6 +1,5 @@
-import { Component, ViewContainerRef, OnInit, OnDestroy, NO_ERRORS_SCHEMA } from '@angular/core';
-import { NativeDialogModule, NativeScriptHttpClientModule, PageRouterOutlet } from '@nativescript/angular';
-import { AppRoutingModule } from './app-routing.module';
+import { Component, NO_ERRORS_SCHEMA, OnDestroy, OnInit, ViewContainerRef } from '@angular/core';
+import { PageRouterOutlet } from '@nativescript/angular';
 
 // registerElement('ns-app', () => GridLayout);
 @Component({

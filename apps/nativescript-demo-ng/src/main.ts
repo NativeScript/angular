@@ -12,7 +12,7 @@ import { Trace } from '@nativescript/core';
 import { withInterceptorsFromDi } from '@angular/common/http';
 import { importProvidersFrom } from '@angular/core';
 import { setWindowBackgroundColor } from '@nativescript/core/utils/ios';
-import { routes } from './app/app-routing.module';
+import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 
 Trace.enable();
