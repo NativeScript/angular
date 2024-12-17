@@ -6,10 +6,10 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import { Directive, Input, OnChanges, OnInit, Optional, SimpleChanges, ElementRef, HostListener } from '@angular/core';
+import { Directive, ElementRef, HostListener, Input, OnChanges, OnInit, Optional, SimpleChanges } from '@angular/core';
 import { View, ViewBase } from '@nativescript/core';
-import { NativeDialogService } from './dialog-services';
 import { NativeDialogRef } from './dialog-ref';
+import { NativeDialog } from './dialog-services';
 
 /**
  * Button that will close the current dialog.
@@ -31,7 +31,7 @@ export class NativeDialogCloseDirective implements OnInit, OnChanges {
     // tslint:disable-next-line: lightweight-tokens
     @Optional() public dialogRef: NativeDialogRef<any>,
     private _elementRef: ElementRef<View>,
-    private _dialog: NativeDialogService
+    private _dialog: NativeDialog,
   ) {}
 
   ngOnInit() {

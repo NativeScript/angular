@@ -38,7 +38,7 @@ export const NATIVE_DIALOG_DEFAULT_OPTIONS = new InjectionToken<NativeDialogConf
 @Injectable({
   providedIn: 'root',
 })
-export class NativeDialogService implements OnDestroy {
+export class NativeDialog implements OnDestroy {
   private _openDialogsAtThisLevel: NativeDialogRef<any>[] = [];
   private readonly _afterAllClosedAtThisLevel = new Subject<void>();
   private readonly _afterOpenedAtThisLevel = new Subject<NativeDialogRef<any>>();
@@ -248,3 +248,10 @@ export class NativeDialogService implements OnDestroy {
 function _applyConfigDefaults(config?: NativeDialogConfig, defaultOptions?: NativeDialogConfig): NativeDialogConfig {
   return { ...defaultOptions, ...config };
 }
+
+export {
+  /**
+   * @deprecated Use `NativeDialog` instead.
+   */
+  NativeDialog as NativeDialogService,
+};
