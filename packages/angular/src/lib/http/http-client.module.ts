@@ -1,12 +1,24 @@
-import { NgModule } from '@angular/core';
-import { HttpClientModule, HttpBackend } from '@angular/common/http';
+import {
+  HttpBackend,
+  HttpFeature,
+  HttpFeatureKind,
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
+import { makeEnvironmentProviders, NgModule } from '@angular/core';
 
 import { NSFileSystem } from '../file-system/ns-file-system';
 import { NsHttpBackEnd } from './ns-http-backend';
 
+export function provideNativeScriptHttpClient(...features: HttpFeature<HttpFeatureKind>[]) {
+  return makeEnvironmentProviders([
+    provideHttpClient(...features),
+    NSFileSystem,
+    NsHttpBackEnd,
+    { provide: HttpBackend, useExisting: NsHttpBackEnd },
+  ]);
+}
 @NgModule({
-  providers: [NSFileSystem, NsHttpBackEnd, { provide: HttpBackend, useExisting: NsHttpBackEnd }],
-  imports: [HttpClientModule],
-  exports: [HttpClientModule],
+  providers: [provideNativeScriptHttpClient(withInterceptorsFromDi())],
 })
 export class NativeScriptHttpClientModule {}

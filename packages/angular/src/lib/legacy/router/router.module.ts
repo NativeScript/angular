@@ -1,5 +1,22 @@
-import { NgModule, ModuleWithProviders, NO_ERRORS_SCHEMA, Optional, SkipSelf } from '@angular/core';
-import { RouterModule, Routes, ExtraOptions, RouteReuseStrategy } from '@angular/router';
+import {
+  NgModule,
+  ModuleWithProviders,
+  NO_ERRORS_SCHEMA,
+  Optional,
+  SkipSelf,
+  makeEnvironmentProviders,
+} from '@angular/core';
+import {
+  RouterModule,
+  Routes,
+  ExtraOptions,
+  RouteReuseStrategy,
+  RouterFeatures,
+  ActivatedRoute,
+  Router,
+  ROUTES,
+  provideRouter,
+} from '@angular/router';
 import { LocationStrategy, PlatformLocation } from '@angular/common';
 import { NSRouterLink } from './ns-router-link';
 import { NSRouterLinkActive } from './ns-router-link-active';
@@ -22,7 +39,11 @@ export { PageRouterOutlet } from './page-router-outlet';
 export { NSLocationStrategy } from './ns-location-strategy';
 export { NSEmptyOutletComponent } from './ns-empty-outlet.component';
 
-export function provideLocationStrategy(locationStrategy: NSLocationStrategy, frameService: FrameService, startPath: string): NSLocationStrategy {
+export function provideLocationStrategy(
+  locationStrategy: NSLocationStrategy,
+  frameService: FrameService,
+  startPath: string,
+): NSLocationStrategy {
   return locationStrategy ? locationStrategy : new NSLocationStrategy(frameService, startPath);
 }
 
@@ -57,4 +78,25 @@ export class NativeScriptRouterModule {
   static forChild(routes: Routes): ModuleWithProviders<NativeScriptRouterModule> {
     return { ngModule: NativeScriptRouterModule, providers: RouterModule.forChild(routes).providers };
   }
+}
+export function rootRoute(router: Router): ActivatedRoute {
+  return router.routerState.root;
+}
+
+export function provideNativeScriptRouter(routes: Routes, ...features: RouterFeatures[]) {
+  return makeEnvironmentProviders([
+    provideRouter(routes, ...features),
+    {
+      provide: NSLocationStrategy,
+      useFactory: provideLocationStrategy,
+      deps: [[NSLocationStrategy, new Optional(), new SkipSelf()], FrameService, [new Optional(), START_PATH]],
+    },
+    { provide: LocationStrategy, useExisting: NSLocationStrategy },
+    NativescriptPlatformLocation,
+    { provide: PlatformLocation, useExisting: NativescriptPlatformLocation },
+    RouterExtensions,
+    NSRouteReuseStrategy,
+    { provide: RouteReuseStrategy, useExisting: NSRouteReuseStrategy },
+    // {provide: APP_BOOTSTRAP_LISTENER, multi: true, useFactory: getBootstrapListener},
+  ]);
 }

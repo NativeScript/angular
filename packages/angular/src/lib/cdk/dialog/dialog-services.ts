@@ -6,7 +6,16 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import { Directive, Inject, Injectable, InjectionToken, Injector, OnDestroy, Optional, SkipSelf, StaticProvider, TemplateRef, Type } from '@angular/core';
+import {
+  inject,
+  Injectable,
+  InjectionToken,
+  Injector,
+  OnDestroy,
+  StaticProvider,
+  TemplateRef,
+  Type,
+} from '@angular/core';
 import { defer, Observable, Subject } from 'rxjs';
 import { startWith } from 'rxjs/operators';
 import { NSLocationStrategy } from '../../legacy/router/ns-location-strategy';
@@ -26,8 +35,10 @@ export const NATIVE_DIALOG_DEFAULT_OPTIONS = new InjectionToken<NativeDialogConf
  * Base class for dialog services. The base dialog service allows
  * for arbitrary dialog refs and dialog container components.
  */
-@Directive()
-export abstract class _NativeDialogBase<C extends NativeModalRef> implements OnDestroy {
+@Injectable({
+  providedIn: 'root',
+})
+export class NativeDialogService implements OnDestroy {
   private _openDialogsAtThisLevel: NativeDialogRef<any>[] = [];
   private readonly _afterAllClosedAtThisLevel = new Subject<void>();
   private readonly _afterOpenedAtThisLevel = new Subject<NativeDialogRef<any>>();
@@ -36,7 +47,11 @@ export abstract class _NativeDialogBase<C extends NativeModalRef> implements OnD
    * Stream that emits when all open dialog have finished closing.
    * Will emit on subscribe if there are no open dialogs to begin with.
    */
-  readonly afterAllClosed: Observable<void> = defer(() => (this.openDialogs.length ? this._getAfterAllClosed() : this._getAfterAllClosed().pipe(startWith<any, any>(undefined)))) as Observable<any>;
+  readonly afterAllClosed: Observable<void> = defer(() =>
+    this.openDialogs.length
+      ? this._getAfterAllClosed()
+      : this._getAfterAllClosed().pipe(startWith<any, any>(undefined)),
+  ) as Observable<any>;
 
   /** Keeps track of the currently-open dialogs. */
   get openDialogs(): NativeDialogRef<any>[] {
@@ -52,17 +67,15 @@ export abstract class _NativeDialogBase<C extends NativeModalRef> implements OnD
     const parent = this._parentDialog;
     return parent ? parent._getAfterAllClosed() : this._afterAllClosedAtThisLevel;
   }
-
-  constructor(
-    private _injector: Injector,
-    private _defaultOptions: NativeDialogConfig | undefined,
-    private _parentDialog: _NativeDialogBase<C> | undefined,
-    private _dialogRefConstructor: Type<NativeDialogRef<any>>,
-    private _nativeModalType: Type<C>,
-    private _dialogDataToken: InjectionToken<any>,
-    private locationStrategy: NSLocationStrategy,
-  ) {}
-
+  private _injector = inject(Injector);
+  private _defaultOptions = inject(NATIVE_DIALOG_DEFAULT_OPTIONS, {
+    optional: true,
+  });
+  private _parentDialog = inject(NativeDialogService, { optional: true, skipSelf: true });
+  private _dialogRefConstructor: Type<NativeDialogRef<any>> = NativeDialogRef;
+  private _nativeModalType = NativeModalRef;
+  private _dialogDataToken = NATIVE_DIALOG_DATA;
+  private locationStrategy = inject(NSLocationStrategy);
   /**
    * Opens a modal dialog containing the given component.
    * @param component Type of the component to load into the dialog.
@@ -79,9 +92,15 @@ export abstract class _NativeDialogBase<C extends NativeModalRef> implements OnD
    */
   open<T, D = any, R = any>(template: TemplateRef<T>, config?: NativeDialogConfig<D>): NativeDialogRef<T, R>;
 
-  open<T, D = any, R = any>(template: ComponentType<T> | TemplateRef<T>, config?: NativeDialogConfig<D>): NativeDialogRef<T, R>;
+  open<T, D = any, R = any>(
+    template: ComponentType<T> | TemplateRef<T>,
+    config?: NativeDialogConfig<D>,
+  ): NativeDialogRef<T, R>;
 
-  open<T, D = any, R = any>(componentOrTemplateRef: ComponentType<T> | TemplateRef<T>, config?: NativeDialogConfig<D>): NativeDialogRef<T, R> {
+  open<T, D = any, R = any>(
+    componentOrTemplateRef: ComponentType<T> | TemplateRef<T>,
+    config?: NativeDialogConfig<D>,
+  ): NativeDialogRef<T, R> {
     config = _applyConfigDefaults(config, this._defaultOptions || new NativeDialogConfig());
 
     if (config.id && this.getDialogById(config.id) && (typeof ngDevMode === 'undefined' || ngDevMode)) {
@@ -131,7 +150,10 @@ export abstract class _NativeDialogBase<C extends NativeModalRef> implements OnD
    * @param config The dialog configuration.
    * @returns A promise resolving to the MatDialogRef that should be returned to the user.
    */
-  private _attachDialogContent<T, R>(componentOrTemplateRef: ComponentType<T> | TemplateRef<T>, config: NativeDialogConfig): NativeDialogRef<T, R> {
+  private _attachDialogContent<T, R>(
+    componentOrTemplateRef: ComponentType<T> | TemplateRef<T>,
+    config: NativeDialogConfig,
+  ): NativeDialogRef<T, R> {
     // Create a reference to the dialog we're creating in order to give the user a handle
     // to modify and close it.
     const nativeModalRef = new this._nativeModalType(config, this._injector, this.locationStrategy);
@@ -153,7 +175,9 @@ export abstract class _NativeDialogBase<C extends NativeModalRef> implements OnD
       );
     } else {
       const injector = this._createInjector<T>(config, dialogRef);
-      const contentRef = nativeModalRef.attachComponentPortal<T>(new ComponentPortal(componentOrTemplateRef, config.viewContainerRef, injector));
+      const contentRef = nativeModalRef.attachComponentPortal<T>(
+        new ComponentPortal(componentOrTemplateRef, config.viewContainerRef, injector),
+      );
       dialogRef.componentInstance = contentRef.instance;
     }
 
@@ -212,16 +236,6 @@ export abstract class _NativeDialogBase<C extends NativeModalRef> implements OnD
       // they'll be removed from the list instantaneously.
       dialogs[i].close();
     }
-  }
-}
-
-/**
- * Service to open Material Design modal dialogs.
- */
-@Injectable()
-export class NativeDialogService extends _NativeDialogBase<NativeModalRef> {
-  constructor(injector: Injector, @Optional() @Inject(NATIVE_DIALOG_DEFAULT_OPTIONS) defaultOptions: NativeDialogConfig, @Optional() @SkipSelf() parentDialog: NativeDialogService, @Optional() location: NSLocationStrategy) {
-    super(injector, defaultOptions, parentDialog, NativeDialogRef, NativeModalRef, NATIVE_DIALOG_DATA, location);
   }
 }
 

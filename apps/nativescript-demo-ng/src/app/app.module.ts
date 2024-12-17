@@ -13,23 +13,23 @@ import { ModalComponent } from './modal/modal.component';
 // import { HomeComponent } from './home/home.component';
 // import { NativeScriptMaterialBottomNavigationModule } from '@nativescript-community/ui-material-bottom-navigation/angular';
 
-@NgModule({
-  bootstrap: [AppComponent],
-  imports: [
-    NativeScriptModule,
-    NativeScriptHttpClientModule,
-    AppRoutingModule,
-    NativeDialogModule,
-    // NativeScriptMaterialBottomNavigationModule
-  ],
-  declarations: [
-    AppComponent,
-    // ItemsComponent,
-    // ItemDetailComponent,
-    // ModalComponent,
-    // HomeComponent
-  ],
-  providers: [],
-  schemas: [NO_ERRORS_SCHEMA],
-})
-export class AppModule {}
+// @NgModule({
+//   bootstrap: [AppComponent],
+//   imports: [
+//     NativeScriptModule,
+//     NativeScriptHttpClientModule,
+//     AppRoutingModule,
+//     NativeDialogModule,
+//     // NativeScriptMaterialBottomNavigationModule
+//   ],
+//   declarations: [
+//     AppComponent,
+//     // ItemsComponent,
+//     // ItemDetailComponent,
+//     // ModalComponent,
+//     // HomeComponent
+//   ],
+//   providers: [],
+//   schemas: [NO_ERRORS_SCHEMA],
+// })
+// export class AppModule {}

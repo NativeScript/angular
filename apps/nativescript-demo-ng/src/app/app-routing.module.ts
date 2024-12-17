@@ -7,7 +7,7 @@ import { ItemsComponent } from './item/items.component';
 // import { HomeComponent } from './home/home.component';
 // import { BootGuardService } from './boot-guard.service';
 
-const routes: Routes = [
+export const routes: Routes = [
   { path: '', redirectTo: '/rootlazy', pathMatch: 'full' },
   { path: 'items', component: ItemsComponent },
   { path: 'item/:id', component: ItemDetailComponent },
