@@ -12,6 +12,9 @@ import { withInterceptorsFromDi } from '@angular/common/http';
 import { setWindowBackgroundColor } from '@nativescript/core/utils/ios';
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
+import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+
+const EXPERIMENTAL_ZONELESS = true;
 
 Trace.enable();
 Trace.setCategories('ns-route-reuse-strategy,ns-router');
@@ -25,7 +28,7 @@ runNativeScriptAngularApp({
       providers: [
         provideNativeScriptHttpClient(withInterceptorsFromDi()),
         provideNativeScriptRouter(routes),
-        provideNativeScriptNgZone(),
+        EXPERIMENTAL_ZONELESS ? provideExperimentalZonelessChangeDetection() : provideNativeScriptNgZone(),
       ],
     });
   },
