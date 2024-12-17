@@ -1,17 +1,14 @@
-import { NgModule } from '@angular/core';
 import { Routes } from '@angular/router';
-import { NativeScriptRouterModule } from '@nativescript/angular';
-
 import { ItemDetailComponent } from './item/item-detail.component';
 import { ItemsComponent } from './item/items.component';
 // import { HomeComponent } from './home/home.component';
 // import { BootGuardService } from './boot-guard.service';
 
-const routes: Routes = [
+export const routes: Routes = [
   { path: '', redirectTo: '/rootlazy', pathMatch: 'full' },
   { path: 'items', component: ItemsComponent },
   { path: 'item/:id', component: ItemDetailComponent },
-  { path: 'item2', loadChildren: () => import('./item2/item2.module').then((m) => m.Item2Module) },
+  { path: 'item2', loadChildren: () => import('./item2/item2.routes').then((m) => m.ITEM2_ROUTES) },
   { path: 'rootlazy', loadChildren: () => import('./item3/item3.module').then((m) => m.Item3Module) },
 
   /**
@@ -36,9 +33,3 @@ const routes: Routes = [
   //   loadChildren: () => import('./item2/item2.module').then((m) => m.Item2Module),
   // },
 ];
-
-@NgModule({
-  imports: [NativeScriptRouterModule.forRoot(routes)],
-  exports: [NativeScriptRouterModule],
-})
-export class AppRoutingModule {}

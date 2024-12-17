@@ -1,5 +1,5 @@
 import { APP_BASE_HREF, CommonModule, HashLocationStrategy, Location, LocationStrategy, LOCATION_INITIALIZED, PathLocationStrategy, PlatformLocation } from '@angular/common';
-import { ApplicationRef, APP_BOOTSTRAP_LISTENER, APP_INITIALIZER, ComponentRef, Inject, Injectable, Injector, ModuleWithProviders, NgModule, NgProbeToken, NO_ERRORS_SCHEMA, Optional } from '@angular/core';
+import { ApplicationRef, APP_BOOTSTRAP_LISTENER, ComponentRef, Inject, Injectable, Injector, ModuleWithProviders, NgModule, NgProbeToken, NO_ERRORS_SCHEMA, Optional, inject, provideAppInitializer } from '@angular/core';
 import { ExtraOptions, NoPreloading, PreloadingStrategy, provideRoutes, Router, RouterModule, RouterPreloader, ROUTER_CONFIGURATION, ROUTER_INITIALIZER, Routes, ɵROUTER_PROVIDERS } from '@angular/router';
 import { of, Subject } from 'rxjs';
 import { NativeScriptCommonModule } from '../nativescript-common.module';
@@ -194,12 +194,10 @@ export class NativeScriptRouterModule {
         },
         { provide: START_PATH, useValue: 'home2' },
         RouterInitializer,
-        {
-          provide: APP_INITIALIZER,
-          multi: true,
-          useFactory: getAppInitializer,
-          deps: [RouterInitializer],
-        },
+        provideAppInitializer(() => {
+          const initializerFn = getAppInitializer(inject(RouterInitializer));
+          return initializerFn();
+        }),
         {
           provide: ROUTER_INITIALIZER,
           useFactory: getBootstrapListener,

@@ -1,14 +1,15 @@
 // make sure you import mocha-config before @angular/core
 import { Component, ElementRef, NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
-import { dumpView, createDevice } from './test-utils.spec';
-import { DEVICE, NativeScriptCommonModule, NativeScriptModule, registerElement } from '@nativescript/angular';
-import { platformNames } from '@nativescript/core/platform';
 import { TestBed } from '@angular/core/testing';
-import { StackLayout } from '@nativescript/core';
+import { AndroidFilterComponent, DEVICE, IOSFilterComponent, NativeScriptModule } from '@nativescript/angular';
+import { platformNames } from '@nativescript/core/platform';
+import { createDevice, dumpView } from './test-utils.spec';
 @Component({
   template: ` <StackLayout>
     <ios><Label text="IOS"></Label></ios>
   </StackLayout>`,
+  imports: [IOSFilterComponent],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class IosSpecificComponent {
   constructor(public elementRef: ElementRef) {}
@@ -18,6 +19,8 @@ export class IosSpecificComponent {
   template: ` <StackLayout>
     <android><Label text="ANDROID"></Label></android>
   </StackLayout>`,
+  imports: [AndroidFilterComponent],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class AndroidSpecificComponent {
   constructor(public elementRef: ElementRef) {}
@@ -27,25 +30,19 @@ export class AndroidSpecificComponent {
   template: ` <StackLayout>
     <Label android:text="ANDROID" ios:text="IOS"></Label>
   </StackLayout>`,
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class PlatformSpecificAttributeComponent {
   constructor(public elementRef: ElementRef) {}
 }
 
 const DECLARATIONS = [PlatformSpecificAttributeComponent, AndroidSpecificComponent, IosSpecificComponent];
-@NgModule({
-  declarations: DECLARATIONS,
-  imports: [NativeScriptModule],
-  schemas: [NO_ERRORS_SCHEMA],
-})
-export class PlatformModule {}
 
 describe('Platform filter directives', () => {
   describe('on IOS device', () => {
     beforeEach(() => {
       return TestBed.configureTestingModule({
-        imports: [],
-        declarations: DECLARATIONS,
+        imports: DECLARATIONS,
         providers: [{ provide: DEVICE, useValue: createDevice(platformNames.ios) }],
         schemas: [NO_ERRORS_SCHEMA],
       }).compileComponents();
@@ -77,8 +74,7 @@ describe('Platform filter directives', () => {
   describe('on Android device', () => {
     beforeEach(() => {
       return TestBed.configureTestingModule({
-        imports: [],
-        declarations: DECLARATIONS,
+        imports: DECLARATIONS,
         providers: [{ provide: DEVICE, useValue: createDevice(platformNames.android) }],
         schemas: [NO_ERRORS_SCHEMA],
       }).compileComponents();

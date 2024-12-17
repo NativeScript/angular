@@ -5,6 +5,7 @@ import { GridLayout, ProxyViewContainer } from '@nativescript/core';
 
 @Component({
   template: `<ng-container #vc></ng-container><ng-template #template><GridLayout></GridLayout></ng-template>`,
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class GenerateViewComponent {
   @ViewChild('vc', { read: ViewContainerRef }) vc: ViewContainerRef;
@@ -14,11 +15,12 @@ export class GenerateViewComponent {
 
 @Component({
   template: `<GridLayout></GridLayout>`,
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class GeneratedComponent {}
 
 @NgModule({
-  declarations: [GeneratedComponent, GenerateViewComponent],
+  imports: [GeneratedComponent, GenerateViewComponent],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class GeneratedModule {}
@@ -28,7 +30,7 @@ describe('generateNativeScriptView', () => {
   let cleanup: Array<NgViewRef<unknown> | ComponentRef<unknown> | EmbeddedViewRef<unknown>> = [];
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [GenerateViewComponent, GeneratedComponent],
+      imports: [GenerateViewComponent, GeneratedComponent],
     }).compileComponents();
     fixture = TestBed.createComponent(GenerateViewComponent);
     fixture.detectChanges();
