@@ -1,6 +1,5 @@
 import {
   bootstrapApplication,
-  NativeDialogModule,
   provideNativeScriptHttpClient,
   provideNativeScriptNgZone,
   provideNativeScriptRouter,
@@ -10,10 +9,9 @@ import { Trace } from '@nativescript/core';
 
 // import { AppModule } from './app/app.module';
 import { withInterceptorsFromDi } from '@angular/common/http';
-import { importProvidersFrom } from '@angular/core';
 import { setWindowBackgroundColor } from '@nativescript/core/utils/ios';
-import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
+import { routes } from './app/app.routes';
 
 Trace.enable();
 Trace.setCategories('ns-route-reuse-strategy,ns-router');
@@ -27,7 +25,6 @@ runNativeScriptAngularApp({
       providers: [
         provideNativeScriptHttpClient(withInterceptorsFromDi()),
         provideNativeScriptRouter(routes),
-        importProvidersFrom(NativeDialogModule),
         provideNativeScriptNgZone(),
       ],
     });
