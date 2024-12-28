@@ -1,12 +1,22 @@
-import { ApplicationRef, EnvironmentProviders, NgModuleRef, NgZone, PlatformRef, Provider, Type, ɵinternalCreateApplication as internalCreateApplication } from '@angular/core';
+import { ApplicationRef, EnvironmentProviders, NgModuleRef, NgZone, PlatformRef, Provider } from '@angular/core';
+import {
+  Application,
+  ApplicationEventData,
+  Color,
+  LaunchEventData,
+  LayoutBase,
+  profile,
+  removeTaggedAdditionalCSS,
+  TextView,
+  Utils,
+  View,
+} from '@nativescript/core';
+import { Observable, Subject } from 'rxjs';
 import { filter, map, take } from 'rxjs/operators';
-import { Application, ApplicationEventData, Color, LaunchEventData, LayoutBase, profile, removeTaggedAdditionalCSS, StackLayout, TextView, View, Utils, Trace } from '@nativescript/core';
 import { AppHostView } from './app-host-view';
 import { NativeScriptLoadingService } from './loading.service';
 import { APP_ROOT_VIEW, DISABLE_ROOT_VIEW_HANDLING, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
-import { Observable, Subject } from 'rxjs';
 import { NativeScriptDebug } from './trace';
-import { NATIVESCRIPT_MODULE_PROVIDERS, NATIVESCRIPT_MODULE_STATIC_PROVIDERS } from './nativescript';
 
 export interface AppLaunchView extends LayoutBase {
   // called when the animation is to begin
@@ -45,7 +55,7 @@ export const postAngularBootstrap$ = new Subject<NgModuleEvent>();
  */
 export const onBeforeLivesync: Observable<NgModuleRef<any>> = preAngularDisposal$.pipe(
   filter((v) => v.moduleType === 'main' && v.reason === 'hotreload'),
-  map((v) => v.reference as NgModuleRef<any>)
+  map((v) => v.reference as NgModuleRef<any>),
 );
 /**
  * @deprecated
@@ -55,7 +65,7 @@ export const onAfterLivesync: Observable<{
   error?: Error;
 }> = postAngularBootstrap$.pipe(
   filter((v) => v.moduleType === 'main'),
-  map((v) => ({ moduleRef: v.reference as NgModuleRef<any> }))
+  map((v) => ({ moduleRef: v.reference as NgModuleRef<any> })),
 );
 export interface AppRunOptions<T, K> {
   /**
@@ -92,7 +102,11 @@ if (import.meta['webpackHot']) {
   };
 }
 
-function emitModuleBootstrapEvent<T>(ref: NgModuleRef<T> | ApplicationRef, name: 'main' | 'loading', reason: NgModuleReason) {
+function emitModuleBootstrapEvent<T>(
+  ref: NgModuleRef<T> | ApplicationRef,
+  name: 'main' | 'loading',
+  reason: NgModuleReason,
+) {
   postAngularBootstrap$.next({
     moduleType: name,
     reference: ref,
@@ -136,7 +150,7 @@ function runZoneSyncTask(fn: () => void) {
     },
     () => {
       //
-    }
+    },
   );
   try {
     // console.log(task.state);
@@ -198,21 +212,11 @@ function runSynchronously(fn: () => void, done?: () => void): void {
   }
 }
 
-function createProvidersConfig(options?: ApplicationConfig) {
-  return {
-    appProviders: [...NATIVESCRIPT_MODULE_PROVIDERS, ...NATIVESCRIPT_MODULE_STATIC_PROVIDERS, ...(options?.providers ?? [])],
-    // platformProviders: INTERNAL_BROWSER_PLATFORM_PROVIDERS
-  };
-}
-
 export interface ApplicationConfig {
   /**
    * List of providers that should be available to the root component and all its children.
    */
   providers: Array<Provider | EnvironmentProviders>;
-}
-export function bootstrapApplication(rootComponent: Type<unknown>, options?: ApplicationConfig): Promise<ApplicationRef> {
-  return internalCreateApplication({ rootComponent, ...createProvidersConfig(options) });
 }
 
 export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
@@ -301,7 +305,9 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
               }
               mainModuleRef = ref;
 
-              (ref instanceof ApplicationRef ? ref.components[0] : ref).onDestroy(() => (mainModuleRef = mainModuleRef === ref ? null : mainModuleRef));
+              (ref instanceof ApplicationRef ? ref.components[0] : ref).onDestroy(
+                () => (mainModuleRef = mainModuleRef === ref ? null : mainModuleRef),
+              );
               updatePlatformRef(ref, reason);
               const styleTag = ref.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
               (ref instanceof ApplicationRef ? ref.components[0] : ref).onDestroy(() => {
@@ -317,7 +323,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
               NativeScriptDebug.bootstrapLogError(`Error bootstrapping app module:\n${err.message}\n\n${err.stack}`);
               showErrorUI(err);
               throw err;
-            }
+            },
           ),
         () => {
           if (currentBootstrapId !== bootstrapId) {
@@ -335,10 +341,16 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
                       return;
                     }
                     loadingModuleRef = loadingRef;
-                    (loadingModuleRef instanceof ApplicationRef ? loadingModuleRef.components[0] : loadingModuleRef).onDestroy(() => (loadingModuleRef = loadingModuleRef === loadingRef ? null : loadingModuleRef));
+                    (loadingModuleRef instanceof ApplicationRef
+                      ? loadingModuleRef.components[0]
+                      : loadingModuleRef
+                    ).onDestroy(() => (loadingModuleRef = loadingModuleRef === loadingRef ? null : loadingModuleRef));
                     updatePlatformRef(loadingRef, reason);
                     const styleTag = loadingModuleRef.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
-                    (loadingModuleRef instanceof ApplicationRef ? loadingModuleRef.components[0] : loadingModuleRef).onDestroy(() => {
+                    (loadingModuleRef instanceof ApplicationRef
+                      ? loadingModuleRef.components[0]
+                      : loadingModuleRef
+                    ).onDestroy(() => {
                       removeTaggedAdditionalCSS(styleTag);
                     });
                     setRootView(loadingRef);
@@ -352,7 +364,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
                         loadingService.readyToDestroy$
                           .pipe(
                             filter((ready) => ready),
-                            take(1)
+                            take(1),
                           )
                           .subscribe(() => {
                             destroyRef(loadingModuleRef, 'loading', reason);
@@ -364,11 +376,13 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
                     emitModuleBootstrapEvent(loadingModuleRef, 'loading', reason);
                   },
                   (err) => {
-                    NativeScriptDebug.bootstrapLogError(`Error bootstrapping loading module:\n${err.message}\n\n${err.stack}`);
+                    NativeScriptDebug.bootstrapLogError(
+                      `Error bootstrapping loading module:\n${err.message}\n\n${err.stack}`,
+                    );
                     showErrorUI(err);
                     throw err;
-                  }
-                )
+                  },
+                ),
               );
             } else if (options.launchView) {
               let launchView = options.launchView(reason);
@@ -397,10 +411,12 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
                 });
               };
             } else {
-              console.warn('App is bootstrapping asynchronously (likely APP_INITIALIZER) but did not provide a launchView or LoadingModule.');
+              console.warn(
+                'App is bootstrapping asynchronously (likely APP_INITIALIZER) but did not provide a launchView or LoadingModule.',
+              );
             }
           }
-        }
+        },
       );
     } catch (err) {
       NativeScriptDebug.bootstrapLogError(`Error in Bootstrap Function:\n${err.message}\n\n${err.stack}`);
@@ -431,7 +447,8 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   let oldAddEventListener;
   if (typeof Zone !== 'undefined' && global.NativeScriptGlobals?.events?.[Zone.__symbol__('addEventListener')]) {
     oldAddEventListener = global.NativeScriptGlobals.events.addEventListener;
-    global.NativeScriptGlobals.events.addEventListener = global.NativeScriptGlobals.events[Zone.__symbol__('addEventListener')];
+    global.NativeScriptGlobals.events.addEventListener =
+      global.NativeScriptGlobals.events[Zone.__symbol__('addEventListener')];
   }
   if (!options.embedded) {
     Application.on(Application.launchEvent, launchCallback);

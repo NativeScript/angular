@@ -1,21 +1,59 @@
-import { Attribute, ChangeDetectorRef, ComponentFactory, ComponentFactoryResolver, ComponentRef, Directive, Inject, InjectionToken, Injector, OnDestroy, EventEmitter, Output, Type, ViewContainerRef, ElementRef, InjectFlags, NgZone, EnvironmentInjector, inject, InjectOptions } from '@angular/core';
-import { ActivatedRoute, ActivatedRouteSnapshot, ChildrenOutletContexts, Data, PRIMARY_OUTLET, Router, RouterOutletContract } from '@angular/router';
+import {
+  Attribute,
+  ChangeDetectorRef,
+  ComponentFactory,
+  ComponentFactoryResolver,
+  ComponentRef,
+  createComponent,
+  Directive,
+  ElementRef,
+  EnvironmentInjector,
+  EventEmitter,
+  Inject,
+  InjectFlags,
+  InjectionToken,
+  InjectOptions,
+  Injector,
+  NgZone,
+  OnDestroy,
+  Output,
+  Type,
+  ViewContainerRef,
+} from '@angular/core';
+import {
+  ActivatedRoute,
+  ActivatedRouteSnapshot,
+  ChildrenOutletContexts,
+  Data,
+  PRIMARY_OUTLET,
+  Router,
+  RouterOutletContract,
+} from '@angular/router';
 
-import { Frame, Page, NavigatedData, profile, NavigationEntry } from '@nativescript/core';
+import { Frame, NavigatedData, NavigationEntry, Page, profile } from '@nativescript/core';
 
 import { BehaviorSubject } from 'rxjs';
 
+import { DetachedLoader } from '../../cdk/detached-loader';
+import { PageService } from '../../cdk/frame-page/page.service';
+import { registerElement } from '../../element-registry';
 import { PAGE_FACTORY, PageFactory } from '../../tokens';
 import { NativeScriptDebug } from '../../trace';
-import { DetachedLoader } from '../../cdk/detached-loader';
 import { ViewUtil } from '../../view-util';
 import { NSLocationStrategy } from './ns-location-strategy';
 import { defaultNavOptions, Outlet } from './ns-location-utils';
 import { NSRouteReuseStrategy } from './ns-route-reuse-strategy';
-import { findTopActivatedRouteNodeForOutlet, pageRouterActivatedSymbol, loaderRefSymbol, destroyComponentRef } from './page-router-outlet-utils';
-import { registerElement } from '../../element-registry';
-import { PageService } from '../../cdk/frame-page/page.service';
+import {
+  destroyComponentRef,
+  findTopActivatedRouteNodeForOutlet,
+  loaderRefSymbol,
+  pageRouterActivatedSymbol,
+} from './page-router-outlet-utils';
 import { ExtendedNavigationExtras } from './router-extensions';
+
+function zoneWrap<T extends (...args: unknown[]) => unknown>(fn: T): T {
+  return typeof Zone === 'undefined' ? fn : Zone.current.wrap(fn, 'angular');
+}
 
 export class PageRoute {
   activatedRoute: BehaviorSubject<ActivatedRoute>;
@@ -42,7 +80,10 @@ function callableOnce<T>(fn: (...args: T[]) => void) {
 
 export class DestructibleInjector implements Injector {
   private refs = new Set<any>();
-  constructor(private destructibleProviders: ProviderSet, private parent: Injector) {}
+  constructor(
+    private destructibleProviders: ProviderSet,
+    private parent: Injector,
+  ) {}
   get<T>(token: Type<T> | InjectionToken<T>, notFoundValue?: T, flags?: InjectOptions | InjectFlags): T {
     const ref = this.parent.get(token, notFoundValue, flags);
 
@@ -77,7 +118,7 @@ const routeToString = function (activatedRoute: ActivatedRoute | ActivatedRouteS
 
 registerElement('page-router-outlet', () => Frame);
 // eslint-disable-next-line @angular-eslint/directive-selector
-@Directive({ 
+@Directive({
   selector: 'page-router-outlet',
   standalone: true,
 }) // tslint:disable-line:directive-selector
@@ -162,7 +203,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     private router: Router,
     elRef: ElementRef,
     viewUtil: ViewUtil,
-    private environmentInjector: EnvironmentInjector
+    private environmentInjector: EnvironmentInjector,
   ) {
     this.isEmptyOutlet = isEmptyOutlet;
     this.frame = elRef.nativeElement;
@@ -222,7 +263,9 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
   deactivate(): void {
     if (!this.outlet || !this.outlet.isPageNavigationBack) {
       if (NativeScriptDebug.isLogEnabled()) {
-        NativeScriptDebug.routerLog('Currently not in page back navigation - component should be detached instead of deactivated.');
+        NativeScriptDebug.routerLog(
+          'Currently not in page back navigation - component should be detached instead of deactivated.',
+        );
       }
       return;
     }
@@ -329,7 +372,9 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
 
     if (this.outlet && this.outlet.isPageNavigationBack) {
       if (NativeScriptDebug.isLogEnabled()) {
-        NativeScriptDebug.routerLog('Currently in page back navigation - component should be reattached instead of activated.');
+        NativeScriptDebug.routerLog(
+          'Currently in page back navigation - component should be reattached instead of activated.',
+        );
       }
       if (this.isFinalPageRouterOutlet()) {
         this.locationStrategy._finishBackPageNavigation(this.frame);
@@ -348,9 +393,14 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     this.activateEvents.emit(this.activated.instance);
   }
 
-  private activateOnGoForward(activatedRoute: ActivatedRoute, resolverOrInjector: ComponentFactoryResolver | EnvironmentInjector): void {
+  private activateOnGoForward(
+    activatedRoute: ActivatedRoute,
+    resolverOrInjector: ComponentFactoryResolver | EnvironmentInjector,
+  ): void {
     if (NativeScriptDebug.isLogEnabled()) {
-      NativeScriptDebug.routerLog('PageRouterOutlet.activate() forward navigation - ' + 'create detached loader in the loader container');
+      NativeScriptDebug.routerLog(
+        'PageRouterOutlet.activate() forward navigation - ' + 'create detached loader in the loader container',
+      );
     }
 
     const component = this.getComponentType(activatedRoute);
@@ -376,8 +426,10 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     const injector = new DestructibleInjector(destructibles, parentInjector);
     let loaderRef: ComponentRef<DetachedLoader>;
     if (isComponentFactoryResolver(resolverOrInjector)) {
-      const factory = resolverOrInjector.resolveComponentFactory(DetachedLoader);
-      loaderRef = location.createComponent(factory, location.length, injector);
+      loaderRef = createComponent(DetachedLoader, {
+        environmentInjector: this.environmentInjector,
+        elementInjector: injector,
+      });
     } else {
       const environmentInjector = resolverOrInjector;
       loaderRef = location.createComponent(DetachedLoader, { index: location.length, injector, environmentInjector });
@@ -412,8 +464,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
       }
       outletKey = this.locationStrategy.getRouteFullPath(topActivatedRoute);
     }
-
-    const navigatedFromCallback = (<any>global).Zone.current.wrap((args: NavigatedData) => {
+    const navigatedFromCallback = zoneWrap((args: NavigatedData) => {
       if (args.isBackNavigation) {
         this.locationStrategy._beginBackPageNavigation(this.frame, outletKey);
         this.locationStrategy.back(null, this.frame);
@@ -437,7 +488,10 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
       }
     });
 
-    const navOptions = { ...defaultNavOptions, ...(this.router.getCurrentNavigation().extras || {}) } as ExtendedNavigationExtras;
+    const navOptions = {
+      ...defaultNavOptions,
+      ...(this.router.getCurrentNavigation().extras || {}),
+    } as ExtendedNavigationExtras;
     this.locationStrategy._beginPageNavigation(this.frame, navOptions);
     const isReplace = navOptions.replaceUrl && !navOptions.clearHistory;
 

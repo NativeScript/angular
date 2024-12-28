@@ -31,39 +31,20 @@
         }
       }
     },
-    "ios": {
-      "executor": "@nativescript/nx:build",
+    "debug": {
+      "executor": "@nativescript/nx:debug",
       "options": {
-        "platform": "ios"
+        "noHmr": true,
+        "uglify": false,
+        "release": false,
+        "forDevice": false,
+        "prepare": false
       },
-      "configurations": {
-        "build": {
-          "copyTo": "./dist/build.ipa"
-        },
-        "prod": {
-          "combineWithConfig": "build:prod"
-        }
-      }
-    },
-    "android": {
-      "executor": "@nativescript/nx:build",
-      "options": {
-        "platform": "android"
-      },
-      "configurations": {
-        "build": {
-          "copyTo": "./dist/build.apk"
-        },
-        "prod": {
-          "combineWithConfig": "build:prod"
-        }
-      }
+      "dependsOn": ["^build"]
     },
     "clean": {
-      "executor": "@nativescript/nx:build",
-      "options": {
-        "clean": true
-      }
+      "executor": "@nativescript/nx:clean",
+      "options": {}
     },
     "lint": {
       "executor": "@nx/eslint:lint"
@@ -74,14 +55,7 @@
       "options": {
         "coverage": false
       },
-      "configurations": {
-        "android": {
-          "platform": "android"
-        },
-        "ios": {
-          "platform": "ios"
-        }
-      }
+      "configurations": {}
     }
   }
 }

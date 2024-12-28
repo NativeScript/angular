@@ -23,17 +23,17 @@ core theme, such as p-20, btn, h2, and list-group. You can view a full list of t
 class names available for styling your app at https://docs.nativescript.org/ui/theme.
 -->
 <GridLayout rows="auto,,*" class="page">
-  <StackLayout row="0" padding="10">
-    <Label [text]="message" class="h1 text-center c-light-blue"></Label>
-    <Image src="~/assets/angular.png" horizontalAlignment="center" width="200" verticalAlignment="top" marginBottom="10"></Image>
+  <StackLayout row="0" class="p-4">
+    <Label [text]="message" class="text-3xl font-bold text-center text-blue-500"></Label>
+    <Image src="~/assets/angular.png" class="w-[200] h-center mb-2 align-top"></Image>
     <!-- <Button (tap)="openModal()" text="Taste the Rainbow 🌈" [borderRadius]="borderRadius" [fontSize]="fontSize" backgroundColor="#00d2ff" color="#fff" margin="0" width="100%" fontWeight="bold" height="50"></Button> -->
-    <Button (tap)="openModal()" text="Open Modal" [borderRadius]="borderRadius" [fontSize]="fontSize" backgroundColor="#00d2ff" color="#fff" margin="0" width="100%" fontWeight="bold" height="50"></Button>
-    <Button (tap)="fetchTodos()" text="Make a native Http networking request" [borderRadius]="borderRadius" [fontSize]="fontSize" padding="0" backgroundColor="#00d2ff" color="#fff" marginTop="10" width="100%" fontWeight="bold" height="50"></Button>
+    <Button (tap)="openModal()" text="Open Modal" [borderRadius]="borderRadius" [fontSize]="fontSize" backgroundColor="#00d2ff" class="text-white w-full font-bold h-[50]"></Button>
+    <Button (tap)="fetchTodos()" text="Make a native Http networking request" [borderRadius]="borderRadius" [fontSize]="fontSize" padding="0" backgroundColor="#00d2ff" class="text-white mt-2 w-full font-bold h-[50]"></Button>
   </StackLayout>
-  <ListView row="1" [items]="items" class="list-group" backgroundColor="#efefef">
+  <ListView row="1" [items]="items" backgroundColor="#efefef">
     <ng-template let-item="item">
-      <StackLayout [nsRouterLink]="['/item2', item.id]" padding="10">
-        <Label [text]="item.name" class="list-group-item" fontSize="18" textAlignment="center"></Label>
+      <StackLayout [nsRouterLink]="['/item2', item.id]" class="p-4">
+        <Label [text]="item.name" class="text-lg text-center"></Label>
       </StackLayout>
     </ng-template>
   </ListView>

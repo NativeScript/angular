@@ -31,7 +31,9 @@ const configureComponents = (textBaseElementName: string) => {
   @Component({
     template: `<${textBaseElementName} #textBase>
       <Span text="0"></Span>
-      <Span *ngIf="show" text="1"></Span>
+      @if(show) {
+        <Span text="1"></Span>
+        }
       <Span text="2"></Span>
     </${textBaseElementName}>`,
   })
@@ -43,7 +45,9 @@ const configureComponents = (textBaseElementName: string) => {
     template: `<${textBaseElementName} #textBase>
       <FormattedString>
         <Span text="0"></Span>
-        <Span *ngIf="show"  text="1"></Span>
+        @if(show) {
+        <Span text="1"></Span>
+        }
         <Span text="2"></Span>
       </FormattedString>
     </${textBaseElementName}>`,
@@ -66,8 +70,7 @@ describe('Spans', () => {
       const { SpansComponent, DynamicSpansComponent, FormattedStringComponent, DynamicFormattedStringComponent } = configureComponents(textBaseElementName);
       beforeEach(() => {
         return TestBed.configureTestingModule({
-          declarations: [SpansComponent, DynamicSpansComponent, FormattedStringComponent, DynamicFormattedStringComponent],
-          imports: [NativeScriptModule],
+          imports: [NativeScriptModule, SpansComponent, DynamicSpansComponent, FormattedStringComponent, DynamicFormattedStringComponent],
           schemas: [NO_ERRORS_SCHEMA],
         }).compileComponents();
       });

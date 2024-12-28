@@ -6,7 +6,6 @@ import { TextBase } from '@nativescript/core';
 @Component({
   template: `<Label #textElement>{{ text }}</Label>`,
   schemas: [NO_ERRORS_SCHEMA],
-  standalone: true,
 })
 class TextNodeComponent {
   @ViewChild('textElement', { static: true }) textElement: ElementRef<TextBase>;
@@ -18,7 +17,6 @@ class TextNodeComponent {
     ><Span>{{ text }}</Span></Label
   >`,
   schemas: [NO_ERRORS_SCHEMA],
-  standalone: true,
 })
 class TextNodeSpansComponent {
   @ViewChild('textElement', { static: true }) textElement: ElementRef<TextBase>;
