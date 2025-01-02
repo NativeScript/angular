@@ -1,3 +1,17 @@
+# [19.0.0](https://github.com/NativeScript/angular/compare/18.1.3...19.0.0) (2025-01-02)
+
+
+### Features
+
+* Angular 19 support ([#143](https://github.com/NativeScript/angular/issues/143)) ([00802d2](https://github.com/NativeScript/angular/commit/00802d219fe9839b30c4e1c66daeafce96b990a4))
+  
+### Bug Fixes
+
+* only polyfill queueMicrotask if needed ([b9cd642](https://github.com/NativeScript/angular/commit/b9cd642c44d33756a675dd4864161fe8c8e620e6))
+* re-enable ngDevMode tree shaking ([6244afb](https://github.com/NativeScript/angular/commit/6244afbd76faaa5ec06494fcff014d8061ffa3d1))
+
+
+
 ## [18.1.3](https://github.com/NativeScript/angular/compare/18.1.1...18.1.3) (2024-09-18)
 
 
