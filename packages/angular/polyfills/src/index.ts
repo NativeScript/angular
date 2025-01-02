@@ -30,3 +30,7 @@ const polyfilledPerformance = getPerformanceObject();
 for (const key in polyfilledPerformance) {
   global.performance[key] ??= polyfilledPerformance[key];
 }
+
+if (typeof queueMicrotask === 'undefined') {
+  global.queueMicrotask = (cb) => Promise.resolve().then(cb);
+}
