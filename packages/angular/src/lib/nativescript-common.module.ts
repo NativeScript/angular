@@ -8,9 +8,10 @@ import { ModalDialogService } from './legacy/directives/dialogs';
 import { TabViewDirective, TabViewItemDirective } from './cdk/tab-view';
 import { AndroidFilterComponent } from './cdk/platform-filters/android-filter.component';
 import { IOSFilterComponent } from './cdk/platform-filters/ios-filter.component';
+import { AppleFilterComponent } from './cdk/platform-filters/apple-filter.component';
 import { VisionOSFilterComponent } from './cdk/platform-filters/vision-filter.component';
 
-const CDK_COMPONENTS = [ActionBarComponent, ActionBarScope, ActionItemDirective, NavigationButtonDirective, ListViewComponent, TemplateKeyDirective, TabViewDirective, TabViewItemDirective, AndroidFilterComponent, IOSFilterComponent, VisionOSFilterComponent];
+const CDK_COMPONENTS = [ActionBarComponent, ActionBarScope, ActionItemDirective, NavigationButtonDirective, ListViewComponent, TemplateKeyDirective, TabViewDirective, TabViewItemDirective, AndroidFilterComponent, IOSFilterComponent, AppleFilterComponent, VisionOSFilterComponent];
 
 registerNativeScriptViewComponents();
 

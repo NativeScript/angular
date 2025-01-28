@@ -1,7 +1,7 @@
 // make sure you import mocha-config before @angular/core
 import { Component, ElementRef, NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { AndroidFilterComponent, DEVICE, IOSFilterComponent, NativeScriptModule } from '@nativescript/angular';
+import { AndroidFilterComponent, DEVICE, IOSFilterComponent, AppleFilterComponent, NativeScriptModule } from '@nativescript/angular';
 import { platformNames } from '@nativescript/core/platform';
 import { createDevice, dumpView } from './test-utils.spec';
 @Component({
@@ -12,6 +12,17 @@ import { createDevice, dumpView } from './test-utils.spec';
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class IosSpecificComponent {
+  constructor(public elementRef: ElementRef) {}
+}
+
+@Component({
+  template: ` <StackLayout>
+    <apple><Label text="Apple"></Label></apple>
+  </StackLayout>`,
+  imports: [AppleFilterComponent],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+export class AppleSpecificComponent {
   constructor(public elementRef: ElementRef) {}
 }
 
@@ -68,6 +79,31 @@ describe('Platform filter directives', () => {
       const componentRef = fixture.componentRef;
       const componentRoot = componentRef.instance.elementRef.nativeElement;
       expect(dumpView(componentRoot, true)).toBe('(proxyviewcontainer (stacklayout (label[text=IOS])))');
+    });
+  });
+
+  describe('on Apple device', () => {
+    beforeEach(() => {
+      return TestBed.configureTestingModule({
+        imports: DECLARATIONS,
+        providers: [{ provide: DEVICE, useValue: createDevice(platformNames.ios) }],
+        schemas: [NO_ERRORS_SCHEMA],
+      }).compileComponents();
+    });
+    it('does render apple specific content', () => {
+      const fixture = TestBed.createComponent(AppleSpecificComponent);
+      fixture.detectChanges();
+      const componentRef = fixture.componentRef;
+      const componentRoot = componentRef.instance.elementRef.nativeElement;
+      expect(dumpView(componentRoot, true).indexOf('(label[text=Apple])') >= 0).toBe(true);
+    });
+    it('does not render android specific content', () => {
+      const fixture = TestBed.createComponent(AndroidSpecificComponent);
+      fixture.detectChanges();
+      const componentRef = fixture.componentRef;
+      const componentRoot = componentRef.instance.elementRef.nativeElement;
+      console.log(dumpView(componentRoot, true));
+      expect(dumpView(componentRoot, true).indexOf('label') < 0).toBe(true);
     });
   });
 

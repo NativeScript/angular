@@ -32,6 +32,7 @@ export * from './cdk/portal';
 export * from './cdk/dialog';
 export * from './cdk/tab-view';
 export * from './cdk/platform-filters/android-filter.component';
+export * from './cdk/platform-filters/apple-filter.component';
 export * from './cdk/platform-filters/ios-filter.component';
 export * from './cdk/platform-filters/vision-filter.component';
 export * from './file-system';
