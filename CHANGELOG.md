@@ -1,3 +1,12 @@
+## [19.0.1](https://github.com/NativeScript/angular/compare/19.0.0...19.0.1) (2025-01-29)
+
+
+### Features
+
+* apple view filter to cover ios and visionos together ([#148](https://github.com/NativeScript/angular/issues/148)) ([f5431bd](https://github.com/NativeScript/angular/commit/f5431bd2564f389480a14cb7862dd772c3b6af57))
+
+
+
 # [19.0.0](https://github.com/NativeScript/angular/compare/18.1.3...19.0.0) (2025-01-02)
 
 
