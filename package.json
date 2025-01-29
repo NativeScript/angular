@@ -31,7 +31,8 @@
     "workspace-generator": "nx workspace-generator",
     "demo.android": "nx debug nativescript-demo-ng android -c=prod",
     "demo.ios": "nx debug nativescript-demo-ng ios -c=prod",
-    "demo.clean": "nx clean nativescript-demo-ng clean",
+    "demo.vision": "nx debug nativescript-demo-ng visionos -c=prod",
+    "demo.clean": "nx clean nativescript-demo-ng",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
   },
   "dependencies": {
