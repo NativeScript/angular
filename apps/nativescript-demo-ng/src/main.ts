@@ -12,7 +12,7 @@ import { withInterceptorsFromDi } from '@angular/common/http';
 import { setWindowBackgroundColor } from '@nativescript/core/utils/ios';
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
-import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { provideZoneChangeDetection } from '@angular/core';
 
 const EXPERIMENTAL_ZONELESS = true;
 
@@ -28,7 +28,7 @@ runNativeScriptAngularApp({
       providers: [
         provideNativeScriptHttpClient(withInterceptorsFromDi()),
         provideNativeScriptRouter(routes),
-        EXPERIMENTAL_ZONELESS ? provideExperimentalZonelessChangeDetection() : provideNativeScriptNgZone(),
+        EXPERIMENTAL_ZONELESS ? provideZoneChangeDetection() : provideNativeScriptNgZone(),
       ],
     });
   },

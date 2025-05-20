@@ -6,7 +6,9 @@
 import '@nativescript/core/globals';
 // Install @nativescript/angular specific polyfills
 import '@nativescript/angular/polyfills';
-
+import { AbortController, AbortSignal } from '@nativescript/core/abortcontroller';
+(global as any).AbortController = AbortController;
+(global as any).AbortSignal = AbortSignal;
 /**
  * Zone.js and patches
  */

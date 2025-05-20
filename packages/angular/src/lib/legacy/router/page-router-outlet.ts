@@ -10,13 +10,13 @@ import {
   EnvironmentInjector,
   EventEmitter,
   Inject,
-  InjectFlags,
   InjectionToken,
   InjectOptions,
   Injector,
   NgZone,
   OnDestroy,
   Output,
+  SkipSelf,
   Type,
   ViewContainerRef,
 } from '@angular/core';
@@ -84,12 +84,12 @@ export class DestructibleInjector implements Injector {
     private destructibleProviders: ProviderSet,
     private parent: Injector,
   ) {}
-  get<T>(token: Type<T> | InjectionToken<T>, notFoundValue?: T, flags?: InjectOptions | InjectFlags): T {
+  get<T>(token: Type<T> | InjectionToken<T>, notFoundValue?: T, flags?: InjectOptions): T {
     const ref = this.parent.get(token, notFoundValue, flags);
 
     // if we're skipping ourselves then it's not our responsibility to destroy
     if (typeof flags === 'number') {
-      if (!(flags & InjectFlags.SkipSelf) && this.destructibleProviders.has(token)) {
+      if (!(flags && this.destructibleProviders.has(token))) {
         this.refs.add(ref);
       }
     } else {
