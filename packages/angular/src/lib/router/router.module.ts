@@ -1,6 +1,41 @@
-import { APP_BASE_HREF, CommonModule, HashLocationStrategy, Location, LocationStrategy, LOCATION_INITIALIZED, PathLocationStrategy, PlatformLocation } from '@angular/common';
-import { ApplicationRef, APP_BOOTSTRAP_LISTENER, ComponentRef, Inject, Injectable, Injector, ModuleWithProviders, NgModule, NgProbeToken, NO_ERRORS_SCHEMA, Optional, inject, provideAppInitializer } from '@angular/core';
-import { ExtraOptions, NoPreloading, PreloadingStrategy, provideRoutes, Router, RouterModule, RouterPreloader, ROUTER_CONFIGURATION, ROUTER_INITIALIZER, Routes, ɵROUTER_PROVIDERS } from '@angular/router';
+import {
+  APP_BASE_HREF,
+  CommonModule,
+  HashLocationStrategy,
+  Location,
+  LocationStrategy,
+  LOCATION_INITIALIZED,
+  PathLocationStrategy,
+  PlatformLocation,
+} from '@angular/common';
+import {
+  ApplicationRef,
+  APP_BOOTSTRAP_LISTENER,
+  ComponentRef,
+  Inject,
+  Injectable,
+  Injector,
+  ModuleWithProviders,
+  NgModule,
+  NgProbeToken,
+  NO_ERRORS_SCHEMA,
+  Optional,
+  inject,
+  provideAppInitializer,
+} from '@angular/core';
+import {
+  ExtraOptions,
+  NoPreloading,
+  PreloadingStrategy,
+  provideRoutes,
+  Router,
+  RouterModule,
+  RouterPreloader,
+  ROUTER_CONFIGURATION,
+  ROUTER_INITIALIZER,
+  Routes,
+  ɵROUTER_PROVIDERS,
+} from '@angular/router';
 import { of, Subject } from 'rxjs';
 import { NativeScriptCommonModule } from '../nativescript-common.module';
 import { START_PATH } from '../tokens';
@@ -55,7 +90,7 @@ export class RouterInitializer {
   appInitializer(): Promise<any> {
     const p: Promise<any> = this.injector.get(LOCATION_INITIALIZED, Promise.resolve(null));
     return p.then(() => {
-      // eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-non-null-assertion
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type, @typescript-eslint/no-non-null-assertion
       let resolve: Function = null!;
       const res = new Promise((r) => (resolve = r));
       const router: any = this.injector.get(Router);
@@ -114,8 +149,14 @@ export function routerNgProbeToken() {
   return new NgProbeToken('Router', Router);
 }
 
-export function provideLocationStrategy(platformLocationStrategy: PlatformLocation, baseHref: string, options: ExtraOptions = {}) {
-  return options.useHash ? new HashLocationStrategy(platformLocationStrategy, baseHref) : new PathLocationStrategy(platformLocationStrategy, baseHref);
+export function provideLocationStrategy(
+  platformLocationStrategy: PlatformLocation,
+  baseHref: string,
+  options: ExtraOptions = {},
+) {
+  return options.useHash
+    ? new HashLocationStrategy(platformLocationStrategy, baseHref)
+    : new PathLocationStrategy(platformLocationStrategy, baseHref);
 }
 
 export function provideLocationInitialized(startpath: string | Promise<string>) {

@@ -10,7 +10,7 @@ export function NativeScriptNgSafeEvent(
     onlyLast?: boolean;
     onlyFirst?: boolean;
     alwaysRunBefore?: string;
-  } = {}
+  } = {},
 ) {
   const event = runAfterEvent;
   return function (target: unknown, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -66,7 +66,6 @@ export function NativeScriptNgSafeEvent(
           .events[event].buffer.filter((v) => v.key === propertyKey)
           .forEach((fn) => fn.fn());
         getNgSafe().events[event].buffer = getNgSafe().events[event].buffer.filter((v) => v.key !== propertyKey);
-        getNgSafe().runBefore[propertyKey];
         if (getNgSafe().runBefore[propertyKey]) {
           return getNgSafe().runBefore[propertyKey].apply(this, args);
         }
