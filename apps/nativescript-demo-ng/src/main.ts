@@ -21,7 +21,7 @@ Trace.setCategories('ns-route-reuse-strategy,ns-router');
 
 runNativeScriptAngularApp({
   appModuleBootstrap: () => {
-    if (global.isIOS) {
+    if (__APPLE__) {
       setWindowBackgroundColor('#a6120d');
     }
     return bootstrapApplication(AppComponent, {
