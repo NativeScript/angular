@@ -43,3 +43,7 @@ if (typeof AbortController === 'undefined') {
 if (typeof AbortSignal === 'undefined') {
   global.AbortSignal = AbortSignal;
 }
+
+if (typeof queueMicrotask === 'undefined') {
+  global.queueMicrotask = (cb) => Promise.resolve().then(cb);
+}
