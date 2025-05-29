@@ -23,7 +23,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: lts/*
-          cache: 'npm install'
       - uses: nrwl/nx-set-shas@v3
       - name: npm install
         run: npm install
