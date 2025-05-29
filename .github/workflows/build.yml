@@ -25,6 +25,6 @@ jobs:
           node-version: lts/*
       - uses: nrwl/nx-set-shas@v3
       - name: npm install
-        run: npm install
+        run: npm install --legacy-peer-deps
       - name: Build.all affected
         run: npx nx affected --target=build --exclude nativescript-demo-ng
