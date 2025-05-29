@@ -4,7 +4,12 @@ import { HttpClient } from '@angular/common/http';
 import { Item } from '../item/item';
 import { ItemService } from '../item/item.service';
 import { ModalComponent } from '../modal/modal.component';
-import { ModalDialogService, NativeDialogService, NativeScriptCommonModule, NativeScriptRouterModule } from '@nativescript/angular';
+import {
+  ModalDialogService,
+  NativeDialogService,
+  NativeScriptCommonModule,
+  NativeScriptRouterModule,
+} from '@nativescript/angular';
 
 @Component({
   selector: 'ns-items',
@@ -12,10 +17,10 @@ import { ModalDialogService, NativeDialogService, NativeScriptCommonModule, Nati
   templateUrl: './items.component.html',
   imports: [NativeScriptCommonModule, NativeScriptRouterModule],
   standalone: true,
-  schemas: [NO_ERRORS_SCHEMA]
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class ItemsComponent implements OnInit, OnDestroy {
-  message = 'Hello Angular 20.0.0-rc.1';
+  message = 'Hello Angular 20.0.0';
   items: Array<Item>;
   borderRadius: number;
   fontSize: number;
