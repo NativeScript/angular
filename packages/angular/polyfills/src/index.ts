@@ -36,11 +36,13 @@ if (typeof queueMicrotask === 'undefined') {
   global.queueMicrotask = (cb) => Promise.resolve().then(cb);
 }
 
-if (typeof AbortController === 'undefined') {
+if (typeof global.AbortController === 'undefined') {
+  // @ts-ignore
   global.AbortController = AbortController;
 }
 
-if (typeof AbortSignal === 'undefined') {
+if (typeof global.AbortSignal === 'undefined') {
+  // @ts-ignore
   global.AbortSignal = AbortSignal;
 }
 
