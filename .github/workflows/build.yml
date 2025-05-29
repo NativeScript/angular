@@ -23,11 +23,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: lts/*
-          cache: 'yarn'
+          cache: 'npm install'
       - uses: nrwl/nx-set-shas@v3
-      - name: Setup global dependencies
-        run: npm i -g yarn
-      - name: yarn install
-        run: yarn
+      - name: npm install
+        run: npm install
       - name: Build.all affected
-        run: yarn nx affected --target=build --exclude nativescript-demo-ng
+        run: npx nx affected --target=build --exclude nativescript-demo-ng

@@ -8,8 +8,8 @@
 # dependencies
 /node_modules
 /packages/*/node_modules
-package-lock.json
 .npmrc
+yarn.lock
 
 # IDEs and editors
 /.idea

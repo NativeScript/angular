@@ -33,7 +33,7 @@ $ cd angular
 
 ```
 $ cd angular
-$ yarn clean.all
+$ npm run clean.all
 ```
 
 ### Run some of the e2e applications e.g. router-tab-view
@@ -43,7 +43,7 @@ $ yarn clean.all
 Install NPM packages (use the local copy of `@nativescript/angular`):
 ```
 $ cd e2e/router-tab-view
-$ yarn install
+$ npm install
 ```
 
 Start the app:
