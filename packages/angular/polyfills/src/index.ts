@@ -1,3 +1,4 @@
+import { AbortController, AbortSignal } from '@nativescript/core/abortcontroller';
 export const nsNgPolyfills = true;
 
 global.performance ??= {} as unknown as Performance;
@@ -29,6 +30,20 @@ const polyfilledPerformance = getPerformanceObject();
 
 for (const key in polyfilledPerformance) {
   global.performance[key] ??= polyfilledPerformance[key];
+}
+
+if (typeof queueMicrotask === 'undefined') {
+  global.queueMicrotask = (cb) => Promise.resolve().then(cb);
+}
+
+if (typeof global.AbortController === 'undefined') {
+  // @ts-ignore
+  global.AbortController = AbortController;
+}
+
+if (typeof global.AbortSignal === 'undefined') {
+  // @ts-ignore
+  global.AbortSignal = AbortSignal;
 }
 
 if (typeof queueMicrotask === 'undefined') {

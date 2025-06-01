@@ -12,10 +12,10 @@ import { ModalDialogService, NativeDialogService, NativeScriptCommonModule } fro
   templateUrl: './items.component.html',
   imports: [NativeScriptCommonModule],
   standalone: true,
-  schemas: [NO_ERRORS_SCHEMA]
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class ItemsComponent implements OnInit, OnDestroy {
-  message = 'Hello Angular 19!';
+  message = 'Hello Angular 20.0.0!';
   items: Array<Item>;
 
   constructor(

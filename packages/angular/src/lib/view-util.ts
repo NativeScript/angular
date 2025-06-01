@@ -1,7 +1,16 @@
 import { unsetValue, View } from '@nativescript/core';
 import { getViewClass, getViewMeta, isKnownView } from './element-registry';
 import { NamespaceFilter } from './property-filter';
-import { CommentNode, isContentView, isDetachedElement, isInvisibleNode, isLayout, isView, NgView, TextNode } from './views';
+import {
+  CommentNode,
+  isContentView,
+  isDetachedElement,
+  isInvisibleNode,
+  isLayout,
+  isView,
+  NgView,
+  TextNode,
+} from './views';
 
 import { NativeScriptDebug } from './trace';
 import { NgLayoutBase } from './views/view-types';
@@ -27,7 +36,9 @@ function printNgTree(view: NgView) {
 }
 function printChildrenRecurse(parent: NgView) {
   const children = parent.firstChild ? [parent.firstChild, ...getChildrenSiblings(parent.firstChild).nextSiblings] : [];
-  console.log(`parent: ${parent}, firstChild: ${parent.firstChild}, lastChild: ${parent.lastChild} children: ${children}`);
+  console.log(
+    `parent: ${parent}, firstChild: ${parent.firstChild}, lastChild: ${parent.lastChild} children: ${children}`,
+  );
   if (parent.firstChild) {
     console.log(`----- start ${parent}`);
   }
@@ -61,11 +72,14 @@ function printSiblingsTree(view: NgView) {
   console.log(`${view} previousSiblings: ${previousSiblings} nextSiblings: ${nextSiblings}`);
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 const propertyMaps: Map<Function, Map<string, string>> = new Map<Function, Map<string, string>>();
 
 export class ViewUtil {
-  constructor(private namespaceFilters?: NamespaceFilter[], private reuseViews?: boolean) {}
+  constructor(
+    private namespaceFilters?: NamespaceFilter[],
+    private reuseViews?: boolean,
+  ) {}
   /**
    * Inserts a child into a parrent, preferably before next.
    * @param parent parent view
@@ -136,7 +150,9 @@ export class ViewUtil {
    */
   private insertInList(parent: NgView, child: NgView, previous: NgView, next: NgView): void {
     if (NativeScriptDebug.isLogEnabled()) {
-      NativeScriptDebug.viewUtilLog(`ViewUtil.insertInList parent: ${parent}, view: ${child}, ` + `previous: ${previous}, next: ${next}`);
+      NativeScriptDebug.viewUtilLog(
+        `ViewUtil.insertInList parent: ${parent}, view: ${child}, ` + `previous: ${previous}, next: ${next}`,
+      );
     }
 
     if (previous) {

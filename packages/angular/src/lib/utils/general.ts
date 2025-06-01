@@ -13,7 +13,7 @@ export function throwIfAlreadyLoaded(parentModule: any, moduleName: string) {
  * Utility method which will only fire the callback once ever
  * @param fn callback to call only once
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export function once(fn: Function) {
   let wasCalled = false;
 
@@ -35,9 +35,11 @@ export interface ComponentType<T> {
 
 export function isListLikeIterable(obj: any): boolean {
   if (!isJsObject(obj)) return false;
-  return Array.isArray(obj) ||
-      (!(obj instanceof Map) &&  // JS Map are iterables but return entries as [k, v]
-       Symbol.iterator in obj);  // JS Iterable have a Symbol.iterator prop
+  return (
+    Array.isArray(obj) ||
+    (!(obj instanceof Map) && // JS Map are iterables but return entries as [k, v]
+      Symbol.iterator in obj)
+  ); // JS Iterable have a Symbol.iterator prop
 }
 
 export function isJsObject(o: any): boolean {

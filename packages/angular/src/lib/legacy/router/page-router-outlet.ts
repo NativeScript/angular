@@ -1,5 +1,4 @@
 import {
-  Attribute,
   ChangeDetectorRef,
   ComponentFactory,
   ComponentFactoryResolver,
@@ -9,8 +8,8 @@ import {
   ElementRef,
   EnvironmentInjector,
   EventEmitter,
-  Inject,
-  InjectFlags,
+  HostAttributeToken,
+  inject,
   InjectionToken,
   InjectOptions,
   Injector,
@@ -84,18 +83,12 @@ export class DestructibleInjector implements Injector {
     private destructibleProviders: ProviderSet,
     private parent: Injector,
   ) {}
-  get<T>(token: Type<T> | InjectionToken<T>, notFoundValue?: T, flags?: InjectOptions | InjectFlags): T {
+  get<T>(token: Type<T> | InjectionToken<T>, notFoundValue?: T, flags?: InjectOptions): T {
     const ref = this.parent.get(token, notFoundValue, flags);
 
     // if we're skipping ourselves then it's not our responsibility to destroy
-    if (typeof flags === 'number') {
-      if (!(flags & InjectFlags.SkipSelf) && this.destructibleProviders.has(token)) {
-        this.refs.add(ref);
-      }
-    } else {
-      if (!flags?.skipSelf && this.destructibleProviders.has(token)) {
-        this.refs.add(ref);
-      }
+    if (!flags?.skipSelf && this.destructibleProviders.has(token)) {
+      this.refs.add(ref);
     }
 
     return ref;
@@ -123,6 +116,17 @@ registerElement('page-router-outlet', () => Frame);
   standalone: true,
 }) // tslint:disable-line:directive-selector
 export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
+  private parentContexts = inject(ChildrenOutletContexts);
+  private location = inject(ViewContainerRef);
+  private locationStrategy = inject(NSLocationStrategy);
+  private resolver = inject(ComponentFactoryResolver);
+  private changeDetector = inject(ChangeDetectorRef);
+  private pageFactory = inject<PageFactory>(PAGE_FACTORY);
+  private routeReuseStrategy = inject(NSRouteReuseStrategy);
+  private ngZone = inject(NgZone);
+  private router = inject(Router);
+  private environmentInjector = inject(EnvironmentInjector);
+
   // tslint:disable-line:directive-class-suffix
   private activated: ComponentRef<any> | null = null;
   private _activatedRoute: ActivatedRoute | null = null;
@@ -145,15 +149,6 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
   @Output('activate') activateEvents = new EventEmitter<any>(); // tslint:disable-line:no-output-rename
   // eslint-disable-next-line @angular-eslint/no-output-rename
   @Output('deactivate') deactivateEvents = new EventEmitter<any>(); // tslint:disable-line:no-output-rename
-
-  /** @deprecated from Angular since v4 */
-  get locationInjector(): Injector {
-    return this.location.injector;
-  }
-  /** @deprecated from Angular since v4 */
-  get locationFactoryResolver(): ComponentFactoryResolver {
-    return this.resolver;
-  }
 
   get isActivated(): boolean {
     return !!this.activated;
@@ -187,24 +182,15 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     return {};
   }
 
-  constructor(
-    private parentContexts: ChildrenOutletContexts,
-    private location: ViewContainerRef,
-    @Attribute('name') name: string,
-    @Attribute('actionBarVisibility') actionBarVisibility: string,
-    @Attribute('isEmptyOutlet') isEmptyOutlet: boolean,
-    private locationStrategy: NSLocationStrategy,
-    private componentFactoryResolver: ComponentFactoryResolver,
-    private resolver: ComponentFactoryResolver,
-    private changeDetector: ChangeDetectorRef,
-    @Inject(PAGE_FACTORY) private pageFactory: PageFactory,
-    private routeReuseStrategy: NSRouteReuseStrategy,
-    private ngZone: NgZone,
-    private router: Router,
-    elRef: ElementRef,
-    viewUtil: ViewUtil,
-    private environmentInjector: EnvironmentInjector,
-  ) {
+  constructor() {
+    const parentContexts = this.parentContexts;
+    const name = inject(new HostAttributeToken('name'), { optional: true });
+    const actionBarVisibility = inject(new HostAttributeToken('actionBarVisibility'), { optional: true });
+    const isEmptyOutlet = !!inject(new HostAttributeToken('isEmptyOutlet'), { optional: true });
+    const resolver = this.resolver;
+    const elRef = inject(ElementRef);
+    const viewUtil = inject(ViewUtil);
+
     this.isEmptyOutlet = isEmptyOutlet;
     this.frame = elRef.nativeElement;
     this.setActionBarVisibility(actionBarVisibility);
