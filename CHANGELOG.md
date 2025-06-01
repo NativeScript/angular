@@ -1,3 +1,12 @@
+# [20.0.0](https://github.com/NativeScript/angular/compare/19.0.1...20.0.0) (2025-06-01)
+
+
+### Features
+
+* Angular 20  ([#151](https://github.com/NativeScript/angular/issues/151)) ([62d9fb5](https://github.com/NativeScript/angular/commit/62d9fb5329efb28b5d595f11bf8732ae56a878f7))
+
+
+
 ## [19.0.1](https://github.com/NativeScript/angular/compare/19.0.0...19.0.1) (2025-01-29)
 
 
