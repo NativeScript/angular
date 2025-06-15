@@ -1,5 +1,5 @@
 // make sure you import mocha-config before @angular/core
-import { Component, NgModule, NO_ERRORS_SCHEMA, ViewContainerRef } from '@angular/core';
+import { Component, inject, NgModule, NO_ERRORS_SCHEMA, ViewContainerRef } from '@angular/core';
 import { TestBed, waitForAsync } from '@angular/core/testing';
 import { FrameService, ModalDialogParams, ModalDialogService, NSLocationStrategy, Outlet } from '@nativescript/angular';
 import { Frame, isIOS } from '@nativescript/core';
@@ -13,7 +13,7 @@ const CLOSE_WAIT = isIOS ? 1000 : 0;
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class ModalComponent {
-  constructor(public params: ModalDialogParams) {}
+  params = inject(ModalDialogParams);
 
   onShownModally() {
     const result = this.params.context;
@@ -28,7 +28,7 @@ export class ModalComponent {
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class FailComponent {
-  constructor(public service: ModalDialogService) {}
+  service = inject(ModalDialogService);
 }
 
 @Component({
@@ -40,12 +40,10 @@ export class FailComponent {
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class SuccessComponent {
-  constructor(
-    public service: ModalDialogService,
-    public vcRef: ViewContainerRef,
-    public locationStrategy: NSLocationStrategy,
-    public fakeFrameService: FrameService,
-  ) {}
+  service = inject(ModalDialogService);
+  vcRef = inject(ViewContainerRef);
+  locationStrategy = inject(NSLocationStrategy);
+  fakeFrameService = inject(FrameService);
 }
 
 @NgModule({

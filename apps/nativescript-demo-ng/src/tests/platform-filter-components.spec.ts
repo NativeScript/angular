@@ -1,7 +1,7 @@
 // make sure you import mocha-config before @angular/core
-import { Component, ElementRef, NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, ElementRef, inject, NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { AndroidFilterComponent, DEVICE, IOSFilterComponent, AppleFilterComponent, NativeScriptModule } from '@nativescript/angular';
+import { AndroidFilterComponent, DEVICE, IOSFilterComponent, AppleFilterComponent } from '@nativescript/angular';
 import { platformNames } from '@nativescript/core/platform';
 import { createDevice, dumpView } from './test-utils.spec';
 @Component({
@@ -12,7 +12,7 @@ import { createDevice, dumpView } from './test-utils.spec';
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class IosSpecificComponent {
-  constructor(public elementRef: ElementRef) {}
+  elementRef = inject(ElementRef);
 }
 
 @Component({
@@ -23,7 +23,7 @@ export class IosSpecificComponent {
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class AppleSpecificComponent {
-  constructor(public elementRef: ElementRef) {}
+  elementRef = inject(ElementRef);
 }
 
 @Component({
@@ -34,7 +34,7 @@ export class AppleSpecificComponent {
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class AndroidSpecificComponent {
-  constructor(public elementRef: ElementRef) {}
+  elementRef = inject(ElementRef);
 }
 
 @Component({
@@ -44,7 +44,7 @@ export class AndroidSpecificComponent {
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class PlatformSpecificAttributeComponent {
-  constructor(public elementRef: ElementRef) {}
+  elementRef = inject(ElementRef);
 }
 
 const DECLARATIONS = [PlatformSpecificAttributeComponent, AndroidSpecificComponent, IosSpecificComponent];

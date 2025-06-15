@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import { Directive, ElementRef, HostListener, Input, OnChanges, OnInit, Optional, SimpleChanges } from '@angular/core';
+import { Directive, ElementRef, HostListener, inject, Input, OnChanges, OnInit, Optional, SimpleChanges } from '@angular/core';
 import { View, ViewBase } from '@nativescript/core';
 import { NativeDialogRef } from './dialog-ref';
 import { NativeDialog } from './dialog-services';
@@ -25,14 +25,9 @@ export class NativeDialogCloseDirective implements OnInit, OnChanges {
   @Input('native-dialog-close') dialogResult: any;
 
   @Input('nativeDialogClose') _matDialogClose: any;
-
-  constructor(
-    // The dialog title directive is always used in combination with a `MatDialogRef`.
-    // tslint:disable-next-line: lightweight-tokens
-    @Optional() public dialogRef: NativeDialogRef<any>,
-    private _elementRef: ElementRef<View>,
-    private _dialog: NativeDialog,
-  ) {}
+  dialogRef = inject(NativeDialogRef<any>, { optional: true });
+  _elementRef = inject(ElementRef<View>);
+  _dialog = inject(NativeDialog);
 
   ngOnInit() {
     if (!this.dialogRef) {

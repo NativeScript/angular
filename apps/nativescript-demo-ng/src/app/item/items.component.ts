@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, OnInit, OnDestroy, NO_ERRORS_SCHEMA, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { Item } from './item';
@@ -8,22 +8,17 @@ import { ModalDialogService, NativeDialogService, NativeScriptCommonModule } fro
 
 @Component({
   selector: 'ns-items',
-  moduleId: module.id,
   templateUrl: './items.component.html',
   imports: [NativeScriptCommonModule],
-  standalone: true,
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class ItemsComponent implements OnInit, OnDestroy {
   message = 'Hello Angular 20.0.0!';
   items: Array<Item>;
-
-  constructor(
-    private itemService: ItemService,
-    private nativeDialog: NativeDialogService,
-    private modalDialog: ModalDialogService,
-    private http: HttpClient,
-  ) {}
+  private itemService = inject(ItemService);
+  private nativeDialog = inject(NativeDialogService);
+  private modalDialog = inject(ModalDialogService);
+  private http = inject(HttpClient);
 
   ngOnInit(): void {
     console.log('ItemsComponent ngOnInit');

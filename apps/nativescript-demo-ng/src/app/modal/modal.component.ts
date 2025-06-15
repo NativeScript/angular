@@ -1,5 +1,11 @@
 import { Component, NO_ERRORS_SCHEMA, OnDestroy, OnInit, Optional, ViewContainerRef, inject } from '@angular/core';
-import { ModalDialogService, NativeDialogModule, NativeDialogRef, NativeDialogService, NativeScriptCommonModule } from '@nativescript/angular';
+import {
+  ModalDialogService,
+  NativeDialogModule,
+  NativeDialogRef,
+  NativeDialogService,
+  NativeScriptCommonModule,
+} from '@nativescript/angular';
 import { ItemService } from '../item/item.service';
 import { View } from '@nativescript/core';
 
@@ -7,21 +13,19 @@ import { View } from '@nativescript/core';
   selector: 'ns-modal',
   templateUrl: `./modal.component.html`,
   imports: [NativeScriptCommonModule, NativeDialogModule],
-  standalone: true,
-  schemas: [NO_ERRORS_SCHEMA]
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class ModalComponent implements OnInit, OnDestroy {
+  private ref = inject(NativeDialogRef<ModalComponent>, { optional: true });
+  private nativeDialog = inject(NativeDialogService);
+  private modalDialog = inject(ModalDialogService);
+  private vcRef = inject(ViewContainerRef);
   id = Math.floor(Math.random() * 1000);
   itemService = inject(ItemService);
   logo: string;
   color: string;
 
-  constructor(
-    @Optional() private ref: NativeDialogRef<ModalComponent>,
-    private nativeDialog: NativeDialogService,
-    private modalDialog: ModalDialogService,
-    private vcRef: ViewContainerRef,
-  ) {
+  constructor() {
     this.logo = this.itemService.flavors[this.itemService.currentFlavor].logo;
     this.color = this.itemService.flavors[this.itemService.currentFlavor].color;
   }

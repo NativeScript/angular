@@ -1,3 +1,7 @@
+/**
+ * Note: we disable eslint on this test due to:
+ * Parsing error: Unexpected character "EOF" (Do you have an unescaped "{" in your template? Use "{{ '{' }}") to escape it.) related to dynamic element names.
+ */
 import { Component, ElementRef, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NativeScriptModule } from '@nativescript/angular';
@@ -67,10 +71,17 @@ describe('Spans', () => {
   const componentsToTest = ['Label', 'TextField', 'TextView', 'Button'];
   for (const textBaseElementName of componentsToTest) {
     describe(`on ${textBaseElementName}`, () => {
-      const { SpansComponent, DynamicSpansComponent, FormattedStringComponent, DynamicFormattedStringComponent } = configureComponents(textBaseElementName);
+      const { SpansComponent, DynamicSpansComponent, FormattedStringComponent, DynamicFormattedStringComponent } =
+        configureComponents(textBaseElementName);
       beforeEach(() => {
         return TestBed.configureTestingModule({
-          imports: [NativeScriptModule, SpansComponent, DynamicSpansComponent, FormattedStringComponent, DynamicFormattedStringComponent],
+          imports: [
+            NativeScriptModule,
+            SpansComponent,
+            DynamicSpansComponent,
+            FormattedStringComponent,
+            DynamicFormattedStringComponent,
+          ],
           schemas: [NO_ERRORS_SCHEMA],
         }).compileComponents();
       });
