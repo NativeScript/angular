@@ -12,6 +12,7 @@ import { NativeScriptCommonModule } from '../nativescript-common.module';
 
 @Injectable()
 export class InjectableAnimationEngine extends AnimationEngine {
+  // eslint-disable-next-line @angular-eslint/prefer-inject
   constructor(@Inject(DOCUMENT) doc: any, driver: AnimationDriver, normalizer: AnimationStyleNormalizer) {
     super(doc, driver, normalizer);
   }
@@ -50,6 +51,7 @@ export function instantiateDefaultStyleNormalizer() {
   ],
 })
 export class NativeScriptAnimationsModule {
+  // eslint-disable-next-line @angular-eslint/prefer-inject
   constructor(@Optional() @SkipSelf() parentModule: NativeScriptAnimationsModule) {
     // Prevents NativeScriptAnimationsModule from getting imported multiple times
     throwIfAlreadyLoaded(parentModule, 'NativeScriptAnimationsModule');

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, OnInit, OnDestroy, NO_ERRORS_SCHEMA, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { Item } from '../item/item';
@@ -13,24 +13,21 @@ import {
 
 @Component({
   selector: 'ns-items',
-  moduleId: module.id,
   templateUrl: './items.component.html',
   imports: [NativeScriptCommonModule, NativeScriptRouterModule],
-  standalone: true,
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class ItemsComponent implements OnInit, OnDestroy {
+  private itemService = inject(ItemService);
+  private nativeDialog = inject(NativeDialogService);
+  private modalDialog = inject(ModalDialogService);
+  private http = inject(HttpClient);
   message = 'Hello Angular 20.0.0';
   items: Array<Item>;
   borderRadius: number;
   fontSize: number;
 
-  constructor(
-    private itemService: ItemService,
-    private nativeDialog: NativeDialogService,
-    private modalDialog: ModalDialogService,
-    private http: HttpClient,
-  ) {
+  constructor() {
     if (global.isAndroid) {
       this.borderRadius = 25;
       this.fontSize = 15;
