@@ -1,6 +1,6 @@
 {
   "extends": "../../.eslintrc.json",
-  "ignorePatterns": ["!**/*", "node_modules/**/*", "platforms/**/*"],
+  "ignorePatterns": ["!**/*", "node_modules/**/*", "platforms/**/*", "src/tests/spans.spec.ts"],
   "overrides": [
     {
       "files": ["*.ts"],

@@ -1,4 +1,7 @@
-/* eslint-disable */
+/**
+ * Note: we disable eslint on this test due to:
+ * Parsing error: Unexpected character "EOF" (Do you have an unescaped "{" in your template? Use "{{ '{' }}") to escape it.) related to dynamic element names.
+ */
 import { Component, ElementRef, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NativeScriptModule } from '@nativescript/angular';
