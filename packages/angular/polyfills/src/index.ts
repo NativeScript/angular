@@ -37,12 +37,12 @@ if (typeof queueMicrotask === 'undefined') {
 }
 
 if (typeof global.AbortController === 'undefined') {
-  // @ts-ignore
+  // @ts-expect-error handling global namespace
   global.AbortController = AbortController;
 }
 
 if (typeof global.AbortSignal === 'undefined') {
-  // @ts-ignore
+  // @ts-expect-error handling global namespace
   global.AbortSignal = AbortSignal;
 }
 

@@ -1,4 +1,17 @@
-import { Component, ComponentFactory, ComponentFactoryResolver, ComponentRef, EmbeddedViewRef, Injector, NgModule, NO_ERRORS_SCHEMA, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
+import {
+  Component,
+  ComponentFactory,
+  ComponentFactoryResolver,
+  ComponentRef,
+  EmbeddedViewRef,
+  inject,
+  Injector,
+  NgModule,
+  NO_ERRORS_SCHEMA,
+  TemplateRef,
+  ViewChild,
+  ViewContainerRef,
+} from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { generateDetachedLoader, generateNativeScriptView, NgViewRef } from '@nativescript/angular';
 import { GridLayout, ProxyViewContainer } from '@nativescript/core';
@@ -10,7 +23,7 @@ import { GridLayout, ProxyViewContainer } from '@nativescript/core';
 export class GenerateViewComponent {
   @ViewChild('vc', { read: ViewContainerRef }) vc: ViewContainerRef;
   @ViewChild('template', { read: TemplateRef }) template: TemplateRef<void>;
-  constructor(public injector: Injector) {}
+  injector = inject(Injector);
 }
 
 @Component({
@@ -67,7 +80,10 @@ describe('generateNativeScriptView', () => {
   });
 
   it('should reuse a DetachedLoaderRef', () => {
-    const containerRef = generateDetachedLoader(fixture.componentRef.instance.injector.get(ComponentFactoryResolver), fixture.componentRef.instance.injector);
+    const containerRef = generateDetachedLoader(
+      fixture.componentRef.instance.injector.get(ComponentFactoryResolver),
+      fixture.componentRef.instance.injector,
+    );
     cleanup.push(containerRef);
     const ngViewRef = generateNativeScriptView(GeneratedComponent, {
       injector: fixture.componentRef.instance.injector,

@@ -1,4 +1,4 @@
-import { ApplicationRef, ChangeDetectorRef, Component, ComponentFactory, ComponentFactoryResolver, ComponentRef, Injector, NO_ERRORS_SCHEMA, OnDestroy, TemplateRef, Type, ViewChild, ViewContainerRef } from '@angular/core';
+import { ApplicationRef, ChangeDetectorRef, Component, ComponentFactory, ComponentFactoryResolver, ComponentRef, inject, Injector, NO_ERRORS_SCHEMA, OnDestroy, TemplateRef, Type, ViewChild, ViewContainerRef } from '@angular/core';
 import { ProxyViewContainer, Trace } from '@nativescript/core';
 import { registerElement } from '../element-registry';
 import type { ComponentType } from '../utils/general';
@@ -27,7 +27,10 @@ export class DetachedLoader implements OnDestroy {
   @ViewChild('vc', { read: ViewContainerRef, static: true }) vc: ViewContainerRef;
   private disposeFunctions: Array<() => void> = [];
   // tslint:disable-line:component-class-suffix
-  constructor(private resolver: ComponentFactoryResolver, private changeDetector: ChangeDetectorRef, private containerRef: ViewContainerRef, private appRef: ApplicationRef) {}
+  resolver = inject(ComponentFactoryResolver);
+  changeDetector = inject(ChangeDetectorRef);
+  containerRef = inject(ViewContainerRef);
+  appRef = inject(ApplicationRef);
 
   public createComponentPortal<T>(componentType: ComponentType<T>, customInjector?: Injector) {
     return new ComponentPortal(componentType, this.vc, customInjector || this.vc.injector);
