@@ -9,7 +9,7 @@
     "postinstall": "husky",
     "nx": "nx",
     "start": "nx serve",
-    "build": "nx build zone-js && nx build angular",
+    "build": "npx nx run-many --target=build --exclude=nativescript-demo-ng",
     "test.android": "nx test nativescript-demo-ng android",
     "test.ios": "nx test nativescript-demo-ng ios",
     "lint": "nx workspace-lint && nx lint",
