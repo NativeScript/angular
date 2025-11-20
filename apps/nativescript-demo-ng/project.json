@@ -53,7 +53,8 @@
       "executor": "@nativescript/nx:test",
       "outputs": ["{workspaceRoot}/coverage/apps/nativescript-demo-ng"],
       "options": {
-        "coverage": false
+        "coverage": false,
+        "flags": "--env.commonjs"
       },
       "configurations": {}
     }

@@ -6,10 +6,9 @@
     "@nativescript/core": "file:../../node_modules/@nativescript/core"
   },
   "devDependencies": {
-    "@nativescript/android": "~8.9.0",
-    "@nativescript/ios": "~8.9.0",
+    "@nativescript/android": "~9.0.0",
+    "@nativescript/ios": "~9.0.0",
     "@nativescript/tailwind": "^2.1.0",
-    "@nativescript/unit-test-runner": "^3.0.1",
-    "@nativescript/visionos": "~8.9.0"
+    "@nativescript/unit-test-runner": "4.0.0"
   }
 }
