@@ -3,12 +3,22 @@
   "main": "./src/main.ts",
   "description": "NativeScript Application",
   "dependencies": {
-    "@nativescript/core": "file:../../node_modules/@nativescript/core"
+    "@nativescript/core": "file:../../node_modules/@nativescript/core",
+    "@valor/nativescript-websockets": "^2.0.2"
   },
   "devDependencies": {
     "@nativescript/android": "~9.0.0",
     "@nativescript/ios": "~9.0.0",
     "@nativescript/tailwind": "^2.1.0",
-    "@nativescript/unit-test-runner": "4.0.0"
+    "@nativescript/unit-test-runner": "4.0.0",
+    "@nativescript/vite": "file:../../../NativeScript/dist/packages/vite/nativescript-vite-1.0.4.tgz"
+  },
+  "scripts": {
+    "dev:ios": "concurrently -k -n vite,ns 'npm run dev:server:ios' 'wait-on tcp:5173 && npm run ios'",
+    "dev:android": "concurrently -k -n vite,ns 'npm run dev:server:android' 'wait-on tcp:5173 && npm run android'",
+    "dev:server:ios": "VITE_DEBUG_LOGS=1 vite serve -- --env.ios --env.hmr",
+    "dev:server:android": "VITE_DEBUG_LOGS=1 vite serve -- --env.android --env.hmr",
+    "ios": "VITE_DEBUG_LOGS=1 ns debug ios",
+    "android": "VITE_DEBUG_LOGS=1 ns debug android"
   }
 }

@@ -5,7 +5,7 @@
 // Install @nativescript/core polyfills (XHR, setTimeout, requestAnimationFrame)
 import '@nativescript/core/globals';
 // Install @nativescript/angular specific polyfills
-import '@nativescript/angular/polyfills';
+import '../../../packages/angular/polyfills/src';
 /**
  * Zone.js and patches
  */

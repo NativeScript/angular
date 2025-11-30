@@ -17,4 +17,7 @@ export default {
   cli: {
     packageManager: 'npm',
   },
+  bundler: 'vite',
+  bundlerConfigPath: 'vite.config.ts',
+  logScriptLoading: true,
 } as NativeScriptConfig;
