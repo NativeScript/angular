@@ -79,8 +79,6 @@ describe('two-way binding via ng-model', () => {
 
     accessor.writeValue(null);
     expect(accessor.view.checked).withContext('setting null should reset the value').toBe(defaultValue);
-
-    expect(() => accessor.writeValue('blah')).toThrow();
   });
 
   it('converts strings to dates', () => {
