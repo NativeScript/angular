@@ -1,6 +1,13 @@
 // make sure you import mocha-config before @angular/core
 import { ElementRef } from '@angular/core';
-import { CheckedValueAccessor, DateValueAccessor, NumberValueAccessor, SelectedIndexValueAccessor, TextValueAccessor, TimeValueAccessor } from '@nativescript/angular';
+import {
+  CheckedValueAccessor,
+  DateValueAccessor,
+  NumberValueAccessor,
+  SelectedIndexValueAccessor,
+  TextValueAccessor,
+  TimeValueAccessor,
+} from '@nativescript/angular';
 import { DatePicker, ListPicker, Slider, Switch, TextField, TimePicker, View } from '@nativescript/core';
 
 class TestElementRef implements ElementRef {
@@ -79,6 +86,8 @@ describe('two-way binding via ng-model', () => {
 
     accessor.writeValue(null);
     expect(accessor.view.checked).withContext('setting null should reset the value').toBe(defaultValue);
+
+    expect(() => accessor.writeValue('blah')).not.toThrow();
   });
 
   it('converts strings to dates', () => {

@@ -38,7 +38,8 @@
         "uglify": false,
         "release": false,
         "forDevice": false,
-        "prepare": false
+        "prepare": false,
+        "flags": "--env.commonjs"
       },
       "dependsOn": ["^build"]
     },
