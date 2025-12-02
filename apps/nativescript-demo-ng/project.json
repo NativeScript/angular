@@ -38,7 +38,8 @@
         "uglify": false,
         "release": false,
         "forDevice": false,
-        "prepare": false
+        "prepare": false,
+        "flags": "--env.commonjs"
       },
       "dependsOn": ["^build"]
     },
@@ -53,7 +54,8 @@
       "executor": "@nativescript/nx:test",
       "outputs": ["{workspaceRoot}/coverage/apps/nativescript-demo-ng"],
       "options": {
-        "coverage": false
+        "coverage": false,
+        "flags": "--env.commonjs"
       },
       "configurations": {}
     }
