@@ -1,3 +1,13 @@
+# [20.1.0](https://github.com/NativeScript/angular/compare/20.0.0...20.1.0) (2025-12-02)
+
+
+### Features
+
+* **ListView:** sticky headers, search bar and sectioned data support with v9 ([5ad8a89](https://github.com/NativeScript/angular/commit/5ad8a897a05014d0c737f7f8580f156574938df0))
+  * **Note**: Requires NativeScript Core v9+
+
+
+
 # [20.0.0](https://github.com/NativeScript/angular/compare/19.0.1...20.0.0) (2025-06-01)
 
 
