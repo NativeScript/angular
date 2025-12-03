@@ -1,10 +1,11 @@
-import { Directive, Input, ElementRef, NgZone, AfterViewInit } from '@angular/core';
+import { Directive, Input, ElementRef, NgZone, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NavigationExtras } from '@angular/router';
 import { ActivatedRoute, Router, UrlTree } from '@angular/router';
 import { NavigationTransition } from '@nativescript/core';
 import { NativeScriptDebug } from '../../trace';
 import { RouterExtensions } from './router-extensions';
 import { NavigationOptions } from './ns-location-utils';
+import { Subject } from 'rxjs';
 
 // Copied from "@angular/router/src/config"
 export type QueryParamsHandling = 'merge' | 'preserve' | '';
@@ -33,11 +34,11 @@ export type QueryParamsHandling = 'merge' | 'preserve' | '';
  * instead look in the current component"s children for the route.
  * And if the segment begins with `../`, the router will go up one level.
  */
-@Directive({ 
-  selector: '[nsRouterLink]', 
+@Directive({
+  selector: '[nsRouterLink]',
   standalone: true,
 })
-export class NSRouterLink implements AfterViewInit {
+export class NSRouterLink implements OnChanges, AfterViewInit {
   // tslint:disable-line:directive-class-suffix
   @Input() target: string;
   @Input() queryParams: { [k: string]: any };
@@ -55,7 +56,20 @@ export class NSRouterLink implements AfterViewInit {
 
   private commands: any[] = [];
 
-  constructor(private ngZone: NgZone, private router: Router, private navigator: RouterExtensions, private route: ActivatedRoute, private el: ElementRef) {}
+  /** @internal */
+  onChanges = new Subject<NSRouterLink>();
+
+  constructor(
+    private ngZone: NgZone,
+    private router: Router,
+    private navigator: RouterExtensions,
+    private route: ActivatedRoute,
+    private el: ElementRef,
+  ) {}
+
+  ngOnChanges(changes?: SimpleChanges): void {
+    this.onChanges.next(this);
+  }
 
   ngAfterViewInit() {
     this.el.nativeElement.on('tap', () => {
@@ -76,7 +90,12 @@ export class NSRouterLink implements AfterViewInit {
 
   onTap() {
     if (NativeScriptDebug.isLogEnabled()) {
-      NativeScriptDebug.routerLog(`nsRouterLink.tapped: ${this.commands} ` + `clear: ${this.clearHistory} ` + `transition: ${JSON.stringify(this.pageTransition)} ` + `duration: ${this.pageTransitionDuration}`);
+      NativeScriptDebug.routerLog(
+        `nsRouterLink.tapped: ${this.commands} ` +
+          `clear: ${this.clearHistory} ` +
+          `transition: ${JSON.stringify(this.pageTransition)} ` +
+          `duration: ${this.pageTransitionDuration}`,
+      );
     }
 
     const extras = this.getExtras();
