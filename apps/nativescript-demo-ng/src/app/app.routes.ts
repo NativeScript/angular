@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { ItemDetailComponent } from './item/item-detail.component';
 import { ItemsComponent } from './item/items.component';
 import { ListViewStickyComponent } from './list-view-sticky/list-view-sticky.component';
+import { SPLIT_VIEW_ROUTES } from './split-view-demo/split-view.routes';
 // import { HomeComponent } from './home/home.component';
 // import { BootGuardService } from './boot-guard.service';
 
@@ -14,6 +15,10 @@ export const routes: Routes = [
   {
     path: 'list-view-sticky',
     component: ListViewStickyComponent,
+  },
+  {
+    path: 'split-view-demo',
+    children: SPLIT_VIEW_ROUTES,
   },
 
   /**

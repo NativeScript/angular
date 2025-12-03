@@ -1,0 +1,17 @@
+<ActionBar title="SplitView Demo"></ActionBar>
+
+<GridLayout rows="*, *" columns="*">
+  <SplitView
+    row="0"
+    displayMode="twoBesideSecondary"
+    splitBehavior="tile"
+    preferredPrimaryColumnWidthFraction="0.25"
+    preferredSupplementaryColumnWidthFraction="0.33"
+    preferredInspectorColumnWidthFraction="0.2"
+  >
+    <page-router-outlet name="primary"></page-router-outlet>
+    <page-router-outlet name="secondary"></page-router-outlet>
+    <page-router-outlet name="supplementary"></page-router-outlet>
+    <page-router-outlet name="inspector"></page-router-outlet>
+  </SplitView>
+</GridLayout>
