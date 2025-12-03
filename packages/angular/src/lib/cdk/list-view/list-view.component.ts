@@ -1,5 +1,42 @@
-import { AfterContentInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, Directive, DoCheck, ElementRef, EmbeddedViewRef, EventEmitter, forwardRef, Host, HostListener, inject, Inject, InjectionToken, Input, IterableDiffer, IterableDiffers, NgZone, OnDestroy, Output, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
-import { ItemEventData, KeyedTemplate, LayoutBase, ListView, ObservableArray, profile, View } from '@nativescript/core';
+import {
+  AfterContentInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ContentChild,
+  Directive,
+  DoCheck,
+  ElementRef,
+  EmbeddedViewRef,
+  EventEmitter,
+  forwardRef,
+  Host,
+  HostListener,
+  inject,
+  Inject,
+  InjectionToken,
+  Input,
+  IterableDiffer,
+  IterableDiffers,
+  NgZone,
+  OnDestroy,
+  Output,
+  TemplateRef,
+  ViewChild,
+  ViewContainerRef,
+} from '@angular/core';
+import {
+  CoreTypes,
+  ItemEventData,
+  KeyedTemplate,
+  LayoutBase,
+  ListView,
+  ObservableArray,
+  profile,
+  SearchEventData,
+  View,
+} from '@nativescript/core';
+import type { Template as NsTemplate } from '@nativescript/core';
 
 import { extractSingleViewRecursive } from '../../element-registry/registry';
 import { NativeScriptDebug } from '../../trace';
@@ -32,7 +69,10 @@ export class NsTemplatedItem<T> implements NgViewTemplate<{ index: number; data:
     private onCreate?: (view: View) => void,
   ) {}
   create(context?: { index: number; data: T }): View {
-    const viewRef = this.location.createEmbeddedView(this.template, context ? this.setupItemContext(context) : new ItemContext());
+    const viewRef = this.location.createEmbeddedView(
+      this.template,
+      context ? this.setupItemContext(context) : new ItemContext(),
+    );
     viewRef.detach(); // create detached, just beware this doesn't always work and the view might run the first CD anyway.
     const resultView = getItemViewRoot(viewRef);
     resultView[NG_VIEW] = viewRef;
@@ -75,7 +115,10 @@ export class NsTemplatedItem<T> implements NgViewTemplate<{ index: number; data:
     return !!this.getEmbeddedViewRef(view);
   }
 
-  private setupItemContext({ index, data }: { index: number; data: T }, oldView?: EmbeddedViewRef<ItemContext<T>>): ItemContext<T> {
+  private setupItemContext(
+    { index, data }: { index: number; data: T },
+    oldView?: EmbeddedViewRef<ItemContext<T>>,
+  ): ItemContext<T> {
     const context: ItemContext<T> = oldView ? oldView.context : new ItemContext<T>();
     context.$implicit = data;
     context.item = data;
@@ -126,7 +169,92 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
 
   @ContentChild(TemplateRef, { read: TemplateRef, static: false }) itemTemplateQuery: TemplateRef<ItemContext<T>>;
 
+  // Sticky header template driven by Angular. Users can provide either:
+  // 1) A string/Template bound to the ListView `[stickyHeaderTemplate]` input
+  //    (mirrors the XML attribute usage), or
+  // 2) An Angular `<ng-template #nsStickyHeaderTemplate>` whose root becomes
+  //    the header view when using the external renderer.
+  @ContentChild('nsStickyHeaderTemplate', { read: TemplateRef, static: false })
+  stickyHeaderTemplateRef: TemplateRef<ItemContext<any>>;
+
   fallbackItemTemplate: TemplateRef<ItemContext<T>>;
+
+  /**
+   * Sticky header template as supported by core ListView (string or NsTemplate).
+   * This allows direct string templates just like XML usage:
+   * `<ListView stickyHeaderTemplate="<GridLayout>...</GridLayout>">`.
+   */
+  @Input()
+  get stickyHeaderTemplate(): string | NsTemplate {
+    return this.templatedItemsView?.stickyHeaderTemplate as any;
+  }
+  set stickyHeaderTemplate(value: string | NsTemplate) {
+    if (this.templatedItemsView) {
+      // If Angular template reference is also provided, that takes precedence
+      // and will be wired in ngAfterContentInit via stickyHeaderTemplateRef.
+      this.templatedItemsView.stickyHeaderTemplate = value as any;
+    }
+  }
+
+  @Input()
+  get stickyHeader(): boolean {
+    return this.templatedItemsView?.stickyHeader;
+  }
+  set stickyHeader(value: boolean) {
+    if (this.templatedItemsView) {
+      this.templatedItemsView.stickyHeader = value;
+    }
+  }
+
+  @Input()
+  get stickyHeaderHeight(): CoreTypes.LengthType {
+    return this.templatedItemsView?.stickyHeaderHeight;
+  }
+  set stickyHeaderHeight(value: number) {
+    if (this.templatedItemsView) {
+      this.templatedItemsView.stickyHeaderHeight = value;
+    }
+  }
+
+  @Input()
+  get stickyHeaderTopPadding(): any {
+    return this.templatedItemsView?.stickyHeaderTopPadding as any;
+  }
+  set stickyHeaderTopPadding(value: any) {
+    if (this.templatedItemsView) {
+      this.templatedItemsView.stickyHeaderTopPadding = value;
+    }
+  }
+
+  @Input()
+  get sectioned(): boolean {
+    return this.templatedItemsView?.sectioned;
+  }
+  set sectioned(value: boolean) {
+    if (this.templatedItemsView) {
+      this.templatedItemsView.sectioned = value;
+    }
+  }
+
+  @Input()
+  get showSearch(): boolean {
+    return this.templatedItemsView?.showSearch;
+  }
+  set showSearch(value: boolean) {
+    if (this.templatedItemsView) {
+      this.templatedItemsView.showSearch = value;
+    }
+  }
+
+  @Input()
+  get searchAutoHide(): boolean {
+    return this.templatedItemsView?.searchAutoHide;
+  }
+  set searchAutoHide(value: boolean) {
+    if (this.templatedItemsView) {
+      this.templatedItemsView.searchAutoHide = value;
+    }
+  }
 
   @Input()
   get items() {
@@ -174,6 +302,20 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
     }
 
     this.setItemTemplates();
+
+    // If an Angular sticky header template is provided, convert it into a
+    // core `Template` function. Core will call this to create header views
+    // and then assign bindingContext for each section.
+    if (this.stickyHeaderTemplateRef && this.templatedItemsView) {
+      const angularHeaderTemplate: NsTemplate = () => {
+        const viewRef = this.loader.createEmbeddedView(this.stickyHeaderTemplateRef as TemplateRef<ItemContext<any>>);
+        const root = getItemViewRoot(viewRef as EmbeddedViewRef<unknown>);
+        (root as any)[NG_VIEW] = viewRef;
+        return root;
+      };
+
+      this.templatedItemsView.stickyHeaderTemplate = angularHeaderTemplate;
+    }
   }
 
   ngOnDestroy() {
@@ -230,11 +372,34 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
     if (!this._templateMap) {
       return;
     }
-
     const index = args.index;
-    const lview: ListView = <ListView>args.object;
-    const items = lview.items;
-    const currentItem = 'getItem' in items && typeof items.getItem === 'function' ? items.getItem(index) : items[index];
+    const lview: ListView = args.object as ListView;
+    const items = lview.items as any;
+
+    const isSectioned = lview.sectioned;
+    let currentItem: any;
+    let absoluteIndex = index;
+
+    if (isSectioned) {
+      const sectionIndex = this.resolveSectionIndex(args, args.view as View);
+      const rowIndex = this.resolveRowIndex(args, args.view as View);
+
+      if (sectionIndex === undefined || rowIndex === undefined) {
+        return;
+      }
+
+      currentItem = this.getSectionItem(lview, sectionIndex, rowIndex);
+      if (currentItem === undefined || currentItem === null) {
+        return;
+      }
+
+      absoluteIndex = this.computeAbsoluteIndex(lview, sectionIndex, rowIndex);
+    } else {
+      currentItem = this.getFlatItem(items, index);
+      if (currentItem === undefined || currentItem === null) {
+        return;
+      }
+    }
 
     let template: NsTemplatedItem<T>;
 
@@ -243,22 +408,23 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
         NativeScriptDebug.listViewLog(`onItemLoading: ${index} - Reusing existing view`);
       }
 
-      let templateKey = this._viewToTemplate.get(args.view);
+      let templateKey = this._viewToTemplate.get(args.view as View);
       if (!templateKey && args.view instanceof LayoutBase && args.view.getChildrenCount() > 0) {
         templateKey = this._viewToTemplate.get(args.view.getChildAt(0));
       }
       if (!templateKey) {
-        // this template was not created by us
         if (NativeScriptDebug.isLogEnabled()) {
           NativeScriptDebug.listViewError(`ViewReference not found for item ${index}. View recycling is not working`);
         }
         return;
       }
       template = this._templateMap.get(templateKey);
-      template.update(args.view, { index, data: currentItem });
+      template.update(args.view as View, { index: absoluteIndex, data: currentItem });
     } else {
-      // this should never enter if it creates the view
-      const templateKey = typeof lview.itemTemplateSelector === 'function' ? lview.itemTemplateSelector(currentItem, index, items) : 'default';
+      const templateKey =
+        typeof lview.itemTemplateSelector === 'function'
+          ? (lview.itemTemplateSelector as any)(currentItem, absoluteIndex, items)
+          : 'default';
       template = this._templateMap.get(templateKey);
       if (!template) {
         if (NativeScriptDebug.isLogEnabled()) {
@@ -266,12 +432,88 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
         }
         return;
       }
-      args.view = template.create({ index, data: currentItem });
+      args.view = template.create({ index: absoluteIndex, data: currentItem });
     }
-    this.setupViewRef(template.getEmbeddedViewRef(args.view), currentItem, index, args.view);
 
-    template.attach(args.view);
+    const viewRef = template.getEmbeddedViewRef(args.view as View);
+    if (viewRef) {
+      this.setupViewRef(viewRef, currentItem, absoluteIndex, args.view as View);
+      template.attach(args.view as View);
+    }
+
     this._changeDetectorRef.detectChanges();
+  }
+
+  private resolveSectionIndex(args: ItemEventData, nativeView?: View): number | undefined {
+    const eventSection = Number.isInteger((args as any).section) ? (args as any).section : undefined;
+    if (eventSection !== undefined) {
+      return eventSection;
+    }
+    const viewSection =
+      nativeView && Number.isInteger((nativeView as any)._listViewSectionIndex)
+        ? (nativeView as any)._listViewSectionIndex
+        : undefined;
+    if (viewSection !== undefined) {
+      return viewSection;
+    }
+    return undefined;
+  }
+
+  private resolveRowIndex(args: ItemEventData, nativeView?: View): number | undefined {
+    if (Number.isInteger(args.index)) {
+      return args.index;
+    }
+    const viewRow =
+      nativeView && Number.isInteger((nativeView as any)._listViewItemIndex)
+        ? (nativeView as any)._listViewItemIndex
+        : undefined;
+    return viewRow;
+  }
+
+  private getSectionItem(listView: ListView, sectionIndex: number, rowIndex: number): any {
+    if (sectionIndex < 0 || rowIndex < 0) {
+      return undefined;
+    }
+    const sectionItems = (listView as any)._getItemsInSection?.(sectionIndex);
+    if (!sectionItems) {
+      return undefined;
+    }
+    if (typeof sectionItems.getItem === 'function') {
+      return sectionItems.getItem(rowIndex);
+    }
+    return sectionItems[rowIndex];
+  }
+
+  private computeAbsoluteIndex(listView: ListView, sectionIndex: number, rowIndex: number): number {
+    let absoluteIndex = rowIndex;
+    for (let i = 0; i < sectionIndex; i++) {
+      const sectionItems = (listView as any)._getItemsInSection?.(i);
+      absoluteIndex += this.getCollectionLength(sectionItems);
+    }
+    return absoluteIndex;
+  }
+
+  private getCollectionLength(collection: any): number {
+    if (!collection) {
+      return 0;
+    }
+    if (typeof collection.length === 'number') {
+      return collection.length;
+    }
+    if (typeof collection.getCount === 'function') {
+      return collection.getCount();
+    }
+    return 0;
+  }
+
+  private getFlatItem(items: any, index: number): any {
+    if (!items) {
+      return undefined;
+    }
+    if (typeof items.getItem === 'function') {
+      return items.getItem(index);
+    }
+    return Array.isArray(items) ? items[index] : undefined;
   }
 
   public setupViewRef(viewRef: EmbeddedViewRef<ItemContext<T>>, data: T, index: number, nativeElement: View): void {
@@ -299,7 +541,10 @@ export class ListViewComponent<T = any> implements DoCheck, OnDestroy, AfterCont
 
 export type RootLocator = (nodes: Array<unknown>, nestLevel: number) => View;
 
-export function getItemViewRoot(viewRef: EmbeddedViewRef<unknown>, rootLocator: RootLocator = extractSingleViewRecursive): View {
+export function getItemViewRoot(
+  viewRef: EmbeddedViewRef<unknown>,
+  rootLocator: RootLocator = extractSingleViewRecursive,
+): View {
   const rootView = rootLocator(viewRef.rootNodes, 0);
   return rootView;
 }

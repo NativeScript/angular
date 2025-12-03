@@ -9,6 +9,7 @@
     "@nativescript/android": "~9.0.0",
     "@nativescript/ios": "~9.0.0",
     "@nativescript/tailwind": "^2.1.0",
-    "@nativescript/unit-test-runner": "4.0.0"
+    "@nativescript/unit-test-runner": "^4.0.0",
+    "@nativescript/visionos": "~9.0.0"
   }
 }

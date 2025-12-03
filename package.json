@@ -1,6 +1,6 @@
 {
   "name": "nativescript-angular",
-  "version": "20.0.0",
+  "version": "20.1.0",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -63,7 +63,7 @@
     "@nativescript/nx": "22.1.0-rc.0",
     "@nativescript/types": "~9.0.0",
     "@nativescript/unit-test-runner": "4.0.0",
-    "@nativescript/webpack": "~5.0.25",
+    "@nativescript/webpack": "~5.0.27",
     "@ngtools/webpack": "~21.0.0",
     "@nx/angular": "22.1.0",
     "@nx/eslint": "22.1.0",

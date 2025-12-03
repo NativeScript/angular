@@ -5,10 +5,9 @@ import {
   provideNativeScriptRouter,
   runNativeScriptAngularApp,
 } from '@nativescript/angular';
-import { Trace } from '@nativescript/core';
+import { Trace, Utils } from '@nativescript/core';
 
 // import { AppModule } from './app/app.module';
-import { Utils } from '@nativescript/core';
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
 import { provideZonelessChangeDetection } from '@angular/core';

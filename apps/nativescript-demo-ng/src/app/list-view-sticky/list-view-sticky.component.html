@@ -1,0 +1,31 @@
+<ActionBar title="ListView Sticky Headers"></ActionBar>
+
+<GridLayout rows="1,*" columns="*">
+  <GridLayout row="1" columns="*">
+    <!-- Using inside this grid setup helps Android position search bar if used. It also helps iOS with ActionBar safe area overflow cases with sticky header. -->
+    <ListView
+      [items]="countries()"
+      [sectioned]="true"
+      [stickyHeader]="true"
+      [stickyHeaderHeight]="45"
+      [stickyHeaderTopPadding]="false"
+      [showSearch]="true"
+      [searchAutoHide]="true"
+      [stickyHeaderTemplate]="headerTemplateString"
+      [itemTemplateSelector]="templateSelector"
+      (searchChange)="onSearchChange($event)"
+    >
+      <ng-template let-item="item" nsTemplateKey="main">
+        <GridLayout
+          columns="auto,auto,*"
+          class="p-3 my-1 mx-2 rounded-xl bg-white"
+          boxShadow="0px 1px 2px rgba(0,0,0,0.2)"
+        >
+          <Label color="black" [text]="item?.flag" class="ml-1"></Label>
+          <Label col="1" [text]="item?.name" class="ml-2 text-black"></Label>
+          <Label col="2" [text]="item?.code" class="ml-1 text-[#999]"></Label>
+        </GridLayout>
+      </ng-template>
+    </ListView>
+  </GridLayout>
+</GridLayout>

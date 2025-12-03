@@ -38,9 +38,12 @@
         "uglify": false,
         "release": false,
         "forDevice": false,
-        "prepare": false
+        "prepare": false,
+        "flags": "--env.commonjs"
       },
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     },
     "clean": {
       "executor": "@nativescript/nx:clean",
@@ -51,10 +54,16 @@
     },
     "test": {
       "executor": "@nativescript/nx:test",
-      "outputs": ["{workspaceRoot}/coverage/apps/nativescript-demo-ng"],
+      "outputs": [
+        "{workspaceRoot}/coverage/apps/nativescript-demo-ng"
+      ],
       "options": {
-        "coverage": false
+        "coverage": false,
+        "flags": "--env.commonjs"
       },
+      "dependsOn": [
+        "^build"
+      ],
       "configurations": {}
     }
   }

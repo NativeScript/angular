@@ -95,7 +95,7 @@ describe('Platform filter directives', () => {
       fixture.detectChanges();
       const componentRef = fixture.componentRef;
       const componentRoot = componentRef.instance.elementRef.nativeElement;
-      expect(dumpView(componentRoot, true).indexOf('(label[text=Apple])') >= 0).toBe(true);
+      expect(dumpView(componentRoot, true).indexOf('(label[text=Apple])') >= 0).toBe(__APPLE__);
     });
     it('does not render android specific content', () => {
       const fixture = TestBed.createComponent(AndroidSpecificComponent);
