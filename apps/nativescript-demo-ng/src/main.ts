@@ -8,7 +8,6 @@ import {
 import { Trace, Utils } from '@nativescript/core';
 
 // import { AppModule } from './app/app.module';
-import { withInterceptorsFromDi } from '@angular/common/http';
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
 import { provideZonelessChangeDetection } from '@angular/core';
@@ -25,7 +24,7 @@ runNativeScriptAngularApp({
     }
     return bootstrapApplication(AppComponent, {
       providers: [
-        provideNativeScriptHttpClient(withInterceptorsFromDi()),
+        provideNativeScriptHttpClient(),
         provideNativeScriptRouter(routes),
         ZONELESS ? provideZonelessChangeDetection() : provideNativeScriptNgZone(),
       ],

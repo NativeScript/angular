@@ -22,8 +22,8 @@ export class ItemsComponent implements OnInit, OnDestroy {
   private nativeDialog = inject(NativeDialogService);
   private modalDialog = inject(ModalDialogService);
   private http = inject(HttpClient);
-  message = 'Hello Angular 20.0.0';
-  items: Array<Item>;
+  message = 'Hello Angular 21.0.0';
+  items: Array<Item> = [];
   borderRadius: number;
   fontSize: number;
 

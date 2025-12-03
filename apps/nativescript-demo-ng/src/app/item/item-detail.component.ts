@@ -12,7 +12,7 @@ import { NativeScriptCommonModule } from '@nativescript/angular';
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class ItemDetailComponent implements OnInit {
-  item: Item;
+  item: Item | null = null;
   private itemService = inject(ItemService);
   private route = inject(ActivatedRoute);
 

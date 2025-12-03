@@ -13,8 +13,8 @@ import { ModalDialogService, NativeDialogService, NativeScriptCommonModule } fro
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class ItemsComponent implements OnInit, OnDestroy {
-  message = 'Hello Angular 20.0.0!';
-  items: Array<Item>;
+  message = 'Hello Angular 21.0.0!';
+  items: Array<Item> = [];
   private itemService = inject(ItemService);
   private nativeDialog = inject(NativeDialogService);
   private modalDialog = inject(ModalDialogService);
