@@ -31,23 +31,33 @@ describe('TextNode', () => {
     const textNode = new TextNode('foo');
     expect(textNode.text).toBe('foo');
   });
-  it('should set text to Label', () => {
+  it('should set initial text to Label', () => {
     const fixture = TestBed.createComponent(TextNodeComponent);
     fixture.detectChanges();
     const label = fixture.componentInstance.textElement.nativeElement;
     expect(label.text).toBe('textnode');
+  });
+
+  it('should clear Label text for null value', () => {
+    const fixture = TestBed.createComponent(TextNodeComponent);
     fixture.componentInstance.text = null;
     fixture.detectChanges();
+    const label = fixture.componentInstance.textElement.nativeElement;
     expect(label.text).toBe('');
   });
 
-  it('should set text to Label with Spans', () => {
+  it('should set initial text to Label with Spans', () => {
     const fixture = TestBed.createComponent(TextNodeSpansComponent);
     fixture.detectChanges();
     const label = fixture.componentInstance.textElement.nativeElement;
     expect(label.text).toBe('textnode');
+  });
+
+  it('should clear Label text with Spans for null value', () => {
+    const fixture = TestBed.createComponent(TextNodeSpansComponent);
     fixture.componentInstance.text = null;
     fixture.detectChanges();
+    const label = fixture.componentInstance.textElement.nativeElement;
     expect(label.text).toBe('');
   });
 });
