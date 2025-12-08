@@ -1,7 +1,7 @@
 import { Component, inject, NgZone, NO_ERRORS_SCHEMA, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterExtensions, NativeScriptCommonModule } from '@nativescript/angular';
-import { Page, TabView } from '@nativescript/core';
+import { EventData, Page, TabView } from '@nativescript/core';
 
 @Component({
   selector: 'demo-home',
@@ -35,8 +35,8 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  loadedTabView(args) {
-    //
+  loadedTabView() {
+
   }
 
   private _viewTab(index: number) {
@@ -61,7 +61,7 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  private _initMenu(profilePic?: string) {
+  private _initMenu() {
     for (let i = 0; i < this._tabs.length; i++) {
       const tab = this._tabs[i];
       // console.log('================')
