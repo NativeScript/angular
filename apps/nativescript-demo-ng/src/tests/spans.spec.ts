@@ -4,7 +4,7 @@
  */
 import { Component, ElementRef, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { NativeScriptModule } from '@nativescript/angular';
+import { NativeScriptCommonModule, NativeScriptModule } from '@nativescript/angular';
 import { TextBase } from '@nativescript/core';
 
 const configureComponents = (textBaseElementName: string) => {
@@ -21,6 +21,8 @@ const configureComponents = (textBaseElementName: string) => {
     </${textBaseElementName}>`;
   @Component({
     template,
+    imports: [NativeScriptCommonModule],
+    schemas: [NO_ERRORS_SCHEMA],
   })
   class SpansComponent extends BaseComponent {}
 
@@ -45,6 +47,8 @@ const configureComponents = (textBaseElementName: string) => {
     </${textBaseElementName}>`;
   @Component({
     template,
+    imports: [NativeScriptCommonModule],
+    schemas: [NO_ERRORS_SCHEMA],
   })
   class DynamicSpansComponent extends BaseComponent {
     show = true;
@@ -61,6 +65,8 @@ const configureComponents = (textBaseElementName: string) => {
     </${textBaseElementName}>`;
   @Component({
     template,
+    imports: [NativeScriptCommonModule],
+    schemas: [NO_ERRORS_SCHEMA],
   })
   class DynamicFormattedStringComponent extends BaseComponent {
     show = true;

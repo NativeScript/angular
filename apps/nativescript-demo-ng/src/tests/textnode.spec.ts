@@ -1,10 +1,11 @@
 import { Component, ElementRef, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { TextNode } from '@nativescript/angular';
+import { NativeScriptCommonModule, TextNode } from '@nativescript/angular';
 import { TextBase } from '@nativescript/core';
 
 @Component({
   template: `<Label #textElement>{{ text }}</Label>`,
+  imports: [NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
 class TextNodeComponent {
@@ -16,6 +17,7 @@ class TextNodeComponent {
   template: `<Label #textElement
     ><Span>{{ text }}</Span></Label
   >`,
+  imports: [NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
 class TextNodeSpansComponent {

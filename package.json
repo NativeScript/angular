@@ -11,7 +11,7 @@
     "start": "nx serve",
     "build": "npx nx run-many --target=build --exclude=nativescript-demo-ng",
     "test.android": "nx test nativescript-demo-ng android",
-    "test.ios": "nx test nativescript-demo-ng ios",
+    "test.ios": "npx rimraf apps/nativescript-demo-ng/platforms && nx test nativescript-demo-ng ios",
     "lint": "nx workspace-lint && nx lint",
     "e2e": "nx e2e",
     "affected:apps": "nx affected:apps",

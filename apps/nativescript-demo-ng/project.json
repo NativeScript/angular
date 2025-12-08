@@ -38,8 +38,7 @@
         "uglify": false,
         "release": false,
         "forDevice": false,
-        "prepare": false,
-        "flags": "--env.commonjs"
+        "prepare": false
       },
       "dependsOn": [
         "^build"
@@ -58,8 +57,7 @@
         "{workspaceRoot}/coverage/apps/nativescript-demo-ng"
       ],
       "options": {
-        "coverage": false,
-        "flags": "--env.commonjs"
+        "coverage": false
       },
       "dependsOn": [
         "^build"

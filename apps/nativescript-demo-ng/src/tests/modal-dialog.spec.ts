@@ -1,7 +1,7 @@
 // make sure you import mocha-config before @angular/core
 import { Component, inject, NgModule, NO_ERRORS_SCHEMA, ViewContainerRef } from '@angular/core';
 import { TestBed, waitForAsync } from '@angular/core/testing';
-import { FrameService, ModalDialogParams, ModalDialogService, NSLocationStrategy, Outlet } from '@nativescript/angular';
+import { FrameService, ModalDialogParams, ModalDialogService, NativeScriptCommonModule, NSLocationStrategy, Outlet } from '@nativescript/angular';
 import { Frame, isIOS } from '@nativescript/core';
 
 import { FakeFrameService } from './ns-location-strategy.spec';
@@ -10,6 +10,7 @@ const CLOSE_WAIT = isIOS ? 1000 : 0;
 @Component({
   selector: 'modal-comp',
   template: `<Label text="this is modal component" (shownModally)="onShownModally()"></Label>`,
+  imports: [NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class ModalComponent {
@@ -25,6 +26,7 @@ export class ModalComponent {
   selector: 'fail-comp',
   providers: [ModalDialogService],
   template: `<Label text="This app is doomed"></Label>`,
+  imports: [NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class FailComponent {
@@ -37,6 +39,7 @@ export class FailComponent {
   template: ` <GridLayout margin="20">
     <Label text="Modal dialogs"></Label>
   </GridLayout>`,
+  imports: [NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class SuccessComponent {
@@ -47,9 +50,8 @@ export class SuccessComponent {
 }
 
 @NgModule({
-  imports: [FailComponent, SuccessComponent, ModalComponent],
+  imports: [FailComponent, SuccessComponent, ModalComponent, NativeScriptCommonModule],
   exports: [FailComponent, SuccessComponent, ModalComponent],
-  // entryComponents: [ModalComponent],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class EntryComponentsTestModule {}
@@ -62,7 +64,7 @@ describe('modal-dialog', () => {
   //     [ModalComponent]));
   beforeEach(() => {
     return TestBed.configureTestingModule({
-      imports: [FailComponent, SuccessComponent, ModalComponent],
+      imports: [FailComponent, SuccessComponent, ModalComponent, NativeScriptCommonModule],
       providers: [{ provide: FrameService, useValue: new FakeFrameService() }, NSLocationStrategy],
     }).compileComponents();
   });
