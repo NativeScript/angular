@@ -9,9 +9,11 @@ import { Trace, Utils } from '@nativescript/core';
 
 // import { AppModule } from './app/app.module';
 import { withInterceptorsFromDi } from '@angular/common/http';
-import { AppComponent } from './app/app.component';
-import { routes } from './app/app.routes';
+// import { AppComponent } from './app/app.component';
+// import { routes } from './app/app.routes';
 import { provideZonelessChangeDetection } from '@angular/core';
+import { SPLIT_VIEW_ROUTES } from './app/split-view-demo/split-view.routes';
+import { SplitViewDemoComponent } from './app/split-view-demo/split-view-demo.component';
 
 const ZONELESS = true;
 
@@ -23,10 +25,10 @@ runNativeScriptAngularApp({
     if (__APPLE__) {
       Utils.ios.setWindowBackgroundColor('#a6120d');
     }
-    return bootstrapApplication(AppComponent, {
+    return bootstrapApplication(SplitViewDemoComponent, {
       providers: [
         provideNativeScriptHttpClient(withInterceptorsFromDi()),
-        provideNativeScriptRouter(routes),
+        provideNativeScriptRouter(SPLIT_VIEW_ROUTES),
         ZONELESS ? provideZonelessChangeDetection() : provideNativeScriptNgZone(),
       ],
     });

@@ -7,7 +7,6 @@ import { NativeScriptCommonModule } from '@nativescript/angular';
     <Label row="0" text="Supplementary" class="h2 mb-8"></Label>
     <Label row="1" text="This is the supplementary column." class="text-center"></Label>
   </GridLayout>`,
-  standalone: true,
   imports: [NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],
 })

@@ -10,11 +10,11 @@ export const SPLIT_VIEW_ROUTES: Routes = [
     path: '',
     component: SplitViewDemoComponent,
     children: [
-      {
-        path: '',
-        redirectTo: '/split-view-demo/(primary:primary//secondary:secondary//supplementary:supplementary//inspector:inspector)',
-        pathMatch: 'full',
-      },
+      // {
+      //   path: '',
+      //   redirectTo: '/(primary:primary//secondary:secondary//supplementary:supplementary//inspector:inspector)',
+      //   pathMatch: 'full',
+      // },
       {
         path: 'primary',
         component: SplitViewPrimaryComponent,
