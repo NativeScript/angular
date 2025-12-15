@@ -7,7 +7,7 @@ import { EventData, Page, TabView } from '@nativescript/core';
   selector: 'demo-home',
   templateUrl: './home.component.html',
   imports: [NativeScriptCommonModule],
-  schemas: [NO_ERRORS_SCHEMA]
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class HomeComponent implements OnInit {
   private _ngZone = inject(NgZone);
@@ -33,10 +33,6 @@ export class HomeComponent implements OnInit {
     if (e && e.object) {
       this._tabView = <TabView>e.object;
     }
-  }
-
-  loadedTabView() {
-
   }
 
   private _viewTab(index: number) {
