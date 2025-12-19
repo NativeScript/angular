@@ -5,7 +5,7 @@ import {
   provideNativeScriptRouter,
   runNativeScriptAngularApp,
 } from '@nativescript/angular';
-import { Trace, Utils } from '@nativescript/core';
+import { Trace, Utils, SplitView } from '@nativescript/core';
 
 // import { AppModule } from './app/app.module';
 import { withInterceptorsFromDi } from '@angular/common/http';
@@ -19,6 +19,9 @@ const ZONELESS = true;
 
 Trace.enable();
 Trace.setCategories('ns-route-reuse-strategy,ns-router');
+
+// Set the split style before bootstrapping - 'triple' is needed for primary/supplementary/secondary layout
+SplitView.SplitStyle = 'triple';
 
 runNativeScriptAngularApp({
   appModuleBootstrap: () => {

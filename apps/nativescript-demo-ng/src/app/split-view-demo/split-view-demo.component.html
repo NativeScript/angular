@@ -4,9 +4,10 @@
   preferredPrimaryColumnWidthFraction="0.25"
   preferredSupplementaryColumnWidthFraction="0.33"
   preferredInspectorColumnWidthFraction="0.2"
+  (inspectorChange)="splitViewState.onInspectorChange($event)"
 >
-  <page-router-outlet name="primary"></page-router-outlet>
-  <page-router-outlet name="secondary"></page-router-outlet>
-  <page-router-outlet name="supplementary"></page-router-outlet>
-  <page-router-outlet name="inspector"></page-router-outlet>
+  <page-router-outlet name="primary" splitRole="primary"></page-router-outlet>
+  <page-router-outlet name="secondary" splitRole="secondary"></page-router-outlet>
+  <page-router-outlet name="supplementary" splitRole="supplementary"></page-router-outlet>
+  <page-router-outlet name="inspector" splitRole="inspector"></page-router-outlet>
 </SplitView>
