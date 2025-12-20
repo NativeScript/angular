@@ -1,0 +1,47 @@
+/* Santa's Secondary - Naughty & Nice List Styles */
+
+.secondary-bg {
+  background: linear-gradient(180deg, #fef9f3 0%, #fff5f5 100%);
+}
+
+.tab-switcher-bg {
+  background-color: rgba(26, 71, 42, 0.1);
+}
+
+.tab-nice-active {
+  background-color: #228b22;
+}
+
+.tab-naughty-active {
+  background-color: #c41e3a;
+}
+
+.person-card-nice {
+  background-color: #ffffff;
+  border-color: rgba(34, 139, 34, 0.2);
+}
+
+.person-card-naughty {
+  background-color: #fff5f5;
+  border-color: rgba(196, 30, 58, 0.2);
+}
+
+.avatar-nice {
+  background-color: #e8f5e9;
+}
+
+.avatar-naughty {
+  background-color: #ffebee;
+}
+
+.badge-nice {
+  background-color: rgba(34, 139, 34, 0.1);
+}
+
+.badge-naughty {
+  background-color: rgba(196, 30, 58, 0.1);
+}
+
+.tip-card {
+  background-color: rgba(26, 71, 42, 0.05);
+}

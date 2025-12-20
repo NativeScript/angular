@@ -1,0 +1,33 @@
+/* Santa's Inspector - Stats Panel Styles */
+
+.inspector-bg {
+  background: linear-gradient(180deg, #1a472a 0%, #0d2818 100%);
+}
+
+.stats-card {
+  background-color: rgba(13, 40, 24, 0.6);
+}
+
+.controls-card {
+  background-color: rgba(13, 40, 24, 0.6);
+}
+
+.magic-card {
+  background-color: rgba(13, 40, 24, 0.6);
+}
+
+.reindeer-card {
+  background-color: rgba(13, 40, 24, 0.6);
+}
+
+.reindeer-badge {
+  background-color: rgba(34, 139, 34, 0.2);
+}
+
+.rudolph-badge {
+  background-color: rgba(196, 30, 58, 0.4);
+}
+
+.elf-alert {
+  background-color: rgba(255, 193, 7, 0.2);
+}

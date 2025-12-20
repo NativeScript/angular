@@ -1,0 +1,134 @@
+<ActionBar title="🎅 Santa's HQ" flat="true" class="bg-[#1a472a]">
+  <Label text="🎅 Santa's HQ" class="text-white font-bold"></Label>
+</ActionBar>
+
+<GridLayout rows="auto,*,auto" class="h-full santa-nav-bg">
+  <!-- Header with Santa branding -->
+  <StackLayout row="0" class="px-4 pt-4 pb-3">
+    <Label text="🎄 Command Center" class="text-lg font-bold text-[#ffd700]"></Label>
+    <Label text="North Pole Operations" class="text-xs text-[#98d4a8] mt-1"></Label>
+  </StackLayout>
+
+  <ScrollView row="1">
+    <StackLayout class="px-3 pb-4">
+      <!-- Navigation Menu -->
+      <StackLayout class="rounded-2xl nav-menu-bg border border-[#3d6b4f]">
+        <!-- Dashboard -->
+        <GridLayout
+          rows="auto"
+          columns="auto,*,auto"
+          class="px-4 py-3 border-b border-[#3d6b4f]"
+          [ngClass]="{ 'menu-item-active': selectedMenu() === 'dashboard' }"
+          (tap)="selectMenu('dashboard')"
+        >
+          <Label col="0" text="🏠" class="text-lg"></Label>
+          <Label col="1" text="Dashboard" class="text-sm text-white ml-3 font-medium"></Label>
+          <Label
+            col="2"
+            text="›"
+            class="text-[#98d4a8]"
+            [visibility]="selectedMenu() === 'dashboard' ? 'visible' : 'hidden'"
+          ></Label>
+        </GridLayout>
+
+        <!-- Naughty List -->
+        <GridLayout
+          rows="auto"
+          columns="auto,*,auto"
+          class="px-4 py-3 border-b border-[#3d6b4f]"
+          [ngClass]="{ 'menu-item-active': selectedMenu() === 'naughty' }"
+          (tap)="selectMenu('naughty')"
+        >
+          <Label col="0" text="😈" class="text-lg"></Label>
+          <Label col="1" text="Naughty List" class="text-sm text-white ml-3 font-medium"></Label>
+          <StackLayout col="2" class="bg-[#c41e3a] rounded-full px-2 py-1">
+            <Label [text]="splitViewState.naughtyCount()" class="text-xs text-white font-bold"></Label>
+          </StackLayout>
+        </GridLayout>
+
+        <!-- Nice List -->
+        <GridLayout
+          rows="auto"
+          columns="auto,*,auto"
+          class="px-4 py-3 border-b border-[#3d6b4f]"
+          [ngClass]="{ 'menu-item-active': selectedMenu() === 'nice' }"
+          (tap)="selectMenu('nice')"
+        >
+          <Label col="0" text="😇" class="text-lg"></Label>
+          <Label col="1" text="Nice List" class="text-sm text-white ml-3 font-medium"></Label>
+          <StackLayout col="2" class="bg-[#228b22] rounded-full px-2 py-1">
+            <Label [text]="splitViewState.niceCount()" class="text-xs text-white font-bold"></Label>
+          </StackLayout>
+        </GridLayout>
+
+        <!-- Delivery Tracker -->
+        <GridLayout
+          rows="auto"
+          columns="auto,*,auto"
+          class="px-4 py-3 border-b border-[#3d6b4f]"
+          [ngClass]="{ 'menu-item-active': selectedMenu() === 'delivery' }"
+          (tap)="selectMenu('delivery')"
+        >
+          <Label col="0" text="🛷" class="text-lg"></Label>
+          <Label col="1" text="Delivery Tracker" class="text-sm text-white ml-3 font-medium"></Label>
+          <Label col="2" text="LIVE" class="text-xs text-[#ff6b6b] font-bold"></Label>
+        </GridLayout>
+
+        <!-- Workshop -->
+        <GridLayout
+          rows="auto"
+          columns="auto,*"
+          class="px-4 py-3"
+          [ngClass]="{ 'menu-item-active': selectedMenu() === 'workshop' }"
+          (tap)="selectMenu('workshop')"
+        >
+          <Label col="0" text="🔨" class="text-lg"></Label>
+          <Label col="1" text="Elf Workshop" class="text-sm text-white ml-3 font-medium"></Label>
+        </GridLayout>
+      </StackLayout>
+
+      <!-- Quick Stats Card -->
+      <StackLayout class="mt-4 rounded-2xl bg-[#c41e3a] p-4 border border-[#ff6b6b]/30">
+        <Label text="🎁 Tonight's Mission" class="text-xs font-bold text-[#ffd700]"></Label>
+        <GridLayout columns="*,*" class="mt-2" columnGap="8">
+          <StackLayout col="0" class="items-center">
+            <Label text="2.1B" class="text-2xl font-bold text-white"></Label>
+            <Label text="Children" class="text-xs text-[#ffb3b3]"></Label>
+          </StackLayout>
+          <StackLayout col="1" class="items-center">
+            <Label text="195" class="text-2xl font-bold text-white"></Label>
+            <Label text="Countries" class="text-xs text-[#ffb3b3]"></Label>
+          </StackLayout>
+        </GridLayout>
+      </StackLayout>
+
+      <!-- Weather Alert -->
+      <StackLayout class="mt-4 rounded-2xl nav-menu-bg border border-[#3d6b4f] p-3">
+        <GridLayout columns="auto,*">
+          <Label col="0" text="❄️" class="text-lg"></Label>
+          <StackLayout col="1" class="ml-2">
+            <Label text="Weather: Perfect!" class="text-xs font-semibold text-[#98d4a8]"></Label>
+            <Label text="Light snow, clear skies" class="text-xs text-[#6ba37a] mt-1"></Label>
+          </StackLayout>
+        </GridLayout>
+      </StackLayout>
+    </StackLayout>
+  </ScrollView>
+
+  <!-- Footer with countdown -->
+  <StackLayout row="2" class="px-4 py-3 countdown-footer border-t border-[#3d6b4f]">
+    <GridLayout rows="auto,auto" columns="*,auto">
+      <Image
+        src="https://raw.githubusercontent.com/NativeScript/artwork/main/logo/export/NativeScript_Logo_White_Transparent.png"
+        class="w-20 h-20 p-2 opacity-70"
+      />
+      <GridLayout row="1" columns="auto,*">
+        <Label col="0" text="⏰" class="text-base"></Label>
+        <StackLayout col="1" class="ml-2">
+          <Label text="Christmas in" class="text-xs text-[#6ba37a]"></Label>
+          <StackLayout [numericText]="countdown()" class="text-sm font-bold text-[#ffd700] mt-1"></StackLayout>
+        </StackLayout>
+      </GridLayout>
+    </GridLayout>
+  </StackLayout>
+</GridLayout>

@@ -1,0 +1,138 @@
+<GridLayout rows="auto,auto,*" class="h-full secondary-bg">
+  <!-- Header -->
+  <StackLayout row="0" class="px-5 pt-5 pb-3">
+    <GridLayout columns="*,auto">
+      <StackLayout col="0">
+        <Label text="📋 The List" class="text-2xl font-bold text-[#1a472a]"></Label>
+        <Label text="Naughty &amp; Nice Management" class="text-sm text-[#6b8e6b] mt-1"></Label>
+      </StackLayout>
+      <GridLayout col="1" columns="*,auto,*" class="bg-[#c41e3a] rounded-full px-3 py-2 h-12" (tap)="addRandomPerson()">
+        <Image row="1" src="sys://text.pad.header.badge.plus" tintColor="white" class="align-middle" />
+        <Label row="1" col="1" text="Add" class="text-white text-sm font-bold ml-1 align-middle"></Label>
+      </GridLayout>
+    </GridLayout>
+  </StackLayout>
+
+  <!-- Tab Switcher -->
+  <GridLayout row="1" columns="*,*" class="mx-5 mb-3 rounded-xl tab-switcher-bg p-1">
+    <StackLayout
+      col="0"
+      class="rounded-lg py-2 items-center mr-1"
+      [ngClass]="{'tab-nice-active': activeTab() === 'nice'}"
+      (tap)="setActiveTab('nice')"
+    >
+      <Label
+        text="😇 Nice"
+        class="text-sm font-semibold ml-4"
+        [ngClass]="{'text-white': activeTab() === 'nice', 'text-[#1a472a]': activeTab() !== 'nice'}"
+      ></Label>
+    </StackLayout>
+    <StackLayout
+      col="1"
+      class="rounded-lg py-2 items-center ml-1"
+      [ngClass]="{'tab-naughty-active': activeTab() === 'naughty'}"
+      (tap)="setActiveTab('naughty')"
+    >
+      <Label
+        text="😈 Naughty"
+        class="text-sm font-semibold ml-4"
+        [ngClass]="{'text-white': activeTab() === 'naughty', 'text-[#1a472a]': activeTab() !== 'naughty'}"
+      ></Label>
+    </StackLayout>
+  </GridLayout>
+
+  <!-- Stats Cards & List -->
+  <ScrollView row="2">
+    <StackLayout class="px-5 pb-5">
+      <!-- Stats Row -->
+      <GridLayout columns="*,*" class="mb-4" columnGap="12">
+        <StackLayout col="0" class="rounded-2xl bg-[#228b22] p-4 mr-1">
+          <!-- <Label text="😇 Nice Children" class="text-xs text-[#98d4a8]"></Label> -->
+          <Label [text]="splitViewState.niceCount()" class="text-3xl font-bold text-white mt-1"></Label>
+          <Label text="Well behaved!" class="text-xs text-[#98d4a8] mt-1"></Label>
+        </StackLayout>
+        <StackLayout col="1" class="rounded-2xl bg-[#c41e3a] p-4 ml-1">
+          <!-- <Label text="😈 Naughty Children" class="text-xs text-[#ffb3b3]"></Label> -->
+          <Label [text]="splitViewState.naughtyCount()" class="text-3xl font-bold text-white mt-1"></Label>
+          <Label text="Coal incoming..." class="text-xs text-[#ffb3b3] mt-1"></Label>
+        </StackLayout>
+      </GridLayout>
+
+      <!-- List Header -->
+      <GridLayout columns="auto,*,auto" class="mb-3">
+        <Label col="0" [text]="activeTab() === 'nice' ? '✨ Nice List' : '🔥 Naughty List'" class="text-lg font-bold text-[#1a472a]"></Label>
+        <Label col="2" [text]="filteredList().length + ' children'" class="text-xs text-[#6b8e6b]"></Label>
+      </GridLayout>
+
+      <!-- People List -->
+      <ng-container *ngFor="let person of filteredList()">
+        <GridLayout
+          columns="auto,*,auto"
+          class="p-4 mb-3 rounded-2xl border"
+          [ngClass]="{
+            'person-card-nice': person.status === 'nice',
+            'person-card-naughty': person.status === 'naughty'
+          }"
+          (tap)="toggleStatus(person)"
+        >
+          <!-- Avatar -->
+          <GridLayout col="0" rows="*,auto,*" class="w-12 h-12 rounded-full items-center justify-center" [ngClass]="{'avatar-nice': person.status === 'nice', 'avatar-naughty': person.status === 'naughty'}" iosOverflowSafeArea="false">
+            <Label row="1" [text]="person.avatar" class="text-2xl text-center"></Label>
+          </GridLayout>
+
+          <!-- Info -->
+          <StackLayout col="1" class="ml-3">
+            <Label [text]="person.name" class="text-base font-semibold text-[#1a472a]"></Label>
+            <Label [text]="person.city + ' • Age ' + person.age" class="text-xs text-[#6b8e6b] mt-1"></Label>
+            <Label [text]="person.reason" class="text-xs mt-1" [ngClass]="{'text-[#228b22]': person.status === 'nice', 'text-[#c41e3a]': person.status === 'naughty'}"></Label>
+          </StackLayout>
+
+          <!-- Status Badge -->
+          <StackLayout col="2" class="items-center">
+            <StackLayout
+              class="rounded-full px-3 py-1"
+              [ngClass]="{'badge-nice': person.status === 'nice', 'badge-naughty': person.status === 'naughty'}"
+            >
+              <Label
+                [text]="person.status === 'nice' ? '🎁' : '⎌'" class="text-center"
+              ></Label>
+            </StackLayout>
+            <Label text="Tap to switch" class="text-[8px] text-[#999] mt-1"></Label>
+          </StackLayout>
+        </GridLayout>
+      </ng-container>
+
+      <!-- Empty State -->
+      <StackLayout *ngIf="filteredList().length === 0" class="items-center py-10">
+        <Label [text]="activeTab() === 'nice' ? '😢' : '🎉'" class="text-5xl"></Label>
+        <Label
+          [text]="activeTab() === 'nice' ? 'No nice children yet!' : 'No naughty children!'"
+          class="text-base text-[#6b8e6b] mt-3"
+        ></Label>
+      </StackLayout>
+
+      <!-- Fun Footer Message -->
+      <StackLayout class="mt-4 rounded-2xl tip-card p-4 border border-[#1a472a]/10">
+        <GridLayout columns="auto,*">
+          <Label col="0" text="💡" class="text-lg"></Label>
+          <StackLayout col="1" class="ml-2">
+            <Label text="Pro Tip from Santa" class="text-xs font-bold text-[#1a472a]"></Label>
+            <Label text="Tap any child to move them between lists. Everyone deserves a second chance! 🎄" class="text-xs text-[#6b8e6b] mt-1 leading-[3]" textWrap="true"></Label>
+          </StackLayout>
+        </GridLayout>
+      </StackLayout>
+
+      <StackLayout
+        *ngIf="!splitViewState.inspectorVisible()"
+        class="mt-4 rounded-2xl bg-[#c41e3a] p-4"
+        (tap)="splitViewState.setInspectorVisible(true)"
+      >
+        <GridLayout columns="auto,*,auto">
+          <Label col="0" text="📊" class="text-lg"></Label>
+          <Label col="1" text="Open Stats Panel" class="text-sm font-semibold text-white ml-2"></Label>
+          <Label col="2" text="›" class="text-white text-lg"></Label>
+        </GridLayout>
+      </StackLayout>
+    </StackLayout>
+  </ScrollView>
+</GridLayout>

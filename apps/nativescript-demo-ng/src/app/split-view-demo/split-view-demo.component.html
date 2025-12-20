@@ -1,13 +1,18 @@
+<!-- 🎅 Santa's Command Center - Christmas Delivery Tracker -->
 <SplitView
   displayMode="twoBesideSecondary"
   splitBehavior="tile"
-  preferredPrimaryColumnWidthFraction="0.25"
-  preferredSupplementaryColumnWidthFraction="0.33"
-  preferredInspectorColumnWidthFraction="0.2"
+  preferredPrimaryColumnWidthFraction="0.22"
+  preferredSupplementaryColumnWidthFraction="0.34"
+  preferredInspectorColumnWidthFraction="0.19"
   (inspectorChange)="splitViewState.onInspectorChange($event)"
 >
-  <page-router-outlet name="primary" splitRole="primary"></page-router-outlet>
+  <!-- Navigation Panel - Santa's Menu -->
+  <page-router-outlet name="primary" splitRole="primary" class="opacity-80"></page-router-outlet>
+  <!-- Main Content - Naughty & Nice Lists -->
   <page-router-outlet name="secondary" splitRole="secondary"></page-router-outlet>
+  <!-- Delivery Tracker - Countries & Cities -->
   <page-router-outlet name="supplementary" splitRole="supplementary"></page-router-outlet>
+  <!-- Stats & Controls Panel -->
   <page-router-outlet name="inspector" splitRole="inspector"></page-router-outlet>
 </SplitView>

@@ -14,6 +14,7 @@ import { withInterceptorsFromDi } from '@angular/common/http';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { SPLIT_VIEW_ROUTES } from './app/split-view-demo/split-view.routes';
 import { SplitViewDemoComponent } from './app/split-view-demo/split-view-demo.component';
+import './global-setup';
 
 const ZONELESS = true;
 

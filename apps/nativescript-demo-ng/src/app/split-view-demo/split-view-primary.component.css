@@ -1,0 +1,17 @@
+/* Santa's Primary Navigation Styles */
+
+.santa-nav-bg {
+  background: linear-gradient(180deg, #1a472a 0%, #2d5a3d 100%);
+}
+
+.nav-menu-bg {
+  background-color: rgba(13, 40, 24, 0.6);
+}
+
+.menu-item-active {
+  background-color: rgba(196, 30, 58, 0.2);
+}
+
+.countdown-footer {
+  background-color: rgba(13, 40, 24, 0.8);
+}

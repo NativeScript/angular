@@ -1,0 +1,135 @@
+<ActionBar title="📊 Stats" flat="true" class="bg-[#1a472a]"></ActionBar>
+
+<GridLayout rows="*" class="h-full inspector-bg">
+  <ScrollView>
+    <StackLayout class="p-4">
+      <!-- Santa Status Card -->
+      <StackLayout class="rounded-2xl bg-[#c41e3a] p-4 mb-4">
+        <GridLayout columns="auto,*">
+          <Label col="0" text="🎅" class="text-3xl"></Label>
+          <StackLayout col="1" class="ml-3">
+            <Label text="Santa Status" class="text-xs text-[#ffb3b3]"></Label>
+            <Label text="En Route!" class="text-lg font-bold text-white"></Label>
+            <Label text="Feeling jolly" class="text-xs text-[#ffd700] mt-1"></Label>
+          </StackLayout>
+        </GridLayout>
+      </StackLayout>
+
+      <!-- Quick Stats -->
+      <StackLayout class="rounded-2xl stats-card p-4 mb-4 border border-[#3d6b4f]">
+        <Label text="🎄 Tonight's Stats" class="text-sm font-bold text-[#ffd700] mb-3"></Label>
+
+        <GridLayout rows="auto,auto,auto,auto" columns="*,auto" rowGap="12">
+          <Label row="0" col="0" text="Nice" class="text-sm text-[#98d4a8]"></Label>
+          <Label row="0" col="1" [text]="splitViewState.niceCount()" class="text-sm font-bold text-[#4caf50]"></Label>
+
+          <Label row="1" col="0" text="Naughty" class="text-sm text-[#98d4a8]"></Label>
+          <Label
+            row="1"
+            col="1"
+            [text]="splitViewState.naughtyCount()"
+            class="text-sm font-bold text-[#ff6b6b]"
+          ></Label>
+
+          <Label row="2" col="0" text="Delivered" class="text-sm text-[#98d4a8]"></Label>
+          <Label
+            row="2"
+            col="1"
+            [text]="splitViewState.deliveredCount()"
+            class="text-sm font-bold text-[#64b5f6]"
+          ></Label>
+
+          <Label row="3" col="0" text="Sleigh Speed" class="text-sm text-[#98d4a8]"></Label>
+          <Label row="3" col="1" text="Mach 3000" class="text-sm font-bold text-[#ffc107]"></Label>
+        </GridLayout>
+      </StackLayout>
+
+      <!-- Controls -->
+      <StackLayout class="rounded-2xl controls-card border border-[#3d6b4f]">
+        <GridLayout rows="auto" columns="*,auto" class="px-4 py-3 border-b border-[#3d6b4f]">
+          <Label text="🔔 Jingle" class="text-sm text-white"></Label>
+
+          <Switch col="1" [checked]="jingleBells()" (checkedChange)="onJingleBellsChange($event)"></Switch>
+        </GridLayout>
+        <GridLayout rows="auto" columns="*,auto" class="px-4 py-3 border-b border-[#3d6b4f]">
+          <Label text="❄️ Effects" class="text-sm text-white"></Label>
+
+          <Switch col="1" [checked]="snowEffects()" (checkedChange)="onSnowEffectsChange($event)"></Switch>
+        </GridLayout>
+        <GridLayout rows="auto" columns="*,auto" class="px-4 py-3 border-b border-[#3d6b4f]">
+          <Label text="🎵 Christmas" class="text-sm text-white"></Label>
+
+          <Switch col="1" [checked]="christmasMusic()" (checkedChange)="onChristmasMusicChange($event)"></Switch>
+        </GridLayout>
+        <GridLayout rows="auto" columns="*,auto" class="px-4 py-3">
+          <Label text="🌟 Twinkle" class="text-sm text-white"></Label>
+
+          <Switch col="1" [checked]="twinkleLights()" (checkedChange)="onTwinkleLightsChange($event)"></Switch>
+        </GridLayout>
+      </StackLayout>
+
+      <!-- Magic Meter -->
+      <StackLayout class="mt-4 rounded-2xl magic-card p-4 border border-[#3d6b4f]">
+        <Label text="✨ Christmas Magic" class="text-sm font-bold text-[#ffd700]"></Label>
+        <Label text="Spreading joy worldwide!" class="text-xs text-[#6ba37a] mt-1 mb-3"></Label>
+        <Slider
+          minValue="0"
+          maxValue="100"
+          [value]="magicLevel()"
+          (valueChange)="onMagicLevelChange($event)"
+          (loaded)="loadedSlider($event)"
+        ></Slider>
+        <Label [text]="magicLevel() + '% Magic Power'" class="text-xs text-[#98d4a8] text-center mt-1"></Label>
+      </StackLayout>
+
+      <!-- Reindeer Status -->
+      <StackLayout class="mt-4 rounded-2xl reindeer-card p-4 border border-[#3d6b4f]">
+        <Label text="🦌 Reindeer Team" class="text-sm font-bold text-[#ffd700] mb-3"></Label>
+        <WrapLayout>
+          <StackLayout class="m-1 p-2 rounded-lg reindeer-badge">
+            <Label text="🦌 Dasher" class="text-xs text-white"></Label>
+          </StackLayout>
+          <StackLayout class="m-1 p-2 rounded-lg reindeer-badge">
+            <Label text="🦌 Dancer" class="text-xs text-white"></Label>
+          </StackLayout>
+          <StackLayout class="m-1 p-2 rounded-lg reindeer-badge">
+            <Label text="🦌 Prancer" class="text-xs text-white"></Label>
+          </StackLayout>
+          <StackLayout class="m-1 p-2 rounded-lg reindeer-badge">
+            <Label text="🦌 Vixen" class="text-xs text-white"></Label>
+          </StackLayout>
+          <StackLayout class="m-1 p-2 rounded-lg reindeer-badge">
+            <Label text="🦌 Comet" class="text-xs text-white"></Label>
+          </StackLayout>
+          <StackLayout class="m-1 p-2 rounded-lg reindeer-badge">
+            <Label text="🦌 Cupid" class="text-xs text-white"></Label>
+          </StackLayout>
+          <StackLayout class="m-1 p-2 rounded-lg reindeer-badge">
+            <Label text="🦌 Donner" class="text-xs text-white"></Label>
+          </StackLayout>
+          <StackLayout class="m-1 p-2 rounded-lg reindeer-badge">
+            <Label text="🦌 Blitzen" class="text-xs text-white"></Label>
+          </StackLayout>
+          <StackLayout class="m-1 p-2 rounded-lg rudolph-badge">
+            <Label text="🔴 Rudolph" class="text-xs text-[#ff6b6b] font-bold"></Label>
+          </StackLayout>
+        </WrapLayout>
+      </StackLayout>
+
+      <!-- Elf Alert -->
+      <StackLayout class="mt-4 rounded-2xl elf-alert p-3 border border-[#ffc107]/30">
+        <GridLayout columns="auto,*">
+          <Label col="0" text="🧝" class="text-lg"></Label>
+          <StackLayout col="1" class="ml-2">
+            <Label text="Elf HQ Message" class="text-xs font-bold text-[#ffc107]"></Label>
+            <Label
+              text="All systems go! Workshop closed for the night. 🎁"
+              class="text-xs text-[#98d4a8] mt-1 leading-[3]"
+              textWrap="true"
+            ></Label>
+          </StackLayout>
+        </GridLayout>
+      </StackLayout>
+    </StackLayout>
+  </ScrollView>
+</GridLayout>

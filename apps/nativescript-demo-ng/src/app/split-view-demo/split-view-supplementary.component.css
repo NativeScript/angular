@@ -1,0 +1,43 @@
+/* Santa's Supplementary - Delivery Tracker Styles */
+
+.supplementary-bg {
+  background: linear-gradient(180deg, #0a1628 0%, #1a2d4a 100%);
+}
+
+.progress-bar-bg {
+  background-color: #1a3a5c;
+}
+
+.progress-bar-fill {
+  background: linear-gradient(90deg, #4caf50 0%, #81c784 100%);
+}
+
+.country-header {
+  background-color: #1a3a5c;
+}
+
+.progress-badge {
+  background-color: rgba(76, 175, 80, 0.2);
+}
+
+.city-delivered {
+  background-color: rgba(13, 40, 24, 0.6);
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+.city-pending {
+  background-color: #1a2d4a;
+  border-color: #2a4a6c;
+}
+
+.status-icon-delivered {
+  background-color: rgba(76, 175, 80, 0.2);
+}
+
+.status-icon-pending {
+  background-color: rgba(255, 193, 7, 0.2);
+}
+
+.cookie-counter-card {
+  background-color: #1a3a5c;
+}
