@@ -457,30 +457,53 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   if (oldAddEventListener) {
     global.NativeScriptGlobals.events.addEventListener = oldAddEventListener;
   }
-  if (import.meta['webpackHot']) {
-    // handle HMR Application.run
-    global['__dispose_app_ng_platform__'] = () => {
+
+  // Detect HMR environment (webpack or Vite)
+  const isWebpackHot = !!import.meta['webpackHot'];
+  const isViteHot = !!import.meta['hot'];
+  const isHotReloadEnabled = isWebpackHot || isViteHot;
+
+  // Always expose HMR globals for both webpack and Vite HMR support
+  // These allow the HMR runtime to properly dispose and re-bootstrap Angular
+  global['__dispose_app_ng_platform__'] = () => {
+    disposePlatform('hotreload');
+  };
+  global['__dispose_app_ng_modules__'] = () => {
+    disposeLastModules('hotreload');
+  };
+  global['__bootstrap_app_ng_modules__'] = () => {
+    bootstrapRoot('hotreload');
+  };
+  global['__cleanup_ng_hot__'] = () => {
+    Application.off(Application.launchEvent, launchCallback);
+    Application.off(Application.exitEvent, exitCallback);
+    disposeLastModules('hotreload');
+    disposePlatform('hotreload');
+  };
+  global['__reboot_ng_modules__'] = (shouldDisposePlatform: boolean = false) => {
+    disposeLastModules('hotreload');
+    if (shouldDisposePlatform) {
       disposePlatform('hotreload');
-    };
-    global['__dispose_app_ng_modules__'] = () => {
-      disposeLastModules('hotreload');
-    };
-    global['__bootstrap_app_ng_modules__'] = () => {
-      bootstrapRoot('hotreload');
-    };
-    global['__cleanup_ng_hot__'] = () => {
-      Application.off(Application.launchEvent, launchCallback);
-      Application.off(Application.exitEvent, exitCallback);
-      disposeLastModules('hotreload');
-      disposePlatform('hotreload');
-    };
-    global['__reboot_ng_modules__'] = (shouldDisposePlatform: boolean = false) => {
-      disposeLastModules('hotreload');
-      if (shouldDisposePlatform) {
-        disposePlatform('hotreload');
-      }
-      bootstrapRoot('hotreload');
-    };
+    }
+    bootstrapRoot('hotreload');
+  };
+
+  if (isWebpackHot) {
+    // Webpack-specific HMR handling
+    import.meta['webpackHot'].decline();
+
+    if (!Application.hasLaunched()) {
+      Application.run();
+      return;
+    }
+    bootstrapRoot('hotreload');
+    return;
+  }
+
+  if (isViteHot) {
+    // Vite-specific HMR handling
+    // Vite HMR is handled by @nativescript/vite's HMR runtime
+    // which will call __reboot_ng_modules__ when needed
 
     if (!Application.hasLaunched()) {
       Application.run();
