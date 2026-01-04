@@ -1,6 +1,6 @@
 import { Component, inject, NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { NativeScriptCommonModule, NativeScriptRouterModule } from '@nativescript/angular';
-import { Page } from '@nativescript/core';
+import { Page, SearchEventData } from '@nativescript/core';
 
 interface CountryItem {
   name: string;
@@ -1407,11 +1407,11 @@ export class ListViewStickyComponent {
 
   private _originalCountries: CountryListType | undefined;
 
-  templateSelector(item: CountrySection | CountryItem, _index: number, _items: any) {
+  templateSelector() {
     return 'main';
   }
 
-  onSearchChange(event: any) {
+  onSearchChange(event: SearchEventData) {
     const text = (event?.text ?? '').toLowerCase();
     if (this.searchText !== text) {
       this.searchText = text;

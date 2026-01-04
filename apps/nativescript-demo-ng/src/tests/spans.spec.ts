@@ -4,7 +4,7 @@
  */
 import { Component, ElementRef, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { NativeScriptModule } from '@nativescript/angular';
+import { NativeScriptCommonModule, NativeScriptModule } from '@nativescript/angular';
 import { TextBase } from '@nativescript/core';
 
 const configureComponents = (textBaseElementName: string) => {
@@ -21,6 +21,8 @@ const configureComponents = (textBaseElementName: string) => {
     </${textBaseElementName}>`;
   @Component({
     template,
+    imports: [NativeScriptCommonModule],
+    schemas: [NO_ERRORS_SCHEMA],
   })
   class SpansComponent extends BaseComponent {}
 
@@ -45,6 +47,8 @@ const configureComponents = (textBaseElementName: string) => {
     </${textBaseElementName}>`;
   @Component({
     template,
+    imports: [NativeScriptCommonModule],
+    schemas: [NO_ERRORS_SCHEMA],
   })
   class DynamicSpansComponent extends BaseComponent {
     show = true;
@@ -61,6 +65,8 @@ const configureComponents = (textBaseElementName: string) => {
     </${textBaseElementName}>`;
   @Component({
     template,
+    imports: [NativeScriptCommonModule],
+    schemas: [NO_ERRORS_SCHEMA],
   })
   class DynamicFormattedStringComponent extends BaseComponent {
     show = true;
@@ -100,25 +106,25 @@ describe('Spans', () => {
         expect(textBase.formattedText.spans.getItem(1).text).toBe('1');
         expect(textBase.formattedText.spans.getItem(2).text).toBe('2');
       });
-      it('correctly adds dynamically', async () => {
+      it('correctly adds dynamically when show is true', () => {
         const fixture = TestBed.createComponent(DynamicSpansComponent);
-        const textBase = fixture.componentInstance.textBase.nativeElement;
+        // default show = true
         fixture.detectChanges();
+        const textBase = fixture.componentInstance.textBase.nativeElement;
         expect(textBase.formattedText.spans.length).toBe(3);
         expect(textBase.formattedText.spans.getItem(0).text).toBe('0');
         expect(textBase.formattedText.spans.getItem(1).text).toBe('1');
         expect(textBase.formattedText.spans.getItem(2).text).toBe('2');
+      });
+
+      it('correctly adds dynamically when show is false', () => {
+        const fixture = TestBed.createComponent(DynamicSpansComponent);
         fixture.componentInstance.show = false;
         fixture.detectChanges();
+        const textBase = fixture.componentInstance.textBase.nativeElement;
         expect(textBase.formattedText.spans.length).toBe(2);
         expect(textBase.formattedText.spans.getItem(0).text).toBe('0');
         expect(textBase.formattedText.spans.getItem(1).text).toBe('2');
-        fixture.componentInstance.show = true;
-        fixture.detectChanges();
-        expect(textBase.formattedText.spans.length).toBe(3);
-        expect(textBase.formattedText.spans.getItem(0).text).toBe('0');
-        expect(textBase.formattedText.spans.getItem(1).text).toBe('1');
-        expect(textBase.formattedText.spans.getItem(2).text).toBe('2');
       });
 
       it('correctly adds FormattedString', async () => {
@@ -131,25 +137,25 @@ describe('Spans', () => {
         expect(textBase.formattedText.spans.getItem(2).text).toBe('2');
       });
 
-      it('correctly adds FormattedString dynamically', async () => {
+      it('correctly adds FormattedString dynamically when show is true', () => {
         const fixture = TestBed.createComponent(DynamicFormattedStringComponent);
-        const textBase = fixture.componentInstance.textBase.nativeElement;
+        // default show = true
         fixture.detectChanges();
+        const textBase = fixture.componentInstance.textBase.nativeElement;
         expect(textBase.formattedText.spans.length).toBe(3);
         expect(textBase.formattedText.spans.getItem(0).text).toBe('0');
         expect(textBase.formattedText.spans.getItem(1).text).toBe('1');
         expect(textBase.formattedText.spans.getItem(2).text).toBe('2');
+      });
+
+      it('correctly adds FormattedString dynamically when show is false', () => {
+        const fixture = TestBed.createComponent(DynamicFormattedStringComponent);
         fixture.componentInstance.show = false;
         fixture.detectChanges();
+        const textBase = fixture.componentInstance.textBase.nativeElement;
         expect(textBase.formattedText.spans.length).toBe(2);
         expect(textBase.formattedText.spans.getItem(0).text).toBe('0');
         expect(textBase.formattedText.spans.getItem(1).text).toBe('2');
-        fixture.componentInstance.show = true;
-        fixture.detectChanges();
-        expect(textBase.formattedText.spans.length).toBe(3);
-        expect(textBase.formattedText.spans.getItem(0).text).toBe('0');
-        expect(textBase.formattedText.spans.getItem(1).text).toBe('1');
-        expect(textBase.formattedText.spans.getItem(2).text).toBe('2');
       });
     });
   }

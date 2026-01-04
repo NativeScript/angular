@@ -1,5 +1,5 @@
 <GridLayout rows="*" columns="*">
-  <MDBottomNavigation selectedIndex="0" (loaded)="loadedTabView($event)" (selectedIndexChange)="onIndexChanged($event)">
+  <MDBottomNavigation selectedIndex="0" (loaded)="loadedTabView()" (selectedIndexChange)="onIndexChanged($event)">
     <MDTabStrip class="c-tabs">
       <MDTabStripItem class="tabstripitem">
         <Label [text]="tabItems?.start?.title" class="text-center text-sm"></Label>
@@ -13,3 +13,46 @@
     </MDTabContentItem>
   </MDBottomNavigation>
 </GridLayout>
+
+
+<!-- Uncomment to try core TabView features -->
+<!-- <TabView
+  tabTextFontSize="11"
+  iosTabBarMinimizeBehavior="onScrollDown"
+  class="bg-black"
+>
+  <GridLayout
+    *tabItem="{
+        title: 'Home',
+        iconSource: 'sys://house.fill',
+      }"
+  >
+    <Label text="Home Content" class="text-center text-white"></Label>
+  </GridLayout>
+
+  <GridLayout
+    *tabItem="{
+        title: 'Saved',
+        iconSource: 'sys://star.fill',
+      }"
+  >
+    <Label text="Second Tab Content" class="text-center text-white"></Label>
+  </GridLayout>
+
+  <GridLayout
+    *tabItem="{
+        title: 'Settings',
+        iconSource: 'sys://gearshape.fill',
+      }"
+  >
+    <Label text="Third Tab Content" class="text-center text-white"></Label>
+  </GridLayout>
+  <GridLayout
+    *tabItem="{
+        iconSource: 'res://ns-logo',
+        role: 'search'
+      }"
+  >
+    <Label text="Search Tab" class="text-center text-white"></Label>
+  </GridLayout>
+</TabView> -->
