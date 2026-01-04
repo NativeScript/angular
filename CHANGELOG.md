@@ -1,3 +1,12 @@
+## [20.1.1](https://github.com/NativeScript/angular/compare/20.1.0...20.1.1) (2026-01-04)
+
+
+### Features
+
+* SplitView support ([#160](https://github.com/NativeScript/angular/issues/160)) ([280b388](https://github.com/NativeScript/angular/commit/280b388feb30c80411afcc03684bb0f567b5d8af))
+
+
+
 # [20.1.0](https://github.com/NativeScript/angular/compare/20.0.0...20.1.0) (2025-12-02)
 
 
