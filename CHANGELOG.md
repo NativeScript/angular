@@ -1,3 +1,12 @@
+# [21.0.0](https://github.com/NativeScript/angular/compare/20.1.1...21.0.0) (2026-01-04)
+
+
+### Features
+
+* Angular 21 ([#157](https://github.com/NativeScript/angular/issues/157)) ([1cc0a89](https://github.com/NativeScript/angular/commit/1cc0a89dcf5f3239fac566a20ee865baf38129bf))
+
+
+
 ## [20.1.1](https://github.com/NativeScript/angular/compare/20.1.0...20.1.1) (2026-01-04)
 
 
