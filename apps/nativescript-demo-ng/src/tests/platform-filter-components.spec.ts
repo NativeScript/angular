@@ -1,14 +1,14 @@
 // make sure you import mocha-config before @angular/core
 import { Component, ElementRef, inject, NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { AndroidFilterComponent, DEVICE, IOSFilterComponent, AppleFilterComponent } from '@nativescript/angular';
+import { AndroidFilterComponent, DEVICE, IOSFilterComponent, AppleFilterComponent, NativeScriptCommonModule } from '@nativescript/angular';
 import { platformNames } from '@nativescript/core/platform';
 import { createDevice, dumpView } from './test-utils.spec';
 @Component({
   template: ` <StackLayout>
     <ios><Label text="IOS"></Label></ios>
   </StackLayout>`,
-  imports: [IOSFilterComponent],
+  imports: [IOSFilterComponent, NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class IosSpecificComponent {
@@ -19,7 +19,7 @@ export class IosSpecificComponent {
   template: ` <StackLayout>
     <apple><Label text="Apple"></Label></apple>
   </StackLayout>`,
-  imports: [AppleFilterComponent],
+  imports: [AppleFilterComponent, NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class AppleSpecificComponent {
@@ -30,7 +30,7 @@ export class AppleSpecificComponent {
   template: ` <StackLayout>
     <android><Label text="ANDROID"></Label></android>
   </StackLayout>`,
-  imports: [AndroidFilterComponent],
+  imports: [AndroidFilterComponent, NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class AndroidSpecificComponent {
@@ -41,6 +41,7 @@ export class AndroidSpecificComponent {
   template: ` <StackLayout>
     <Label android:text="ANDROID" ios:text="IOS"></Label>
   </StackLayout>`,
+  imports: [NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class PlatformSpecificAttributeComponent {

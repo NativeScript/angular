@@ -25,6 +25,5 @@
     }
   },
   "exclude": ["node_modules", "tmp", "apps/nativescript-*"],
-  "includes": ["xplat/**/*.{ios,android}.ts"],
-  "files": ["./references.d.ts"]
+  "includes": ["xplat/**/*.{ios,android}.ts", "references.d.ts"]
 }

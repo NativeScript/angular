@@ -2,9 +2,10 @@
 import { NSFileSystem } from '@nativescript/angular';
 import { NsHttpBackEnd } from '@nativescript/angular';
 
+import { EnvironmentInjector, createEnvironmentInjector, runInInjectionContext } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { HttpRequest, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { XhrFactory } from '@angular/common';
-import { File } from '@nativescript/core/file-system';
 
 class NSFileSystemMock implements NSFileSystem {
   public currentApp(): any {
@@ -36,7 +37,10 @@ describe('NsHttpBackEnd ', () => {
   let backend: NsHttpBackEnd;
 
   beforeEach(() => {
-    backend = new NsHttpBackEnd(new XhrFactoryMock(), new NSFileSystemMock());
+    TestBed.configureTestingModule({});
+    const parentInjector = TestBed.inject(EnvironmentInjector);
+    const injector = createEnvironmentInjector([], parentInjector);
+    backend = runInInjectionContext(injector, () => new NsHttpBackEnd(new XhrFactoryMock(), new NSFileSystemMock()));
   });
 
   it("should work with local files prefixed with '~'", (done) => {

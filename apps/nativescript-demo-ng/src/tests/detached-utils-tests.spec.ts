@@ -13,11 +13,12 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { generateDetachedLoader, generateNativeScriptView, NgViewRef } from '@nativescript/angular';
+import { generateDetachedLoader, generateNativeScriptView, NativeScriptCommonModule, NgViewRef } from '@nativescript/angular';
 import { GridLayout, ProxyViewContainer } from '@nativescript/core';
 
 @Component({
   template: `<ng-container #vc></ng-container><ng-template #template><GridLayout></GridLayout></ng-template>`,
+  imports: [NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class GenerateViewComponent {
@@ -28,12 +29,13 @@ export class GenerateViewComponent {
 
 @Component({
   template: `<GridLayout></GridLayout>`,
+  imports: [NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class GeneratedComponent {}
 
 @NgModule({
-  imports: [GeneratedComponent, GenerateViewComponent],
+  imports: [GeneratedComponent, GenerateViewComponent, NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class GeneratedModule {}

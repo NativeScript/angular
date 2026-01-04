@@ -2,6 +2,7 @@
 
 /dist
 /coverage
+packages/angular/dist
 
 **/xplat/*/.xplatframework
 

@@ -493,10 +493,8 @@ function getNgZoneOptions(options?: NgZoneOptions) {
 
 export function provideNativeScriptNgZone(options?: NgZoneOptions) {
   const scheduleInRootZone = (options as any)?.scheduleInRootZone;
-  const ignoreChangesOutsideZone = options?.ignoreChangesOutsideZone;
   return ɵinternalProvideZoneChangeDetection({
     ngZoneFactory: () => new NativeScriptNgZone(getNgZoneOptions(options)),
-    ignoreChangesOutsideZone,
     scheduleInRootZone,
   });
 }

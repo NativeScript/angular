@@ -1,6 +1,6 @@
 import { Component, Input, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core';
 import { TestBed, waitForAsync } from '@angular/core/testing';
-import { ListViewComponent, TemplateKeyDirective } from '@nativescript/angular';
+import { ListViewComponent, NativeScriptCommonModule, TemplateKeyDirective } from '@nativescript/angular';
 // import trace = require("trace");
 // trace.setCategories("ns-list-view, " + trace.categories.Navigation);
 // trace.enable();
@@ -27,7 +27,7 @@ let testTemplates: { first: number; second: number };
       </ListView>
     </GridLayout>
   `,
-  imports: [ListViewComponent],
+  imports: [ListViewComponent, NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class TestListViewComponent {
@@ -41,6 +41,8 @@ export class TestListViewComponent {
 @Component({
   selector: 'item-component',
   template: `<Label text="template"></Label>`,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class ItemTemplateComponent {
   @Input() set templateName(value: any) {
@@ -68,7 +70,7 @@ export class ItemTemplateComponent {
       </ListView>
     </GridLayout>
   `,
-  imports: [ListViewComponent, TemplateKeyDirective, ItemTemplateComponent],
+  imports: [ListViewComponent, TemplateKeyDirective, ItemTemplateComponent, NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class TestListViewSelectorComponent {
@@ -101,7 +103,7 @@ export class TestListViewSelectorComponent {
       </ListView>
     </GridLayout>
   `,
-  imports: [ListViewComponent, TemplateKeyDirective, ItemTemplateComponent],
+  imports: [ListViewComponent, TemplateKeyDirective, ItemTemplateComponent, NativeScriptCommonModule],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class TestListViewSelectorWithEventsComponent {

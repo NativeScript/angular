@@ -10,6 +10,7 @@ export interface TabViewItemDef {
   title?: string;
   iconSource?: string;
   textTransform?: TextTransform;
+  role?: string;
 }
 
 @Directive({
@@ -60,7 +61,7 @@ export class TabViewItemDirective implements OnInit {
 
   @Input('tabItem')
   set config(config: TabViewItemDef) {
-    if (!this._config || this._config.iconSource !== config.iconSource || this._config.title !== config.title || this._config.textTransform !== config.textTransform) {
+    if (!this._config || this._config.iconSource !== config.iconSource || this._config.title !== config.title || this._config.textTransform !== config.textTransform || this._config.role !== config.role) {
       this._config = config;
       this.applyConfig();
     }
@@ -119,6 +120,10 @@ export class TabViewItemDirective implements OnInit {
     // only if no value (even a null value) is set.
     if (this.config.textTransform) {
       this.item.textTransform = this.config.textTransform;
+    }
+
+    if (this.config.role) {
+      this.item.role = this.config.role;
     }
   }
 

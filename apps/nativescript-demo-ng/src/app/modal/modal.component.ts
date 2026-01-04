@@ -1,4 +1,4 @@
-import { Component, NO_ERRORS_SCHEMA, OnDestroy, OnInit, Optional, ViewContainerRef, inject } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA, OnDestroy, OnInit, ViewContainerRef, inject } from '@angular/core';
 import {
   ModalDialogService,
   NativeDialogModule,
