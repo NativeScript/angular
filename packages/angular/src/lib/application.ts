@@ -1,3 +1,4 @@
+import * as AngularCore from '@angular/core';
 import { ApplicationRef, EnvironmentProviders, NgModuleRef, NgZone, PlatformRef, Provider } from '@angular/core';
 import {
   Application,
@@ -17,6 +18,11 @@ import { AppHostView } from './app-host-view';
 import { NativeScriptLoadingService } from './loading.service';
 import { APP_ROOT_VIEW, DISABLE_ROOT_VIEW_HANDLING, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { NativeScriptDebug } from './trace';
+
+// Store the original @angular/core module for HMR
+// This is crucial because HMR imports a fresh @angular/core with empty LView tracking
+// We need to use the original one that has the registered LViews
+(globalThis as any).__NS_ANGULAR_CORE__ = AngularCore;
 
 export interface AppLaunchView extends LayoutBase {
   // called when the animation is to begin
@@ -236,16 +242,20 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   let launchEventDone = true;
   let targetRootView: View = null;
   const setRootView = (ref: NgModuleRef<T | K> | ApplicationRef | View) => {
+    console.log('[ng-hmr] setRootView called, bootstrapId:', bootstrapId, 'ref type:', ref?.constructor?.name);
     if (bootstrapId === -1) {
       // treat edge cases
+      console.log('[ng-hmr] setRootView: bootstrapId is -1, returning early');
       return;
     }
     if (ref instanceof NgModuleRef || ref instanceof ApplicationRef) {
       if (ref.injector.get(DISABLE_ROOT_VIEW_HANDLING, false)) {
+        console.log('[ng-hmr] setRootView: DISABLE_ROOT_VIEW_HANDLING is true, returning');
         return;
       }
     } else {
       if (ref['__disable_root_view_handling']) {
+        console.log('[ng-hmr] setRootView: __disable_root_view_handling is true, returning');
         return;
       }
     }
@@ -253,6 +263,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     NativeScriptDebug.bootstrapLog(`Setting RootView ${launchEventDone ? 'outside of' : 'during'} launch event`);
     // TODO: check for leaks when root view isn't properly destroyed
     if (ref instanceof View) {
+      console.log('[ng-hmr] setRootView: ref is View, launchEventDone:', launchEventDone);
       if (NativeScriptDebug.isLogEnabled()) {
         NativeScriptDebug.bootstrapLog(`Setting RootView to ${ref}`);
       }
@@ -267,14 +278,35 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     }
     const view = ref.injector.get(APP_ROOT_VIEW) as AppHostView | View;
     const newRoot = view instanceof AppHostView ? view.content : view;
+    console.log('[ng-hmr] setRootView: view from injector:', view?.constructor?.name, 'newRoot:', newRoot?.constructor?.name);
+    console.log('[ng-hmr] setRootView: launchEventDone:', launchEventDone, 'embedded:', options.embedded);
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.bootstrapLog(`Setting RootView to ${newRoot}`);
     }
     if (options.embedded) {
+      console.log('[ng-hmr] setRootView: calling Application.run (embedded)');
       Application.run({ create: () => newRoot });
     } else if (launchEventDone) {
+      console.log('[ng-hmr] setRootView: calling Application.resetRootView');
+      console.log('[ng-hmr] setRootView: newRoot details:', {
+        type: newRoot?.constructor?.name,
+        nativeView: !!newRoot?.nativeView,
+        parent: newRoot?.parent?.constructor?.name,
+        childCount: (newRoot as any)?.getChildrenCount?.() ?? 'N/A',
+      });
       Application.resetRootView({ create: () => newRoot });
+      console.log('[ng-hmr] setRootView: Application.resetRootView returned');
+      // Check root view after reset
+      setTimeout(() => {
+        const currentRoot = Application.getRootView();
+        console.log('[ng-hmr] setRootView: after reset, getRootView:', {
+          type: currentRoot?.constructor?.name,
+          nativeView: !!currentRoot?.nativeView,
+          childCount: (currentRoot as any)?.getChildrenCount?.() ?? 'N/A',
+        });
+      }, 100);
     } else {
+      console.log('[ng-hmr] setRootView: setting targetRootView (launch in progress)');
       targetRootView = newRoot;
     }
   };
@@ -286,8 +318,10 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     setRootView(errorTextBox);
   };
   const bootstrapRoot = (reason: NgModuleReason) => {
+    console.log('[ng-hmr] bootstrapRoot called, reason:', reason);
     try {
       bootstrapId = Date.now();
+      console.log('[ng-hmr] bootstrapRoot: new bootstrapId:', bootstrapId);
       const currentBootstrapId = bootstrapId;
       let bootstrapped = false;
       let onMainBootstrap = () => {
@@ -297,20 +331,70 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
         () =>
           options.appModuleBootstrap(reason).then(
             (ref) => {
+              console.log('[ng-hmr] appModuleBootstrap resolved, ref:', ref?.constructor?.name);
+              console.log('[ng-hmr] currentBootstrapId:', currentBootstrapId, 'bootstrapId:', bootstrapId);
               if (currentBootstrapId !== bootstrapId) {
                 // this module is old and not needed anymore
                 // this may happen when developer uses async app initializer and the user exits the app before this bootstraps
+                console.log('[ng-hmr] bootstrap ID mismatch, destroying ref');
                 ref.destroy();
                 return;
               }
               mainModuleRef = ref;
+              
+              // Expose ApplicationRef for HMR to trigger change detection
+              // Check for ApplicationRef by duck-typing since instanceof can fail across module realms
+              const refAny = ref as any;
+              const isAppRef = refAny && typeof refAny.tick === 'function' && Array.isArray(refAny.components);
+              console.log('[ng-hmr] ref type check: isAppRef=', isAppRef, 'has tick=', typeof refAny?.tick === 'function', 'has components=', Array.isArray(refAny?.components));
+              
+              if (isAppRef) {
+                global['__NS_ANGULAR_APP_REF__'] = ref;
+                // Mark boot complete for the HMR system
+                global['__NS_HMR_BOOT_COMPLETE__'] = true;
+                
+                // Register bootstrapped components for HMR lookup
+                if (!global['__NS_ANGULAR_COMPONENTS__']) {
+                  global['__NS_ANGULAR_COMPONENTS__'] = {};
+                }
+                // Get the component class from the first bootstrapped component
+                console.log('[ng-hmr] ApplicationRef components count:', refAny.components?.length);
+                if (refAny.components && refAny.components.length > 0) {
+                  const componentRef = refAny.components[0];
+                  console.log('[ng-hmr] componentRef:', componentRef?.constructor?.name);
+                  console.log('[ng-hmr] componentRef.componentType:', componentRef?.componentType?.name);
+                  
+                  // For Angular 17+ standalone components, the component type is on componentRef.componentType
+                  // For older Angular, try componentRef.instance.constructor
+                  let componentType = componentRef?.componentType;
+                  if (!componentType && componentRef?.instance) {
+                    componentType = componentRef.instance.constructor;
+                  }
+                  
+                  if (componentType && componentType.name) {
+                    global['__NS_ANGULAR_COMPONENTS__'][componentType.name] = componentType;
+                    console.log('[ng-hmr] Registered component for HMR:', componentType.name);
+                  } else {
+                    console.log('[ng-hmr] Could not get componentType name');
+                  }
+                } else {
+                  console.log('[ng-hmr] No components in ApplicationRef');
+                }
+              } else {
+                const appRef = ref.injector.get(ApplicationRef, null);
+                if (appRef) {
+                  global['__NS_ANGULAR_APP_REF__'] = appRef;
+                  // Mark boot complete for the HMR system
+                  global['__NS_HMR_BOOT_COMPLETE__'] = true;
+                }
+              }
 
-              (ref instanceof ApplicationRef ? ref.components[0] : ref).onDestroy(
+              (isAppRef ? refAny.components[0] : ref).onDestroy(
                 () => (mainModuleRef = mainModuleRef === ref ? null : mainModuleRef),
               );
               updatePlatformRef(ref, reason);
               const styleTag = ref.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
-              (ref instanceof ApplicationRef ? ref.components[0] : ref).onDestroy(() => {
+              (isAppRef ? refAny.components[0] : ref).onDestroy(() => {
                 removeTaggedAdditionalCSS(styleTag);
               });
               bootstrapped = true;
@@ -481,11 +565,16 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     disposePlatform('hotreload');
   };
   global['__reboot_ng_modules__'] = (shouldDisposePlatform: boolean = false) => {
+    console.log('[ng-hmr] __reboot_ng_modules__ called, shouldDisposePlatform:', shouldDisposePlatform);
+    console.log('[ng-hmr] current bootstrapId:', bootstrapId, 'mainModuleRef:', !!mainModuleRef);
     disposeLastModules('hotreload');
+    console.log('[ng-hmr] after disposeLastModules, bootstrapId:', bootstrapId);
     if (shouldDisposePlatform) {
       disposePlatform('hotreload');
     }
+    console.log('[ng-hmr] calling bootstrapRoot...');
     bootstrapRoot('hotreload');
+    console.log('[ng-hmr] bootstrapRoot returned, new bootstrapId:', bootstrapId);
   };
 
   if (isWebpackHot) {
