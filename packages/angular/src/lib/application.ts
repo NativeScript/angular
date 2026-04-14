@@ -278,7 +278,12 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     }
     const view = ref.injector.get(APP_ROOT_VIEW) as AppHostView | View;
     const newRoot = view instanceof AppHostView ? view.content : view;
-    console.log('[ng-hmr] setRootView: view from injector:', view?.constructor?.name, 'newRoot:', newRoot?.constructor?.name);
+    console.log(
+      '[ng-hmr] setRootView: view from injector:',
+      view?.constructor?.name,
+      'newRoot:',
+      newRoot?.constructor?.name,
+    );
     console.log('[ng-hmr] setRootView: launchEventDone:', launchEventDone, 'embedded:', options.embedded);
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.bootstrapLog(`Setting RootView to ${newRoot}`);
@@ -340,67 +345,92 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
                 ref.destroy();
                 return;
               }
-              mainModuleRef = ref;
-              
-              // Expose ApplicationRef for HMR to trigger change detection
-              // Check for ApplicationRef by duck-typing since instanceof can fail across module realms
-              const refAny = ref as any;
-              const isAppRef = refAny && typeof refAny.tick === 'function' && Array.isArray(refAny.components);
-              console.log('[ng-hmr] ref type check: isAppRef=', isAppRef, 'has tick=', typeof refAny?.tick === 'function', 'has components=', Array.isArray(refAny?.components));
-              
-              if (isAppRef) {
-                global['__NS_ANGULAR_APP_REF__'] = ref;
-                // Mark boot complete for the HMR system
-                global['__NS_HMR_BOOT_COMPLETE__'] = true;
-                
-                // Register bootstrapped components for HMR lookup
-                if (!global['__NS_ANGULAR_COMPONENTS__']) {
-                  global['__NS_ANGULAR_COMPONENTS__'] = {};
-                }
-                // Get the component class from the first bootstrapped component
-                console.log('[ng-hmr] ApplicationRef components count:', refAny.components?.length);
-                if (refAny.components && refAny.components.length > 0) {
-                  const componentRef = refAny.components[0];
-                  console.log('[ng-hmr] componentRef:', componentRef?.constructor?.name);
-                  console.log('[ng-hmr] componentRef.componentType:', componentRef?.componentType?.name);
-                  
-                  // For Angular 17+ standalone components, the component type is on componentRef.componentType
-                  // For older Angular, try componentRef.instance.constructor
-                  let componentType = componentRef?.componentType;
-                  if (!componentType && componentRef?.instance) {
-                    componentType = componentRef.instance.constructor;
-                  }
-                  
-                  if (componentType && componentType.name) {
-                    global['__NS_ANGULAR_COMPONENTS__'][componentType.name] = componentType;
-                    console.log('[ng-hmr] Registered component for HMR:', componentType.name);
-                  } else {
-                    console.log('[ng-hmr] Could not get componentType name');
-                  }
+
+              // When Zone.js is active and we're outside the Angular zone (which
+              // happens in HMR mode — the Promise .then() runs in the root zone),
+              // wrap the completion handler inside NgZone.run() so that:
+              // 1. resetRootView + component initialization happens inside the Angular zone
+              // 2. ngrx effects, store dispatches, and signal-triggered actions run inside NgZone
+              // 3. strictActionWithinNgZone checks pass for initial actions
+              // In zoneless apps (no Zone.js), skip the wrapping entirely.
+              const useZoneWrap = typeof Zone !== 'undefined' && !NgZone.isInAngularZone();
+              const runInZone = (fn: () => void) => {
+                if (useZoneWrap) {
+                  ref.injector.get(NgZone).run(fn);
                 } else {
-                  console.log('[ng-hmr] No components in ApplicationRef');
+                  fn();
                 }
-              } else {
-                const appRef = ref.injector.get(ApplicationRef, null);
-                if (appRef) {
-                  global['__NS_ANGULAR_APP_REF__'] = appRef;
+              };
+              runInZone(() => {
+                mainModuleRef = ref;
+
+                // Expose ApplicationRef for HMR to trigger change detection
+                // Check for ApplicationRef by duck-typing since instanceof can fail across module realms
+                const refAny = ref as any;
+                const isAppRef = refAny && typeof refAny.tick === 'function' && Array.isArray(refAny.components);
+                console.log(
+                  '[ng-hmr] ref type check: isAppRef=',
+                  isAppRef,
+                  'has tick=',
+                  typeof refAny?.tick === 'function',
+                  'has components=',
+                  Array.isArray(refAny?.components),
+                );
+
+                if (isAppRef) {
+                  global['__NS_ANGULAR_APP_REF__'] = ref;
                   // Mark boot complete for the HMR system
                   global['__NS_HMR_BOOT_COMPLETE__'] = true;
-                }
-              }
 
-              (isAppRef ? refAny.components[0] : ref).onDestroy(
-                () => (mainModuleRef = mainModuleRef === ref ? null : mainModuleRef),
-              );
-              updatePlatformRef(ref, reason);
-              const styleTag = ref.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
-              (isAppRef ? refAny.components[0] : ref).onDestroy(() => {
-                removeTaggedAdditionalCSS(styleTag);
+                  // Register bootstrapped components for HMR lookup
+                  if (!global['__NS_ANGULAR_COMPONENTS__']) {
+                    global['__NS_ANGULAR_COMPONENTS__'] = {};
+                  }
+                  // Get the component class from the first bootstrapped component
+                  console.log('[ng-hmr] ApplicationRef components count:', refAny.components?.length);
+                  if (refAny.components && refAny.components.length > 0) {
+                    const componentRef = refAny.components[0];
+                    console.log('[ng-hmr] componentRef:', componentRef?.constructor?.name);
+                    console.log('[ng-hmr] componentRef.componentType:', componentRef?.componentType?.name);
+
+                    // For Angular 17+ standalone components, the component type is on componentRef.componentType
+                    // For older Angular, try componentRef.instance.constructor
+                    let componentType = componentRef?.componentType;
+                    if (!componentType && componentRef?.instance) {
+                      componentType = componentRef.instance.constructor;
+                    }
+
+                    if (componentType && componentType.name) {
+                      global['__NS_ANGULAR_COMPONENTS__'][componentType.name] = componentType;
+                      console.log('[ng-hmr] Registered component for HMR:', componentType.name);
+                    } else {
+                      console.log('[ng-hmr] Could not get componentType name');
+                    }
+                  } else {
+                    console.log('[ng-hmr] No components in ApplicationRef');
+                  }
+                } else {
+                  const appRef = ref.injector.get(ApplicationRef, null);
+                  if (appRef) {
+                    global['__NS_ANGULAR_APP_REF__'] = appRef;
+                    // Mark boot complete for the HMR system
+                    global['__NS_HMR_BOOT_COMPLETE__'] = true;
+                  }
+                }
+
+                (isAppRef ? refAny.components[0] : ref).onDestroy(
+                  () => (mainModuleRef = mainModuleRef === ref ? null : mainModuleRef),
+                );
+                updatePlatformRef(ref, reason);
+                const styleTag = ref.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
+                (isAppRef ? refAny.components[0] : ref).onDestroy(() => {
+                  removeTaggedAdditionalCSS(styleTag);
+                });
+                bootstrapped = true;
+                onMainBootstrap();
+                emitModuleBootstrapEvent(ref, 'main', reason);
+                // bootstrapped component: (ref as any)._bootstrapComponents[0];
               });
-              bootstrapped = true;
-              onMainBootstrap();
-              emitModuleBootstrapEvent(ref, 'main', reason);
-              // bootstrapped component: (ref as any)._bootstrapComponents[0];
             },
             (err) => {
               bootstrapped = true;
@@ -544,7 +574,11 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
 
   // Detect HMR environment (webpack or Vite)
   const isWebpackHot = !!import.meta['webpackHot'];
-  const isViteHot = !!import.meta['hot'];
+  // import.meta.hot is available when code goes through Vite's transform pipeline.
+  // When @nativescript/angular is pre-bundled in the vendor (esbuild), import.meta.hot
+  // won't exist. Fall back to the global placeholder flag that the NativeScript Vite
+  // HMR runtime sets during dev boot.
+  const isViteHot = !!import.meta['hot'] || !!(globalThis as any).__NS_DEV_PLACEHOLDER_ROOT_EARLY__;
   const isHotReloadEnabled = isWebpackHot || isViteHot;
 
   // Always expose HMR globals for both webpack and Vite HMR support
