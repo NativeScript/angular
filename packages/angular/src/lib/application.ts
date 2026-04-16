@@ -241,6 +241,18 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   };
   let launchEventDone = true;
   let targetRootView: View = null;
+  const refreshRootViewCss = (expectedRoot?: View) => {
+    setTimeout(() => {
+      const currentRoot = Application.getRootView();
+      if (!currentRoot || (expectedRoot && currentRoot !== expectedRoot)) {
+        return;
+      }
+
+      try {
+        (currentRoot as any)._onCssStateChange?.();
+      } catch {}
+    }, 0);
+  };
   const setRootView = (ref: NgModuleRef<T | K> | ApplicationRef | View) => {
     console.log('[ng-hmr] setRootView called, bootstrapId:', bootstrapId, 'ref type:', ref?.constructor?.name);
     if (bootstrapId === -1) {
@@ -271,6 +283,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
         Application.run({ create: () => ref });
       } else if (launchEventDone) {
         Application.resetRootView({ create: () => ref });
+        refreshRootViewCss(ref);
       } else {
         targetRootView = ref;
       }
@@ -300,6 +313,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
         childCount: (newRoot as any)?.getChildrenCount?.() ?? 'N/A',
       });
       Application.resetRootView({ create: () => newRoot });
+      refreshRootViewCss(newRoot);
       console.log('[ng-hmr] setRootView: Application.resetRootView returned');
       // Check root view after reset
       setTimeout(() => {
