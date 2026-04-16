@@ -1,9 +1,12 @@
 import {
+  APP_BOOTSTRAP_LISTENER,
+  ENVIRONMENT_INITIALIZER,
   NgModule,
   ModuleWithProviders,
   NO_ERRORS_SCHEMA,
   Optional,
   SkipSelf,
+  inject,
   makeEnvironmentProviders,
 } from '@angular/core';
 import {
@@ -29,6 +32,7 @@ import { FrameService } from '../frame.service';
 import { NSEmptyOutletComponent } from './ns-empty-outlet.component';
 import { NativeScriptCommonModule } from '../../nativescript-common.module';
 import { START_PATH } from '../../tokens';
+import { NativeScriptAngularHmrRouteTracker, readAngularHmrPendingStartPath } from './hmr-route-state';
 
 export { PageRoute } from './page-router-outlet';
 export { RouterExtensions } from './router-extensions';
@@ -61,6 +65,10 @@ export class NativeScriptRouterModule {
       providers: [
         ...RouterModule.forRoot(routes, config).providers,
         {
+          provide: START_PATH,
+          useFactory: readAngularHmrPendingStartPath,
+        },
+        {
           provide: NSLocationStrategy,
           useFactory: provideLocationStrategy,
           deps: [[NSLocationStrategy, new Optional(), new SkipSelf()], FrameService, [new Optional(), START_PATH]],
@@ -71,6 +79,13 @@ export class NativeScriptRouterModule {
         RouterExtensions,
         NSRouteReuseStrategy,
         { provide: RouteReuseStrategy, useExisting: NSRouteReuseStrategy },
+        NativeScriptAngularHmrRouteTracker,
+        {
+          provide: APP_BOOTSTRAP_LISTENER,
+          multi: true,
+          deps: [NativeScriptAngularHmrRouteTracker],
+          useFactory: () => () => undefined,
+        },
       ],
     };
   }
@@ -87,6 +102,10 @@ export function provideNativeScriptRouter(routes: Routes, ...features: RouterFea
   return makeEnvironmentProviders([
     provideRouter(routes, ...features),
     {
+      provide: START_PATH,
+      useFactory: readAngularHmrPendingStartPath,
+    },
+    {
       provide: NSLocationStrategy,
       useFactory: provideLocationStrategy,
       deps: [[NSLocationStrategy, new Optional(), new SkipSelf()], FrameService, [new Optional(), START_PATH]],
@@ -97,6 +116,14 @@ export function provideNativeScriptRouter(routes: Routes, ...features: RouterFea
     RouterExtensions,
     NSRouteReuseStrategy,
     { provide: RouteReuseStrategy, useExisting: NSRouteReuseStrategy },
+    NativeScriptAngularHmrRouteTracker,
+    {
+      provide: ENVIRONMENT_INITIALIZER,
+      multi: true,
+      useValue: () => {
+        inject(NativeScriptAngularHmrRouteTracker);
+      },
+    },
     // {provide: APP_BOOTSTRAP_LISTENER, multi: true, useFactory: getBootstrapListener},
   ]);
 }

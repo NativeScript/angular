@@ -1,5 +1,6 @@
 import * as AngularCore from '@angular/core';
 import { ApplicationRef, EnvironmentProviders, NgModuleRef, NgZone, PlatformRef, Provider } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   Application,
   ApplicationEventData,
@@ -15,7 +16,9 @@ import {
 import { Observable, Subject } from 'rxjs';
 import { filter, map, take } from 'rxjs/operators';
 import { AppHostView } from './app-host-view';
+import { resetAngularHmrCompiledComponents } from './hmr-compiled-components-core';
 import { NativeScriptLoadingService } from './loading.service';
+import { clearAngularHmrRouteConfigCaches } from './legacy/router/hmr-route-cache-core';
 import { APP_ROOT_VIEW, DISABLE_ROOT_VIEW_HANDLING, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { NativeScriptDebug } from './trace';
 
@@ -230,6 +233,17 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   let loadingModuleRef: NgModuleRef<K> | ApplicationRef;
   let platformRef: PlatformRef = null;
   let bootstrapId = -1;
+  const clearAngularHmrRouteCaches = () => {
+    try {
+      const injector = (mainModuleRef as any)?.injector;
+      const router = injector?.get?.(Router, null);
+      const cleared = clearAngularHmrRouteConfigCaches(router?.config);
+
+      if (cleared > 0) {
+        console.log('[ng-hmr] cleared Angular route caches before reboot:', cleared);
+      }
+    } catch {}
+  };
   const updatePlatformRef = (moduleRef: NgModuleRef<T | K> | ApplicationRef, reason: NgModuleReason) => {
     const newPlatformRef = moduleRef.injector.get(PlatformRef);
     if (newPlatformRef === platformRef) {
@@ -555,12 +569,20 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     platformRef = null;
   };
   const disposeLastModules = (reason: NgModuleReason) => {
+    if (reason === 'hotreload') {
+      clearAngularHmrRouteCaches();
+    }
+
     // reset bootstrap ID to make sure any modules bootstrapped after this are discarded
     bootstrapId = -1;
     destroyRef(loadingModuleRef, 'loading', reason);
     loadingModuleRef = null;
     destroyRef(mainModuleRef, 'main', reason);
     mainModuleRef = null;
+
+    if (reason === 'hotreload') {
+      resetAngularHmrCompiledComponents(AngularCore as any);
+    }
   };
   const launchCallback = profile('@nativescript/angular/platform-common.launchCallback', (args: LaunchEventData) => {
     launchEventDone = false;
@@ -615,6 +637,9 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   global['__reboot_ng_modules__'] = (shouldDisposePlatform: boolean = false) => {
     console.log('[ng-hmr] __reboot_ng_modules__ called, shouldDisposePlatform:', shouldDisposePlatform);
     console.log('[ng-hmr] current bootstrapId:', bootstrapId, 'mainModuleRef:', !!mainModuleRef);
+    try {
+      global['__NS_CAPTURE_ANGULAR_HMR_ROUTE__']?.();
+    } catch {}
     disposeLastModules('hotreload');
     console.log('[ng-hmr] after disposeLastModules, bootstrapId:', bootstrapId);
     if (shouldDisposePlatform) {
