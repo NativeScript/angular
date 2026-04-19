@@ -16,16 +16,21 @@ import {
 import { Observable, Subject } from 'rxjs';
 import { filter, map, take } from 'rxjs/operators';
 import { AppHostView } from './app-host-view';
-import { resetAngularHmrCompiledComponents } from './hmr-compiled-components-core';
+import {
+  getAngularCoreForHmrReset,
+  rememberAngularCoreForHmr,
+  resetAngularHmrCompiledComponents,
+} from './hmr-compiled-components-core';
 import { NativeScriptLoadingService } from './loading.service';
 import { clearAngularHmrRouteConfigCaches } from './legacy/router/hmr-route-cache-core';
+import { createAngularRootTransitionGuard } from './root-transition-guard';
 import { APP_ROOT_VIEW, DISABLE_ROOT_VIEW_HANDLING, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { NativeScriptDebug } from './trace';
 
 // Store the original @angular/core module for HMR
 // This is crucial because HMR imports a fresh @angular/core with empty LView tracking
 // We need to use the original one that has the registered LViews
-(globalThis as any).__NS_ANGULAR_CORE__ = AngularCore;
+rememberAngularCoreForHmr(AngularCore as any, globalThis as any);
 
 export interface AppLaunchView extends LayoutBase {
   // called when the animation is to begin
@@ -255,6 +260,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   };
   let launchEventDone = true;
   let targetRootView: View = null;
+  const rootTransitionGuard = createAngularRootTransitionGuard(globalThis as any);
   const refreshRootViewCss = (expectedRoot?: View) => {
     setTimeout(() => {
       const currentRoot = Application.getRootView();
@@ -296,7 +302,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
       if (options.embedded) {
         Application.run({ create: () => ref });
       } else if (launchEventDone) {
-        Application.resetRootView({ create: () => ref });
+        rootTransitionGuard.runApplicationResetRootView(Application, () => ref, ref?.constructor?.name || 'View');
         refreshRootViewCss(ref);
       } else {
         targetRootView = ref;
@@ -326,7 +332,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
         parent: newRoot?.parent?.constructor?.name,
         childCount: (newRoot as any)?.getChildrenCount?.() ?? 'N/A',
       });
-      Application.resetRootView({ create: () => newRoot });
+      rootTransitionGuard.runApplicationResetRootView(Application, () => newRoot, newRoot?.constructor?.name || 'View');
       refreshRootViewCss(newRoot);
       console.log('[ng-hmr] setRootView: Application.resetRootView returned');
       // Check root view after reset
@@ -353,6 +359,10 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   const bootstrapRoot = (reason: NgModuleReason) => {
     console.log('[ng-hmr] bootstrapRoot called, reason:', reason);
     try {
+      if (reason === 'hotreload') {
+        resetAngularHmrCompiledComponents(getAngularCoreForHmrReset(AngularCore as any, globalThis as any));
+      }
+
       bootstrapId = Date.now();
       console.log('[ng-hmr] bootstrapRoot: new bootstrapId:', bootstrapId);
       const currentBootstrapId = bootstrapId;
@@ -579,10 +589,6 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     loadingModuleRef = null;
     destroyRef(mainModuleRef, 'main', reason);
     mainModuleRef = null;
-
-    if (reason === 'hotreload') {
-      resetAngularHmrCompiledComponents(AngularCore as any);
-    }
   };
   const launchCallback = profile('@nativescript/angular/platform-common.launchCallback', (args: LaunchEventData) => {
     launchEventDone = false;
