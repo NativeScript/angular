@@ -2,17 +2,22 @@ import { clearAngularHmrRouteConfigCaches } from './hmr-route-cache-core';
 
 describe('Angular HMR route cache clearing', () => {
   it('clears lazy route caches recursively while preserving public route fields', () => {
+    const detailsInjectorDestroy = jest.fn();
+    const surveyInjectorDestroy = jest.fn();
+    const childInjectorDestroy = jest.fn();
+    const loadedFactoryDestroy = jest.fn();
     const grandchild = {
       path: 'details',
       _loadedComponent: { name: 'DetailsComponent' },
-      _loadedInjector: { token: 'details' },
+      _loadedInjector: { token: 'details', destroy: detailsInjectorDestroy },
     };
     const child = {
       path: 'survey',
       children: [grandchild],
       _loadedComponent: { name: 'SurveyComponent' },
-      _loadedInjector: { token: 'survey' },
-      _injector: { token: 'child-injector' },
+      _loadedInjector: { token: 'survey', destroy: surveyInjectorDestroy },
+      _loadedNgModuleFactory: { token: 'survey-factory', destroy: loadedFactoryDestroy },
+      _injector: { token: 'child-injector', destroy: childInjectorDestroy },
     };
     const route = {
       path: 'onboarding-flow',
@@ -33,13 +38,18 @@ describe('Angular HMR route cache clearing', () => {
 
     const cleared = clearAngularHmrRouteConfigCaches([route]);
 
-    expect(cleared).toBe(9);
+    expect(cleared).toBe(10);
     expect(route.path).toBe('onboarding-flow');
     expect(child.path).toBe('survey');
     expect(grandchild.path).toBe('details');
+    expect(detailsInjectorDestroy).toHaveBeenCalledTimes(1);
+    expect(surveyInjectorDestroy).toHaveBeenCalledTimes(1);
+    expect(childInjectorDestroy).toHaveBeenCalledTimes(1);
+    expect(loadedFactoryDestroy).toHaveBeenCalledTimes(1);
     expect((route as any)._loadedRoutes).toBeUndefined();
     expect((child as any)._loadedComponent).toBeUndefined();
     expect((child as any)._loadedInjector).toBeUndefined();
+    expect((child as any)._loadedNgModuleFactory).toBeUndefined();
     expect((child as any)._injector).toBeUndefined();
     expect((grandchild as any)._loadedComponent).toBeUndefined();
     expect((grandchild as any)._loadedInjector).toBeUndefined();

@@ -3,14 +3,32 @@ type AngularHmrRouteLike = {
   _injector?: unknown;
   _loadedComponent?: unknown;
   _loadedInjector?: unknown;
+  _loadedNgModuleFactory?: unknown;
   _loadedRoutes?: AngularHmrRouteLike[];
 };
 
-const ROUTE_CACHE_KEYS = ['_loadedComponent', '_loadedInjector', '_loadedRoutes', '_injector'] as const;
+const ROUTE_CACHE_KEYS = ['_loadedComponent', '_loadedInjector', '_loadedNgModuleFactory', '_loadedRoutes', '_injector'] as const;
+
+function destroyRouteCacheValue(value: unknown): void {
+  if (!value || typeof value !== 'object') {
+    return;
+  }
+
+  const destroy = (value as { destroy?: () => void }).destroy;
+  if (typeof destroy === 'function') {
+    try {
+      destroy.call(value);
+    } catch {}
+  }
+}
 
 function clearRouteCacheField(route: Record<string, unknown>, key: (typeof ROUTE_CACHE_KEYS)[number]): boolean {
   if (!Object.prototype.hasOwnProperty.call(route, key) && route[key] === undefined) {
     return false;
+  }
+
+  if (key === '_injector' || key === '_loadedInjector' || key === '_loadedNgModuleFactory') {
+    destroyRouteCacheValue(route[key]);
   }
 
   try {

@@ -2,6 +2,7 @@ import {
   getAngularCoreForHmrReset,
   rememberAngularCoreForHmr,
   resetAngularHmrCompiledComponents,
+  setAngularCoreForHmr,
 } from './hmr-compiled-components-core';
 
 describe('Angular HMR compiled component reset', () => {
@@ -56,5 +57,20 @@ describe('Angular HMR compiled component reset', () => {
     expect(globalObj.__NS_ANGULAR_CORE__).toBe(originalCore);
     expect(rememberAngularCoreForHmr(replacementCore, globalObj)).toBe(originalCore);
     expect(globalObj.__NS_ANGULAR_CORE__).toBe(originalCore);
+  });
+
+  it('allows the active Angular core realm to be updated explicitly for HMR resets', () => {
+    const originalCore = {
+      ɵresetCompiledComponents: jest.fn(),
+    };
+    const replacementCore = {
+      ɵresetCompiledComponents: jest.fn(),
+    };
+    const globalObj: any = {
+      __NS_ANGULAR_CORE__: originalCore,
+    };
+
+    expect(setAngularCoreForHmr(replacementCore, globalObj)).toBe(replacementCore);
+    expect(globalObj.__NS_ANGULAR_CORE__).toBe(replacementCore);
   });
 });

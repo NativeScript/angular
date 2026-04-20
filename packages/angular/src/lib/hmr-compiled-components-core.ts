@@ -6,6 +6,17 @@ type AngularCoreHolder = {
   __NS_ANGULAR_CORE__?: AngularCoreWithCompiledComponentReset | null;
 };
 
+export function setAngularCoreForHmr(
+  core: AngularCoreWithCompiledComponentReset | null | undefined,
+  globalObj: AngularCoreHolder = globalThis as AngularCoreHolder,
+): AngularCoreWithCompiledComponentReset | null | undefined {
+  if (core) {
+    globalObj.__NS_ANGULAR_CORE__ = core;
+  }
+
+  return getAngularCoreForHmrReset(core, globalObj);
+}
+
 export function getAngularCoreForHmrReset(
   core: AngularCoreWithCompiledComponentReset | null | undefined,
   globalObj: AngularCoreHolder = globalThis as AngularCoreHolder,

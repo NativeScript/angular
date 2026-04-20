@@ -32,6 +32,7 @@ import { FrameService } from '../frame.service';
 import { NSEmptyOutletComponent } from './ns-empty-outlet.component';
 import { NativeScriptCommonModule } from '../../nativescript-common.module';
 import { START_PATH } from '../../tokens';
+import { cloneRoutesForBootstrap } from './hmr-route-bootstrap-core';
 import { NativeScriptAngularHmrRouteTracker, readAngularHmrPendingStartPath } from './hmr-route-state';
 
 export { PageRoute } from './page-router-outlet';
@@ -63,7 +64,7 @@ export class NativeScriptRouterModule {
     return {
       ngModule: NativeScriptRouterModule,
       providers: [
-        ...RouterModule.forRoot(routes, config).providers,
+        ...RouterModule.forRoot(cloneRoutesForBootstrap(routes), config).providers,
         {
           provide: START_PATH,
           useFactory: readAngularHmrPendingStartPath,
@@ -91,7 +92,7 @@ export class NativeScriptRouterModule {
   }
 
   static forChild(routes: Routes): ModuleWithProviders<NativeScriptRouterModule> {
-    return { ngModule: NativeScriptRouterModule, providers: RouterModule.forChild(routes).providers };
+    return { ngModule: NativeScriptRouterModule, providers: RouterModule.forChild(cloneRoutesForBootstrap(routes)).providers };
   }
 }
 export function rootRoute(router: Router): ActivatedRoute {
@@ -100,7 +101,7 @@ export function rootRoute(router: Router): ActivatedRoute {
 
 export function provideNativeScriptRouter(routes: Routes, ...features: RouterFeatures[]) {
   return makeEnvironmentProviders([
-    provideRouter(routes, ...features),
+    provideRouter(cloneRoutesForBootstrap(routes), ...features),
     {
       provide: START_PATH,
       useFactory: readAngularHmrPendingStartPath,

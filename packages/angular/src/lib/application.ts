@@ -20,9 +20,12 @@ import {
   getAngularCoreForHmrReset,
   rememberAngularCoreForHmr,
   resetAngularHmrCompiledComponents,
+  setAngularCoreForHmr,
 } from './hmr-compiled-components-core';
 import { NativeScriptLoadingService } from './loading.service';
 import { clearAngularHmrRouteConfigCaches } from './legacy/router/hmr-route-cache-core';
+import { NSLocationStrategy } from './legacy/router/ns-location-strategy';
+import { NSRouteReuseStrategy } from './legacy/router/ns-route-reuse-strategy';
 import { createAngularRootTransitionGuard } from './root-transition-guard';
 import { APP_ROOT_VIEW, DISABLE_ROOT_VIEW_HANDLING, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { NativeScriptDebug } from './trace';
@@ -31,6 +34,9 @@ import { NativeScriptDebug } from './trace';
 // This is crucial because HMR imports a fresh @angular/core with empty LView tracking
 // We need to use the original one that has the registered LViews
 rememberAngularCoreForHmr(AngularCore as any, globalThis as any);
+
+const angularHmrGlobal = globalThis as any;
+angularHmrGlobal.__NS_REMEMBER_ANGULAR_CORE__ = (core: any) => setAngularCoreForHmr(core, angularHmrGlobal);
 
 export interface AppLaunchView extends LayoutBase {
   // called when the animation is to begin
@@ -234,18 +240,43 @@ export interface ApplicationConfig {
 }
 
 export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
+  const hmrGlobal = globalThis as any;
+
+  if (hmrGlobal.__NS_ANGULAR_HMR_REGISTER_ONLY__ && typeof hmrGlobal.__NS_UPDATE_ANGULAR_APP_OPTIONS__ === 'function') {
+    hmrGlobal.__NS_UPDATE_ANGULAR_APP_OPTIONS__(options);
+    return;
+  }
+
+  let currentOptions = options;
   let mainModuleRef: NgModuleRef<T> | ApplicationRef = null;
   let loadingModuleRef: NgModuleRef<K> | ApplicationRef;
   let platformRef: PlatformRef = null;
   let bootstrapId = -1;
+
+  hmrGlobal.__NS_UPDATE_ANGULAR_APP_OPTIONS__ = (nextOptions: AppRunOptions<T, K>) => {
+    currentOptions = nextOptions;
+  };
+
   const clearAngularHmrRouteCaches = () => {
     try {
       const injector = (mainModuleRef as any)?.injector;
+      const reuseStrategy = injector?.get?.(NSRouteReuseStrategy, null);
+      const locationStrategy = injector?.get?.(NSLocationStrategy, null);
       const router = injector?.get?.(Router, null);
+      const clearedDetached = reuseStrategy?.clearAllCaches?.() ?? 0;
+      const clearedLocation = locationStrategy?.resetForHmr?.() ?? null;
       const cleared = clearAngularHmrRouteConfigCaches(router?.config);
 
-      if (cleared > 0) {
-        console.log('[ng-hmr] cleared Angular route caches before reboot:', cleared);
+      if (
+        clearedDetached > 0 ||
+        cleared > 0 ||
+        (clearedLocation && (clearedLocation.outlets > 0 || clearedLocation.states > 0 || clearedLocation.callbacks > 0 || clearedLocation.hadUrlTree))
+      ) {
+        console.log('[ng-hmr] cleared Angular route caches before reboot:', {
+          detachedViews: clearedDetached,
+          locationState: clearedLocation,
+          routeFields: cleared,
+        });
       }
     } catch {}
   };
@@ -299,7 +330,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
       if (NativeScriptDebug.isLogEnabled()) {
         NativeScriptDebug.bootstrapLog(`Setting RootView to ${ref}`);
       }
-      if (options.embedded) {
+      if (currentOptions.embedded) {
         Application.run({ create: () => ref });
       } else if (launchEventDone) {
         rootTransitionGuard.runApplicationResetRootView(Application, () => ref, ref?.constructor?.name || 'View');
@@ -317,11 +348,11 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
       'newRoot:',
       newRoot?.constructor?.name,
     );
-    console.log('[ng-hmr] setRootView: launchEventDone:', launchEventDone, 'embedded:', options.embedded);
+    console.log('[ng-hmr] setRootView: launchEventDone:', launchEventDone, 'embedded:', currentOptions.embedded);
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.bootstrapLog(`Setting RootView to ${newRoot}`);
     }
-    if (options.embedded) {
+    if (currentOptions.embedded) {
       console.log('[ng-hmr] setRootView: calling Application.run (embedded)');
       Application.run({ create: () => newRoot });
     } else if (launchEventDone) {
@@ -372,7 +403,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
       };
       runSynchronously(
         () =>
-          options.appModuleBootstrap(reason).then(
+          currentOptions.appModuleBootstrap(reason).then(
             (ref) => {
               console.log('[ng-hmr] appModuleBootstrap resolved, ref:', ref?.constructor?.name);
               console.log('[ng-hmr] currentBootstrapId:', currentBootstrapId, 'bootstrapId:', bootstrapId);
@@ -482,9 +513,9 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
             return;
           }
           if (!bootstrapped) {
-            if (options.loadingModule) {
+            if (currentOptions.loadingModule) {
               runSynchronously(() =>
-                options.loadingModule(reason).then(
+                currentOptions.loadingModule(reason).then(
                   (loadingRef) => {
                     if (currentBootstrapId !== bootstrapId) {
                       // this module is old and not needed anymore
@@ -536,8 +567,8 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
                   },
                 ),
               );
-            } else if (options.launchView) {
-              let launchView = options.launchView(reason);
+            } else if (currentOptions.launchView) {
+              let launchView = currentOptions.launchView(reason);
               setRootView(launchView);
               if (launchView.startAnimation) {
                 setTimeout(() => {
@@ -606,7 +637,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     global.NativeScriptGlobals.events.addEventListener =
       global.NativeScriptGlobals.events[Zone.__symbol__('addEventListener')];
   }
-  if (!options.embedded) {
+  if (!currentOptions.embedded) {
     Application.on(Application.launchEvent, launchCallback);
   }
   Application.on(Application.exitEvent, exitCallback);
@@ -681,7 +712,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     return;
   }
 
-  if (options.embedded) {
+  if (currentOptions.embedded) {
     bootstrapRoot('applaunch');
   } else {
     Application.run();
