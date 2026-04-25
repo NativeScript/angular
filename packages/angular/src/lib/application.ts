@@ -272,11 +272,9 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
         cleared > 0 ||
         (clearedLocation && (clearedLocation.outlets > 0 || clearedLocation.states > 0 || clearedLocation.callbacks > 0 || clearedLocation.hadUrlTree))
       ) {
-        console.log('[ng-hmr] cleared Angular route caches before reboot:', {
-          detachedViews: clearedDetached,
-          locationState: clearedLocation,
-          routeFields: cleared,
-        });
+        if (NativeScriptDebug.isLogEnabled()) {
+          NativeScriptDebug.hmrLog(`cleared Angular route caches before reboot: detachedViews=${clearedDetached} routeFields=${cleared} locationState=${JSON.stringify(clearedLocation)}`);
+        }
       }
     } catch {}
   };
@@ -305,20 +303,29 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     }, 0);
   };
   const setRootView = (ref: NgModuleRef<T | K> | ApplicationRef | View) => {
-    console.log('[ng-hmr] setRootView called, bootstrapId:', bootstrapId, 'ref type:', ref?.constructor?.name);
+    const traceEnabled = NativeScriptDebug.isLogEnabled();
+    if (traceEnabled) {
+      NativeScriptDebug.hmrLog(`setRootView called bootstrapId=${bootstrapId} refType=${ref?.constructor?.name}`);
+    }
     if (bootstrapId === -1) {
-      // treat edge cases
-      console.log('[ng-hmr] setRootView: bootstrapId is -1, returning early');
+      // edge case: a stale ref racing with a teardown
+      if (traceEnabled) {
+        NativeScriptDebug.hmrLog('setRootView: bootstrapId is -1, returning early');
+      }
       return;
     }
     if (ref instanceof NgModuleRef || ref instanceof ApplicationRef) {
       if (ref.injector.get(DISABLE_ROOT_VIEW_HANDLING, false)) {
-        console.log('[ng-hmr] setRootView: DISABLE_ROOT_VIEW_HANDLING is true, returning');
+        if (traceEnabled) {
+          NativeScriptDebug.hmrLog('setRootView: DISABLE_ROOT_VIEW_HANDLING is true, returning');
+        }
         return;
       }
     } else {
       if (ref['__disable_root_view_handling']) {
-        console.log('[ng-hmr] setRootView: __disable_root_view_handling is true, returning');
+        if (traceEnabled) {
+          NativeScriptDebug.hmrLog('setRootView: __disable_root_view_handling is true, returning');
+        }
         return;
       }
     }
@@ -326,8 +333,8 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     NativeScriptDebug.bootstrapLog(`Setting RootView ${launchEventDone ? 'outside of' : 'during'} launch event`);
     // TODO: check for leaks when root view isn't properly destroyed
     if (ref instanceof View) {
-      console.log('[ng-hmr] setRootView: ref is View, launchEventDone:', launchEventDone);
-      if (NativeScriptDebug.isLogEnabled()) {
+      if (traceEnabled) {
+        NativeScriptDebug.hmrLog(`setRootView: ref is View, launchEventDone=${launchEventDone}`);
         NativeScriptDebug.bootstrapLog(`Setting RootView to ${ref}`);
       }
       if (currentOptions.embedded) {
@@ -342,41 +349,36 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     }
     const view = ref.injector.get(APP_ROOT_VIEW) as AppHostView | View;
     const newRoot = view instanceof AppHostView ? view.content : view;
-    console.log(
-      '[ng-hmr] setRootView: view from injector:',
-      view?.constructor?.name,
-      'newRoot:',
-      newRoot?.constructor?.name,
-    );
-    console.log('[ng-hmr] setRootView: launchEventDone:', launchEventDone, 'embedded:', currentOptions.embedded);
-    if (NativeScriptDebug.isLogEnabled()) {
+    if (traceEnabled) {
+      NativeScriptDebug.hmrLog(`setRootView: view=${view?.constructor?.name} newRoot=${newRoot?.constructor?.name} launchEventDone=${launchEventDone} embedded=${!!currentOptions.embedded}`);
       NativeScriptDebug.bootstrapLog(`Setting RootView to ${newRoot}`);
     }
     if (currentOptions.embedded) {
-      console.log('[ng-hmr] setRootView: calling Application.run (embedded)');
+      if (traceEnabled) {
+        NativeScriptDebug.hmrLog('setRootView: calling Application.run (embedded)');
+      }
       Application.run({ create: () => newRoot });
     } else if (launchEventDone) {
-      console.log('[ng-hmr] setRootView: calling Application.resetRootView');
-      console.log('[ng-hmr] setRootView: newRoot details:', {
-        type: newRoot?.constructor?.name,
-        nativeView: !!newRoot?.nativeView,
-        parent: newRoot?.parent?.constructor?.name,
-        childCount: (newRoot as any)?.getChildrenCount?.() ?? 'N/A',
-      });
+      if (traceEnabled) {
+        NativeScriptDebug.hmrLog(
+          `setRootView: calling Application.resetRootView newRoot type=${newRoot?.constructor?.name} hasNativeView=${!!newRoot?.nativeView} parent=${newRoot?.parent?.constructor?.name} childCount=${(newRoot as any)?.getChildrenCount?.() ?? 'N/A'}`,
+        );
+      }
       rootTransitionGuard.runApplicationResetRootView(Application, () => newRoot, newRoot?.constructor?.name || 'View');
       refreshRootViewCss(newRoot);
-      console.log('[ng-hmr] setRootView: Application.resetRootView returned');
-      // Check root view after reset
-      setTimeout(() => {
-        const currentRoot = Application.getRootView();
-        console.log('[ng-hmr] setRootView: after reset, getRootView:', {
-          type: currentRoot?.constructor?.name,
-          nativeView: !!currentRoot?.nativeView,
-          childCount: (currentRoot as any)?.getChildrenCount?.() ?? 'N/A',
-        });
-      }, 100);
+      if (traceEnabled) {
+        NativeScriptDebug.hmrLog('setRootView: Application.resetRootView returned');
+        setTimeout(() => {
+          const currentRoot = Application.getRootView();
+          NativeScriptDebug.hmrLog(
+            `setRootView: post-reset getRootView type=${currentRoot?.constructor?.name} hasNativeView=${!!currentRoot?.nativeView} childCount=${(currentRoot as any)?.getChildrenCount?.() ?? 'N/A'}`,
+          );
+        }, 100);
+      }
     } else {
-      console.log('[ng-hmr] setRootView: setting targetRootView (launch in progress)');
+      if (traceEnabled) {
+        NativeScriptDebug.hmrLog('setRootView: setting targetRootView (launch in progress)');
+      }
       targetRootView = newRoot;
     }
   };
@@ -388,14 +390,18 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     setRootView(errorTextBox);
   };
   const bootstrapRoot = (reason: NgModuleReason) => {
-    console.log('[ng-hmr] bootstrapRoot called, reason:', reason);
+    if (NativeScriptDebug.isLogEnabled()) {
+      NativeScriptDebug.hmrLog(`bootstrapRoot called reason=${reason}`);
+    }
     try {
       if (reason === 'hotreload') {
         resetAngularHmrCompiledComponents(getAngularCoreForHmrReset(AngularCore as any, globalThis as any));
       }
 
       bootstrapId = Date.now();
-      console.log('[ng-hmr] bootstrapRoot: new bootstrapId:', bootstrapId);
+      if (NativeScriptDebug.isLogEnabled()) {
+        NativeScriptDebug.hmrLog(`bootstrapRoot: new bootstrapId=${bootstrapId}`);
+      }
       const currentBootstrapId = bootstrapId;
       let bootstrapped = false;
       let onMainBootstrap = () => {
@@ -405,12 +411,19 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
         () =>
           currentOptions.appModuleBootstrap(reason).then(
             (ref) => {
-              console.log('[ng-hmr] appModuleBootstrap resolved, ref:', ref?.constructor?.name);
-              console.log('[ng-hmr] currentBootstrapId:', currentBootstrapId, 'bootstrapId:', bootstrapId);
+              if (NativeScriptDebug.isLogEnabled()) {
+                NativeScriptDebug.hmrLog(
+                  `appModuleBootstrap resolved ref=${ref?.constructor?.name} currentBootstrapId=${currentBootstrapId} bootstrapId=${bootstrapId}`,
+                );
+              }
               if (currentBootstrapId !== bootstrapId) {
-                // this module is old and not needed anymore
-                // this may happen when developer uses async app initializer and the user exits the app before this bootstraps
-                console.log('[ng-hmr] bootstrap ID mismatch, destroying ref');
+                // The pending bootstrap resolved AFTER another reboot bumped
+                // bootstrapId. This typically happens when a developer ships
+                // an async APP_INITIALIZER and the user exits/re-enters the
+                // app while it's still resolving. Drop this ref.
+                if (NativeScriptDebug.isLogEnabled()) {
+                  NativeScriptDebug.hmrLog('bootstrap ID mismatch, destroying ref');
+                }
                 ref.destroy();
                 return;
               }
@@ -433,37 +446,40 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
               runInZone(() => {
                 mainModuleRef = ref;
 
-                // Expose ApplicationRef for HMR to trigger change detection
-                // Check for ApplicationRef by duck-typing since instanceof can fail across module realms
+                // Expose ApplicationRef for HMR to trigger change detection.
+                // Check by duck-typing because `instanceof` can fail across
+                // module realms during HMR — we may be holding a fresh
+                // ApplicationRef class while `ref` was constructed by an
+                // earlier (now-evicted) realm copy.
                 const refAny = ref as any;
                 const isAppRef = refAny && typeof refAny.tick === 'function' && Array.isArray(refAny.components);
-                console.log(
-                  '[ng-hmr] ref type check: isAppRef=',
-                  isAppRef,
-                  'has tick=',
-                  typeof refAny?.tick === 'function',
-                  'has components=',
-                  Array.isArray(refAny?.components),
-                );
+                if (NativeScriptDebug.isLogEnabled()) {
+                  NativeScriptDebug.hmrLog(
+                    `ref type check isAppRef=${isAppRef} hasTick=${typeof refAny?.tick === 'function'} hasComponents=${Array.isArray(refAny?.components)}`,
+                  );
+                }
 
                 if (isAppRef) {
                   global['__NS_ANGULAR_APP_REF__'] = ref;
-                  // Mark boot complete for the HMR system
                   global['__NS_HMR_BOOT_COMPLETE__'] = true;
 
-                  // Register bootstrapped components for HMR lookup
                   if (!global['__NS_ANGULAR_COMPONENTS__']) {
                     global['__NS_ANGULAR_COMPONENTS__'] = {};
                   }
-                  // Get the component class from the first bootstrapped component
-                  console.log('[ng-hmr] ApplicationRef components count:', refAny.components?.length);
+                  if (NativeScriptDebug.isLogEnabled()) {
+                    NativeScriptDebug.hmrLog(`ApplicationRef components count=${refAny.components?.length ?? 0}`);
+                  }
                   if (refAny.components && refAny.components.length > 0) {
                     const componentRef = refAny.components[0];
-                    console.log('[ng-hmr] componentRef:', componentRef?.constructor?.name);
-                    console.log('[ng-hmr] componentRef.componentType:', componentRef?.componentType?.name);
+                    if (NativeScriptDebug.isLogEnabled()) {
+                      NativeScriptDebug.hmrLog(
+                        `componentRef=${componentRef?.constructor?.name} componentType=${componentRef?.componentType?.name}`,
+                      );
+                    }
 
-                    // For Angular 17+ standalone components, the component type is on componentRef.componentType
-                    // For older Angular, try componentRef.instance.constructor
+                    // Angular 17+ standalone: the component class is on
+                    // `componentRef.componentType`. Older Angular keeps it on
+                    // `componentRef.instance.constructor`.
                     let componentType = componentRef?.componentType;
                     if (!componentType && componentRef?.instance) {
                       componentType = componentRef.instance.constructor;
@@ -471,12 +487,14 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
 
                     if (componentType && componentType.name) {
                       global['__NS_ANGULAR_COMPONENTS__'][componentType.name] = componentType;
-                      console.log('[ng-hmr] Registered component for HMR:', componentType.name);
-                    } else {
-                      console.log('[ng-hmr] Could not get componentType name');
+                      if (NativeScriptDebug.isLogEnabled()) {
+                        NativeScriptDebug.hmrLog(`registered component for HMR: ${componentType.name}`);
+                      }
+                    } else if (NativeScriptDebug.isLogEnabled()) {
+                      NativeScriptDebug.hmrLog('could not resolve componentType name');
                     }
-                  } else {
-                    console.log('[ng-hmr] No components in ApplicationRef');
+                  } else if (NativeScriptDebug.isLogEnabled()) {
+                    NativeScriptDebug.hmrLog('no components in ApplicationRef');
                   }
                 } else {
                   const appRef = ref.injector.get(ApplicationRef, null);
@@ -672,19 +690,29 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     disposePlatform('hotreload');
   };
   global['__reboot_ng_modules__'] = (shouldDisposePlatform: boolean = false) => {
-    console.log('[ng-hmr] __reboot_ng_modules__ called, shouldDisposePlatform:', shouldDisposePlatform);
-    console.log('[ng-hmr] current bootstrapId:', bootstrapId, 'mainModuleRef:', !!mainModuleRef);
+    const traceEnabled = NativeScriptDebug.isLogEnabled();
+    if (traceEnabled) {
+      NativeScriptDebug.hmrLog(
+        `__reboot_ng_modules__ called shouldDisposePlatform=${shouldDisposePlatform} bootstrapId=${bootstrapId} hasMainModuleRef=${!!mainModuleRef}`,
+      );
+    }
     try {
       global['__NS_CAPTURE_ANGULAR_HMR_ROUTE__']?.();
     } catch {}
     disposeLastModules('hotreload');
-    console.log('[ng-hmr] after disposeLastModules, bootstrapId:', bootstrapId);
+    if (traceEnabled) {
+      NativeScriptDebug.hmrLog(`after disposeLastModules bootstrapId=${bootstrapId}`);
+    }
     if (shouldDisposePlatform) {
       disposePlatform('hotreload');
     }
-    console.log('[ng-hmr] calling bootstrapRoot...');
+    if (traceEnabled) {
+      NativeScriptDebug.hmrLog('calling bootstrapRoot');
+    }
     bootstrapRoot('hotreload');
-    console.log('[ng-hmr] bootstrapRoot returned, new bootstrapId:', bootstrapId);
+    if (traceEnabled) {
+      NativeScriptDebug.hmrLog(`bootstrapRoot returned bootstrapId=${bootstrapId}`);
+    }
   };
 
   if (isWebpackHot) {

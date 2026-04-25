@@ -207,7 +207,7 @@ export interface AppOptions {
  * @deprecated use runNativeScriptAngularApp instead
  */
 export const platformNativeScriptDynamic = function (options?: AppOptions, extraProviders?: StaticProvider[]) {
-  console.log('platformNativeScriptDynamic is deprecated, use runNativeScriptAngularApp instead');
+  console.warn('platformNativeScriptDynamic is deprecated, use runNativeScriptAngularApp instead');
   options = options || {};
   extraProviders = extraProviders || [];
 
