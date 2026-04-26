@@ -13,7 +13,7 @@ import {
   Utils,
   View,
 } from '@nativescript/core';
-import { Observable, Subject } from 'rxjs';
+import { Observable, ReplaySubject, Subject } from 'rxjs';
 import { filter, map, take } from 'rxjs/operators';
 import { AppHostView } from './app-host-view';
 import {
@@ -22,6 +22,8 @@ import {
   resetAngularHmrCompiledComponents,
   setAngularCoreForHmr,
 } from './hmr-compiled-components-core';
+import { _hmrDiagBumpCycle, installAngularHmrComponentRegistrar } from './hmr-class-registry';
+import { installHmrEagerRegistrar, runHmrEagerInstantiators } from './hmr-eager-services';
 import { NativeScriptLoadingService } from './loading.service';
 import { clearAngularHmrRouteConfigCaches } from './legacy/router/hmr-route-cache-core';
 import { NSLocationStrategy } from './legacy/router/ns-location-strategy';
@@ -35,8 +37,30 @@ import { NativeScriptDebug } from './trace';
 // We need to use the original one that has the registered LViews
 rememberAngularCoreForHmr(AngularCore as any, globalThis as any);
 
+// Install the cross-module HMR component registrar. The Vite plugin
+// `ns-component-hmr-register` injects a call to the global hook
+// `__NS_HMR_REGISTER_COMPONENT__` at the end of every user `.ts` file
+// that declares an `@Component`-decorated class. After an HMR reboot,
+// each re-evaluated module pushes its fresh class into the registry,
+// and HMR helpers (modal restore, route replay) read the registry via
+// `getFreshComponentClass` to re-attach to the *live* class instead of
+// a captured stale reference. Production short-circuits inside the
+// helper (the hook is never assigned).
+//
+// We install the registrar before any other module initialization can
+// reference the hook so a user module loaded synchronously alongside
+// `@nativescript/angular` always finds the function present.
+installAngularHmrComponentRegistrar();
+
+// Install the cross-module registration entry point used by HMR-aware
+// services (e.g. `NativeDialog`) to ask for eager construction after
+// every bootstrap. Idempotent: re-evaluations after HMR are no-ops.
+installHmrEagerRegistrar();
+
 const angularHmrGlobal = globalThis as any;
-angularHmrGlobal.__NS_REMEMBER_ANGULAR_CORE__ = (core: any) => setAngularCoreForHmr(core, angularHmrGlobal);
+angularHmrGlobal.__NS_REMEMBER_ANGULAR_CORE__ = (core: any) => {
+  setAngularCoreForHmr(core, angularHmrGlobal);
+};
 
 export interface AppLaunchView extends LayoutBase {
   // called when the animation is to begin
@@ -68,7 +92,17 @@ export type NgModuleEvent =
     };
 
 export const preAngularDisposal$ = new Subject<NgModuleEvent>();
-export const postAngularBootstrap$ = new Subject<NgModuleEvent>();
+/**
+ * Stream that emits when an Angular module finishes bootstrapping. Modeled
+ * as a `ReplaySubject(1)` so consumers (e.g. `NativeDialog`) instantiated
+ * lazily — *after* the bootstrap event has already fired — still receive
+ * the latest event and can react. Without buffering, a service that the
+ * user app injects on first need (after bootstrap) would silently miss the
+ * `hotreload` notification and skip HMR-only work like restoring captured
+ * modal state. The buffer size of 1 means each new HMR cycle replaces the
+ * cached event so cycle N's late subscribers don't see cycle N-1's event.
+ */
+export const postAngularBootstrap$ = new ReplaySubject<NgModuleEvent>(1);
 
 /**
  * @deprecated
@@ -127,17 +161,33 @@ function emitModuleBootstrapEvent<T>(
   name: 'main' | 'loading',
   reason: NgModuleReason,
 ) {
+  console.info(`[ns-hmr-diag][application] emitModuleBootstrapEvent name=${name} reason=${reason}`);
+  // Instantiate registered HMR-aware services *before* emitting so they
+  // attach their subscriptions in the same JS task and are guaranteed to
+  // observe the event being emitted. `postAngularBootstrap$` is also a
+  // `ReplaySubject(1)`, so a service injected later still receives the
+  // buffered event — the eager pass is the fast path that lets the
+  // restore work begin in the same task as bootstrap completion.
+  if (name === 'main') {
+    runHmrEagerInstantiators(
+      (ref as ApplicationRef | NgModuleRef<T>).injector,
+      (err) => NativeScriptDebug.bootstrapLogError(`HMR eager instantiator threw: ${(err as Error)?.message ?? err}`),
+    );
+  }
   postAngularBootstrap$.next({
     moduleType: name,
     reference: ref,
     reason,
   });
+  console.info(`[ns-hmr-diag][application] postAngularBootstrap$.next() emitted name=${name} reason=${reason}`);
 }
 
 function destroyRef<T>(ref: NgModuleRef<T> | ApplicationRef, name: 'main' | 'loading', reason: NgModuleReason): void;
 function destroyRef(ref: PlatformRef, reason: NgModuleReason): void;
 function destroyRef<T>(ref: PlatformRef | ApplicationRef | NgModuleRef<T>, name?: string, reason?: string): void {
   if (ref) {
+    const refKind = ref instanceof PlatformRef ? 'PlatformRef' : ref instanceof NgModuleRef ? 'NgModuleRef' : ref instanceof ApplicationRef ? 'ApplicationRef' : '(unknown)';
+    console.info(`[ns-hmr-diag][application] destroyRef kind=${refKind} name=${name ?? '(none)'} reason=${reason ?? '(none)'}`);
     if (ref instanceof PlatformRef) {
       preAngularDisposal$.next({
         moduleType: 'platform',
@@ -153,6 +203,7 @@ function destroyRef<T>(ref: PlatformRef | ApplicationRef | NgModuleRef<T>, name?
       });
     }
     ref.destroy();
+    console.info(`[ns-hmr-diag][application] destroyRef DONE kind=${refKind} name=${name ?? '(none)'}`);
   }
 }
 
@@ -690,6 +741,11 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     disposePlatform('hotreload');
   };
   global['__reboot_ng_modules__'] = (shouldDisposePlatform: boolean = false) => {
+    // Diagnostic: bump the global HMR cycle counter so all subsequent
+    // log lines (class registry, dialog services) can be cross-
+    // referenced to a specific reboot.
+    const cycleNum = _hmrDiagBumpCycle();
+    console.info(`[ns-hmr-diag][application] __reboot_ng_modules__ called cycle=${cycleNum} shouldDisposePlatform=${shouldDisposePlatform} bootstrapId=${bootstrapId} hasMainModuleRef=${!!mainModuleRef}`);
     const traceEnabled = NativeScriptDebug.isLogEnabled();
     if (traceEnabled) {
       NativeScriptDebug.hmrLog(
@@ -700,6 +756,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
       global['__NS_CAPTURE_ANGULAR_HMR_ROUTE__']?.();
     } catch {}
     disposeLastModules('hotreload');
+    console.info(`[ns-hmr-diag][application] after disposeLastModules cycle=${cycleNum} bootstrapId=${bootstrapId}`);
     if (traceEnabled) {
       NativeScriptDebug.hmrLog(`after disposeLastModules bootstrapId=${bootstrapId}`);
     }
@@ -709,7 +766,9 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     if (traceEnabled) {
       NativeScriptDebug.hmrLog('calling bootstrapRoot');
     }
+    console.info(`[ns-hmr-diag][application] calling bootstrapRoot cycle=${cycleNum}`);
     bootstrapRoot('hotreload');
+    console.info(`[ns-hmr-diag][application] bootstrapRoot returned cycle=${cycleNum} bootstrapId=${bootstrapId}`);
     if (traceEnabled) {
       NativeScriptDebug.hmrLog(`bootstrapRoot returned bootstrapId=${bootstrapId}`);
     }

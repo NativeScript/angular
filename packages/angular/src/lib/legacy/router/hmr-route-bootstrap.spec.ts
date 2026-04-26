@@ -26,7 +26,7 @@ describe('cloneRoutesForBootstrap', () => {
       },
     ] as any;
 
-    const cloned = cloneRoutesForBootstrap(routes);
+    const cloned = cloneRoutesForBootstrap<any>(routes);
 
     expect(cloned).not.toBe(routes);
     expect(cloned[0]).not.toBe(routes[0]);

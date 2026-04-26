@@ -49,5 +49,22 @@ export class NativeDialogConfig<D = any> {
 
   nativeOptions?: NativeShowModalOptions = {};
 
+  /**
+   * When true, this dialog will be re-opened automatically on Angular HMR
+   * reboots so the user does not lose context every time a related file
+   * changes. The new dialog reuses the same component class and `data` payload
+   * (provided via `data`); other config such as `nativeOptions` is preserved
+   * verbatim.
+   *
+   * The original `dialogRef.afterClosed()` subject is wired to the restored
+   * dialog so consumers `await openModal(...)` resolve normally when the user
+   * eventually closes the restored modal.
+   *
+   * Only opens via component class are restorable — `TemplateRef` openings
+   * carry references that don't survive an HMR reboot and are silently
+   * skipped. Has no effect outside of HMR.
+   */
+  preserveOnHmr?: boolean = false;
+
   // TODO(jelbourn): add configuration for lifecycle hooks, ARIA labelling.
 }

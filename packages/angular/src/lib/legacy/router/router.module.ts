@@ -33,6 +33,7 @@ import { NSEmptyOutletComponent } from './ns-empty-outlet.component';
 import { NativeScriptCommonModule } from '../../nativescript-common.module';
 import { START_PATH } from '../../tokens';
 import { cloneRoutesForBootstrap } from './hmr-route-bootstrap-core';
+import { NativeScriptAngularHmrRouteReplay } from './hmr-route-replay';
 import { NativeScriptAngularHmrRouteTracker, readAngularHmrPendingStartPath } from './hmr-route-state';
 
 export { PageRoute } from './page-router-outlet';
@@ -81,10 +82,11 @@ export class NativeScriptRouterModule {
         NSRouteReuseStrategy,
         { provide: RouteReuseStrategy, useExisting: NSRouteReuseStrategy },
         NativeScriptAngularHmrRouteTracker,
+        NativeScriptAngularHmrRouteReplay,
         {
           provide: APP_BOOTSTRAP_LISTENER,
           multi: true,
-          deps: [NativeScriptAngularHmrRouteTracker],
+          deps: [NativeScriptAngularHmrRouteTracker, NativeScriptAngularHmrRouteReplay],
           useFactory: () => () => undefined,
         },
       ],
@@ -118,11 +120,13 @@ export function provideNativeScriptRouter(routes: Routes, ...features: RouterFea
     NSRouteReuseStrategy,
     { provide: RouteReuseStrategy, useExisting: NSRouteReuseStrategy },
     NativeScriptAngularHmrRouteTracker,
+    NativeScriptAngularHmrRouteReplay,
     {
       provide: ENVIRONMENT_INITIALIZER,
       multi: true,
       useValue: () => {
         inject(NativeScriptAngularHmrRouteTracker);
+        inject(NativeScriptAngularHmrRouteReplay);
       },
     },
     // {provide: APP_BOOTSTRAP_LISTENER, multi: true, useFactory: getBootstrapListener},
