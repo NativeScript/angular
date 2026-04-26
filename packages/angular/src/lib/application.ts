@@ -161,7 +161,9 @@ function emitModuleBootstrapEvent<T>(
   name: 'main' | 'loading',
   reason: NgModuleReason,
 ) {
-  console.info(`[ns-hmr-diag][application] emitModuleBootstrapEvent name=${name} reason=${reason}`);
+  if (NativeScriptDebug.isLogEnabled()) {
+    NativeScriptDebug.hmrLog(`emitModuleBootstrapEvent name=${name} reason=${reason}`);
+  }
   // Instantiate registered HMR-aware services *before* emitting so they
   // attach their subscriptions in the same JS task and are guaranteed to
   // observe the event being emitted. `postAngularBootstrap$` is also a
@@ -179,7 +181,9 @@ function emitModuleBootstrapEvent<T>(
     reference: ref,
     reason,
   });
-  console.info(`[ns-hmr-diag][application] postAngularBootstrap$.next() emitted name=${name} reason=${reason}`);
+  if (NativeScriptDebug.isLogEnabled()) {
+    NativeScriptDebug.hmrLog(`postAngularBootstrap$.next() emitted name=${name} reason=${reason}`);
+  }
 }
 
 function destroyRef<T>(ref: NgModuleRef<T> | ApplicationRef, name: 'main' | 'loading', reason: NgModuleReason): void;
@@ -187,7 +191,10 @@ function destroyRef(ref: PlatformRef, reason: NgModuleReason): void;
 function destroyRef<T>(ref: PlatformRef | ApplicationRef | NgModuleRef<T>, name?: string, reason?: string): void {
   if (ref) {
     const refKind = ref instanceof PlatformRef ? 'PlatformRef' : ref instanceof NgModuleRef ? 'NgModuleRef' : ref instanceof ApplicationRef ? 'ApplicationRef' : '(unknown)';
-    console.info(`[ns-hmr-diag][application] destroyRef kind=${refKind} name=${name ?? '(none)'} reason=${reason ?? '(none)'}`);
+    const traceEnabled = NativeScriptDebug.isLogEnabled();
+    if (traceEnabled) {
+      NativeScriptDebug.hmrLog(`destroyRef kind=${refKind} name=${name ?? '(none)'} reason=${reason ?? '(none)'}`);
+    }
     if (ref instanceof PlatformRef) {
       preAngularDisposal$.next({
         moduleType: 'platform',
@@ -203,7 +210,9 @@ function destroyRef<T>(ref: PlatformRef | ApplicationRef | NgModuleRef<T>, name?
       });
     }
     ref.destroy();
-    console.info(`[ns-hmr-diag][application] destroyRef DONE kind=${refKind} name=${name ?? '(none)'}`);
+    if (traceEnabled) {
+      NativeScriptDebug.hmrLog(`destroyRef DONE kind=${refKind} name=${name ?? '(none)'}`);
+    }
   }
 }
 
@@ -741,36 +750,33 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     disposePlatform('hotreload');
   };
   global['__reboot_ng_modules__'] = (shouldDisposePlatform: boolean = false) => {
-    // Diagnostic: bump the global HMR cycle counter so all subsequent
-    // log lines (class registry, dialog services) can be cross-
-    // referenced to a specific reboot.
+    // Bump the global HMR cycle counter so subsequent diagnostic log
+    // lines (class registry, dialog services) can be cross-referenced
+    // to a specific reboot. Counter is always incremented; the trace
+    // category gates whether we surface it in the console.
     const cycleNum = _hmrDiagBumpCycle();
-    console.info(`[ns-hmr-diag][application] __reboot_ng_modules__ called cycle=${cycleNum} shouldDisposePlatform=${shouldDisposePlatform} bootstrapId=${bootstrapId} hasMainModuleRef=${!!mainModuleRef}`);
     const traceEnabled = NativeScriptDebug.isLogEnabled();
     if (traceEnabled) {
       NativeScriptDebug.hmrLog(
-        `__reboot_ng_modules__ called shouldDisposePlatform=${shouldDisposePlatform} bootstrapId=${bootstrapId} hasMainModuleRef=${!!mainModuleRef}`,
+        `__reboot_ng_modules__ called cycle=${cycleNum} shouldDisposePlatform=${shouldDisposePlatform} bootstrapId=${bootstrapId} hasMainModuleRef=${!!mainModuleRef}`,
       );
     }
     try {
       global['__NS_CAPTURE_ANGULAR_HMR_ROUTE__']?.();
     } catch {}
     disposeLastModules('hotreload');
-    console.info(`[ns-hmr-diag][application] after disposeLastModules cycle=${cycleNum} bootstrapId=${bootstrapId}`);
     if (traceEnabled) {
-      NativeScriptDebug.hmrLog(`after disposeLastModules bootstrapId=${bootstrapId}`);
+      NativeScriptDebug.hmrLog(`after disposeLastModules cycle=${cycleNum} bootstrapId=${bootstrapId}`);
     }
     if (shouldDisposePlatform) {
       disposePlatform('hotreload');
     }
     if (traceEnabled) {
-      NativeScriptDebug.hmrLog('calling bootstrapRoot');
+      NativeScriptDebug.hmrLog(`calling bootstrapRoot cycle=${cycleNum}`);
     }
-    console.info(`[ns-hmr-diag][application] calling bootstrapRoot cycle=${cycleNum}`);
     bootstrapRoot('hotreload');
-    console.info(`[ns-hmr-diag][application] bootstrapRoot returned cycle=${cycleNum} bootstrapId=${bootstrapId}`);
     if (traceEnabled) {
-      NativeScriptDebug.hmrLog(`bootstrapRoot returned bootstrapId=${bootstrapId}`);
+      NativeScriptDebug.hmrLog(`bootstrapRoot returned cycle=${cycleNum} bootstrapId=${bootstrapId}`);
     }
   };
 

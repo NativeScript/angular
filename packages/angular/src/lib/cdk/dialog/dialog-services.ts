@@ -42,31 +42,33 @@ import { NativeDialogRef } from './dialog-ref';
 import { NativeModalRef } from './native-modal-ref';
 
 /**
- * Always-visible HMR diagnostic prefix. We use the same `[ns-hmr][angular]`
- * tag the Vite Angular client uses for refresh/reboot lines so devs see
- * dialog HMR events on the same console channel without flipping
- * `Trace.isEnabled()` (which is off by default and gates
- * `NativeScriptDebug.hmrLog`). The helper short-circuits in production
- * because every caller is already gated on `isAngularHmrEnabled()`.
+ * Dialog HMR lifecycle log.
  */
 function hmrDialogLog(message: string): void {
   if (!isAngularHmrEnabled()) {
     return;
   }
-  console.info(`[ns-hmr][angular][dialog] ${message}`);
+  if (!NativeScriptDebug.isLogEnabled()) {
+    return;
+  }
+  NativeScriptDebug.hmrLog(`[dialog] ${message}`);
 }
 
 /**
- * Diagnostic helper. Distinct from `hmrDialogLog` so we can grep
- * separately for "low-level wiring" facts (module-realm count,
- * NativeDialog instance count, registry hits/misses) vs. high-level
- * lifecycle messages.
+ * Lower-level dialog HMR wiring trace (module-realm count, NativeDialog
+ * instance count, registry hits/misses). Distinct from `hmrDialogLog`
+ * for greppability — both fan into the same Trace category so a single
+ * `Trace.setCategories(NativeScriptDebug.hmrTraceCategory)` toggle
+ * surfaces them all.
  */
 function hmrDialogDiag(message: string): void {
   if (!isAngularHmrEnabled()) {
     return;
   }
-  console.info(`[ns-hmr-diag][dialog] ${message}`);
+  if (!NativeScriptDebug.isLogEnabled()) {
+    return;
+  }
+  NativeScriptDebug.hmrLog(`[dialog-diag] ${message}`);
 }
 
 /**

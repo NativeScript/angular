@@ -1,4 +1,5 @@
 import type { Injector } from '@angular/core';
+import { NativeScriptDebug } from './trace';
 
 /**
  * Registry for HMR-aware services that need to be eagerly instantiated
@@ -28,20 +29,15 @@ const REGISTRY_KEY = '__NS_HMR_EAGER_SERVICES__';
 const REGISTER_KEY = '__NS_REGISTER_HMR_EAGER_SERVICE__';
 
 /**
- * Diagnostic: gate logging behind the same dev-only flag callers
- * already use to decide whether to register at all. Production
- * registrations are no-ops, so production log paths stay silent.
+ * Diagnostic helper.
  */
 function eagerDiag(message: string): void {
-  // We can't import isAngularHmrEnabled here without creating a
-  // circular import (hmr-eager-services <- dialog-services <-
-  // application <- hmr-eager-services). Instead, key off the same
-  // globals isAngularHmrEnabled checks (kept inline for layering).
   const g = globalThis as { __NS_DEV_PLACEHOLDER_ROOT_EARLY__?: unknown; __NS_HMR_BOOT_COMPLETE__?: unknown; ngDevMode?: boolean };
   const ngDev = (typeof g.ngDevMode === 'boolean') ? g.ngDevMode : true;
   const viteHmr = !!g.__NS_DEV_PLACEHOLDER_ROOT_EARLY__ || !!g.__NS_HMR_BOOT_COMPLETE__;
   if (!(ngDev && viteHmr)) return;
-  console.info(`[ns-hmr-diag][eager] ${message}`);
+  if (!NativeScriptDebug.isLogEnabled()) return;
+  NativeScriptDebug.hmrLog(`[eager] ${message}`);
 }
 
 interface HmrEagerGlobals {

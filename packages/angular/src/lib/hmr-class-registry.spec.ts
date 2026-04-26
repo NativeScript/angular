@@ -1,3 +1,14 @@
+jest.mock('@nativescript/core', () => ({
+  Trace: {
+    isEnabled: jest.fn(() => false),
+    isCategorySet: jest.fn(() => false),
+    write: jest.fn(),
+    error: jest.fn(),
+    messageType: { log: 0, info: 1, warn: 2, error: 3 },
+    categories: { Style: 'NativeScript.Style' },
+  },
+}));
+
 import {
   _hmrDiagBumpCycle,
   _hmrDiagSnapshot,

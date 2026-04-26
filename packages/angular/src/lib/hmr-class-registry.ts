@@ -49,6 +49,7 @@
  */
 
 import { isAngularDevMode, isAngularHmrEnabled } from './hmr-environment';
+import { NativeScriptDebug } from './trace';
 
 const REGISTRY_KEY = '__NS_ANGULAR_HMR_CLASS_REGISTRY__';
 const REGISTRY_META_KEY = '__NS_ANGULAR_HMR_CLASS_META__';
@@ -95,22 +96,24 @@ function getClassId(diag: ReturnType<typeof getDiag>, cls: object): string {
   }
   return id;
 }
+/**
+ * Class-registry HMR diagnostic.
+ */
 function diagLog(message: string): void {
   if (!isAngularHmrEnabled()) return;
-  console.info(`[ns-hmr-diag][class-registry] ${message}`);
+  if (!NativeScriptDebug.isLogEnabled()) return;
+  NativeScriptDebug.hmrLog(`[class-registry] ${message}`);
 }
 /**
- * Log helper that uses {@link isAngularDevMode} instead of
- * {@link isAngularHmrEnabled} so it fires for messages that *must* be
- * visible at module-load time, before NativeScript Vite's HMR globals
- * have been set. The HMR-globals check would otherwise suppress the
- * "registrar installed" message in the same window we're trying to
- * diagnose. Production builds (`ngDevMode === false`) still skip the
- * log.
+ * Log helper for "must surface at module-load time" messages — fires
+ * for any dev-mode build (not gated on the HMR-globals check) so the
+ * one-shot "registrar installed" line doesn't get suppressed by a
+ * module-load ordering race. 
  */
 function bootLog(message: string): void {
   if (!isAngularDevMode()) return;
-  console.info(`[ns-hmr-diag][class-registry] ${message}`);
+  if (!NativeScriptDebug.isLogEnabled()) return;
+  NativeScriptDebug.hmrLog(`[class-registry] ${message}`);
 }
 /**
  * Public so callers from application.ts can bump the cycle counter when
