@@ -16,6 +16,7 @@ import {
   readAngularHmrPendingStartPath,
   readAngularHmrRouteHistory,
   replaceAngularHmrRouteHistoryTop,
+  resetAngularHmrRouteHistoryToUrl,
   snapshotAngularHmrRouteHistory,
   writeAngularHmrRouteState,
 } from './hmr-route-state-core';
@@ -99,6 +100,26 @@ describe('Angular HMR route state', () => {
       replaceAngularHmrRouteHistoryTop('/profile?tab=goals');
 
       expect(readAngularHmrRouteHistory()).toEqual(['/talk/(todayTab:today)', '/profile?tab=goals']);
+    });
+
+    it('collapses the live mirror to a single URL on a clearHistory navigation', () => {
+      // Mirrors NativeScript's `clearHistory: true` extra: the user-visible
+      // back-stack is reset to just the destination, so the HMR mirror
+      // must follow suit.
+      pushAngularHmrRouteHistoryEntry('/');
+      pushAngularHmrRouteHistoryEntry('/signup-landing');
+      pushAngularHmrRouteHistoryEntry('/login');
+
+      expect(resetAngularHmrRouteHistoryToUrl('/talk/(todayTab:today)')).toBe('/talk/(todayTab:today)');
+      expect(readAngularHmrRouteHistory()).toEqual(['/talk/(todayTab:today)']);
+    });
+
+    it('clears the live mirror entirely when reset is called with an unparseable URL', () => {
+      pushAngularHmrRouteHistoryEntry('/talk/(todayTab:today)');
+      pushAngularHmrRouteHistoryEntry('/profile');
+
+      expect(resetAngularHmrRouteHistoryToUrl(undefined)).toBeNull();
+      expect(readAngularHmrRouteHistory()).toEqual([]);
     });
 
     it('snapshots the live mirror into the pending slot for the next bootstrap', () => {

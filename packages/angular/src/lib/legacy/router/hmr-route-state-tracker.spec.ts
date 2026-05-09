@@ -46,22 +46,37 @@ interface RouterEvent {
 interface RouterMock {
   events: Subject<RouterEvent>;
   url: string;
+  // Mirrors `Router.getCurrentNavigation()` enough that the tracker can read
+  // `extras.clearHistory` off it — the same hook NS's page-router-outlet uses
+  // to enable `clearHistory: true` end-to-end.
+  currentNavigation: { extras?: { clearHistory?: boolean } } | null;
+  getCurrentNavigation(): { extras?: { clearHistory?: boolean } } | null;
   emitNavigationEnd(url: string): void;
   emitNavigationStart(
     url: string,
     options?: {
       trigger?: 'imperative' | 'popstate' | 'hashchange';
       restoredState?: { navigationId: number } | null;
+      clearHistory?: boolean;
     },
   ): void;
 }
 
 function createRouterMock(initialUrl: string): RouterMock {
   const events = new Subject<RouterEvent>();
-  return {
+  const router: RouterMock = {
     events,
     url: initialUrl,
+    currentNavigation: null,
+    getCurrentNavigation() {
+      return this.currentNavigation;
+    },
     emitNavigationStart(url, options) {
+      // Mirror Angular: `getCurrentNavigation()` returns the active navigation
+      // between NavigationStart and NavigationEnd, then is cleared.
+      this.currentNavigation = {
+        extras: options?.clearHistory ? { clearHistory: true } : {},
+      };
       events.next(
         new MockNavigationStart(
           1,
@@ -74,8 +89,10 @@ function createRouterMock(initialUrl: string): RouterMock {
     emitNavigationEnd(url) {
       this.url = url;
       events.next(new MockNavigationEnd(1, url, url) as unknown as RouterEvent);
+      this.currentNavigation = null;
     },
   };
+  return router;
 }
 
 describe('NativeScriptAngularHmrRouteTracker', () => {
@@ -167,6 +184,74 @@ describe('NativeScriptAngularHmrRouteTracker', () => {
       router.emitNavigationEnd('/talk/(todayTab:today)');
 
       expect(readAngularHmrRouteHistory()).toEqual(['/talk/(todayTab:today)']);
+    });
+  });
+
+  describe('clearHistory navigation extra', () => {
+    it('collapses the live mirror to the destination URL when clearHistory is set', () => {
+      // Reproduces the canonical HeyKiddo auth flow: user passes through
+      // /signup-landing, /login on the way to a clearHistory navigation
+      // that drops the iOS back-stack down to /talk. Without mirroring
+      // that on the HMR side, a subsequent .ts edit replays NavigationEnd
+      // for every URL the user passed through — including login pages
+      // that the auth-gate now redirects away from.
+      const router = createRouterMock('/');
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const tracker = new NativeScriptAngularHmrRouteTracker(router as never);
+
+      router.emitNavigationStart('/signup-landing');
+      router.emitNavigationEnd('/signup-landing');
+      router.emitNavigationStart('/login');
+      router.emitNavigationEnd('/login');
+
+      expect(readAngularHmrRouteHistory()).toEqual(['/signup-landing', '/login']);
+
+      router.emitNavigationStart('/talk/(todayTab:today)', { clearHistory: true });
+      router.emitNavigationEnd('/talk/(todayTab:today)');
+
+      expect(readAngularHmrRouteHistory()).toEqual(['/talk/(todayTab:today)']);
+    });
+
+    it('keeps subsequent non-clearHistory navigations on top of the destination after a reset', () => {
+      // After a clearHistory reset, normal forward navigation (e.g. tab
+      // switches) should still grow the mirror so the back-stack is
+      // restored across HMR cycles for the post-reset session.
+      const router = createRouterMock('/');
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const tracker = new NativeScriptAngularHmrRouteTracker(router as never);
+
+      router.emitNavigationStart('/login');
+      router.emitNavigationEnd('/login');
+      router.emitNavigationStart('/talk/(todayTab:today)', { clearHistory: true });
+      router.emitNavigationEnd('/talk/(todayTab:today)');
+      router.emitNavigationStart('/talk/(progressTab:progress//todayTab:today)');
+      router.emitNavigationEnd('/talk/(progressTab:progress//todayTab:today)');
+
+      expect(readAngularHmrRouteHistory()).toEqual([
+        '/talk/(todayTab:today)',
+        '/talk/(progressTab:progress//todayTab:today)',
+      ]);
+    });
+
+    it('does not throw when the router mock omits getCurrentNavigation', () => {
+      // Defensive: the tracker should fall back to the legacy push path on
+      // routers that don't expose `getCurrentNavigation()`. This protects
+      // older Angular versions, edge-case mocks, and hardened proxy wrappers
+      // that strip non-public methods.
+      const router = createRouterMock('/');
+      // Force a router shape without the API; the tracker must treat it
+      // as "no clearHistory".
+      (router as { getCurrentNavigation?: unknown }).getCurrentNavigation = undefined;
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const tracker = new NativeScriptAngularHmrRouteTracker(router as never);
+
+      router.emitNavigationStart('/login', { clearHistory: true });
+      router.emitNavigationEnd('/login');
+
+      expect(readAngularHmrRouteHistory()).toEqual(['/login']);
     });
   });
 

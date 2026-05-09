@@ -223,6 +223,27 @@ export function clearAngularHmrRouteHistory(): void {
 }
 
 /**
+ * Replace the entire live back-stack mirror with a single URL. Mirrors
+ * NativeScript's `clearHistory: true` navigation option, which collapses
+ * the native page stack down to the destination — without this, the HMR
+ * snapshot would still carry every URL the user passed through before
+ * the reset (e.g. login screens that auth-gates now hide), and the next
+ * reboot would walk through every one of them as a forward navigation.
+ *
+ * An empty / unparseable `value` clears the mirror entirely.
+ */
+export function resetAngularHmrRouteHistoryToUrl(value: unknown): string | null {
+  const url = normalizeAngularHmrRouteUrl(value);
+  if (!url) {
+    writeHistoryArray(HISTORY_KEY, []);
+    return null;
+  }
+
+  writeHistoryArray(HISTORY_KEY, [url]);
+  return url;
+}
+
+/**
  * Snapshot the live back-stack mirror under the pending-history slot so the
  * next bootstrap can read it. Called from the HMR capture hook.
  *
