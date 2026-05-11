@@ -39,6 +39,17 @@ export * from './file-system';
 export * from './nativescript-common.module';
 export * from './loading.service';
 export * from './detached-loader-utils';
+export {
+  HmrCacheService,
+  configureHmrCache,
+  getHmrCacheStore,
+  // Re-exports of the framework-agnostic engine for advanced
+  // integrations (e.g. lifting into non-Angular framework bindings).
+  HmrCacheStore,
+  HmrCacheStoreOptions,
+  HmrCacheScope,
+  createDefaultHmrCacheStore,
+} from './hmr-cache.service';
 // export * from './router/router.module';
 export {
   AppLaunchView,

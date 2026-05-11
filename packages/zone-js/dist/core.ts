@@ -14,7 +14,11 @@ function isPropertyWritable(propertyDesc: any) {
 }
 
 Zone.__load_patch('nativescript_patchMethod', (global, Zone, api) => {
-  api.patchMethod = function patchMethod(target: any, name: string, patchFn: (delegate: Function, delegateName: string, name: string) => (self: any, args: any[]) => any): Function | null {
+  api.patchMethod = function patchMethod(
+    target: any,
+    name: string,
+    patchFn: (delegate: Function, delegateName: string, name: string) => (self: any, args: any[]) => any,
+  ): Function | null {
     let proto = target;
     while (proto && !proto.hasOwnProperty(name)) {
       proto = Object.getPrototypeOf(proto);
