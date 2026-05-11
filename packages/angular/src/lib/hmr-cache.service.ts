@@ -227,11 +227,12 @@ function getOrCreateSharedStore(): HmrCacheStore {
 
 function hasImportMetaHot(): boolean {
   try {
-    const meta =
-      typeof import.meta !== 'undefined'
-        ? (import.meta as unknown as { hot?: unknown })
-        : undefined;
-    return !!meta?.hot;
+    // Member-expression access only — webpack rewrites `import.meta['hot']`
+    // to `undefined` in CommonJS bundles (so `!!undefined` → `false`),
+    // while Vite leaves it as the per-module hot context. A bare
+    // `typeof import.meta` would survive into the bundle and crash V8
+    // with "Cannot use 'import.meta' outside a module" on `require()`.
+    return !!(import.meta as unknown as { hot?: unknown })['hot'];
   } catch {
     return false;
   }

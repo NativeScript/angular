@@ -83,14 +83,20 @@ interface NsHotContext {
  * type is the only one in play; `vite/client`-aware apps still get
  * their own typing on `import.meta.hot` at every call site outside
  * this module.
+ *
+ * Webpack-CommonJS compatibility: every `import.meta` reference here
+ * is a member expression (`import.meta['hot']`). Webpack statically
+ * rewrites both dot- and bracket-style member access to `undefined`
+ * in CommonJS output, so the emitted bundle never carries a literal
+ * bare `import.meta` token. A bare `import.meta` would survive into
+ * the bundle and crash V8 with "Cannot use 'import.meta' outside a
+ * module" the moment the chunk is `require()`d. Vite leaves
+ * `import.meta['hot']` intact and resolves it to the per-module hot
+ * context, so the same code works in both pipelines.
  */
 function readImportMetaHot(): NsHotContext | undefined {
   try {
-    const meta =
-      typeof import.meta !== 'undefined'
-        ? (import.meta as unknown as { hot?: NsHotContext })
-        : undefined;
-    return meta?.hot;
+    return (import.meta as unknown as { hot?: NsHotContext })['hot'];
   } catch {
     return undefined;
   }
