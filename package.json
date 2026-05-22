@@ -116,9 +116,12 @@
     "framework": "angular"
   },
   "lint-staged": {
-    "**/*.{js,ts,scss,json,html}": [
-      "prettier --write",
-      "eslint --fix"
+    "**/*.{scss,json}": [
+      "prettier --write"
+    ],
+    "**/*.{js,mjs,mts,html}": [
+      "eslint --fix",
+      "prettier --write"
     ]
   }
 }
