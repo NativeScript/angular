@@ -1,5 +1,5 @@
 /* eslint-disable */
-export default {
+module.exports = {
   displayName: 'zone-js',
   preset: '../../jest.preset.js',
   globals: {},

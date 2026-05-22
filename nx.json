@@ -36,7 +36,7 @@
       }
     },
     "@nx/eslint:lint": {
-      "inputs": ["default", "{workspaceRoot}/.eslintrc.json"],
+      "inputs": ["default", "^default", "{workspaceRoot}/.eslintrc.json", "{workspaceRoot}/tools/eslint-rules/**/*"],
       "cache": true
     }
   },
@@ -117,5 +117,6 @@
     "@schematics/angular:resolver": {
       "typeSeparator": "."
     }
-  }
+  },
+  "analytics": false
 }
