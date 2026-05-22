@@ -4,7 +4,7 @@ import {
   provideNativeScriptNgZone,
   provideNativeScriptRouter,
   runNativeScriptAngularApp,
-  withComponentInputBinding,
+  provideComponentInputBinding,
 } from '@nativescript/angular';
 import { Trace, Utils, SplitView } from '@nativescript/core';
 
@@ -39,7 +39,7 @@ runNativeScriptAngularApp({
       providers: [
         provideNativeScriptHttpClient(withInterceptorsFromDi()),
         provideNativeScriptRouter(routes),
-        withComponentInputBinding(),
+        provideComponentInputBinding(),
         // provideNativeScriptRouter(SPLIT_VIEW_ROUTES),
         ZONELESS ? provideZonelessChangeDetection() : provideNativeScriptNgZone(),
       ],

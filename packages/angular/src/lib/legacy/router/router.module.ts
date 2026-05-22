@@ -17,6 +17,7 @@ import {
   Router,
   ROUTES,
   provideRouter,
+  withComponentInputBinding as angularWithComponentInputBinding,
 } from '@angular/router';
 import { LocationStrategy, PlatformLocation } from '@angular/common';
 import { NSRouterLink } from './ns-router-link';
@@ -42,11 +43,13 @@ export { NSLocationStrategy } from './ns-location-strategy';
 export { NSEmptyOutletComponent } from './ns-empty-outlet.component';
 export type { ComponentInputBindingOptions } from './router-component-input-binder';
 
+const COMPONENT_INPUT_BINDING_FEATURE_KIND = (angularWithComponentInputBinding() as any).ɵkind;
+
 function inputBinderProviders(options: ComponentInputBindingOptions = {}): Provider[] {
   return [{ provide: INPUT_BINDER, useFactory: () => new RoutedComponentInputBinder(options) }];
 }
 
-export function withComponentInputBinding(options: ComponentInputBindingOptions = {}): Provider[] {
+export function provideComponentInputBinding(options: ComponentInputBindingOptions = {}): Provider[] {
   return inputBinderProviders(options);
 }
 
@@ -98,7 +101,7 @@ export function rootRoute(router: Router): ActivatedRoute {
 }
 
 export function provideNativeScriptRouter(routes: Routes, ...features: RouterFeatures[]) {
-  const hasInputBinding = features.some((f: any) => f.ɵkind === 8 /* RouterFeatureKind.ComponentInputBindingFeature */);
+  const hasInputBinding = features.some((f: any) => f.ɵkind === COMPONENT_INPUT_BINDING_FEATURE_KIND);
   return makeEnvironmentProviders([
     provideRouter(routes, ...features),
     {
