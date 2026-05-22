@@ -327,16 +327,24 @@ export class NSRouterLink implements OnChanges, OnDestroy {
     }
 
     const extras = this.getExtras();
-    this.navigator.navigate(this.routerLinkInput() as any[], {
-      ...extras,
-      // If the `relativeTo` input is not defined, we want to use `this.route`
-      // by default.
-      relativeTo: this._relativeTo() !== undefined ? this._relativeTo() : this.route,
-      queryParams: this._queryParams(),
-      fragment: this._fragment(),
-      queryParamsHandling: this._queryParamsHandling(),
-      preserveFragment: this._preserveFragment(),
-    });
+    const routerLinkInput = this.routerLinkInput();
+
+    // When the input is a UrlTree, use navigateByUrl directly.
+    // Otherwise, use navigate with commands array.
+    if (isUrlTree(routerLinkInput)) {
+      this.navigator.navigateByUrl(urlTree, extras);
+    } else {
+      this.navigator.navigate(routerLinkInput as any[], {
+        ...extras,
+        // If the `relativeTo` input is not defined, we want to use `this.route`
+        // by default.
+        relativeTo: this._relativeTo() !== undefined ? this._relativeTo() : this.route,
+        queryParams: this._queryParams(),
+        fragment: this._fragment(),
+        queryParamsHandling: this._queryParamsHandling(),
+        preserveFragment: this._preserveFragment(),
+      });
+    }
   }
 
   private getExtras(): NavigationExtras & NavigationOptions {
