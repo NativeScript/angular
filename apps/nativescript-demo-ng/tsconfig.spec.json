@@ -13,8 +13,7 @@
       "@nativescript/angular/polyfills": ["../../packages/angular/polyfills/src/index.ts"],
       "@nativescript/zone-js": ["../../packages/zone-js/dist/index.ts"],
       "@nativescript/zone-js/*": ["../../packages/zone-js/*"]
-    },
-    "isolatedModules": true
+    }
   },
   "files": ["src/test.ts", "./references.d.ts", "../../packages/angular/references.d.ts"],
   "exclude": ["node_modules", "platforms"],
