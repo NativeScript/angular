@@ -3,6 +3,7 @@ import {
   ModuleWithProviders,
   NO_ERRORS_SCHEMA,
   Optional,
+  Provider,
   SkipSelf,
   makeEnvironmentProviders,
 } from '@angular/core';
@@ -29,6 +30,7 @@ import { FrameService } from '../frame.service';
 import { NSEmptyOutletComponent } from './ns-empty-outlet.component';
 import { NativeScriptCommonModule } from '../../nativescript-common.module';
 import { START_PATH } from '../../tokens';
+import { ComponentInputBindingOptions, INPUT_BINDER, RoutedComponentInputBinder } from './router-component-input-binder';
 
 export { PageRoute } from './page-router-outlet';
 export { RouterExtensions } from './router-extensions';
@@ -38,6 +40,15 @@ export { NSRouterLinkActive } from './ns-router-link-active';
 export { PageRouterOutlet } from './page-router-outlet';
 export { NSLocationStrategy } from './ns-location-strategy';
 export { NSEmptyOutletComponent } from './ns-empty-outlet.component';
+export type { ComponentInputBindingOptions } from './router-component-input-binder';
+
+function inputBinderProviders(options: ComponentInputBindingOptions = {}): Provider[] {
+  return [{ provide: INPUT_BINDER, useFactory: () => new RoutedComponentInputBinder(options) }];
+}
+
+export function withComponentInputBinding(options: ComponentInputBindingOptions = {}): Provider[] {
+  return inputBinderProviders(options);
+}
 
 export function provideLocationStrategy(
   locationStrategy: NSLocationStrategy,
@@ -71,6 +82,9 @@ export class NativeScriptRouterModule {
         RouterExtensions,
         NSRouteReuseStrategy,
         { provide: RouteReuseStrategy, useExisting: NSRouteReuseStrategy },
+        config?.bindToComponentInputs
+          ? inputBinderProviders(typeof config.bindToComponentInputs === 'object' ? config.bindToComponentInputs : {})
+          : [],
       ],
     };
   }
@@ -84,6 +98,7 @@ export function rootRoute(router: Router): ActivatedRoute {
 }
 
 export function provideNativeScriptRouter(routes: Routes, ...features: RouterFeatures[]) {
+  const hasInputBinding = features.some((f: any) => f.ɵkind === 8 /* RouterFeatureKind.ComponentInputBindingFeature */);
   return makeEnvironmentProviders([
     provideRouter(routes, ...features),
     {
@@ -97,6 +112,6 @@ export function provideNativeScriptRouter(routes: Routes, ...features: RouterFea
     RouterExtensions,
     NSRouteReuseStrategy,
     { provide: RouteReuseStrategy, useExisting: NSRouteReuseStrategy },
-    // {provide: APP_BOOTSTRAP_LISTENER, multi: true, useFactory: getBootstrapListener},
+    hasInputBinding ? inputBinderProviders() : [],
   ]);
 }
