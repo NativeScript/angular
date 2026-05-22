@@ -6,9 +6,9 @@ env:
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
@@ -17,14 +17,15 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
           node-version: lts/*
-      - uses: nrwl/nx-set-shas@v3
+          cache: npm
+      - uses: nrwl/nx-set-shas@v5
       - name: npm install
         run: npm install --force
       - name: Build.all affected
-        run: npx nx affected --target=build --exclude nativescript-demo-ng
+        run: npx nx affected --target=build,test --exclude nativescript-demo-ng
