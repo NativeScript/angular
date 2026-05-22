@@ -1,21 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, NO_ERRORS_SCHEMA, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Item } from './item';
 import { ItemService } from './item.service';
+import { NativeScriptCommonModule } from '@nativescript/angular';
 
 @Component({
   selector: 'ns-details',
-  moduleId: module.id,
-  templateUrl: './item-detail.component.html'
+  templateUrl: './item-detail.component.html',
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class ItemDetailComponent implements OnInit {
-  item: Item;
-
-  constructor(
-    private itemService: ItemService,
-    private route: ActivatedRoute
-  ) {}
+  item: Item | null = null;
+  private itemService = inject(ItemService);
+  private route = inject(ActivatedRoute);
 
   ngOnInit(): void {
     const id = +this.route.snapshot.params.id;

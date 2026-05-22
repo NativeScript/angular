@@ -1,27 +1,27 @@
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, inject, NgZone, NO_ERRORS_SCHEMA, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RouterExtensions } from '@nativescript/angular';
-import { Page, TabView } from '@nativescript/core';
+import { RouterExtensions, NativeScriptCommonModule } from '@nativescript/angular';
+import { EventData, Page, TabView } from '@nativescript/core';
 
 @Component({
-  moduleId: module.id,
   selector: 'demo-home',
   templateUrl: './home.component.html',
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class HomeComponent implements OnInit {
+  private _ngZone = inject(NgZone);
+  // vcRef: ViewContainerRef,
+  private _activeRoute = inject(ActivatedRoute);
+  private _page = inject(Page);
+  private _ngRouter = inject(Router);
+  private _router = inject(RouterExtensions);
   tabItems: { [key: string]: { index: number; title?: string; iconSource?: string; textTransform?: string } } = {};
   private _tabs = ['start'];
   private _hasInitTab: { start?: boolean } = {};
   private _tabView: TabView;
 
-  constructor(
-    private _ngZone: NgZone,
-    // vcRef: ViewContainerRef,
-    private _activeRoute: ActivatedRoute,
-    private _page: Page,
-    private _ngRouter: Router,
-    private _router: RouterExtensions,
-  ) {
+  constructor() {
     this._initMenu();
   }
 
@@ -33,10 +33,6 @@ export class HomeComponent implements OnInit {
     if (e && e.object) {
       this._tabView = <TabView>e.object;
     }
-  }
-
-  loadedTabView(args) {
-    //
   }
 
   private _viewTab(index: number) {
@@ -61,7 +57,7 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  private _initMenu(profilePic?: string) {
+  private _initMenu() {
     for (let i = 0; i < this._tabs.length; i++) {
       const tab = this._tabs[i];
       // console.log('================')

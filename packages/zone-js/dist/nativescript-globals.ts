@@ -7,6 +7,7 @@
 //   api.patchClass('IntersectionObserver');
 // });
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 Zone.__load_patch('nativescript_FileReader', (global: any, Zone: ZoneType, api: _ZonePrivate) => {
   const reader = global['FileReader'];
   if (reader) {

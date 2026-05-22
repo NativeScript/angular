@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { AnimationPlayer } from '@angular/animations';
 import { View, EventData, KeyframeAnimation } from '@nativescript/core';
 
@@ -16,7 +16,13 @@ export class NativeScriptAnimationPlayer implements AnimationPlayer {
   private _started = false;
   private animation: KeyframeAnimation;
 
-  constructor(private target: NgView, keyframes: Keyframe[], private duration: number, private delay: number, easing: string) {
+  constructor(
+    private target: NgView,
+    keyframes: Keyframe[],
+    private duration: number,
+    private delay: number,
+    easing: string,
+  ) {
     this.initKeyframeAnimation(keyframes, duration, delay, easing);
   }
 

@@ -1,26 +1,24 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, NO_ERRORS_SCHEMA, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { Item } from './item';
 import { ItemService } from './item.service';
 import { ModalComponent } from '../modal/modal.component';
-import { ModalDialogService, NativeDialogService } from '@nativescript/angular';
+import { ModalDialogService, NativeDialogService, NativeScriptCommonModule } from '@nativescript/angular';
 
 @Component({
   selector: 'ns-items',
-  moduleId: module.id,
   templateUrl: './items.component.html',
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class ItemsComponent implements OnInit, OnDestroy {
-  message = 'Hello Angular 18!';
-  items: Array<Item>;
-
-  constructor(
-    private itemService: ItemService,
-    private nativeDialog: NativeDialogService,
-    private modalDialog: ModalDialogService,
-    private http: HttpClient,
-  ) {}
+  message = 'Hello Angular 21.0.0!';
+  items: Array<Item> = [];
+  private itemService = inject(ItemService);
+  private nativeDialog = inject(NativeDialogService);
+  private modalDialog = inject(ModalDialogService);
+  private http = inject(HttpClient);
 
   ngOnInit(): void {
     console.log('ItemsComponent ngOnInit');

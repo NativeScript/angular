@@ -1,3 +1,63 @@
+# [21.0.0](https://github.com/NativeScript/angular/compare/20.1.1...21.0.0) (2026-01-04)
+
+
+### Features
+
+* Angular 21 ([#157](https://github.com/NativeScript/angular/issues/157)) ([1cc0a89](https://github.com/NativeScript/angular/commit/1cc0a89dcf5f3239fac566a20ee865baf38129bf))
+
+
+
+## [20.1.1](https://github.com/NativeScript/angular/compare/20.1.0...20.1.1) (2026-01-04)
+
+
+### Features
+
+* SplitView support ([#160](https://github.com/NativeScript/angular/issues/160)) ([280b388](https://github.com/NativeScript/angular/commit/280b388feb30c80411afcc03684bb0f567b5d8af))
+
+
+
+# [20.1.0](https://github.com/NativeScript/angular/compare/20.0.0...20.1.0) (2025-12-02)
+
+
+### Features
+
+* **ListView:** sticky headers, search bar and sectioned data support with v9 ([5ad8a89](https://github.com/NativeScript/angular/commit/5ad8a897a05014d0c737f7f8580f156574938df0))
+  * **Note**: Requires NativeScript Core v9+
+
+
+
+# [20.0.0](https://github.com/NativeScript/angular/compare/19.0.1...20.0.0) (2025-06-01)
+
+
+### Features
+
+* Angular 20  ([#151](https://github.com/NativeScript/angular/issues/151)) ([62d9fb5](https://github.com/NativeScript/angular/commit/62d9fb5329efb28b5d595f11bf8732ae56a878f7))
+
+
+
+## [19.0.1](https://github.com/NativeScript/angular/compare/19.0.0...19.0.1) (2025-01-29)
+
+
+### Features
+
+* apple view filter to cover ios and visionos together ([#148](https://github.com/NativeScript/angular/issues/148)) ([f5431bd](https://github.com/NativeScript/angular/commit/f5431bd2564f389480a14cb7862dd772c3b6af57))
+
+
+
+# [19.0.0](https://github.com/NativeScript/angular/compare/18.1.3...19.0.0) (2025-01-02)
+
+
+### Features
+
+* Angular 19 support ([#143](https://github.com/NativeScript/angular/issues/143)) ([00802d2](https://github.com/NativeScript/angular/commit/00802d219fe9839b30c4e1c66daeafce96b990a4))
+  
+### Bug Fixes
+
+* only polyfill queueMicrotask if needed ([b9cd642](https://github.com/NativeScript/angular/commit/b9cd642c44d33756a675dd4864161fe8c8e620e6))
+* re-enable ngDevMode tree shaking ([6244afb](https://github.com/NativeScript/angular/commit/6244afbd76faaa5ec06494fcff014d8061ffa3d1))
+
+
+
 ## [18.1.3](https://github.com/NativeScript/angular/compare/18.1.1...18.1.3) (2024-09-18)
 
 

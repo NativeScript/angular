@@ -1,4 +1,4 @@
-import { Directive, Component, ElementRef, Optional, OnDestroy } from '@angular/core';
+import { Directive, Component, ElementRef, OnDestroy, inject } from '@angular/core';
 import { ActionBar, ActionItem, ActionItems, NavigationButton, Page } from '@nativescript/core';
 
 import { isBlank } from '../../utils/lang-facade';
@@ -81,7 +81,9 @@ const appendActionItem = (bar: NgActionBar, item: ActionItem) => {
   standalone: true,
 })
 export class ActionBarComponent {
-  constructor(public element: ElementRef, @Optional() private page: Page) {
+  element = inject(ElementRef);
+  page = inject(Page, { optional: true });
+  constructor() {
     if (!this.page) {
       throw new Error('No Page found in ActionBarComponent.\n' + 'Only a Page can contain an ActionBar, so please ensure ActionBar is only used inside a Component that is routed via page-router-outlet or is contained in a Page.\n' + 'Example for root action bars in AppComponent: <Frame><Page><ActionBar>....</ActionBar></Page></Frame>');
     }
@@ -99,10 +101,9 @@ export class ActionBarComponent {
   template: '',
   standalone: true,
 })
-// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class ActionBarScope {
-  // tslint:disable-line:component-class-suffix
-  constructor(@Optional() private page: Page) {
+  page = inject(Page, { optional: true });
+  constructor() {
     if (!this.page) {
       throw new Error('Inside ActionBarExtension but no ActionBar found to extend.');
     }
@@ -131,11 +132,13 @@ export class ActionBarScope {
 }
 
 @Directive({
-  selector: 'ActionItem', // tslint:disable-line:directive-selector
+  selector: 'ActionItem',
   standalone: true,
 })
 export class ActionItemDirective implements OnDestroy {
-  constructor(public element: ElementRef, @Optional() private ownerScope: ActionBarScope) {
+  element = inject(ElementRef);
+  ownerScope = inject(ActionBarScope, { optional: true });
+  constructor() {
     if (this.ownerScope) {
       this.ownerScope.onActionInit(this);
     }
@@ -149,11 +152,13 @@ export class ActionItemDirective implements OnDestroy {
 }
 
 @Directive({
-  selector: 'NavigationButton', // tslint:disable-line:directive-selector
+  selector: 'NavigationButton',
   standalone: true,
 })
 export class NavigationButtonDirective implements OnDestroy {
-  constructor(public element: ElementRef, @Optional() private ownerScope: ActionBarScope) {
+  element = inject(ElementRef);
+  ownerScope = inject(ActionBarScope, { optional: true });
+  constructor() {
     if (this.ownerScope) {
       this.ownerScope.onNavButtonInit(this);
     }

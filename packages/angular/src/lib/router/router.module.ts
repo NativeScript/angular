@@ -1,6 +1,32 @@
-import { APP_BASE_HREF, CommonModule, HashLocationStrategy, Location, LocationStrategy, LOCATION_INITIALIZED, PathLocationStrategy, PlatformLocation } from '@angular/common';
-import { ApplicationRef, APP_BOOTSTRAP_LISTENER, APP_INITIALIZER, ComponentRef, Inject, Injectable, Injector, ModuleWithProviders, NgModule, NgProbeToken, NO_ERRORS_SCHEMA, Optional } from '@angular/core';
-import { ExtraOptions, NoPreloading, PreloadingStrategy, provideRoutes, Router, RouterModule, RouterPreloader, ROUTER_CONFIGURATION, ROUTER_INITIALIZER, Routes, ɵROUTER_PROVIDERS } from '@angular/router';
+import {
+  APP_BASE_HREF,
+  HashLocationStrategy,
+  LOCATION_INITIALIZED,
+  LocationStrategy,
+  PathLocationStrategy,
+  PlatformLocation,
+} from '@angular/common';
+import {
+  ApplicationRef,
+  ComponentRef,
+  Inject,
+  Injectable,
+  Injector,
+  ModuleWithProviders,
+  NgModule,
+  NO_ERRORS_SCHEMA,
+  Optional,
+} from '@angular/core';
+import {
+  ExtraOptions,
+  provideRoutes,
+  Router,
+  ROUTER_CONFIGURATION,
+  RouterModule,
+  RouterPreloader,
+  Routes,
+  ɵROUTER_PROVIDERS,
+} from '@angular/router';
 import { of, Subject } from 'rxjs';
 import { NativeScriptCommonModule } from '../nativescript-common.module';
 import { START_PATH } from '../tokens';
@@ -55,7 +81,7 @@ export class RouterInitializer {
   appInitializer(): Promise<any> {
     const p: Promise<any> = this.injector.get(LOCATION_INITIALIZED, Promise.resolve(null));
     return p.then(() => {
-      // eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-non-null-assertion
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type, @typescript-eslint/no-non-null-assertion
       let resolve: Function = null!;
       const res = new Promise((r) => (resolve = r));
       const router: any = this.injector.get(Router);
@@ -110,12 +136,14 @@ export class RouterInitializer {
   }
 }
 
-export function routerNgProbeToken() {
-  return new NgProbeToken('Router', Router);
-}
-
-export function provideLocationStrategy(platformLocationStrategy: PlatformLocation, baseHref: string, options: ExtraOptions = {}) {
-  return options.useHash ? new HashLocationStrategy(platformLocationStrategy, baseHref) : new PathLocationStrategy(platformLocationStrategy, baseHref);
+export function provideLocationStrategy(
+  platformLocationStrategy: PlatformLocation,
+  baseHref: string,
+  options: ExtraOptions = {},
+) {
+  return options.useHash
+    ? new HashLocationStrategy(platformLocationStrategy, baseHref)
+    : new PathLocationStrategy(platformLocationStrategy, baseHref);
 }
 
 export function provideLocationInitialized(startpath: string | Promise<string>) {
@@ -154,67 +182,6 @@ export class NativeScriptRouterModule {
         { provide: START_PATH, useValue: '' },
       ],
     };
-    return {
-      ngModule: NativeScriptRouterModule,
-      providers: [
-        ...ɵROUTER_PROVIDERS,
-        provideRoutes(routes),
-        { provide: ROUTER_CONFIGURATION, useValue: config ? config : {} },
-        {
-          provide: LocationStrategy,
-          useFactory: provideLocationStrategy,
-          deps: [PlatformLocation, [new Inject(APP_BASE_HREF), new Optional()], ROUTER_CONFIGURATION],
-        },
-        // {
-        // 	provide: RouterScroller,
-        // 	useFactory: createRouterScroller,
-        // 	deps: [Router, ViewportScroller, ROUTER_CONFIGURATION]
-        // },
-        {
-          provide: PreloadingStrategy,
-          useExisting: config && config.preloadingStrategy ? config.preloadingStrategy : NoPreloading,
-        },
-        { provide: NgProbeToken, multi: true, useFactory: routerNgProbeToken },
-        // {
-        // 	provide: NSLocationStrategy,
-        // 	useFactory: provideLocationStrategy,
-        // 	deps: [[NSLocationStrategy, new Optional(), new SkipSelf()], FrameService],
-        // },
-        // { provide: LocationStrategy, useExisting: NSLocationStrategy },
-        NativescriptPlatformLocation,
-        // { provide: NativescriptPlatformLocation, useClass: NativescriptPlatformLocation, deps: [[START_PATH, new Optional()]]},
-        {
-          provide: PlatformLocation,
-          useExisting: NativescriptPlatformLocation,
-        },
-        {
-          provide: LOCATION_INITIALIZED,
-          useFactory: provideLocationInitialized,
-          deps: [[START_PATH, new Optional()]],
-        },
-        { provide: START_PATH, useValue: 'home2' },
-        RouterInitializer,
-        {
-          provide: APP_INITIALIZER,
-          multi: true,
-          useFactory: getAppInitializer,
-          deps: [RouterInitializer],
-        },
-        {
-          provide: ROUTER_INITIALIZER,
-          useFactory: getBootstrapListener,
-          deps: [RouterInitializer],
-        },
-        {
-          provide: APP_BOOTSTRAP_LISTENER,
-          multi: true,
-          useExisting: ROUTER_INITIALIZER,
-        },
-        // RouterExtensions,
-        // NSRouteReuseStrategy,
-        // { provide: RouteReuseStrategy, useExisting: NSRouteReuseStrategy },
-      ],
-    };
   }
 
   static forModal(routes: Routes, config?: ExtraOptions): ModuleWithProviders<NativeScriptRouterModule> {
@@ -243,40 +210,6 @@ export class NativeScriptRouterModule {
         { provide: ROUTER_CONFIGURATION, useValue: config ? config : {} },
         { provide: START_PATH, useValue: 'home' },
         ModalRouterInitializer,
-      ],
-    };
-    return {
-      ngModule: NativeScriptRouterModule,
-      providers: [
-        ...ɵROUTER_PROVIDERS,
-        provideRoutes(routes),
-        { provide: ROUTER_CONFIGURATION, useValue: config ? config : {} },
-        {
-          provide: LocationStrategy,
-          useFactory: provideLocationStrategy,
-          deps: [PlatformLocation, [new Inject(APP_BASE_HREF), new Optional()], ROUTER_CONFIGURATION],
-        },
-        {
-          provide: PreloadingStrategy,
-          useExisting: config && config.preloadingStrategy ? config.preloadingStrategy : NoPreloading,
-        },
-        { provide: NgProbeToken, multi: true, useFactory: routerNgProbeToken },
-        // {
-        // 	provide: NSLocationStrategy,
-        // 	useFactory: provideLocationStrategy,
-        // 	deps: [[NSLocationStrategy, new Optional(), new SkipSelf()], FrameService],
-        // },
-        // { provide: LocationStrategy, useExisting: NSLocationStrategy },
-        NativescriptPlatformLocation,
-        {
-          provide: PlatformLocation,
-          useExisting: NativescriptPlatformLocation,
-        },
-        { provide: START_PATH, useValue: 'home3' },
-        // { provide: Location, useClass: Location},
-        // RouterExtensions,
-        // NSRouteReuseStrategy,
-        // { provide: RouteReuseStrategy, useExisting: NSRouteReuseStrategy },
       ],
     };
   }

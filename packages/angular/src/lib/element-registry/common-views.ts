@@ -1,4 +1,4 @@
-import { AbsoluteLayout, ActivityIndicator, Button, ContentView, DatePicker, DockLayout, FlexboxLayout, FormattedString, Frame, GridLayout, HtmlView, Image, Label, ListPicker, ListView, Page, Placeholder, Progress, ProxyViewContainer, Repeater, RootLayout, ScrollView, SearchBar, SegmentedBar, SegmentedBarItem, Slider, Span, StackLayout, Switch, TabView, TextField, TextView, TimePicker, WebView, WrapLayout } from '@nativescript/core';
+import { AbsoluteLayout, ActivityIndicator, Button, ContentView, DatePicker, DockLayout, FlexboxLayout, FormattedString, Frame, GridLayout, HtmlView, Image, Label, ListPicker, ListView, Page, Placeholder, Progress, ProxyViewContainer, Repeater, RootLayout, ScrollView, SearchBar, SegmentedBar, SegmentedBarItem, Slider, Span, SplitView, StackLayout, Switch, TabView, TextField, TextView, TimePicker, WebView, WrapLayout } from '@nativescript/core';
 import { formattedStringMeta, frameMeta, textBaseMeta } from './metas';
 import { registerElement } from './registry';
 
@@ -33,6 +33,7 @@ export function registerNativeScriptViewComponents() {
     registerElement('SegmentedBar', () => SegmentedBar);
     registerElement('SegmentedBarItem', () => SegmentedBarItem);
     registerElement('Slider', () => Slider);
+    registerElement('SplitView', () => SplitView);
     registerElement('StackLayout', () => StackLayout);
     registerElement('FlexboxLayout', () => FlexboxLayout);
     registerElement('Switch', () => Switch);

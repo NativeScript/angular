@@ -2,6 +2,7 @@
 
 /dist
 /coverage
+packages/angular/dist
 
 **/xplat/*/.xplatframework
 
@@ -20,3 +21,4 @@
 **/xplat/nativescript*/plugins/**/*
 /.nx/cache
 /.nx/workspace-data
+.nx/self-healing

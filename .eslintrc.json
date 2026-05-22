@@ -12,18 +12,13 @@
       "files": ["*.ts", "*.tsx"],
       "extends": ["plugin:@nx/typescript"],
       "rules": {
-        "@typescript-eslint/no-inferrable-types": "off",
-        "@typescript-eslint/no-extra-semi": "error",
-        "no-extra-semi": "off"
+        "@typescript-eslint/no-inferrable-types": "off"
       }
     },
     {
       "files": ["*.js", "*.jsx"],
       "extends": ["plugin:@nx/javascript"],
-      "rules": {
-        "@typescript-eslint/no-extra-semi": "error",
-        "no-extra-semi": "off"
-      }
+      "rules": {}
     }
   ]
 }

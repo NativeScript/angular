@@ -1,4 +1,13 @@
-import { ApplicationRef, ComponentFactoryResolver, ComponentRef, EmbeddedViewRef, Injector, TemplateRef, Type, ViewContainerRef } from '@angular/core';
+import {
+  ApplicationRef,
+  ComponentFactoryResolver,
+  ComponentRef,
+  EmbeddedViewRef,
+  Injector,
+  TemplateRef,
+  Type,
+  ViewContainerRef,
+} from '@angular/core';
 import { ContentView } from '@nativescript/core';
 import { DetachedLoader } from './cdk/detached-loader';
 import { ComponentPortal, NativeScriptDomPortalOutlet, TemplatePortal } from './cdk/portal';
@@ -11,7 +20,11 @@ import { NgViewRef } from './view-refs';
  * @param viewContainerRef where the view should live in the angular tree
  * @returns reference to the DetachedLoader
  */
-export function generateDetachedLoader(resolver: ComponentFactoryResolver, injector: Injector, viewContainerRef?: ViewContainerRef) {
+export function generateDetachedLoader(
+  resolver: ComponentFactoryResolver,
+  injector: Injector,
+  viewContainerRef?: ViewContainerRef,
+) {
   injector = viewContainerRef?.injector || injector;
   const detachedFactory = resolver.resolveComponentFactory(DetachedLoader);
   const detachedLoaderRef = viewContainerRef?.createComponent(detachedFactory) || detachedFactory.create(injector);
@@ -41,7 +54,7 @@ export function generateNativeScriptView<T>(
      * reuse a detachedLoaderRef. This will override viewContainerRef
      */
     detachedLoaderRef?: ComponentRef<DetachedLoader>;
-  }
+  },
 ) {
   let detachedLoaderRef: ComponentRef<DetachedLoader> = options.detachedLoaderRef;
   const reusingDetachedLoader = !!detachedLoaderRef;
@@ -62,9 +75,6 @@ export function generateNativeScriptView<T>(
   const parentView = new ContentView();
   const portalOutlet = new NativeScriptDomPortalOutlet(parentView, resolver, injector.get(ApplicationRef), injector);
   const componentOrTemplateRef: ComponentRef<T> | EmbeddedViewRef<T> = portalOutlet.attach(portal);
-  componentOrTemplateRef.onDestroy(() => {
-    portalOutlet.dispose();
-  });
   if (detachedLoaderRef && !reusingDetachedLoader) {
     componentOrTemplateRef.onDestroy(() => {
       detachedLoaderRef.destroy();

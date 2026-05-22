@@ -1,28 +1,33 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, NO_ERRORS_SCHEMA, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { Item } from '../item/item';
 import { ItemService } from '../item/item.service';
 import { ModalComponent } from '../modal/modal.component';
-import { ModalDialogService, NativeDialogService } from '@nativescript/angular';
+import {
+  ModalDialogService,
+  NativeDialogService,
+  NativeScriptCommonModule,
+  NativeScriptRouterModule,
+} from '@nativescript/angular';
 
 @Component({
   selector: 'ns-items',
-  moduleId: module.id,
   templateUrl: './items.component.html',
+  imports: [NativeScriptCommonModule, NativeScriptRouterModule],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class ItemsComponent implements OnInit, OnDestroy {
-  message = 'Hello Angular 18';
-  items: Array<Item>;
+  private itemService = inject(ItemService);
+  private nativeDialog = inject(NativeDialogService);
+  private modalDialog = inject(ModalDialogService);
+  private http = inject(HttpClient);
+  message = 'Hello Angular 21.0.0';
+  items: Array<Item> = [];
   borderRadius: number;
   fontSize: number;
 
-  constructor(
-    private itemService: ItemService,
-    private nativeDialog: NativeDialogService,
-    private modalDialog: ModalDialogService,
-    private http: HttpClient,
-  ) {
+  constructor() {
     if (global.isAndroid) {
       this.borderRadius = 25;
       this.fontSize = 15;

@@ -35,7 +35,6 @@ export type SelectableView = { selectedIndex: number } & View;
     'tabview[ngModel],tabview[formControlName],tabview[formControl],' +
     'tab-view[ngModel],tab-view[formControlName],tab-view[formControl]',
   providers: [SELECTED_INDEX_VALUE_ACCESSOR],
-  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
   host: {
     '(selectedIndexChange)': 'onChange($event.value)',
   },

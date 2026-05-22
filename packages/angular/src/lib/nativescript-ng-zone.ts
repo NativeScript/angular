@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/triple-slash-reference */
@@ -12,7 +12,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import { EventEmitter, isDevMode, NgZone } from '@angular/core';
+import { EventEmitter, isDevMode, NgZone, NgZoneOptions, ɵinternalProvideZoneChangeDetection } from '@angular/core';
 import { Utils } from '@nativescript/core';
 
 let currentRafId = 1;
@@ -125,7 +125,11 @@ export class NativeScriptNgZone implements NgZone {
    */
   readonly onError: EventEmitter<any> = new EventEmitter(false);
 
-  constructor({ enableLongStackTrace = isDevMode(), shouldCoalesceEventChangeDetection = true, shouldCoalesceRunChangeDetection = true } = {}) {
+  constructor({
+    enableLongStackTrace = isDevMode(),
+    shouldCoalesceEventChangeDetection = true,
+    shouldCoalesceRunChangeDetection = true,
+  } = {}) {
     if (typeof Zone == 'undefined') {
       throw new Error(`In this configuration Angular requires Zone.js`);
     }
@@ -149,10 +153,8 @@ export class NativeScriptNgZone implements NgZone {
     self.shouldCoalesceRunChangeDetection = shouldCoalesceRunChangeDetection;
     self.lastRequestAnimationFrameId = -1;
     self.nativeRequestAnimationFrame = function (cb) {
-      // const nativeDispatchToMainThread = Utils[Zone.__symbol__('dispatchToMainThread')] || Utils.dispatchToMainThread;
-      // nativeDispatchToMainThread(cb);
-      const nativeDispatchToMainThread = global[Zone.__symbol__('setTimeout')] || global.setTimeout;
-      nativeDispatchToMainThread(cb, 1000);
+      const nativeDispatchToMainThread = Utils[Zone.__symbol__('dispatchToMainThread')] || Utils.dispatchToMainThread;
+      nativeDispatchToMainThread(cb);
       return currentRafId++;
     };
     forkInnerZoneWithAngularBehavior(self);
@@ -394,19 +396,38 @@ function forkInnerZoneWithAngularBehavior(zone: NgZonePrivate) {
   zone._inner = zone._inner.fork({
     name: 'angular',
     properties: <any>{ isAngularZone: true },
-    onInvokeTask: (delegate: ZoneDelegate, current: Zone, target: Zone, task: Task, applyThis: any, applyArgs: any): any => {
+    onInvokeTask: (
+      delegate: ZoneDelegate,
+      current: Zone,
+      target: Zone,
+      task: Task,
+      applyThis: any,
+      applyArgs: any,
+    ): any => {
       try {
         onEnter(zone);
         return delegate.invokeTask(target, task, applyThis, applyArgs);
       } finally {
-        if ((zone.shouldCoalesceEventChangeDetection && task.type === 'eventTask') || zone.shouldCoalesceRunChangeDetection || !Utils.isMainThread()) {
+        if (
+          (zone.shouldCoalesceEventChangeDetection && task.type === 'eventTask') ||
+          zone.shouldCoalesceRunChangeDetection ||
+          !Utils.isMainThread()
+        ) {
           delayChangeDetectionForEventsDelegate();
         }
         onLeave(zone);
       }
     },
 
-    onInvoke: (delegate: ZoneDelegate, current: Zone, target: Zone, callback: Function, applyThis: any, applyArgs?: any[], source?: string): any => {
+    onInvoke: (
+      delegate: ZoneDelegate,
+      current: Zone,
+      target: Zone,
+      callback: Function,
+      applyThis: any,
+      applyArgs?: any[],
+      source?: string,
+    ): any => {
       try {
         onEnter(zone);
         return delegate.invoke(target, callback, applyThis, applyArgs, source);
@@ -460,4 +481,20 @@ function onEnter(zone: NgZonePrivate) {
 function onLeave(zone: NgZonePrivate) {
   zone._nesting--;
   checkStable(zone);
+}
+
+function getNgZoneOptions(options?: NgZoneOptions) {
+  return {
+    enableLongStackTrace: typeof ngDevMode === 'undefined' ? false : !!ngDevMode,
+    shouldCoalesceEventChangeDetection: options?.eventCoalescing ?? true,
+    shouldCoalesceRunChangeDetection: options?.runCoalescing ?? true,
+  };
+}
+
+export function provideNativeScriptNgZone(options?: NgZoneOptions) {
+  const scheduleInRootZone = (options as any)?.scheduleInRootZone;
+  return ɵinternalProvideZoneChangeDetection({
+    ngZoneFactory: () => new NativeScriptNgZone(getNgZoneOptions(options)),
+    scheduleInRootZone,
+  });
 }

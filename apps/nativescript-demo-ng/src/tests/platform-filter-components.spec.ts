@@ -1,51 +1,60 @@
 // make sure you import mocha-config before @angular/core
-import { Component, ElementRef, NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
-import { dumpView, createDevice } from './test-utils.spec';
-import { DEVICE, NativeScriptCommonModule, NativeScriptModule, registerElement } from '@nativescript/angular';
-import { platformNames } from '@nativescript/core/platform';
+import { Component, ElementRef, inject, NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { StackLayout } from '@nativescript/core';
+import { AndroidFilterComponent, DEVICE, IOSFilterComponent, AppleFilterComponent, NativeScriptCommonModule } from '@nativescript/angular';
+import { platformNames } from '@nativescript/core/platform';
+import { createDevice, dumpView } from './test-utils.spec';
 @Component({
   template: ` <StackLayout>
     <ios><Label text="IOS"></Label></ios>
   </StackLayout>`,
+  imports: [IOSFilterComponent, NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class IosSpecificComponent {
-  constructor(public elementRef: ElementRef) {}
+  elementRef = inject(ElementRef);
+}
+
+@Component({
+  template: ` <StackLayout>
+    <apple><Label text="Apple"></Label></apple>
+  </StackLayout>`,
+  imports: [AppleFilterComponent, NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+export class AppleSpecificComponent {
+  elementRef = inject(ElementRef);
 }
 
 @Component({
   template: ` <StackLayout>
     <android><Label text="ANDROID"></Label></android>
   </StackLayout>`,
+  imports: [AndroidFilterComponent, NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class AndroidSpecificComponent {
-  constructor(public elementRef: ElementRef) {}
+  elementRef = inject(ElementRef);
 }
 
 @Component({
   template: ` <StackLayout>
     <Label android:text="ANDROID" ios:text="IOS"></Label>
   </StackLayout>`,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class PlatformSpecificAttributeComponent {
-  constructor(public elementRef: ElementRef) {}
+  elementRef = inject(ElementRef);
 }
 
 const DECLARATIONS = [PlatformSpecificAttributeComponent, AndroidSpecificComponent, IosSpecificComponent];
-@NgModule({
-  declarations: DECLARATIONS,
-  imports: [NativeScriptModule],
-  schemas: [NO_ERRORS_SCHEMA],
-})
-export class PlatformModule {}
 
 describe('Platform filter directives', () => {
   describe('on IOS device', () => {
     beforeEach(() => {
       return TestBed.configureTestingModule({
-        imports: [],
-        declarations: DECLARATIONS,
+        imports: DECLARATIONS,
         providers: [{ provide: DEVICE, useValue: createDevice(platformNames.ios) }],
         schemas: [NO_ERRORS_SCHEMA],
       }).compileComponents();
@@ -74,11 +83,35 @@ describe('Platform filter directives', () => {
     });
   });
 
+  describe('on Apple device', () => {
+    beforeEach(() => {
+      return TestBed.configureTestingModule({
+        imports: DECLARATIONS,
+        providers: [{ provide: DEVICE, useValue: createDevice(platformNames.ios) }],
+        schemas: [NO_ERRORS_SCHEMA],
+      }).compileComponents();
+    });
+    it('does render apple specific content', () => {
+      const fixture = TestBed.createComponent(AppleSpecificComponent);
+      fixture.detectChanges();
+      const componentRef = fixture.componentRef;
+      const componentRoot = componentRef.instance.elementRef.nativeElement;
+      expect(dumpView(componentRoot, true).indexOf('(label[text=Apple])') >= 0).toBe(__APPLE__);
+    });
+    it('does not render android specific content', () => {
+      const fixture = TestBed.createComponent(AndroidSpecificComponent);
+      fixture.detectChanges();
+      const componentRef = fixture.componentRef;
+      const componentRoot = componentRef.instance.elementRef.nativeElement;
+      console.log(dumpView(componentRoot, true));
+      expect(dumpView(componentRoot, true).indexOf('label') < 0).toBe(true);
+    });
+  });
+
   describe('on Android device', () => {
     beforeEach(() => {
       return TestBed.configureTestingModule({
-        imports: [],
-        declarations: DECLARATIONS,
+        imports: DECLARATIONS,
         providers: [{ provide: DEVICE, useValue: createDevice(platformNames.android) }],
         schemas: [NO_ERRORS_SCHEMA],
       }).compileComponents();

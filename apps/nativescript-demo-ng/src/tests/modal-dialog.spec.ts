@@ -1,16 +1,8 @@
 // make sure you import mocha-config before @angular/core
-import { NgModule, Component, ViewContainerRef, NO_ERRORS_SCHEMA } from '@angular/core';
-import { Page, Frame, isIOS } from '@nativescript/core';
-import { ModalDialogParams, ModalDialogService } from '@nativescript/angular';
-
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { nsTestBedRender, nsTestBedAfterEach, nsTestBedBeforeEach, NATIVESCRIPT_TESTING_PROVIDERS, NativeScriptTestingModule } from '@nativescript/angular/testing';
-import { NSLocationStrategy, Outlet } from '@nativescript/angular';
-import { FrameService } from '@nativescript/angular';
-import { DetachedLoader, NativeScriptModule } from '@nativescript/angular';
-import { platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
-// import { NS_COMPILER_PROVIDERS } from "@nativescript/angular/platform";
-import { CommonModule } from '@angular/common';
+import { Component, inject, NgModule, NO_ERRORS_SCHEMA, ViewContainerRef } from '@angular/core';
+import { TestBed, waitForAsync } from '@angular/core/testing';
+import { FrameService, ModalDialogParams, ModalDialogService, NativeScriptCommonModule, NSLocationStrategy, Outlet } from '@nativescript/angular';
+import { Frame, isIOS } from '@nativescript/core';
 
 import { FakeFrameService } from './ns-location-strategy.spec';
 const CLOSE_WAIT = isIOS ? 1000 : 0;
@@ -18,9 +10,11 @@ const CLOSE_WAIT = isIOS ? 1000 : 0;
 @Component({
   selector: 'modal-comp',
   template: `<Label text="this is modal component" (shownModally)="onShownModally()"></Label>`,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class ModalComponent {
-  constructor(public params: ModalDialogParams) {}
+  params = inject(ModalDialogParams);
 
   onShownModally() {
     const result = this.params.context;
@@ -32,9 +26,11 @@ export class ModalComponent {
   selector: 'fail-comp',
   providers: [ModalDialogService],
   template: `<Label text="This app is doomed"></Label>`,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class FailComponent {
-  constructor(public service: ModalDialogService) {}
+  service = inject(ModalDialogService);
 }
 
 @Component({
@@ -43,20 +39,19 @@ export class FailComponent {
   template: ` <GridLayout margin="20">
     <Label text="Modal dialogs"></Label>
   </GridLayout>`,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
 })
 export class SuccessComponent {
-  constructor(
-    public service: ModalDialogService,
-    public vcRef: ViewContainerRef,
-    public locationStrategy: NSLocationStrategy,
-    public fakeFrameService: FrameService,
-  ) {}
+  service = inject(ModalDialogService);
+  vcRef = inject(ViewContainerRef);
+  locationStrategy = inject(NSLocationStrategy);
+  fakeFrameService = inject(FrameService);
 }
 
 @NgModule({
-  declarations: [FailComponent, SuccessComponent, ModalComponent],
+  imports: [FailComponent, SuccessComponent, ModalComponent, NativeScriptCommonModule],
   exports: [FailComponent, SuccessComponent, ModalComponent],
-  // entryComponents: [ModalComponent],
   schemas: [NO_ERRORS_SCHEMA],
 })
 export class EntryComponentsTestModule {}
@@ -69,8 +64,7 @@ describe('modal-dialog', () => {
   //     [ModalComponent]));
   beforeEach(() => {
     return TestBed.configureTestingModule({
-      declarations: [FailComponent, SuccessComponent, ModalComponent],
-      imports: [],
+      imports: [FailComponent, SuccessComponent, ModalComponent, NativeScriptCommonModule],
       providers: [{ provide: FrameService, useValue: new FakeFrameService() }, NSLocationStrategy],
     }).compileComponents();
   });

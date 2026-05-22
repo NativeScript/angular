@@ -23,16 +23,16 @@ core theme, such as p-20, btn, h2, and list-group. You can view a full list of t
 class names available for styling your app at https://docs.nativescript.org/ui/theme.
 -->
 <GridLayout rows="auto,,*" class="page">
-  <StackLayout row="0" padding="10">
-    <Label [text]="message" class="h1 text-center c-light-blue"></Label>
-    <Label [text]="'NativeScript loves you.'" class="h2 text-center c-light-blue" marginTop="20" marginBottom="5"></Label>
-    <Image src="https://angular.io/assets/images/logos/angular/angular.png" horizontalAlignment="center" width="120" verticalAlignment="top"></Image>
-    <Button (tap)="openModal()" text="Open Modal" class="-btn -primary"></Button>
-    <Button (tap)="fetchTodos()" text="Make Http Call" class="-btn -primary"></Button>
+  <StackLayout row="0" class="p-4">
+    <Label [text]="message" class="text-3xl font-bold text-center text-blue-500"></Label>
+    <Label [text]="'NativeScript loves you.'" class="text-2xl mt-5 text-center text-blue-500"></Label>
+    <Image src="https://angular.io/assets/images/logos/angular/angular.png" class="align-top h-center mt-4 w-[120]"></Image>
+    <Button (tap)="openModal()" text="Open Modal" class="rounded-full bg-blue-500 text-white p-2"></Button>
+    <Button (tap)="fetchTodos()" text="Make Http Call" class="mt-2 rounded-full bg-blue-500 text-white p-2"></Button>
   </StackLayout>
   <ListView row="1" [items]="items" class="list-group" backgroundColor="#efefef">
     <ng-template let-item="item">
-      <StackLayout [nsRouterLink]="['/item2/item', item.id]" padding="10">
+      <StackLayout [nsRouterLink]="['/item2/item', item.id]" class="p-2">
         <Label [text]="item.name" class="list-group-item"></Label>
       </StackLayout>
     </ng-template>

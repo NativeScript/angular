@@ -88,7 +88,7 @@ export class NativeDialogRef<T, R = any> {
         filter((event) => event.state === 'closing'),
         take(1)
       )
-      .subscribe((event) => {
+      .subscribe(() => {
         this._beforeClosed.next(dialogResult);
         this._beforeClosed.complete();
         this._nativeModalRef.dispose();

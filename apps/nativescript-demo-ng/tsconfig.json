@@ -14,6 +14,13 @@
     }
   ],
   "compilerOptions": {
-    "target": "es2020"
+    "target": "es2020",
+    "module": "preserve",
+    "moduleResolution": "bundler"
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": true,
+    "strictDomLocalRefTypes": false,
+    "strictDomEventTypes": false
   }
 }
