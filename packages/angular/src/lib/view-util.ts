@@ -406,6 +406,12 @@ export class ViewUtil {
 
     const ngView = view as NgView;
     ngView.nodeName = name;
+    // Angular 21+ reads `rootElement.tagName.toLowerCase()` during component bootstrap
+    // (`locateHostElement`) to reject `<script>` host elements. Native Views have no
+    // intrinsic `tagName`, so without this assignment the boot throws
+    // `Cannot read properties of undefined (reading 'toLowerCase')`. Mirror DOM
+    // conventions where `tagName` equals `nodeName` for element nodes.
+    ngView.tagName = name;
     ngView.meta = getViewMeta(name);
 
     // we're setting the node type of the view
