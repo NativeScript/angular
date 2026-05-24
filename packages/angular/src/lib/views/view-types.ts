@@ -7,6 +7,7 @@ export interface ViewExtensions {
   meta: ViewClassMeta;
   nodeType: number;
   nodeName: string;
+  tagName: string;
   parentNode: NgView;
   nextSibling: NgView;
   previousSibling: NgView;

@@ -7,6 +7,7 @@ export abstract class InvisibleNode extends View implements NgView {
   meta: { skipAddToDom: boolean };
   nodeType: number;
   nodeName: string;
+  tagName: string;
   // @ts-expect-error setter
   parentNode: NgView;
   nextSibling: NgView;
@@ -20,6 +21,7 @@ export abstract class InvisibleNode extends View implements NgView {
 
     this.nodeType = 1;
     this.nodeName = getClassName(this);
+    this.tagName = this.nodeName;
   }
 
   toString() {
