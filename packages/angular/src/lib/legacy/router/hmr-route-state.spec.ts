@@ -172,13 +172,33 @@ describe('Angular HMR route state', () => {
       expect(readAngularHmrRouteHistory()).toEqual([]);
     });
 
-    it('exposes everything but the bottom of the stack as forward navigations', () => {
+    it('returns no forward navigations when the latest URL has no named outlets (clean DX policy)', () => {
+      // HMR DX policy: restore only the user's current URL. Walking captured
+      // back-stack URLs creates visible mid-save re-navigation sequences that
+      // the user has to sit through, AND it never reconstructs the Frame back
+      // stack (NS Frames own the page stack, not the URL serializer). Forward
+      // is empty when the start path itself IS the user's current URL.
       pushAngularHmrRouteHistoryEntry('/talk/(todayTab:today)');
       pushAngularHmrRouteHistoryEntry('/profile');
       pushAngularHmrRouteHistoryEntry('/profile/edit');
       snapshotAngularHmrRouteHistory();
 
-      expect(readAngularHmrPendingForwardNavigations()).toEqual(['/profile', '/profile/edit']);
+      expect(readAngularHmrPendingForwardNavigations()).toEqual([]);
+    });
+
+    it('returns the deferred named-outlet URL as the single forward navigation when the latest URL has named outlets', () => {
+      // Named-outlet URLs can't be served as the initial-navigation path
+      // (outlet directives live in lazy child templates that don't exist
+      // yet at `router.initialNavigation()` time). Start path falls back
+      // to '/' and a single forward navigation lands the user back on the
+      // captured deep URL after the primary outlet has registered the
+      // named outlets.
+      pushAngularHmrRouteHistoryEntry('/profile');
+      pushAngularHmrRouteHistoryEntry('/talk/(todayTab:today)');
+      snapshotAngularHmrRouteHistory();
+
+      expect(readAngularHmrPendingStartPath()).toBe('/');
+      expect(readAngularHmrPendingForwardNavigations()).toEqual(['/talk/(todayTab:today)']);
     });
 
     it('returns an empty forward list when the snapshot has only the bottom of the stack', () => {
@@ -188,12 +208,14 @@ describe('Angular HMR route state', () => {
       expect(readAngularHmrPendingForwardNavigations()).toEqual([]);
     });
 
-    it('uses the bottom of the snapshot as the pending start path so the router boots there first', () => {
+    it('uses the TOP of the snapshot as the pending start path so the router lands directly on the user current URL', () => {
       pushAngularHmrRouteHistoryEntry('/talk/(todayTab:today)');
       pushAngularHmrRouteHistoryEntry('/profile');
       snapshotAngularHmrRouteHistory();
 
-      expect(readAngularHmrPendingStartPath()).toBe('/talk/(todayTab:today)');
+      // Latest captured URL is '/profile' (no named outlets) → that's the
+      // direct start path. No walk through intermediate '/talk/...'.
+      expect(readAngularHmrPendingStartPath()).toBe('/profile');
     });
 
     it('falls back to the legacy single-URL slot when no snapshot is present', () => {
@@ -233,15 +255,15 @@ describe('Angular HMR route state', () => {
     });
 
     it('opens the window when the pending route history snapshot resolves a deep route', () => {
+      // Clean-DX policy: start path is the user's CURRENT URL (top of stack),
+      // not the bottom. The restoration window opens against the same URL
+      // since that's where we're heading.
       pushAngularHmrRouteHistoryEntry('/talk/(todayTab:today)');
       pushAngularHmrRouteHistoryEntry('/profile');
       snapshotAngularHmrRouteHistory();
 
-      expect(readAngularHmrPendingStartPath()).toBe('/talk/(todayTab:today)');
+      expect(readAngularHmrPendingStartPath()).toBe('/profile');
       expect(isAngularHmrRestoringRoute()).toBe(true);
-      // The window is opened with the deepest captured URL so user-app
-      // code can decide what to do based on where the framework is
-      // ultimately heading, not just the bottom of the stack.
       expect(getAngularHmrRestoringRoute()).toBe('/profile');
     });
 

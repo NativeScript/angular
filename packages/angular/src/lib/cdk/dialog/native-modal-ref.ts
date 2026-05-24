@@ -19,6 +19,7 @@ import { DetachedLoader } from '../detached-loader';
 import { ComponentPortal, TemplatePortal } from '../portal/common';
 import { NativeScriptDomPortalOutlet } from '../portal/nsdom-portal-outlet';
 import { NativeDialogConfig } from './dialog-config';
+import { AddViewHost, installPvcModalHostPropPropagation, ModalHostView, propagateModalHostPropsToDescendants } from './modal-host-props';
 
 export class NativeModalRef {
   _id: string;
@@ -187,6 +188,27 @@ export class NativeModalRef {
       },
       cancelable: !this._config.disableClose,
     });
+
+    // After `showModal`, NativeScript core has stamped
+    // `_dialogFragment` (Android) / `viewController` (iOS) on
+    // `targetView` itself — but user template code (`onLoaded($event)`
+    // → `args.object._dialogFragment.getDialog()...`) reads those
+    // props on the rendered template root, which is a *descendant*
+    // of `targetView`, not `targetView` itself. Mirror them down so
+    // the template root (and any nested loaded handler) sees the
+    // real host objects instead of `undefined`, then install a
+    // lazy wrap on the host PVC's `_addView` so future child
+    // additions — typically the new template root produced by
+    // Angular's `ɵɵreplaceMetadata` HMR cycle — get the same
+    // props mirrored *before* NS attaches the view and fires
+    // its `loaded` event chain. See `modal-host-props.ts` for the
+    // full rationale.
+    propagateModalHostPropsToDescendants(targetView as ModalHostView, targetView as ModalHostView);
+    const hostView = componentRef.location?.nativeElement as View | undefined;
+    if (hostView) {
+      installPvcModalHostPropPropagation(hostView as unknown as AddViewHost, targetView as ModalHostView);
+    }
+
     return componentRef;
   }
 
@@ -197,6 +219,7 @@ export class NativeModalRef {
   dispose() {
     this.portalOutlet.dispose();
   }
+
   private startModalNavigation() {
     const frame = this.parentView instanceof Frame ? this.parentView : this.parentView?.page?.frame || Frame.topmost();
 

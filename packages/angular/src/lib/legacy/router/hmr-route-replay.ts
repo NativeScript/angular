@@ -32,14 +32,18 @@ import {
 const REPLAY_COMPLETED_GRACE_MS = 1000;
 
 /**
- * Replays the back-stack snapshot captured by `NativeScriptAngularHmrRouteTracker`
- * during HMR. The router's initial navigation already lands on the bottom of
- * the stack (`stack[0]`); this service walks `stack[1..n]` so the user keeps
- * back navigation across HMR cycles.
+ * Restores the user's CURRENT URL after an HMR reboot.
  *
- * The replay is single-shot per bootstrap. Any failure (cancelled navigation,
- * unrouteable URL) aborts the rest of the replay so we don't fight the router
- * — the user keeps whichever subset of the stack we successfully re-pushed.
+ * HMR-DX policy: at most one post-bootstrap navigation. The framework no
+ * longer walks the captured back-stack (`stack[1..n]`) — NativeScript Frames
+ * own the page stack, not the URL serializer, so the URL walk never rebuilt
+ * the Frame stack anyway, it only created visible mid-save re-navigation
+ * sequences (especially with tab-based named outlets) that the user had to
+ * sit through. Now `readAngularHmrPendingForwardNavigations()` returns at
+ * most one URL — the deferred named-outlet case — and we replay only that.
+ *
+ * Any failure (cancelled navigation, unrouteable URL) closes the restoring
+ * window with `replay-aborted` so default navigations can resume.
  */
 @Injectable()
 export class NativeScriptAngularHmrRouteReplay implements OnDestroy {

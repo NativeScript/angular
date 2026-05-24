@@ -93,30 +93,67 @@ export function captureAngularHmrPendingStartPath(value: unknown, source = 'hmr-
   return writeAngularHmrRouteState(value, { pending: true, source });
 }
 
+/**
+ * Match Angular Router's named-outlet syntax in a serialized URL.
+ *
+ * The router emits named outlets as `(outletName:segments[//otherName:segments])`
+ * — see `DefaultUrlSerializer`. Any URL the captures match `/\(\w+:`
+ * contains at least one named-outlet segment.
+ *
+ * Used to gate the start-path deferral below: when a captured URL has named
+ * outlets it CANNOT be used as the initial-navigation path on the next boot
+ * (the outlet directives are inside child components that don't exist yet at
+ * `router.initialNavigation()` time, so `PageRouterOutlet.activateWith`
+ * returns early with "No outlet found relative to activated route" and the
+ * app renders a white screen).
+ */
+function hasNamedOutletsInUrl(url: string): boolean {
+  if (typeof url !== 'string') {
+    return false;
+  }
+  return /\([A-Za-z0-9_-]+:/.test(url);
+}
+
 export function readAngularHmrPendingStartPath(): string {
-  // When a back-stack snapshot exists we boot to the bottom of the stack and
-  // let `replayAngularHmrPendingForwardNavigations` walk the rest. Otherwise
-  // fall back to the legacy single-URL slot so projects without history
-  // tracking still land on the page they were viewing.
+  // HMR-DX policy: restore only the user's CURRENT URL. NativeScript Frames
+  // own the back-stack, not the URL, so walking captured history URLs forward
+  // doesn't reconstruct the page stack — it just causes visible re-navigation
+  // sequences (especially with tab-based named outlets) that the user has to
+  // sit through after every save. We pick the last captured URL as the
+  // restoration target and bail on the history walk entirely. The
+  // `forward-navigations` reader returns at most one URL (the deferred
+  // named-outlet case), so the replay service performs zero or one
+  // post-bootstrap navigation, not N.
   const pendingHistory = readHistoryArray(PENDING_HISTORY_KEY);
   if (pendingHistory.length > 0) {
-    // Open the restoring-route window so user-app default navigations
-    // can step out of the framework's way until replay completes. The
-    // forward-navigation walk in `NativeScriptAngularHmrRouteReplay`
-    // closes the window after the final URL lands or fails. We pass
-    // the deepest captured URL so consumers can compare against the
-    // active router URL if they want fine-grained suppression.
-    beginAngularHmrRouteRestore(pendingHistory[pendingHistory.length - 1]);
-    return pendingHistory[0];
+    const target = pendingHistory[pendingHistory.length - 1];
+    beginAngularHmrRouteRestore(target);
+    // Named-outlet URLs cannot be served as the initial navigation URL.
+    // The outlet directives (e.g. `<page-router-outlet name="listenNowTab">`)
+    // live inside child components that only render AFTER the primary
+    // outlet activates. On `router.initialNavigation()` with a URL like
+    // `/(listenNowTab:listen-now)`, Angular tries to activate `listenNowTab`
+    // immediately and `PageRouterOutlet.activateWith` returns early because
+    // no outlet is registered yet — white screen. Defer to a single forward
+    // navigation that fires AFTER the first NavigationEnd, by which time the
+    // outlet directives have registered.
+    if (hasNamedOutletsInUrl(target)) {
+      return '/';
+    }
+    return target;
   }
 
   const g = getGlobalState();
   const fallback = normalizeAngularHmrRouteUrl(g[PENDING_START_PATH_KEY]?.url ?? g[PENDING_START_PATH_KEY]) || '';
   if (fallback) {
-    // Single-URL fallback path: user-app code should still suppress
-    // default navigations briefly — the new bootstrap is about to
-    // navigate to `fallback`, so a default tab init that fires first
-    // would still stomp it.
+    // Same deferral as above for the legacy single-URL slot.
+    if (hasNamedOutletsInUrl(fallback)) {
+      beginAngularHmrRouteRestore(fallback);
+      // Stash the deferred URL so the forward-navigations reader picks it
+      // up after the initial '/' navigation lands.
+      writeHistoryArray(PENDING_HISTORY_KEY, [fallback]);
+      return '/';
+    }
     beginAngularHmrRouteRestore(fallback);
   }
   return fallback;
@@ -285,15 +322,29 @@ export function readAngularHmrPendingRouteHistory(): string[] {
 
 /**
  * Read URLs to navigate forward through after the initial navigation finishes.
- * The first entry of the stack is the `START_PATH` consumed by the router; the
- * rest are forward navigations to push onto the new back-stack.
+ *
+ * HMR-DX policy: at most one post-bootstrap navigation. We only need a forward
+ * navigation when `readAngularHmrPendingStartPath` had to return '/' because
+ * the user's current URL contains named outlets (the outlet directives don't
+ * exist yet at initial-navigation time, so we defer to a single nav after the
+ * primary outlet has registered them). For URLs with no named outlets the
+ * start path IS the user's current URL and no forward step is needed.
+ *
+ * We intentionally do NOT walk the captured back-stack of intermediate URLs —
+ * NativeScript Frames own the page stack, not the URL serializer, so URL
+ * replay never reconstructs the Frame stack anyway and only creates visible
+ * mid-save re-navigations.
  */
 export function readAngularHmrPendingForwardNavigations(): string[] {
   const pending = readHistoryArray(PENDING_HISTORY_KEY);
-  if (pending.length <= 1) {
+  if (pending.length === 0) {
     return [];
   }
-  return pending.slice(1);
+  const target = pending[pending.length - 1];
+  if (hasNamedOutletsInUrl(target)) {
+    return [target];
+  }
+  return [];
 }
 
 /**

@@ -118,24 +118,26 @@ describe('NativeScriptAngularHmrRouteReplay', () => {
     endAngularHmrRouteRestore();
   });
 
-  it('keeps the restoring window open during the grace period after a multi-URL replay completes', async () => {
-    pushAngularHmrRouteHistoryEntry('/talk/(todayTab:today)');
+  it('keeps the restoring window open during the grace period after the deferred named-outlet replay completes', async () => {
+    // Latest URL has named outlets → start-path resolver falls back to '/'
+    // and emits a single forward navigation. No back-stack walk.
     pushAngularHmrRouteHistoryEntry('/profile');
+    pushAngularHmrRouteHistoryEntry('/talk/(todayTab:today)');
     snapshotAngularHmrRouteHistory();
 
-    expect(readAngularHmrPendingStartPath()).toBe('/talk/(todayTab:today)');
-    expect(readAngularHmrPendingForwardNavigations()).toEqual(['/profile']);
+    expect(readAngularHmrPendingStartPath()).toBe('/');
+    expect(readAngularHmrPendingForwardNavigations()).toEqual(['/talk/(todayTab:today)']);
     expect(isAngularHmrRestoringRoute()).toBe(true);
 
     const router = createRouterMock();
     const replay = new NativeScriptAngularHmrRouteReplay(router as any);
 
-    router.emitNavigationEnd('/talk/(todayTab:today)');
+    router.emitNavigationEnd('/');
 
     await flushMicrotasks();
     await flushMicrotasks();
 
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/profile');
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/talk/(todayTab:today)');
     expect(readAngularHmrPendingRouteHistory()).toEqual([]);
     // The replay finished but the grace period should still consider the
     // window open so async (loaded) handlers can suppress default
@@ -151,32 +153,31 @@ describe('NativeScriptAngularHmrRouteReplay', () => {
     replay.ngOnDestroy();
   });
 
-  it('keeps the window open across the grace period when the replay aborts mid-stack', async () => {
-    pushAngularHmrRouteHistoryEntry('/talk/(todayTab:today)');
+  it('keeps the window open across the grace period when the deferred named-outlet replay aborts', async () => {
     pushAngularHmrRouteHistoryEntry('/profile');
     pushAngularHmrRouteHistoryEntry('/profile/edit');
+    pushAngularHmrRouteHistoryEntry('/talk/(todayTab:today)');
     snapshotAngularHmrRouteHistory();
 
-    // `readAngularHmrPendingStartPath` is what opens the window in the
-    // real bootstrap flow (it's called from the START_PATH provider).
-    // The test mirrors that so the replay service has a window to keep
-    // open during the grace period.
-    expect(readAngularHmrPendingStartPath()).toBe('/talk/(todayTab:today)');
-    expect(readAngularHmrPendingForwardNavigations()).toEqual(['/profile', '/profile/edit']);
+    // Only the latest URL (with named outlets) is deferred to the forward
+    // walk. Intermediate URLs are NOT re-navigated to under the clean-DX
+    // policy (NS Frames own the page stack, not the URL serializer).
+    expect(readAngularHmrPendingStartPath()).toBe('/');
+    expect(readAngularHmrPendingForwardNavigations()).toEqual(['/talk/(todayTab:today)']);
     expect(isAngularHmrRestoringRoute()).toBe(true);
 
     const router = createRouterMock();
-    router.navigateByUrl.mockImplementation((url: string) => Promise.resolve(url === '/profile'));
+    // Simulate the single forward navigation rejecting (e.g. route guard).
+    router.navigateByUrl.mockImplementation(() => Promise.resolve(false));
 
     const replay = new NativeScriptAngularHmrRouteReplay(router as any);
-    router.emitNavigationEnd('/talk/(todayTab:today)');
+    router.emitNavigationEnd('/');
 
     await flushMicrotasks();
     await flushMicrotasks();
     await flushMicrotasks();
 
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/profile');
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/profile/edit');
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/talk/(todayTab:today)');
     expect(readAngularHmrPendingRouteHistory()).toEqual([]);
     // Even when aborted, the grace period should still hold the window
     // open so user-app guards see `true` until the deferred close fires.
@@ -209,17 +210,19 @@ describe('NativeScriptAngularHmrRouteReplay', () => {
   });
 
   it('clears the deferred close timer when the service is destroyed', async () => {
-    pushAngularHmrRouteHistoryEntry('/talk/(todayTab:today)');
+    // Latest URL has named outlets → start-path resolver falls back to '/'
+    // and emits a single forward navigation.
     pushAngularHmrRouteHistoryEntry('/profile');
+    pushAngularHmrRouteHistoryEntry('/talk/(todayTab:today)');
     snapshotAngularHmrRouteHistory();
 
-    expect(readAngularHmrPendingStartPath()).toBe('/talk/(todayTab:today)');
+    expect(readAngularHmrPendingStartPath()).toBe('/');
     expect(isAngularHmrRestoringRoute()).toBe(true);
 
     const router = createRouterMock();
     const replay = new NativeScriptAngularHmrRouteReplay(router as any);
 
-    router.emitNavigationEnd('/talk/(todayTab:today)');
+    router.emitNavigationEnd('/');
     await flushMicrotasks();
     await flushMicrotasks();
 
@@ -239,14 +242,14 @@ describe('NativeScriptAngularHmrRouteReplay', () => {
   });
 
   it('closes the window immediately when the initial navigation fails (no grace period)', () => {
-    pushAngularHmrRouteHistoryEntry('/talk/(todayTab:today)');
     pushAngularHmrRouteHistoryEntry('/profile');
+    pushAngularHmrRouteHistoryEntry('/talk/(todayTab:today)');
     snapshotAngularHmrRouteHistory();
 
     const router = createRouterMock();
     const replay = new NativeScriptAngularHmrRouteReplay(router as any);
 
-    router.emitNavigationCancel('/talk/(todayTab:today)');
+    router.emitNavigationCancel('/');
 
     expect(router.navigateByUrl).not.toHaveBeenCalled();
     expect(readAngularHmrPendingRouteHistory()).toEqual([]);

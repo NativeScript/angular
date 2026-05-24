@@ -749,6 +749,61 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     disposeLastModules('hotreload');
     disposePlatform('hotreload');
   };
+  // Pre-import hook for HMR runtimes. Must be called BEFORE the changed
+  // component modules are re-imported, otherwise their ɵɵdefineComponent
+  // calls fire against the OLD `GENERATED_COMP_IDS` map and Angular emits
+  // a benign-but-noisy NG0912 "Component ID generation collision" warning
+  // for every component the user has touched. Calling
+  // `ɵresetCompiledComponents` here clears the map (and the related
+  // ownerNgModule / verifiedNgModule WeakMaps) so the fresh defs register
+  // into an empty table.
+  //
+  // The post-reboot call inside `bootstrapRoot('hotreload')` remains in
+  // place as a safety net: a project that doesn't wire its HMR runtime to
+  // this hook still gets the reset (just one cycle late, after the warning
+  // has already surfaced).
+  global['__reset_ng_compiled_components__'] = () => {
+    resetAngularHmrCompiledComponents(getAngularCoreForHmrReset(AngularCore as any, globalThis as any));
+  };
+
+  // Suppress benign HMR-induced NG0912 ("Component ID generation collision")
+  // warnings. On a `.ts` edit Angular Live Reload's
+  // `ListenNowComponent_UpdateMetadata` function in the freshly re-imported
+  // module calls `ɵɵreplaceMetadata` → `ɵɵdefineComponent` → `getComponentId`
+  // against a class that shares its name with the just-rebooted instance but
+  // not its identity (one comes from the route-loaded module, the other from
+  // the dynamically-fetched `/@ng/component?c=…` metadata chunk). The check
+  // surfaces every component the user touches as a noisy warning even though
+  // there's no real collision — same logical class, two transient identities
+  // during the HMR cycle.
+  //
+  // Real collisions — different classes that happen to hash to the same id —
+  // produce a warning where `'X' and 'Y'` (different class names) appear in
+  // the message. We only filter when both names match, so genuine duplicates
+  // still reach the user.
+  //
+  // Install once per process; the filter self-detaches if the warning text
+  // changes shape (defensive against future Angular wording tweaks).
+  (() => {
+    const w: { __NS_ANGULAR_NG0912_FILTER_INSTALLED__?: boolean } = global as any;
+    if (w.__NS_ANGULAR_NG0912_FILTER_INSTALLED__) return;
+    w.__NS_ANGULAR_NG0912_FILTER_INSTALLED__ = true;
+    const origWarn = console.warn.bind(console);
+    // Pattern: "Components 'Foo' and 'Bar' with selector 'xyz'" — capture
+    // both class names and compare. We suppress only when they're identical
+    // (the HMR pseudo-collision signature).
+    const NG0912_NAME_MATCH = /NG0912[\s\S]*?Components '([^']+)' and '([^']+)' with selector/;
+    console.warn = (...args: any[]) => {
+      const msg = String(args[0] ?? '');
+      if (msg.includes('NG0912')) {
+        const m = NG0912_NAME_MATCH.exec(msg);
+        if (m && m[1] === m[2]) {
+          return;
+        }
+      }
+      origWarn(...args);
+    };
+  })();
   global['__reboot_ng_modules__'] = (shouldDisposePlatform: boolean = false) => {
     // Bump the global HMR cycle counter so subsequent diagnostic log
     // lines (class registry, dialog services) can be cross-referenced
