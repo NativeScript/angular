@@ -193,7 +193,7 @@ export class NativeDialog implements OnDestroy {
    * @returns The custom injector that can be used inside the dialog.
    */
   private _createInjector<T>(config: NativeDialogConfig, dialogRef: NativeDialogRef<T>): Injector {
-    const userInjector = config && config.viewContainerRef && config.viewContainerRef.injector;
+    const userInjector = config && (config.injector || (config.viewContainerRef && config.viewContainerRef.injector));
 
     // The dialog container should be provided as the dialog container and the dialog's
     // content are created out of the same `ViewContainerRef` and as such, are siblings

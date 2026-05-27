@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import { ComponentFactoryResolver, ComponentRef, EmbeddedViewRef, ApplicationRef, Injector, Renderer2, Optional } from '@angular/core';
+import { ComponentFactoryResolver, ComponentRef, EmbeddedViewRef, ApplicationRef, Injector, Renderer2, Optional, createComponent } from '@angular/core';
 import { View } from '@nativescript/core';
 import { CommentNode } from '../../views/invisible-nodes';
 import { ViewUtil } from '../../view-util';
@@ -36,8 +36,6 @@ export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
    * @returns Reference to the created component.
    */
   attachComponentPortal<T>(portal: ComponentPortal<T>): ComponentRef<T> {
-    const resolver = portal.componentFactoryResolver || this._componentFactoryResolver;
-    const componentFactory = resolver.resolveComponentFactory(portal.component);
     let componentRef: ComponentRef<T>;
 
     // If the portal specifies a ViewContainerRef, we will use that as the attachment point
@@ -45,11 +43,17 @@ export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
     // When the ViewContainerRef is missing, we use the factory to create the component directly
     // and then manually attach the view to the application.
     if (portal.viewContainerRef) {
-      componentRef = portal.viewContainerRef.createComponent(componentFactory, portal.viewContainerRef.length, portal.injector || portal.viewContainerRef.injector);
+      componentRef = portal.viewContainerRef.createComponent(portal.component, {
+        index: portal.viewContainerRef.length,
+        injector: portal.injector || portal.viewContainerRef.injector,
+      });
 
       this.setDisposeFn(() => componentRef.destroy());
     } else {
-      componentRef = componentFactory.create(portal.injector || this._defaultInjector);
+      componentRef = createComponent(portal.component, {
+        elementInjector: portal.injector || this._defaultInjector || Injector.NULL,
+        environmentInjector: this._appRef.injector,
+      });
       this._appRef.attachView(componentRef.hostView);
       this.setDisposeFn(() => {
         this._appRef.detachView(componentRef.hostView);
