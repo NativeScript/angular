@@ -5,7 +5,14 @@ export const APP_ROOT_VIEW = new InjectionToken<View>('NativeScriptAppRootView')
 export const NATIVESCRIPT_ROOT_MODULE_ID = new InjectionToken<string | number>('NativeScriptRootModuleId');
 
 export const START_PATH = new InjectionToken<Promise<string> | string>('NativeScriptStartPath');
-export const ENABLE_REUSABE_VIEWS = new InjectionToken<boolean>('NativeScriptEnableReusableViews');
+export const ENABLE_REUSABE_VIEWS = new InjectionToken<boolean>('NativeScriptEnableReusableViews', {
+  providedIn: 'root',
+  factory: () => false,
+});
+export const WRAP_CD_IN_TRANSACTION = new InjectionToken<boolean>('NativeScriptWrapChangeDetectionInTransaction', {
+  providedIn: 'root',
+  factory: () => false,
+});
 
 export type PageFactory = (options: PageFactoryOptions) => Page;
 export interface PageFactoryOptions {
@@ -24,4 +31,6 @@ export const defaultPageFactory: PageFactory = function (_opts: PageFactoryOptio
 };
 
 export const PREVENT_CHANGE_EVENTS_DURING_CD = new InjectionToken<boolean>('NativeScriptPreventChangeEventsDuringCd');
-export const PREVENT_SPECIFIC_EVENTS_DURING_CD = new InjectionToken<string[]>('NativeScriptPreventSpecificEventsDuringCd');
+export const PREVENT_SPECIFIC_EVENTS_DURING_CD = new InjectionToken<string[]>(
+  'NativeScriptPreventSpecificEventsDuringCd',
+);

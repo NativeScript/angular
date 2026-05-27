@@ -1,20 +1,46 @@
-import { Inject, Injectable, Injector, NgZone, Optional, Renderer2, RendererFactory2, RendererStyleFlags2, RendererType2, ViewEncapsulation, inject, runInInjectionContext } from '@angular/core';
-import { addTaggedAdditionalCSS, Application, ContentView, Device, getViewById, Observable, profile, Utils, View } from '@nativescript/core';
-import { getViewClass, isKnownView } from './element-registry';
-import { getFirstNativeLikeView, NgView, TextNode } from './views';
-
-import { NamespaceFilter, NAMESPACE_FILTERS } from './property-filter';
-import { APP_ROOT_VIEW, ENABLE_REUSABE_VIEWS, NATIVESCRIPT_ROOT_MODULE_ID, PREVENT_SPECIFIC_EVENTS_DURING_CD } from './tokens';
+import {
+  inject,
+  Injectable,
+  Injector,
+  Renderer2,
+  RendererFactory2,
+  RendererStyleFlags2,
+  RendererType2,
+  runInInjectionContext,
+  ViewEncapsulation,
+} from '@angular/core';
+import {
+  addTaggedAdditionalCSS,
+  Application,
+  ContentView,
+  getViewById,
+  Observable,
+  profile,
+  View,
+} from '@nativescript/core';
+import { isKnownView } from './element-registry';
+import { NAMESPACE_FILTERS } from './property-filter';
+import {
+  APP_ROOT_VIEW,
+  ENABLE_REUSABE_VIEWS,
+  NATIVESCRIPT_ROOT_MODULE_ID,
+  PREVENT_SPECIFIC_EVENTS_DURING_CD,
+  WRAP_CD_IN_TRANSACTION,
+} from './tokens';
 import { NativeScriptDebug } from './trace';
 import { ViewUtil } from './view-util';
+import { getFirstNativeLikeView, NgView, TextNode } from './views';
 
-const addStyleToCss = profile('"renderer".addStyleToCss', function addStyleToCss(style: string, tag?: string | number): void {
-  if (tag) {
-    addTaggedAdditionalCSS(style, tag);
-  } else {
-    Application.addCss(style);
-  }
-});
+const addStyleToCss = profile(
+  '"renderer".addStyleToCss',
+  function addStyleToCss(style: string, tag?: string | number): void {
+    if (tag) {
+      addTaggedAdditionalCSS(style, tag);
+    } else {
+      Application.addCss(style);
+    }
+  },
+);
 
 function runInRootZone<T>(fn: () => T): T {
   if (typeof Zone === 'undefined') {
@@ -88,7 +114,9 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
   private reuseViews = inject(ENABLE_REUSABE_VIEWS, {
     optional: true,
   });
+  private wrapCdInTransaction = __APPLE__ && inject(WRAP_CD_IN_TRANSACTION);
   private injector = inject(Injector);
+  private cdDepth = 0;
   private viewUtil = new ViewUtil(this.namespaceFilters, this.reuseViews);
 
   constructor() {
@@ -99,7 +127,9 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
   }
   createRenderer(hostElement: any, type: RendererType2): Renderer2 {
     if (NativeScriptDebug.enabled) {
-      NativeScriptDebug.rendererLog(`NativeScriptRendererFactory.createRenderer ${hostElement}. type.id: ${type.id} type.encapsulation: ${type.encapsulation}`);
+      NativeScriptDebug.rendererLog(
+        `NativeScriptRendererFactory.createRenderer ${hostElement}. type.id: ${type.id} type.encapsulation: ${type.encapsulation}`,
+      );
     }
     if (!hostElement || !type) {
       return this.defaultRenderer;
@@ -137,12 +167,25 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
     this.componentRenderers.set(type.id, renderer);
     return renderer;
   }
-  // begin?(): void {
-  //     throw new Error("Method not implemented.");
-  // }
-  // end?(): void {
-  //     throw new Error("Method not implemented.");
-  // }
+  begin() {
+    if (__APPLE__ && this.wrapCdInTransaction) {
+      if (this.cdDepth > 0) {
+        // previous tick threw between begin and end; flush it
+        while (this.cdDepth > 0) {
+          CATransaction.commit();
+          this.cdDepth--;
+        }
+      }
+      CATransaction.begin();
+      this.cdDepth++;
+    }
+  }
+  end() {
+    if (__APPLE__ && this.wrapCdInTransaction) {
+      CATransaction.commit();
+      this.cdDepth--;
+    }
+  }
   whenRenderingDone(): Promise<any> {
     if (!this.rootView) {
       return Promise.resolve();
@@ -258,7 +301,9 @@ class NativeScriptRenderer implements Renderer2 {
   @modifiesDom()
   insertBefore(parent: any, newChild: any, refChild: any): void {
     if (NativeScriptDebug.enabled) {
-      NativeScriptDebug.rendererLog(`NativeScriptRenderer.insertBefore child: ${newChild} ` + `parent: ${parent} refChild: ${refChild}`);
+      NativeScriptDebug.rendererLog(
+        `NativeScriptRenderer.insertBefore child: ${newChild} ` + `parent: ${parent} refChild: ${refChild}`,
+      );
     }
     this.viewUtil.insertBefore(parent, newChild, refChild);
   }
@@ -266,7 +311,9 @@ class NativeScriptRenderer implements Renderer2 {
   @modifiesDom()
   removeChild(parent: any, oldChild: any, isHostElement?: boolean): void {
     if (NativeScriptDebug.enabled) {
-      NativeScriptDebug.rendererLog(`NativeScriptRenderer.removeChild child: ${oldChild} parent: ${parent} oldChild.parentNode: ${oldChild?.parentNode}`);
+      NativeScriptDebug.rendererLog(
+        `NativeScriptRenderer.removeChild child: ${oldChild} parent: ${parent} oldChild.parentNode: ${oldChild?.parentNode}`,
+      );
     }
     this.viewUtil.removeChild(parent ?? oldChild.parentNode, oldChild);
   }
@@ -319,13 +366,17 @@ class NativeScriptRenderer implements Renderer2 {
   @modifiesDom()
   setAttribute(el: any, name: string, value: string, namespace?: string): void {
     if (NativeScriptDebug.enabled) {
-      NativeScriptDebug.rendererLog(`NativeScriptRenderer.setAttribute ${namespace ? namespace + ':' : ''}${el}.${name} = ${value}`);
+      NativeScriptDebug.rendererLog(
+        `NativeScriptRenderer.setAttribute ${namespace ? namespace + ':' : ''}${el}.${name} = ${value}`,
+      );
     }
     this.viewUtil.setProperty(el, name, value, namespace);
   }
   removeAttribute(el: any, name: string, namespace?: string): void {
     if (NativeScriptDebug.enabled) {
-      NativeScriptDebug.rendererLog(`NativeScriptRenderer.removeAttribute ${namespace ? namespace + ':' : ''}${el}.${name}`);
+      NativeScriptDebug.rendererLog(
+        `NativeScriptRenderer.removeAttribute ${namespace ? namespace + ':' : ''}${el}.${name}`,
+      );
     }
   }
   @inRootZone()
@@ -418,13 +469,16 @@ const replaceNgAttribute = function (input: string, componentId: string): string
   return input.replace(COMPONENT_REGEX, componentId);
 };
 
-const addScopedStyleToCss = profile(`"renderer".addScopedStyleToCss`, function addScopedStyleToCss(style: string, tag?: number | string): void {
-  if (tag) {
-    addTaggedAdditionalCSS(style, tag);
-  } else {
-    Application.addCss(style);
-  }
-});
+const addScopedStyleToCss = profile(
+  `"renderer".addScopedStyleToCss`,
+  function addScopedStyleToCss(style: string, tag?: number | string): void {
+    if (tag) {
+      addTaggedAdditionalCSS(style, tag);
+    } else {
+      Application.addCss(style);
+    }
+  },
+);
 
 @Injectable()
 export class EmulatedRenderer extends NativeScriptRenderer {

@@ -8,6 +8,7 @@ export {
   BootstrapContext,
   COMMON_PROVIDERS,
   HmrOptions,
+  NativeScriptApplicationConfig,
   NativeScriptDocument,
   NativeScriptSanitizer,
   defaultPageFactoryProvider,
