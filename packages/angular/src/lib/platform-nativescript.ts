@@ -19,7 +19,7 @@ import { DOCUMENT, LocationChangeListener, LocationStrategy, PlatformLocation } 
 import { NativeScriptPlatformRefProxy } from './platform-ref';
 import { AppHostView } from './app-host-view';
 import { Color, GridLayout } from '@nativescript/core';
-import { defaultPageFactory, PAGE_FACTORY } from './tokens';
+import { defaultPageFactory, ENABLE_REUSABE_VIEWS, PAGE_FACTORY, WRAP_CD_IN_TRANSACTION } from './tokens';
 import { AppLaunchView } from './application';
 import { NATIVESCRIPT_MODULE_PROVIDERS, NATIVESCRIPT_MODULE_STATIC_PROVIDERS } from './nativescript';
 
@@ -143,12 +143,27 @@ export interface BootstrapContext {
   platformRef?: PlatformRef;
 }
 
-function createProvidersConfig(options?: ApplicationConfig, context?: BootstrapContext) {
+export interface NativeScriptApplicationConfig extends ApplicationConfig {
+  reusableViews?: boolean;
+  ios?: {
+    wrapChangeDetectionInTransaction?: boolean;
+  };
+}
+
+function createProvidersConfig(options?: NativeScriptApplicationConfig, context?: BootstrapContext) {
+  const nsProviders: StaticProvider[] = [];
+  if (options?.reusableViews) {
+    nsProviders.push({ provide: ENABLE_REUSABE_VIEWS, useValue: true });
+  }
+  if (options?.ios?.wrapChangeDetectionInTransaction) {
+    nsProviders.push({ provide: WRAP_CD_IN_TRANSACTION, useValue: true });
+  }
   return {
     platformRef: context?.platformRef,
     appProviders: [
       ...NATIVESCRIPT_MODULE_STATIC_PROVIDERS,
       ...NATIVESCRIPT_MODULE_PROVIDERS,
+      ...nsProviders,
       ...(options?.providers ?? []),
     ],
     platformProviders: context?.platformRef ? [] : COMMON_PROVIDERS,
@@ -157,7 +172,7 @@ function createProvidersConfig(options?: ApplicationConfig, context?: BootstrapC
 
 export function bootstrapApplication(
   rootComponent: Type<any>,
-  options?: ApplicationConfig,
+  options?: NativeScriptApplicationConfig,
   context?: BootstrapContext,
 ) {
   return ɵinternalCreateApplication({
@@ -166,7 +181,7 @@ export function bootstrapApplication(
   });
 }
 
-export function createApplication(options?: ApplicationConfig, context?: BootstrapContext) {
+export function createApplication(options?: NativeScriptApplicationConfig, context?: BootstrapContext) {
   return ɵinternalCreateApplication(createProvidersConfig(options, context));
 }
 
