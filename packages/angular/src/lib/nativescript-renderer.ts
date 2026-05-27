@@ -274,22 +274,34 @@ class NativeScriptRenderer implements Renderer2 {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.selectRootElement: ${selectorOrNode}`);
     }
+    // Angular 21+ reads `rootElement.tagName.toLowerCase()` after this call
+    // (`locateHostElement`) to reject `<script>` hosts. Guarantee every return
+    // path produces a View with a non-empty string `tagName`; otherwise the
+    // bootstrap throws `Cannot read properties of undefined (reading 'toLowerCase')`.
+    const ensureTagName = (view: any, fallback: string) => {
+      if (view && typeof view.tagName !== 'string') {
+        try {
+          view.tagName = view.nodeName || fallback || 'view';
+        } catch {}
+      }
+      return view;
+    };
     if (selectorOrNode instanceof View) {
-      return selectorOrNode;
+      return ensureTagName(selectorOrNode, '');
     }
     if (selectorOrNode && selectorOrNode[0] === '#') {
       const result = getViewById(this.rootView, selectorOrNode.slice(1));
-      return (result || this.rootView) as View;
+      return ensureTagName((result || this.rootView) as View, selectorOrNode);
     }
     if (typeof selectorOrNode === 'string') {
       const view = this.viewUtil.createView(selectorOrNode);
       if (getFirstNativeLikeView(view) === view) {
         // view is nativelike!
         this.appendChild(this.rootView, view);
-        return view;
+        return ensureTagName(view, selectorOrNode);
       }
     }
-    return this.rootView;
+    return ensureTagName(this.rootView, '');
   }
   parentNode(node: NgView) {
     if (NativeScriptDebug.enabled) {
