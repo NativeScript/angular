@@ -140,14 +140,19 @@ export const COMMON_PROVIDERS: StaticProvider[] = [
 ];
 
 export const platformNativeScript = createPlatformFactory(platformCore, 'nativescriptDynamic', COMMON_PROVIDERS);
-function createProvidersConfig(options?: ApplicationConfig) {
+export interface BootstrapContext {
+  platformRef?: PlatformRef;
+}
+
+function createProvidersConfig(options?: ApplicationConfig, context?: BootstrapContext) {
   return {
+    platformRef: context?.platformRef,
     appProviders: [
       ...NATIVESCRIPT_MODULE_STATIC_PROVIDERS,
       ...NATIVESCRIPT_MODULE_PROVIDERS,
       ...(options?.providers ?? []),
     ],
-    platformProviders: COMMON_PROVIDERS,
+    platformProviders: context?.platformRef ? [] : COMMON_PROVIDERS,
   };
 }
 
@@ -164,9 +169,9 @@ export function bootstrapApplication(rootComponent: Type<any>, options?: Applica
   });
 }
 
-export function createApplication(options?: ApplicationConfig) {
+export function createApplication(options?: ApplicationConfig, context?: BootstrapContext) {
   registerNativeScriptViewComponents();
-  return ɵinternalCreateApplication(createProvidersConfig(options));
+  return ɵinternalCreateApplication(createProvidersConfig(options, context));
 }
 
 export interface HmrOptions {

@@ -21,3 +21,4 @@ packages/angular/dist
 **/xplat/nativescript*/plugins/**/*
 /.nx/cache
 /.nx/workspace-data
+.nx/self-healing

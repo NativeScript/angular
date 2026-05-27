@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { ItemDetailComponent } from './item/item-detail.component';
 import { ItemsComponent } from './item/items.component';
+import { InputBindingDemoComponent } from './input-binding-demo/input-binding-demo.component';
 import { ListViewStickyComponent } from './list-view-sticky/list-view-sticky.component';
 import { SPLIT_VIEW_ROUTES } from './split-view-demo/split-view.routes';
 // import { HomeComponent } from './home/home.component';
@@ -10,6 +11,14 @@ export const routes: Routes = [
   { path: '', redirectTo: '/rootlazy', pathMatch: 'full' },
   { path: 'items', component: ItemsComponent },
   { path: 'item/:id', component: ItemDetailComponent },
+  {
+    path: 'input-binding-demo/:name',
+    component: InputBindingDemoComponent,
+    data: { title: 'Demo Page' },
+    resolve: {
+      timestamp: () => new Date().toISOString(),
+    },
+  },
   { path: 'item2', loadChildren: () => import('./item2/item2.routes').then((m) => m.ITEM2_ROUTES) },
   { path: 'rootlazy', loadChildren: () => import('./item3/item3.module').then((m) => m.Item3Module) },
   {

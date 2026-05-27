@@ -3,6 +3,7 @@
   "compilerOptions": {
     "target": "es2020",
     "baseUrl": ".",
+    "types": ["node", "jasmine"],
     "outDir": "../../dist/out-tsc",
     "paths": {
       "~/*": ["src/*"],

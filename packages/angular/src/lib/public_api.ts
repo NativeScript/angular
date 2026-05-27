@@ -5,6 +5,7 @@ export * from './view-refs';
 export * from './app-host-view';
 export {
   AppOptions,
+  BootstrapContext,
   COMMON_PROVIDERS,
   HmrOptions,
   NativeScriptDocument,
@@ -13,6 +14,7 @@ export {
   platformNativeScriptDynamic,
   platformNativeScript,
   bootstrapApplication,
+  createApplication,
 } from './platform-nativescript';
 export * from './cdk/detached-loader';
 export {
