@@ -44,6 +44,16 @@ class names available for styling your app at https://docs.nativescript.org/ui/t
       backgroundColor="#00d2ff"
       class="text-white mt-2 w-full font-bold h-[50]"
     ></Button>
+    <Button
+      [nsRouterLink]="['/input-binding-demo', 'Angular']"
+      [queryParams]="{ language: 'en' }"
+      text="Input Binding Demo"
+      [borderRadius]="borderRadius"
+      [fontSize]="fontSize"
+      padding="0"
+      backgroundColor="#4CAF50"
+      class="text-white mt-2 w-full font-bold h-[50]"
+    ></Button>
   </StackLayout>
   <ListView row="1" [items]="items" backgroundColor="#efefef">
     <ng-template let-item="item">

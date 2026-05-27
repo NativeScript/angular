@@ -32,6 +32,7 @@ import {
 import { Frame, NavigatedData, NavigationEntry, Page, profile } from '@nativescript/core';
 
 import { BehaviorSubject } from 'rxjs';
+import { INPUT_BINDER } from './router-component-input-binder';
 
 import { DetachedLoader } from '../../cdk/detached-loader';
 import { PageService } from '../../cdk/frame-page/page.service';
@@ -126,6 +127,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
   private ngZone = inject(NgZone);
   private router = inject(Router);
   private environmentInjector = inject(EnvironmentInjector);
+  private inputBinder = inject(INPUT_BINDER, { optional: true });
 
   // tslint:disable-line:directive-class-suffix
   private activated: ComponentRef<any> | null = null;
@@ -152,6 +154,10 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
 
   get isActivated(): boolean {
     return !!this.activated;
+  }
+
+  get activatedComponentRef(): ComponentRef<any> | null {
+    return this.activated;
   }
 
   get component(): unknown {
@@ -236,6 +242,8 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
       NativeScriptDebug.routerLog('PageRouterOutlet.ngOnDestroy: no outlet available for page-router-outlet');
     }
 
+    this.inputBinder?.unsubscribeFromRouteData(this);
+
     if (this.isActivated) {
       const c = this.activated.instance;
       this.activated.hostView.detach();
@@ -265,6 +273,8 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     }
     this.postNavFunction?.();
 
+    this.inputBinder?.unsubscribeFromRouteData(this);
+
     const c = this.activated.instance;
     destroyComponentRef(this.activated);
 
@@ -290,6 +300,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     }
 
     this.postNavFunction?.();
+    this.inputBinder?.unsubscribeFromRouteData(this);
 
     // Detach from ChangeDetection
     this.activated.hostView.detach();
@@ -316,6 +327,8 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     this.activated.hostView.reattach();
     this._activatedRoute = activatedRoute;
     this.markActivatedRoute(activatedRoute);
+
+    this.inputBinder?.bindActivatedRouteToOutletComponent(this);
 
     // we have a child with the same name, so we don't finish the back nav
     if (this.isFinalPageRouterOutlet()) {
@@ -376,6 +389,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     this.markActivatedRoute(activatedRoute);
 
     this.activateOnGoForward(activatedRoute, resolver || this.environmentInjector);
+    this.inputBinder?.bindActivatedRouteToOutletComponent(this);
     this.activateEvents.emit(this.activated.instance);
   }
 
