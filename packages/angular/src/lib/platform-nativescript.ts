@@ -155,10 +155,14 @@ function createProvidersConfig(options?: ApplicationConfig, context?: BootstrapC
   };
 }
 
-export function bootstrapApplication(rootComponent: Type<any>, options?: ApplicationConfig) {
+export function bootstrapApplication(
+  rootComponent: Type<any>,
+  options?: ApplicationConfig,
+  context?: BootstrapContext,
+) {
   return ɵinternalCreateApplication({
     rootComponent: rootComponent,
-    ...createProvidersConfig(options),
+    ...createProvidersConfig(options, context),
   });
 }
 
