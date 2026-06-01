@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import { TemplateRef, ViewContainerRef, ElementRef, ComponentRef, EmbeddedViewRef, Injector, ComponentFactoryResolver } from '@angular/core';
+import { TemplateRef, ViewContainerRef, ElementRef, ComponentRef, EmbeddedViewRef, Injector } from '@angular/core';
 import { View } from '@nativescript/core';
 import { throwNullPortalOutletError, throwPortalAlreadyAttachedError, throwNoPortalAttachedError, throwNullPortalError, throwPortalOutletAlreadyDisposedError, throwUnknownPortalTypeError } from './portal-errors';
 import type { ComponentType } from '../../utils/general';
@@ -77,18 +77,11 @@ export class ComponentPortal<T> extends Portal<ComponentRef<T>> {
   /** [Optional] Injector used for the instantiation of the component. */
   injector?: Injector | null;
 
-  /**
-   * Alternate `ComponentFactoryResolver` to use when resolving the associated component.
-   * Defaults to using the resolver from the outlet that the portal is attached to.
-   */
-  componentFactoryResolver?: ComponentFactoryResolver | null;
-
-  constructor(component: ComponentType<T>, viewContainerRef?: ViewContainerRef | null, injector?: Injector | null, componentFactoryResolver?: ComponentFactoryResolver | null) {
+  constructor(component: ComponentType<T>, viewContainerRef?: ViewContainerRef | null, injector?: Injector | null) {
     super();
     this.component = component;
     this.viewContainerRef = viewContainerRef;
     this.injector = injector;
-    this.componentFactoryResolver = componentFactoryResolver;
   }
 }
 

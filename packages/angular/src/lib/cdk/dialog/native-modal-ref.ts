@@ -1,4 +1,4 @@
-import { ApplicationRef, ComponentFactoryResolver, ComponentRef, createComponent, EmbeddedViewRef, Injector, Optional, ViewContainerRef } from '@angular/core';
+import { ApplicationRef, ComponentRef, createComponent, EmbeddedViewRef, Injector, Optional, ViewContainerRef } from '@angular/core';
 import { Application, ContentView, Frame, View } from '@nativescript/core';
 import { fromEvent, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
@@ -88,7 +88,6 @@ export class NativeModalRef {
     const targetView = new ContentView();
     this.portalOutlet = new NativeScriptDomPortalOutlet(
       targetView,
-      this._config.componentFactoryResolver || this._injector.get(ComponentFactoryResolver),
       this._injector.get(ApplicationRef),
       this._injector,
     );
@@ -121,7 +120,6 @@ export class NativeModalRef {
     const targetView = new ContentView();
     this.portalOutlet = new NativeScriptDomPortalOutlet(
       targetView,
-      this._config.componentFactoryResolver || this._injector.get(ComponentFactoryResolver),
       this._injector.get(ApplicationRef),
       this._injector,
     );
