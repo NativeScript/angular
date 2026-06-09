@@ -1,0 +1,158 @@
+<!-- Native header: the accent-tinted ActionBar gives an automatic native
+     back button (iOS chevron / Android up) because page-router-outlet
+     pushes each route as a page onto the frame. -->
+<ActionBar
+  [title]="feature()?.title || 'Feature'"
+  [backgroundColor]="feature()?.accent || '#08060f'"
+  flat="true"
+  class="action-bar"
+></ActionBar>
+
+<GridLayout class="page-bg">
+  <ScrollView>
+    <StackLayout>
+      @if (feature(); as f) {
+        <!-- accent header -->
+        <StackLayout [backgroundColor]="f.accent" class="detail-hero">
+          <Label [text]="f.icon" class="detail-glyph"></Label>
+          <Label [text]="f.category" class="detail-cat"></Label>
+          <Label [text]="f.title" class="detail-title" textWrap="true"></Label>
+          <Label [text]="f.tagline" class="detail-tagline" textWrap="true"></Label>
+        </StackLayout>
+
+        <StackLayout class="detail-body">
+          <Label text="Overview" class="section-label"></Label>
+          <Label [text]="f.description" class="body-text" textWrap="true"></Label>
+
+          <Label text="Why it matters" class="section-label"></Label>
+          <StackLayout class="why-box">
+            <Label [text]="f.why" class="why-text" textWrap="true"></Label>
+          </StackLayout>
+
+          <Label text="Code" class="section-label"></Label>
+          <MdCodeBlock [code]="f.code" language="typescript"></MdCodeBlock>
+
+          @if (f.demo) {
+            <Label text="Try it live" class="section-label"></Label>
+            @switch (f.demo) {
+              @case ('counter') {
+                <StackLayout class="demo-box">
+                  <Label [text]="'count() = ' + count()" class="demo-readout"></Label>
+                  <Label [text]="'doubled() = ' + doubled()" class="demo-sub"></Label>
+                  <GridLayout columns="*,*,*" class="demo-controls">
+                    <Button col="0" text="–" (tap)="dec()" class="demo-btn"></Button>
+                    <Button col="1" text="reset" (tap)="reset()" class="demo-btn-ghost"></Button>
+                    <Button col="2" text="+" (tap)="inc()" class="demo-btn"></Button>
+                  </GridLayout>
+                  <Label
+                    text="A signal drives an OnPush view — no zone, no manual change detection."
+                    class="demo-hint"
+                    textWrap="true"
+                  ></Label>
+                </StackLayout>
+              }
+              @case ('debounce') {
+                <StackLayout class="demo-box">
+                  <TextField
+                    [text]="draft()"
+                    (textChange)="onDraft($event)"
+                    hint="Type quickly…"
+                    autocorrect="false"
+                    autocapitalizationType="none"
+                    class="search-field"
+                  ></TextField>
+                  <Label [text]="'live:     ' + (draft() || '—')" class="demo-readout"></Label>
+                  <Label [text]="'settled:  ' + (settled() || '—')" class="demo-readout"></Label>
+                  <Label
+                    [text]="settling() ? '⏳  settling…' : '✓  settled'"
+                    [class.is-settling]="settling()"
+                    class="demo-status"
+                  ></Label>
+                  <Label
+                    [text]="keystrokes() + ' keystrokes → 1 debounced value (350ms)'"
+                    class="demo-hint"
+                    textWrap="true"
+                  ></Label>
+                </StackLayout>
+              }
+              @case ('nullable') {
+                <StackLayout class="demo-box">
+                  <Label
+                    [text]="'user()?.name  →  ' + (user()?.name ?? 'undefined')"
+                    class="demo-readout"
+                    textWrap="true"
+                  ></Label>
+                  <Button
+                    [text]="user() ? 'Set user → null' : 'Restore user'"
+                    (tap)="toggleUser()"
+                    class="demo-btn"
+                  ></Button>
+                  <Label
+                    text="Optional chaining safely returns undefined and narrows the type."
+                    class="demo-hint"
+                    textWrap="true"
+                  ></Label>
+                </StackLayout>
+              }
+              @case ('defer') {
+                <StackLayout class="demo-box">
+                  @defer (when showDeferred()) {
+                    <ng22-deferred-panel></ng22-deferred-panel>
+                  } @placeholder {
+                    <Label
+                      text="🫥  Island dehydrated — its code isn't in the page yet."
+                      class="demo-readout mb-3"
+                      textWrap="true"
+                    ></Label>
+                  } @loading (minimum 600ms) {
+                    <StackLayout orientation="horizontal" class="demo-loading mb-3">
+                      <ActivityIndicator busy="true" class="demo-spinner"></ActivityIndicator>
+                      <Label text="Fetching the lazy chunk…" class="demo-sub" verticalAlignment="center"></Label>
+                    </StackLayout>
+                  }
+                  <Button
+                    [text]="showDeferred() ? 'Hydrated ✓' : 'Hydrate the island'"
+                    [isEnabled]="!showDeferred()"
+                    (tap)="loadDeferred()"
+                    class="demo-btn"
+                  ></Button>
+                  <Label
+                    text="A real @defer block — the panel is code-split and only fetched when you trigger it."
+                    class="demo-hint"
+                    textWrap="true"
+                  ></Label>
+                </StackLayout>
+              }
+              @case ('signal-forms') {
+                <demo-signal-form></demo-signal-form>
+              }
+              @case ('service') {
+                <demo-service></demo-service>
+              }
+              @case ('inject-async') {
+                <demo-inject-async></demo-inject-async>
+              }
+              @case ('resource') {
+                <demo-resource></demo-resource>
+              }
+              @case ('switch') {
+                <demo-switch></demo-switch>
+              }
+              @case ('http') {
+                <demo-http></demo-http>
+              }
+            }
+          }
+
+          <Label text="Landed in 22.0.0" class="since-badge"></Label>
+        </StackLayout>
+      } @else {
+        <StackLayout class="empty-state">
+          <Label text="🤷" class="empty-glyph"></Label>
+          <Label text="That feature could not be found." class="empty-text" textWrap="true"></Label>
+          <Button text="Back to Explorer" (tap)="back()" class="demo-btn"></Button>
+        </StackLayout>
+      }
+    </StackLayout>
+  </ScrollView>
+</GridLayout>

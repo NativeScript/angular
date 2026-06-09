@@ -1,0 +1,48 @@
+<StackLayout class="demo-box">
+  <Label text="Email" class="demo-field-label"></Label>
+  <TextField
+    [text]="f.email().value()"
+    (textChange)="onEmail($event)"
+    hint="ada@example.com"
+    keyboardType="email"
+    autocorrect="false"
+    autocapitalizationType="none"
+    class="search-field"
+  ></TextField>
+  @if (emailError()) {
+    <Label [text]="'⚠ ' + emailError()" class="demo-error"></Label>
+  } @else if (f.email().valid()) {
+    <Label text="✓ looks good" class="demo-ok"></Label>
+  }
+
+  <Label text="Handle" class="demo-field-label mt-3"></Label>
+  <TextField
+    [text]="f.handle().value()"
+    (textChange)="onHandle($event)"
+    hint="ada"
+    autocorrect="false"
+    autocapitalizationType="none"
+    class="search-field"
+  ></TextField>
+  @if (handleError()) {
+    <Label [text]="'⚠ ' + handleError()" class="demo-error"></Label>
+  } @else if (f.handle().valid()) {
+    <Label text="✓ looks good" class="demo-ok"></Label>
+  }
+
+  <GridLayout columns="auto,*" class="demo-form-status mt-3">
+    <Label col="0" [text]="f().valid() ? '✓' : '•'" [class.text-emerald-400]="f().valid()" class="demo-readout"></Label>
+    <Label col="1" [text]="f().valid() ? 'Form is valid' : 'Form is invalid'" class="demo-readout pl-2"></Label>
+  </GridLayout>
+  <Button
+    [text]="f().valid() ? 'Submit ✓' : 'Fix errors to submit'"
+    [isEnabled]="f().valid()"
+    class="demo-btn mt-2"
+  ></Button>
+
+  <Label
+    text="form() + schema validators — value, validity and errors are all signals."
+    class="demo-hint"
+    textWrap="true"
+  ></Label>
+</StackLayout>

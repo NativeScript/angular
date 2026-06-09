@@ -1,0 +1,96 @@
+<!-- Native header for the root page -->
+<ActionBar title="Angular 22 Explorer" class="text-white"></ActionBar>
+
+<GridLayout rows="*" class="page-bg" iosOverflowSafeArea="true">
+  <ScrollView row="0">
+    <StackLayout>
+      <!-- ───────────────  HERO  ─────────────── -->
+      <StackLayout class="hero">
+        <Label text="◆ ANGULAR" class="hero-eyebrow"></Label>
+        <Label text="22" class="hero-title"></Label>
+        <Label text="What's new — explored." class="hero-subtitle"></Label>
+        <Label [text]="store.totalCount() + ' curated features · signals · zoneless'" class="hero-meta"></Label>
+      </StackLayout>
+
+      <!-- ───────────────  SEARCH  ─────────────── -->
+      <GridLayout columns="*" class="search-wrap">
+        <TextField
+          col="0"
+          [text]="store.query()"
+          (textChange)="onSearch($event)"
+          hint="Search features…"
+          returnKeyType="search"
+          autocorrect="false"
+          autocapitalizationType="none"
+          class="search-field"
+        ></TextField>
+      </GridLayout>
+
+      <!-- ───────────────  CATEGORY CHIPS  ─────────────── -->
+      <ScrollView orientation="horizontal" scrollBarIndicatorVisible="false" class="chips-row">
+        <StackLayout orientation="horizontal">
+          <Label
+            text="All"
+            (tap)="toggleCategory(null)"
+            [ngClass]="{
+              'chip-active text-white': store.activeCategory() === null,
+              'chip text-[#c9c4da]': store.activeCategory() !== null,
+            }"
+          ></Label>
+          @for (c of store.categories; track c) {
+            <Label
+              [text]="c"
+              (tap)="toggleCategory(c)"
+              [ngClass]="{
+                'chip-active text-white': store.activeCategory() === c,
+                'chip text-[#c9c4da]': store.activeCategory() !== c,
+              }"
+            ></Label>
+          }
+        </StackLayout>
+      </ScrollView>
+
+      <!-- ───────────────  RESULT COUNT  ─────────────── -->
+      <Label
+        [text]="store.resultCount() + (store.resultCount() === 1 ? ' feature' : ' features')"
+        class="result-count"
+      ></Label>
+
+      <!-- ───────────────  FEATURE CARDS  ─────────────── -->
+      <StackLayout class="cards">
+        @for (f of store.filtered(); track f.id) {
+          <GridLayout columns="auto,auto,*,auto" rows="auto,auto,auto" class="feature-card" (tap)="open(f)">
+            <!-- accent dot: category color, ties the row to its detail page -->
+            <StackLayout
+              col="0"
+              rowSpan="3"
+              [backgroundColor]="f.accent"
+              class="card-dot"
+              verticalAlignment="center"
+            ></StackLayout>
+
+            <!-- glyph -->
+            <Label col="1" rowSpan="3" [text]="f.icon" class="card-glyph" verticalAlignment="center"></Label>
+
+            <!-- title -->
+            <Label col="2" row="0" [text]="f.title" class="card-title" textWrap="true"></Label>
+            <!-- tagline -->
+            <Label col="2" row="1" [text]="f.tagline" class="card-tagline" textWrap="true"></Label>
+            <!-- category badge -->
+            <Label col="2" row="2" [text]="f.category" [color]="f.accent" class="card-badge"></Label>
+
+            <!-- chevron -->
+            <Label col="3" rowSpan="3" text="›" class="card-chevron" verticalAlignment="center"></Label>
+          </GridLayout>
+        } @empty {
+          <StackLayout class="empty-state">
+            <Label text="🔍" class="empty-glyph"></Label>
+            <Label text="No features match your search." class="empty-text" textWrap="true"></Label>
+          </StackLayout>
+        }
+      </StackLayout>
+
+      <Label text="Built with NativeScript + Angular 22" class="footer-note"></Label>
+    </StackLayout>
+  </ScrollView>
+</GridLayout>
