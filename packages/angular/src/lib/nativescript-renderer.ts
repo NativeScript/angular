@@ -106,6 +106,12 @@ function modifiesDom() {
 
 export class NativeScriptRendererFactory implements RendererFactory2 {
   private componentRenderers = new Map<string, Renderer2>();
+  // Signature of the styles last applied for each component `type.id`. Used to
+  // detect a `styleUrls`/`styles` change across an `replaceMetadata` HMR
+  // update so the cached renderer can re-apply the new (scoped) styles - the
+  // renderer cache below otherwise short-circuits `addStyles`, so a component
+  // style edit would never take effect without a full re-bootstrap.
+  private componentStyleSignatures = new Map<string, string>();
   private defaultRenderer: Renderer2;
   // backwards compatibility with RadListView
   private rootView = inject(APP_ROOT_VIEW);
@@ -151,6 +157,25 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
         renderer.applyToHost(hostElement);
       }
 
+      // HMR: a component `styleUrls`/`styles` edit recompiles the component
+      // metadata and `replaceMetadata` recreates its views, which re-enters
+      // `createRenderer` with the SAME `type.id` but NEW `type.styles`. The
+      // cache hit above would otherwise return the renderer whose one-time
+      // `addStyles` already ran with the OLD styles, so the change would never
+      // render. When the style signature changed, re-apply: emulated styles
+      // are re-scoped + re-added (same selector/specificity -> later wins);
+      // None-encapsulation styles are re-added globally. Both keep the shared
+      // `rootModuleID` tag so module teardown still removes them.
+      const styleSignature = this.styleSignature(type.styles);
+      if (this.componentStyleSignatures.get(type.id) !== styleSignature) {
+        this.componentStyleSignatures.set(type.id, styleSignature);
+        if (renderer instanceof EmulatedRenderer) {
+          renderer.reapplyStyles(type.styles);
+        } else {
+          this.reapplyGlobalStyles(type.styles);
+        }
+      }
+
       return renderer;
     }
 
@@ -165,7 +190,30 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
     }
 
     this.componentRenderers.set(type.id, renderer);
+    this.componentStyleSignatures.set(type.id, this.styleSignature(type.styles));
     return renderer;
+  }
+
+  // Stable signature of a component's styles, used to detect HMR style edits.
+  private styleSignature(styles: (string | any[])[]): string {
+    try {
+      return (styles || []).map((s) => s.toString()).join("\n");
+    } catch {
+      return '';
+    }
+  }
+
+  // Re-apply ViewEncapsulation.None component styles (global, unscoped) on an
+  // HMR style edit and re-trigger styling on the live view tree.
+  private reapplyGlobalStyles(styles: (string | any[])[]): void {
+    try {
+      styles.map((s) => s.toString()).forEach((v) => addStyleToCss(v, this.rootModuleID));
+      Application.getRootView()?._onCssStateChange();
+    } catch (err) {
+      if (NativeScriptDebug.enabled) {
+        NativeScriptDebug.rendererLog(`reapplyGlobalStyles failed: ${err}`);
+      }
+    }
   }
   begin() {
     if (__APPLE__ && this.wrapCdInTransaction) {
@@ -484,15 +532,38 @@ const addScopedStyleToCss = profile(
 export class EmulatedRenderer extends NativeScriptRenderer {
   private contentAttr: string;
   private hostAttr: string;
+  private componentId: string;
   private rootModuleId = inject(NATIVESCRIPT_ROOT_MODULE_ID);
 
   constructor(component: RendererType2, rootView: View) {
     super(rootView);
 
     const componentId = component.id.replace(ATTR_SANITIZER, '_');
+    this.componentId = componentId;
     this.contentAttr = replaceNgAttribute(CONTENT_ATTR, componentId);
     this.hostAttr = replaceNgAttribute(HOST_ATTR, componentId);
     this.addStyles(component.styles, componentId);
+  }
+
+  /**
+   * Re-apply this component's emulated-scoped styles after an HMR
+   * `styleUrls`/`styles` edit. The renderer is cached per component type id
+   * (see `NativeScriptRendererFactory.createRenderer`), so the constructor's
+   * one-time `addStyles` never re-runs on `replaceMetadata` - without this
+   * the new styles never reach the device. The freshly-compiled rules are
+   * re-scoped to this renderer's component id (so the existing views, which
+   * carry that `_ngcontent` attribute, match) and re-added under the same
+   * `rootModuleId` tag; since they share the previous rules' selector and
+   * specificity, the later-added values win. We then re-trigger styling on
+   * the live view tree so the change paints without a re-bootstrap.
+   */
+  reapplyStyles(styles: (string | any[])[]): void {
+    this.addStyles(styles, this.componentId);
+    try {
+      Application.getRootView()?._onCssStateChange();
+    } catch {
+      // best-effort restyle; never let an HMR style re-apply throw
+    }
   }
 
   applyToHost(view: NgView) {
