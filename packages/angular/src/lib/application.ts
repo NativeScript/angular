@@ -835,12 +835,29 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     }
   };
 
+  // First (cold) launch entry point. Embedded apps are already running inside a
+  // host UIApplication, so the native app loop must NOT be (re)started via
+  // Application.run() with no entry — that routes through runAsEmbeddedApp() ->
+  // createRootView() before Angular has bootstrapped a root, and since the
+  // launch listener is intentionally not registered in embedded mode, it throws
+  // "Main entry is missing. App cannot be started." Instead bootstrap Angular
+  // directly; setRootView() then calls Application.run({ create }) with a real
+  // entry once the root view exists. Non-embedded apps still need
+  // Application.run() to drive UIApplicationMain/launch handling.
+  const runFirstLaunch = () => {
+    if (currentOptions.embedded) {
+      bootstrapRoot('applaunch');
+    } else {
+      Application.run();
+    }
+  };
+
   if (isWebpackHot) {
     // Webpack-specific HMR handling
     import.meta['webpackHot'].decline();
 
     if (!Application.hasLaunched()) {
-      Application.run();
+      runFirstLaunch();
       return;
     }
     bootstrapRoot('hotreload');
@@ -853,16 +870,12 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     // which will call __reboot_ng_modules__ when needed
 
     if (!Application.hasLaunched()) {
-      Application.run();
+      runFirstLaunch();
       return;
     }
     bootstrapRoot('hotreload');
     return;
   }
 
-  if (currentOptions.embedded) {
-    bootstrapRoot('applaunch');
-  } else {
-    Application.run();
-  }
+  runFirstLaunch();
 }
