@@ -2,7 +2,6 @@ import { ApplicationRef, ComponentRef, Injectable, Injector, NgModuleRef, NgZone
 import { Application, ContentView, Frame, ShowModalOptions, View, ViewBase } from '@nativescript/core';
 import { Subject } from 'rxjs';
 import { AppHostAsyncView, AppHostView } from '../../app-host-view';
-import { DetachedLoader } from '../../cdk/detached-loader';
 import { ComponentPortal } from '../../cdk/portal/common';
 import { NativeScriptDomPortalOutlet } from '../../cdk/portal/nsdom-portal-outlet';
 import { didModalOpen, once } from '../../utils/general';
@@ -117,7 +116,6 @@ export class ModalDialogService {
 
   private _showDialog(options: ShowDialogOptions): void {
     let componentViewRef: NgViewRef<unknown>;
-    let detachedLoaderRef: ComponentRef<DetachedLoader>;
     let portalOutlet: NativeScriptDomPortalOutlet;
 
     const closeCallback = once(async (...args) => {
@@ -129,11 +127,9 @@ export class ModalDialogService {
           this._closed$.next(params);
         }
         await this.location._closeModalNavigation();
-        if (detachedLoaderRef || portalOutlet) {
+        if (portalOutlet) {
           this.zone.run(() => {
             portalOutlet?.dispose();
-            detachedLoaderRef?.instance.detectChanges();
-            detachedLoaderRef?.destroy();
           });
         }
       }
@@ -169,7 +165,7 @@ export class ModalDialogService {
       const modalView = componentViewRef.firstNativeLikeView;
       options.parentView.showModal(modalView, { ...options, closeCallback });
       if (!didModalOpen(options.parentView as View, modalView)) {
-        this._handleFailedOpen(modalParams, portalOutlet, detachedLoaderRef);
+        this._handleFailedOpen(modalParams, portalOutlet);
       }
     });
   }
@@ -179,15 +175,13 @@ export class ModalDialogService {
    * failed to actually present it. Without this the modal navigation stack stays incremented
    * (blocking further navigation) and the attached view/loader leak on the `ApplicationRef`.
    */
-  private _handleFailedOpen(modalParams: ModalDialogParams, portalOutlet?: NativeScriptDomPortalOutlet, detachedLoaderRef?: ComponentRef<DetachedLoader>): never {
+  private _handleFailedOpen(modalParams: ModalDialogParams, portalOutlet?: NativeScriptDomPortalOutlet): never {
     const index = this.openedModalParams?.indexOf(modalParams) ?? -1;
     if (index > -1) {
       this.openedModalParams.splice(index, 1);
     }
     this.location?._closeModalNavigation();
     portalOutlet?.dispose();
-    detachedLoaderRef?.instance.detectChanges();
-    detachedLoaderRef?.destroy();
     throw new Error('Failed to open dialog: the modal view could not be presented. This usually happens when another modal is already being presented.');
   }
 }
