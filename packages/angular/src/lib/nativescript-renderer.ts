@@ -18,10 +18,12 @@ import {
   profile,
   View,
 } from '@nativescript/core';
+import { DeferredRendererOps } from './deferred-renderer-ops';
 import { isKnownView } from './element-registry';
 import { NAMESPACE_FILTERS } from './property-filter';
 import {
   APP_ROOT_VIEW,
+  DEFER_NATIVE_OPS_DURING_CD,
   ENABLE_REUSABE_VIEWS,
   NATIVESCRIPT_ROOT_MODULE_ID,
   PREVENT_SPECIFIC_EVENTS_DURING_CD,
@@ -64,6 +66,13 @@ function inRootZone() {
   providedIn: 'root',
 })
 export class NativeScriptRendererHelperService {
+  /**
+   * Batches native side-effects produced during change detection. Shared across
+   * the renderer factory (which opens/flushes the window in begin()/end()) and
+   * all renderers (whose ViewUtil enqueues into it). Inert unless the factory
+   * opens a window, which it only does when DEFER_NATIVE_OPS_DURING_CD is set.
+   */
+  readonly deferral = new DeferredRendererOps();
   private _executingDomChanges = 0;
   get executingDomChanges() {
     return this._executingDomChanges;
@@ -115,9 +124,11 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
     optional: true,
   });
   private wrapCdInTransaction = __APPLE__ && inject(WRAP_CD_IN_TRANSACTION);
+  private deferNativeOps = inject(DEFER_NATIVE_OPS_DURING_CD);
+  private rendererHelper = inject(NativeScriptRendererHelperService);
   private injector = inject(Injector);
   private cdDepth = 0;
-  private viewUtil = new ViewUtil(this.namespaceFilters, this.reuseViews);
+  private viewUtil = new ViewUtil(this.namespaceFilters, this.reuseViews, this.rendererHelper.deferral);
 
   constructor() {
     if (typeof this.reuseViews !== 'boolean') {
@@ -168,6 +179,11 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
     return renderer;
   }
   begin() {
+    if (this.deferNativeOps) {
+      // Open a deferral window: native property writes and view attaches issued
+      // during this CD pass are queued and applied in end().
+      this.rendererHelper.deferral.begin();
+    }
     if (__APPLE__ && this.wrapCdInTransaction) {
       if (this.cdDepth > 0) {
         // previous tick threw between begin and end; flush it
@@ -181,6 +197,11 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
     }
   }
   end() {
+    if (this.deferNativeOps) {
+      // Apply all queued native work before committing the transaction so the
+      // batched mutations land inside it.
+      this.rendererHelper.deferral.flush();
+    }
     if (__APPLE__ && this.wrapCdInTransaction) {
       CATransaction.commit();
       this.cdDepth--;
@@ -226,8 +247,8 @@ class NativeScriptRenderer implements Renderer2 {
   private reuseViews = inject(ENABLE_REUSABE_VIEWS, {
     optional: true,
   });
-  private viewUtil = new ViewUtil(this.namespaceFilters, this.reuseViews);
   _rendererHelper = inject(NativeScriptRendererHelperService);
+  private viewUtil = new ViewUtil(this.namespaceFilters, this.reuseViews, this._rendererHelper.deferral);
   private specificPreventedEvents = new Set(
     inject(PREVENT_SPECIFIC_EVENTS_DURING_CD, {
       optional: true,
@@ -426,7 +447,12 @@ class NativeScriptRenderer implements Renderer2 {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.setValue renderNode: ${node}, value: ${value}`);
     }
     if (node instanceof TextNode) {
-      node.text = value;
+      const deferral = this._rendererHelper.deferral;
+      if (deferral.deferring) {
+        deferral.queueOp(() => (node.text = value));
+      } else {
+        node.text = value;
+      }
     }
     // throw new Error("Method not implemented.");
   }
