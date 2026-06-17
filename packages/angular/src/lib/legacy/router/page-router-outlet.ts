@@ -1,9 +1,6 @@
 import {
   ChangeDetectorRef,
-  ComponentFactory,
-  ComponentFactoryResolver,
   ComponentRef,
-  createComponent,
   Directive,
   ElementRef,
   EnvironmentInjector,
@@ -63,10 +60,6 @@ export class PageRoute {
   }
 }
 
-function isComponentFactoryResolver(item: any): item is ComponentFactoryResolver {
-  return !!item.resolveComponentFactory;
-}
-
 function callableOnce<T>(fn: (...args: T[]) => void) {
   let called = false;
   return (...args: T[]) => {
@@ -120,7 +113,6 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
   private parentContexts = inject(ChildrenOutletContexts);
   private location = inject(ViewContainerRef);
   private locationStrategy = inject(NSLocationStrategy);
-  private resolver = inject(ComponentFactoryResolver);
   private changeDetector = inject(ChangeDetectorRef);
   private pageFactory = inject<PageFactory>(PAGE_FACTORY);
   private routeReuseStrategy = inject(NSRouteReuseStrategy);
@@ -132,8 +124,6 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
   // tslint:disable-line:directive-class-suffix
   private activated: ComponentRef<any> | null = null;
   private _activatedRoute: ActivatedRoute | null = null;
-  private detachedLoaderFactory: ComponentFactory<DetachedLoader>;
-
   private outlet: Outlet;
   private name: string;
   private isEmptyOutlet: boolean;
@@ -193,7 +183,6 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     const name = inject(new HostAttributeToken('name'), { optional: true });
     const actionBarVisibility = inject(new HostAttributeToken('actionBarVisibility'), { optional: true });
     const isEmptyOutlet = !!inject(new HostAttributeToken('isEmptyOutlet'), { optional: true });
-    const resolver = this.resolver;
     const elRef = inject(ElementRef);
     const viewUtil = inject(ViewUtil);
 
@@ -208,7 +197,6 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     parentContexts.onChildOutletCreated(this.name, <any>this);
 
     this.viewUtil = viewUtil;
-    this.detachedLoaderFactory = resolver.resolveComponentFactory(DetachedLoader);
   }
 
   setActionBarVisibility(actionBarVisibility: string): void {
@@ -357,7 +345,7 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
    * This method in turn is responsible for calling the `routerOnActivate` hook of its child.
    */
   @profile
-  activateWith(activatedRoute: ActivatedRoute, resolver: ComponentFactoryResolver | EnvironmentInjector | null): void {
+  activateWith(activatedRoute: ActivatedRoute, environmentInjector: EnvironmentInjector | null): void {
     this.outlet = this.outlet || this.getOutlet(activatedRoute.snapshot);
     if (!this.outlet) {
       if (NativeScriptDebug.isLogEnabled()) {
@@ -388,15 +376,12 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
 
     this.markActivatedRoute(activatedRoute);
 
-    this.activateOnGoForward(activatedRoute, resolver || this.environmentInjector);
+    this.activateOnGoForward(activatedRoute, environmentInjector || this.environmentInjector);
     this.inputBinder?.bindActivatedRouteToOutletComponent(this);
     this.activateEvents.emit(this.activated.instance);
   }
 
-  private activateOnGoForward(
-    activatedRoute: ActivatedRoute,
-    resolverOrInjector: ComponentFactoryResolver | EnvironmentInjector,
-  ): void {
+  private activateOnGoForward(activatedRoute: ActivatedRoute, environmentInjector: EnvironmentInjector): void {
     if (NativeScriptDebug.isLogEnabled()) {
       NativeScriptDebug.routerLog(
         'PageRouterOutlet.activate() forward navigation - ' + 'create detached loader in the loader container',
@@ -424,16 +409,11 @@ export class PageRouterOutlet implements OnDestroy, RouterOutletContract {
     });
 
     const injector = new DestructibleInjector(destructibles, parentInjector);
-    let loaderRef: ComponentRef<DetachedLoader>;
-    if (isComponentFactoryResolver(resolverOrInjector)) {
-      loaderRef = createComponent(DetachedLoader, {
-        environmentInjector: this.environmentInjector,
-        elementInjector: injector,
-      });
-    } else {
-      const environmentInjector = resolverOrInjector;
-      loaderRef = location.createComponent(DetachedLoader, { index: location.length, injector, environmentInjector });
-    }
+    const loaderRef: ComponentRef<DetachedLoader> = location.createComponent(DetachedLoader, {
+      index: location.length,
+      injector,
+      environmentInjector,
+    });
     loaderRef.onDestroy(() => injector.destroy());
     this.changeDetector.markForCheck();
 

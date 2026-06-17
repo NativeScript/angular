@@ -160,23 +160,15 @@ export class NativeDialog implements OnDestroy {
     const dialogRef = new this._dialogRefConstructor(nativeModalRef, config.id);
 
     if (componentOrTemplateRef instanceof TemplateRef) {
-      //     const detachedFactory = options.resolver.resolveComponentFactory(DetachedLoader);
-      //     if(options.attachToContainerRef) {
-      //         detachedLoaderRef = options.attachToContainerRef.createComponent(detachedFactory, 0, childInjector, null);
-      //     } else {
-      //         detachedLoaderRef = detachedFactory.create(childInjector); // this DetachedLoader is **completely** detached
-      //         this.appRef.attachView(detachedLoaderRef.hostView); // we attach it to the applicationRef, so it becomes a "root" view in angular's hierarchy
-      //     }
-      //     detachedLoaderRef.changeDetectorRef.detectChanges(); // force a change detection
-      //     detachedLoaderRef.instance.createTemplatePortal(options.templateRef);
+      const injector = this._createInjector<T>(config, dialogRef);
       nativeModalRef.attachTemplatePortal(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        new TemplatePortal<T>(componentOrTemplateRef, null!, <any>{ $implicit: config.data, dialogRef }),
+        new TemplatePortal<T>(componentOrTemplateRef, null!, <any>{ $implicit: config.data, dialogRef }, injector),
       );
     } else {
       const injector = this._createInjector<T>(config, dialogRef);
       const contentRef = nativeModalRef.attachComponentPortal<T>(
-        new ComponentPortal(componentOrTemplateRef, config.viewContainerRef, injector),
+        new ComponentPortal(componentOrTemplateRef, config.viewContainerRef, injector, null, config.bindings),
       );
       dialogRef.componentInstance = contentRef.instance;
     }
