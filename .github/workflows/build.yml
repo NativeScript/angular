@@ -4,6 +4,18 @@ env:
   NX_BRANCH: ${{ github.event.number || github.ref_name }}
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
 
+  # --- Customize the test environment here ---
+  NODE_VERSION: lts/*
+  TEST_PROJECT: nativescript-demo-ng
+  # iOS (runner label is set on the job's `runs-on`, it can't read env)
+  XCODE_VERSION: "^16.0"
+  # Android
+  JAVA_VERSION: "21"
+  ANDROID_API: "34"
+  ANDROID_ABI: x86_64
+  ANDROID_TARGET: google_apis
+  EMULATOR_NAME: ns-emu
+
 on:
   push:
     branches: ["main"]
@@ -29,3 +41,61 @@ jobs:
         run: npm install --force
       - name: Build.all affected
         run: npx nx affected --target=build,test --exclude nativescript-demo-ng
+
+  test-ios:
+    name: Test (iOS)
+    runs-on: macos-15
+    steps:
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - uses: nrwl/nx-set-shas@v5
+      - name: npm install
+        run: npm install --force
+      - name: Test on iOS Simulator
+        run: npx nx test ${{ env.TEST_PROJECT }} ios --flags="--justlaunch"
+
+  test-android:
+    name: Test (Android)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: gradle
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v4
+      - uses: nrwl/nx-set-shas@v5
+      - name: npm install
+        run: npm install --force
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Test on Android Emulator
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ env.ANDROID_API }}
+          target: ${{ env.ANDROID_TARGET }}
+          arch: ${{ env.ANDROID_ABI }}
+          avd-name: ${{ env.EMULATOR_NAME }}
+          script: npx nx test ${{ env.TEST_PROJECT }} android --flags="--justlaunch"
