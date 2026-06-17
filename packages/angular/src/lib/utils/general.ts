@@ -12,9 +12,22 @@ import { Application, View } from '@nativescript/core';
  * @param modalView The view that was passed to `showModal()`.
  */
 export function didModalOpen(parentView: View, modalView: View): boolean {
-  // On a successful present, core synchronously sets the parent's `modal` to the modal view.
-  if (parentView && parentView.modal === modalView) {
+  // Fast path: on a successful present, core sets `_modalParent` on the modal view itself,
+  // so we can confirm in O(1) without walking the view tree in the common (success) case.
+  if (modalView && (modalView as { _modalParent?: View })._modalParent) {
     return true;
+  }
+
+  // Slow path (real confirmation): core sets `modal` to the modal view on the parent that owns
+  // a native view controller/fragment. On Android that's the exact `parentView`, but on iOS core
+  // walks up to the first ancestor with a view controller and sets it there, so we walk the
+  // parent chain to cover both platforms.
+  let view: View = parentView;
+  while (view) {
+    if (view.modal === modalView) {
+      return true;
+    }
+    view = view.parent as View;
   }
 
   // On Android, presenting while the app is backgrounded and the parent isn't loaded is
