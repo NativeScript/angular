@@ -5,7 +5,7 @@ import { AppHostAsyncView, AppHostView } from '../../app-host-view';
 import { DetachedLoader } from '../../cdk/detached-loader';
 import { ComponentPortal } from '../../cdk/portal/common';
 import { NativeScriptDomPortalOutlet } from '../../cdk/portal/nsdom-portal-outlet';
-import { once } from '../../utils/general';
+import { didModalOpen, once } from '../../utils/general';
 import { NgViewRef } from '../../view-refs';
 import { NSLocationStrategy } from '../router/ns-location-strategy';
 
@@ -167,7 +167,7 @@ export class ModalDialogService {
       // }
       const targetView = new ContentView();
       const portal = new ComponentPortal(options.type);
-      portalOutlet = new NativeScriptDomPortalOutlet(targetView, options.resolver, this.appRef, childInjector);
+      portalOutlet = new NativeScriptDomPortalOutlet(targetView, this.appRef, childInjector);
       const componentRef = portalOutlet.attach(portal);
       componentRef.changeDetectorRef.detectChanges();
       componentViewRef = new NgViewRef(componentRef);
@@ -181,7 +181,28 @@ export class ModalDialogService {
       }
       // if we don't detach the view from its parent, ios gets mad
       componentViewRef.detachNativeLikeView();
-      options.parentView.showModal(componentViewRef.firstNativeLikeView, { ...options, closeCallback });
+      const modalView = componentViewRef.firstNativeLikeView;
+      options.parentView.showModal(modalView, { ...options, closeCallback });
+      if (!didModalOpen(options.parentView as View, modalView)) {
+        this._handleFailedOpen(modalParams, portalOutlet, detachedLoaderRef);
+      }
     });
+  }
+
+  /**
+   * Rolls back everything that was set up to present the modal when NativeScript silently
+   * failed to actually present it. Without this the modal navigation stack stays incremented
+   * (blocking further navigation) and the attached view/loader leak on the `ApplicationRef`.
+   */
+  private _handleFailedOpen(modalParams: ModalDialogParams, portalOutlet?: NativeScriptDomPortalOutlet, detachedLoaderRef?: ComponentRef<DetachedLoader>): never {
+    const index = this.openedModalParams?.indexOf(modalParams) ?? -1;
+    if (index > -1) {
+      this.openedModalParams.splice(index, 1);
+    }
+    this.location?._closeModalNavigation();
+    portalOutlet?.dispose();
+    detachedLoaderRef?.instance.detectChanges();
+    detachedLoaderRef?.destroy();
+    throw new Error('Failed to open dialog: the modal view could not be presented. This usually happens when another modal is already being presented.');
   }
 }
