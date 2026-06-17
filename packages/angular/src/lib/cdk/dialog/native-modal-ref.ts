@@ -1,10 +1,10 @@
-import { ApplicationRef, ComponentFactoryResolver, ComponentRef, createComponent, EmbeddedViewRef, Injector, Optional, ViewContainerRef } from '@angular/core';
+import { ApplicationRef, ComponentRef, createComponent, EmbeddedViewRef, Injector, Optional, ViewContainerRef } from '@angular/core';
 import { Application, ContentView, Frame, View } from '@nativescript/core';
 import { fromEvent, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { AppHostAsyncView, AppHostView } from '../../app-host-view';
 import { NSLocationStrategy } from '../../legacy/router/ns-location-strategy';
-import { once } from '../../utils/general';
+import { didModalOpen, once } from '../../utils/general';
 import { NgViewRef } from '../../view-refs';
 import { DetachedLoader } from '../detached-loader';
 import { ComponentPortal, TemplatePortal } from '../portal/common';
@@ -86,12 +86,7 @@ export class NativeModalRef {
     this._generateDetachedContainer(vcRef);
     portal.viewContainerRef = this.detachedLoaderRef.instance.vc;
     const targetView = new ContentView();
-    this.portalOutlet = new NativeScriptDomPortalOutlet(
-      targetView,
-      this._config.componentFactoryResolver || this._injector.get(ComponentFactoryResolver),
-      this._injector.get(ApplicationRef),
-      this._injector,
-    );
+    this.portalOutlet = new NativeScriptDomPortalOutlet(targetView, this._injector.get(ApplicationRef), this._injector);
     const templateRef = this.portalOutlet.attach(portal);
     this.modalViewRef = new NgViewRef(templateRef);
     this.modalViewRef.firstNativeLikeView['__ng_modal_id__'] = this._id;
@@ -99,7 +94,8 @@ export class NativeModalRef {
     this.modalViewRef.detachNativeLikeView();
 
     const userOptions = this._config.nativeOptions || {};
-    this.parentView.showModal(this.modalViewRef.firstNativeLikeView, {
+    const modalView = this.modalViewRef.firstNativeLikeView;
+    this.parentView.showModal(modalView, {
       context: null,
       ...userOptions,
       closeCallback: async () => {
@@ -109,6 +105,9 @@ export class NativeModalRef {
       },
       cancelable: !this._config.disableClose,
     });
+    if (!didModalOpen(this.parentView, modalView)) {
+      this._handleFailedOpen();
+    }
     //   if (this.modalView !== templateRef.rootNodes[0]) {
     //     componentRef.location.nativeElement._ngDialogRoot = this.modalView;
     //   }
@@ -119,12 +118,7 @@ export class NativeModalRef {
     this.startModalNavigation();
 
     const targetView = new ContentView();
-    this.portalOutlet = new NativeScriptDomPortalOutlet(
-      targetView,
-      this._config.componentFactoryResolver || this._injector.get(ComponentFactoryResolver),
-      this._injector.get(ApplicationRef),
-      this._injector,
-    );
+    this.portalOutlet = new NativeScriptDomPortalOutlet(targetView, this._injector.get(ApplicationRef), this._injector);
     const componentRef = this.portalOutlet.attach(portal);
     componentRef.changeDetectorRef.detectChanges();
     this.modalViewRef = new NgViewRef(componentRef);
@@ -136,7 +130,8 @@ export class NativeModalRef {
     this.modalViewRef.detachNativeLikeView();
 
     const userOptions = this._config.nativeOptions || {};
-    this.parentView.showModal(this.modalViewRef.firstNativeLikeView, {
+    const modalView = this.modalViewRef.firstNativeLikeView;
+    this.parentView.showModal(modalView, {
       context: null,
       ...userOptions,
       closeCallback: async () => {
@@ -147,11 +142,27 @@ export class NativeModalRef {
       },
       cancelable: !this._config.disableClose,
     });
+    if (!didModalOpen(this.parentView, modalView)) {
+      this._handleFailedOpen();
+    }
     return componentRef;
   }
 
   _startExitAnimation() {
     this._closeCallback();
+  }
+
+  /**
+   * Rolls back everything that was set up to present the modal when NativeScript silently
+   * failed to actually present it. Without this the modal navigation stack stays incremented
+   * (blocking further navigation) and the attached view/loader leak on the `ApplicationRef`.
+   */
+  private _handleFailedOpen(): never {
+    this._isDismissed = true;
+    this.location?._closeModalNavigation();
+    this.portalOutlet?.dispose();
+    this.detachedLoaderRef?.destroy();
+    throw new Error('Failed to open dialog: the modal view could not be presented. This usually happens when another modal is already being presented.');
   }
 
   dispose() {

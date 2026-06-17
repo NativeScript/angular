@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import { ComponentFactoryResolver, ComponentRef, EmbeddedViewRef, ApplicationRef, Injector, Renderer2, Optional, createComponent } from '@angular/core';
+import { ComponentRef, EmbeddedViewRef, ApplicationRef, Injector, Renderer2, Optional, createComponent } from '@angular/core';
 import { View } from '@nativescript/core';
 import { CommentNode } from '../../views/invisible-nodes';
 import { ViewUtil } from '../../view-util';
@@ -21,7 +21,6 @@ export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
   constructor(
     /** Element into which the content is projected. */
     public outletElement: View,
-    private _componentFactoryResolver: ComponentFactoryResolver,
     private _appRef: ApplicationRef,
     private _defaultInjector: Injector,
     @Optional() viewUtil?: ViewUtil,

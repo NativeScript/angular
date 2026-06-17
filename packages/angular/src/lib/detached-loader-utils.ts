@@ -73,7 +73,7 @@ export function generateNativeScriptView<T>(
     portal = new ComponentPortal(typeOrTemplate, detachedLoaderRef?.instance.vc);
   }
   const parentView = new ContentView();
-  const portalOutlet = new NativeScriptDomPortalOutlet(parentView, resolver, injector.get(ApplicationRef), injector);
+  const portalOutlet = new NativeScriptDomPortalOutlet(parentView, injector.get(ApplicationRef), injector);
   const componentOrTemplateRef: ComponentRef<T> | EmbeddedViewRef<T> = portalOutlet.attach(portal);
   if (detachedLoaderRef && !reusingDetachedLoader) {
     componentOrTemplateRef.onDestroy(() => {
