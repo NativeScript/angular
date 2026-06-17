@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import { TemplateRef, ViewContainerRef, ElementRef, ComponentRef, EmbeddedViewRef, Injector, ComponentFactoryResolver } from '@angular/core';
+import { TemplateRef, ViewContainerRef, ElementRef, ComponentRef, EmbeddedViewRef, Injector, Binding, Type, DirectiveWithBindings } from '@angular/core';
 import { View } from '@nativescript/core';
 import { throwNullPortalOutletError, throwPortalAlreadyAttachedError, throwNoPortalAttachedError, throwNullPortalError, throwPortalOutletAlreadyDisposedError, throwUnknownPortalTypeError } from './portal-errors';
 import type { ComponentType } from '../../utils/general';
@@ -16,7 +16,7 @@ import type { ComponentType } from '../../utils/general';
  * It can be attach to / detached from a `PortalOutlet`.
  */
 export abstract class Portal<T> {
-  private _attachedHost: PortalOutlet | null;
+  private _attachedHost: PortalOutlet | null = null;
 
   /** Attach this portal to a host. */
   attach(host: PortalOutlet): T {
@@ -68,27 +68,45 @@ export class ComponentPortal<T> extends Portal<ComponentRef<T>> {
   component: ComponentType<T>;
 
   /**
-   * [Optional] Where the attached component should live in Angular's *logical* component tree.
+   * Where the attached component should live in Angular's *logical* component tree.
    * This is different from where the component *renders*, which is determined by the PortalOutlet.
    * The origin is necessary when the host is outside of the Angular application context.
    */
   viewContainerRef?: ViewContainerRef | null;
 
-  /** [Optional] Injector used for the instantiation of the component. */
+  /** Injector used for the instantiation of the component. */
   injector?: Injector | null;
 
   /**
-   * Alternate `ComponentFactoryResolver` to use when resolving the associated component.
-   * Defaults to using the resolver from the outlet that the portal is attached to.
+   * List of NativeScript views that should be projected through `<ng-content>` of the attached component.
    */
-  componentFactoryResolver?: ComponentFactoryResolver | null;
+  projectableNodes?: View[][] | null;
 
-  constructor(component: ComponentType<T>, viewContainerRef?: ViewContainerRef | null, injector?: Injector | null, componentFactoryResolver?: ComponentFactoryResolver | null) {
+  /**
+   * Bindings to apply to the created component.
+   */
+  readonly bindings: Binding[] | null;
+
+  /**
+   * Directives to apply to the created component.
+   */
+  readonly directives: (Type<unknown> | DirectiveWithBindings<unknown>)[] | null;
+
+  constructor(
+    component: ComponentType<T>,
+    viewContainerRef?: ViewContainerRef | null,
+    injector?: Injector | null,
+    projectableNodes?: View[][] | null,
+    bindings?: Binding[],
+    directives?: (Type<unknown> | DirectiveWithBindings<unknown>)[],
+  ) {
     super();
     this.component = component;
     this.viewContainerRef = viewContainerRef;
     this.injector = injector;
-    this.componentFactoryResolver = componentFactoryResolver;
+    this.projectableNodes = projectableNodes;
+    this.bindings = bindings || null;
+    this.directives = directives || null;
   }
 }
 
@@ -105,11 +123,15 @@ export class TemplatePortal<C = any> extends Portal<EmbeddedViewRef<C>> {
   /** Contextual data to be passed in to the embedded view. */
   context: C | undefined;
 
-  constructor(template: TemplateRef<C>, viewContainerRef: ViewContainerRef, context?: C) {
+  /** The injector to use for the embedded view. */
+  injector: Injector | undefined;
+
+  constructor(template: TemplateRef<C>, viewContainerRef: ViewContainerRef, context?: C, injector?: Injector) {
     super();
     this.templateRef = template;
     this.viewContainerRef = viewContainerRef;
     this.context = context;
+    this.injector = injector;
   }
 
   get origin(): ElementRef {
@@ -168,13 +190,13 @@ export interface PortalOutlet {
  */
 export abstract class BasePortalOutlet implements PortalOutlet {
   /** The portal currently attached to the host. */
-  protected _attachedPortal: Portal<any> | null;
+  protected _attachedPortal: Portal<any> | null = null;
 
   /** A function that will permanently dispose this host. */
-  private _disposeFn: (() => void) | null;
+  private _disposeFn: (() => void) | null = null;
 
   /** Whether this host has already been permanently disposed. */
-  private _isDisposed = false;
+  private _isDisposed: boolean = false;
 
   /** Whether this host has an attached portal. */
   hasAttached(): boolean {

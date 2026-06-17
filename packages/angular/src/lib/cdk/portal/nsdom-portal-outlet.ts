@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import { ComponentRef, EmbeddedViewRef, ApplicationRef, Injector, Renderer2, Optional, createComponent } from '@angular/core';
+import { ComponentRef, EmbeddedViewRef, ApplicationRef, Injector, EnvironmentInjector, NgModuleRef, Optional, createComponent } from '@angular/core';
 import { View } from '@nativescript/core';
 import { CommentNode } from '../../views/invisible-nodes';
 import { ViewUtil } from '../../view-util';
@@ -30,7 +30,7 @@ export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
   }
 
   /**
-   * Attach the given ComponentPortal to DOM element using the ComponentFactoryResolver.
+   * Attach the given ComponentPortal to DOM element.
    * @param portal Portal to be attached
    * @returns Reference to the created component.
    */
@@ -42,20 +42,36 @@ export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
     // When the ViewContainerRef is missing, we use the factory to create the component directly
     // and then manually attach the view to the application.
     if (portal.viewContainerRef) {
+      const injector = portal.injector || portal.viewContainerRef.injector;
+      const ngModuleRef = injector.get(NgModuleRef, null, { optional: true }) || undefined;
+
       componentRef = portal.viewContainerRef.createComponent(portal.component, {
         index: portal.viewContainerRef.length,
-        injector: portal.injector || portal.viewContainerRef.injector,
+        injector,
+        ngModuleRef,
+        projectableNodes: (portal.projectableNodes as unknown as Node[][]) || undefined,
+        bindings: portal.bindings || undefined,
+        directives: portal.directives || undefined,
       });
 
       this.setDisposeFn(() => componentRef.destroy());
     } else {
+      const elementInjector = portal.injector || this._defaultInjector || Injector.NULL;
+      const environmentInjector = elementInjector.get(EnvironmentInjector, this._appRef.injector);
       componentRef = createComponent(portal.component, {
-        elementInjector: portal.injector || this._defaultInjector || Injector.NULL,
-        environmentInjector: this._appRef.injector,
+        elementInjector,
+        environmentInjector,
+        projectableNodes: (portal.projectableNodes as unknown as Node[][]) || undefined,
+        bindings: portal.bindings || undefined,
+        directives: portal.directives || undefined,
       });
       this._appRef.attachView(componentRef.hostView);
       this.setDisposeFn(() => {
-        this._appRef.detachView(componentRef.hostView);
+        // Verify that the ApplicationRef has registered views before trying to detach a host view.
+        // This check also protects the `detachView` from being called on a destroyed ApplicationRef.
+        if (this._appRef.viewCount > 0) {
+          this._appRef.detachView(componentRef.hostView);
+        }
         componentRef.destroy();
       });
     }
@@ -66,6 +82,7 @@ export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
       this._viewUtil.removeChild(rootNode.parent as View, rootNode);
     }
     this._viewUtil.appendChild(this.outletElement, this._getComponentRootNode(componentRef));
+    this._attachedPortal = portal;
 
     return componentRef;
   }
@@ -77,7 +94,9 @@ export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
    */
   attachTemplatePortal<C>(portal: TemplatePortal<C>): EmbeddedViewRef<C> {
     const viewContainer = portal.viewContainerRef;
-    const viewRef = viewContainer.createEmbeddedView(portal.templateRef, portal.context);
+    const viewRef = viewContainer.createEmbeddedView(portal.templateRef, portal.context, {
+      injector: portal.injector,
+    });
 
     // The method `createEmbeddedView` will add the view as a child of the viewContainer.
     // But for the DomPortalOutlet the view can be added everywhere in the DOM
@@ -102,6 +121,8 @@ export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
       }
     });
 
+    this._attachedPortal = portal;
+
     // TODO(jelbourn): Return locals from view.
     return viewRef;
   }
@@ -124,6 +145,7 @@ export class NativeScriptDomPortalOutlet extends BasePortalOutlet {
 
     this._viewUtil.insertBefore(element.parentNode as View, anchorNode, element);
     this._viewUtil.appendChild(this.outletElement, element);
+    this._attachedPortal = portal;
 
     super.setDisposeFn(() => {
       // We can't use `replaceWith` here because IE doesn't support it.

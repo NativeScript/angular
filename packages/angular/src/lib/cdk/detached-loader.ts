@@ -1,4 +1,4 @@
-import { ApplicationRef, ChangeDetectorRef, Component, ComponentFactory, ComponentFactoryResolver, ComponentRef, inject, Injector, NO_ERRORS_SCHEMA, OnDestroy, TemplateRef, Type, ViewChild, ViewContainerRef } from '@angular/core';
+import { ApplicationRef, ChangeDetectorRef, Component, ComponentFactory, ComponentRef, createComponent, inject, Injector, NO_ERRORS_SCHEMA, OnDestroy, TemplateRef, Type, ViewChild, ViewContainerRef } from '@angular/core';
 import { ProxyViewContainer, Trace } from '@nativescript/core';
 import { registerElement } from '../element-registry';
 import type { ComponentType } from '../utils/general';
@@ -27,7 +27,6 @@ export class DetachedLoader implements OnDestroy {
   @ViewChild('vc', { read: ViewContainerRef, static: true }) vc: ViewContainerRef;
   private disposeFunctions: Array<() => void> = [];
   // tslint:disable-line:component-class-suffix
-  resolver = inject(ComponentFactoryResolver);
   changeDetector = inject(ChangeDetectorRef);
   containerRef = inject(ViewContainerRef);
   appRef = inject(ApplicationRef);
@@ -41,8 +40,10 @@ export class DetachedLoader implements OnDestroy {
   }
 
   private loadInAppRef(componentType: Type<any>): ComponentRef<any> {
-    const factory = this.resolver.resolveComponentFactory(componentType);
-    const componentRef = factory.create(this.containerRef.injector);
+    const componentRef = createComponent(componentType, {
+      environmentInjector: this.appRef.injector,
+      elementInjector: this.containerRef.injector,
+    });
     this.appRef.attachView(componentRef.hostView);
 
     this.disposeFunctions.push(() => {
