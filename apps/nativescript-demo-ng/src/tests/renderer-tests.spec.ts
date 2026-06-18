@@ -1,688 +1,694 @@
-// // make sure you import mocha-config before @angular/core
-
-// import { assert } from "./test-config";
-// import { Component, ComponentRef, ElementRef, NgZone, Renderer2, ViewChild } from "@angular/core";
-// import { ProxyViewContainer, LayoutBase, StackLayout, ContentView, Button, isIOS, View, Label } from "@nativescript/core";
-// import { Red } from "@nativescript/core/color/known-colors";
-// import { dumpView } from "./test-utils";
-// import { registerElement } from "@nativescript/angular";
-// import { fontInternalProperty, backgroundInternalProperty } from "@nativescript/core/ui/core/view"
-// import { nsTestBedAfterEach, nsTestBedBeforeEach, nsTestBedRender } from "@nativescript/angular/testing";
-// import { ComponentFixture, TestBed, async } from "@angular/core/testing";
-// import { Observable, ReplaySubject } from "rxjs";
-
-// @Component({
-//     template: `<StackLayout><Label text="Layout"></Label></StackLayout>`
-// })
-// export class ZonedRenderer {
-//     constructor(public elementRef: ElementRef, public renderer: Renderer2) { }
-// }
-
-// @Component({
-//     template: `<StackLayout><Label text="Layout"></Label></StackLayout>`
-// })
-// export class LayoutWithLabel {
-//     constructor(public elementRef: ElementRef) { }
-// }
-
-// @Component({
-//     selector: "label-cmp",
-//     template: `<Label text="Layout"></Label>`
-// })
-// export class LabelCmp {
-//     constructor(public elementRef: ElementRef) {
-//     }
-// }
-
-// @Component({
-//     template: `<GridLayout><label-cmp></label-cmp></GridLayout>`
-// })
-// export class LabelContainer {
-//     constructor(public elementRef: ElementRef) { }
-// }
-
-// @Component({
-//     selector: "projectable-cmp",
-//     template: `<StackLayout><ng-content></ng-content></StackLayout>`
-// })
-// export class ProjectableCmp {
-//     constructor(public elementRef: ElementRef) {
-//     }
-// }
-// @Component({
-//     template: `<GridLayout>
-//         <projectable-cmp><Button text="projected"></Button></projectable-cmp>
-//     </GridLayout>`
-// })
-// export class ProjectionContainer {
-//     constructor(public elementRef: ElementRef) { }
-// }
-
-// @Component({
-//     selector: "styled-label-cmp",
-//     styles: [
-//         "Label { color: red; }",
-//     ],
-//     template: `<Label text="Styled!"></Label>`
-// })
-// export class StyledLabelCmp {
-//     constructor(public elementRef: ElementRef) {
-//     }
-// }
-
-// @Component({
-//     selector: "styled-label-cmp2",
-//     styles: [
-//         `Label { color: red; }`,
-//         `
-//         StackLayout { color: brown; }
-//         TextField { color: red; background-color: lime; }
-//         `,
-//     ],
-//     template: `
-//     <StackLayout orientation="horizontal">
-//         <Label text="Styled!"></Label>
-//         <TextField text="Styled too!"></TextField>
-//     </StackLayout>
-//     `
-// })
-// export class StyledLabelCmp2 {
-//     constructor(public elementRef: ElementRef) {
-//     }
-// }
-
-// @Component({
-//     selector: "host-styled",
-//     styles: [`
-//         Label {
-//             color: blue;
-//         }
-
-//         :host Label {
-//             color: red;
-//         }
-//     `
-//     ],
-//     template: `<Label text="Styled!"></Label>`
-// })
-// export class HostStyledCmp {
-//     constructor(public elementRef: ElementRef<ProxyViewContainer>) {
-//     }
-// }
-
-// @Component({
-//     selector: "host-styled-parent",
-//     template: `
-//         <host-styled></host-styled>
-//         <host-styled></host-styled>
-//     `
-// })
-// export class HostStyledParentCmp {
-//     constructor(public elementRef: ElementRef<ProxyViewContainer>) {
-//     }
-// }
-
-// @Component({
-//     selector: "ng-if-label",
-//     template: `<Label *ngIf="show" text="iffed"></Label>`
-// })
-// export class NgIfLabel {
-//     public show: boolean = false;
-//     constructor(public elementRef: ElementRef) {
-//     }
-// }
-
-// @Component({
-//     selector: "ng-if-two-elements",
-//     template: `
-//         <StackLayout>
-//             <Label *ngIf="show" text="label"></Label>
-//             <Button text="button"></Button>
-//         </StackLayout>
-//     `
-// })
-// export class NgIfTwoElements {
-//     public show: boolean = false;
-//     constructor(public elementRef: ElementRef) {
-//     }
-// }
-
-// @Component({
-//     selector: "ng-if-multiple",
-//     template: `
-//         <StackLayout>
-//             <Label text="1"></Label>
-//             <Label text="2"></Label>
-//             <Label text="3"></Label>
-//             <Label *ngIf="true" text="4"></Label>
-//             <Label text="5"></Label>
-//         </StackLayout>
-//     `
-// })
-// export class NgIfMultiple {
-//     public show: boolean = false;
-//     constructor(public elementRef: ElementRef) {
-//     }
-// }
-
-// @Component({
-//     selector: "ng-if-else",
-//     template: `
-//         <StackLayout>
-//             <Label *ngIf="show; else elseClause" text="If"></Label>
-
-//             <ng-template #elseClause>
-//                 <Label text="Else"></Label>
-//             </ng-template>
-//         </StackLayout>
-//     `
-// })
-// export class NgIfElseComponent {
-//     public show: boolean = true;
-//     constructor(public elementRef: ElementRef) {
-//     }
-// }
-
-// @Component({
-//     selector: "ng-if-then-else",
-//     template: `
-//         <StackLayout>
-//             <Placeholder *ngIf="show; then thenTemplate else elseTemplate">
-//             </Placeholder>
-
-//             <ng-template #thenTemplate>
-//                 <Label text="Then"></Label>
-//             </ng-template>
-
-//             <ng-template #elseTemplate>
-//                 <Label text="Else"></Label>
-//             </ng-template>
-//         </StackLayout>
-//     `
-// })
-// export class NgIfThenElseComponent {
-//     public show: boolean = true;
-//     constructor(public elementRef: ElementRef) {
-//     }
-// }
-
-// export class ButtonCounter extends Button {
-//     nativeBackgroundRedraws = 0;
-//     backgroundInternalSetNativeCount = 0;
-//     fontInternalSetNativeCount = 0;
-
-//     [backgroundInternalProperty.setNative](value) {
-//         this.backgroundInternalSetNativeCount++;
-//         return super[backgroundInternalProperty.setNative](value);
-//     }
-//     [fontInternalProperty.setNative](value) {
-//         this.fontInternalSetNativeCount++;
-//         return super[fontInternalProperty.setNative](value);
-//     }
-//     _redrawNativeBackground(value: any): void {
-//         this.nativeBackgroundRedraws++;
-//         super["_redrawNativeBackground"](value);
-//     }
-// }
-// registerElement("ButtonCounter", () => ButtonCounter);
-
-// @Component({
-//     selector: "ng-control-setters-count",
-//     template: `
-//         <StackLayout>
-//             <ButtonCounter #btn1 id="btn1" borderWidth="1" borderColor="gray" borderRadius="16" fontWeight="bold" fontSize="16"></ButtonCounter>
-//             <ButtonCounter #btn2 id="btn2"></ButtonCounter>
-//             <ButtonCounter #btn3 id="btn3" borderWidth="1" borderColor="gray" borderRadius="16" fontWeight="bold" fontSize="16"></ButtonCounter>
-//             <ButtonCounter #btn4 id="btn4" borderRadius="3" style="background-image: url('~/logo.png'); background-position: center; background-repeat: no-repeat; background-size: cover;"></ButtonCounter>
-//         </StackLayout>
-//     `,
-//     styles: [`
-//         #btn2, #btn3, #btn4 {
-//             border-width: 2;
-//             border-color: teal;
-//             border-radius: 20;
-//             font-weight: 400;
-//             font-size: 32;
-//         }`]
-// })
-// export class NgControlSettersCount {
-//     @ViewChild("btn1", { static: false }) btn1: ElementRef;
-//     @ViewChild("btn2", { static: false }) btn2: ElementRef;
-//     @ViewChild("btn3", { static: false }) btn3: ElementRef;
-//     @ViewChild("btn3", { static: false }) btn4: ElementRef;
-
-//     get buttons(): ElementRef[] { return [this.btn1, this.btn2, this.btn3, this.btn4]; }
-
-//     ready$: Observable<boolean> = new ReplaySubject<boolean>(1);
-
-//     ngAfterViewInit() {
-//         (this.ready$ as ReplaySubject<boolean>).next(true);
-//     }
-// }
-
-// @Component({
-//     selector: "ng-for-label",
-//     template: `<Label *ngFor="let item of items" [text]="item"></Label>`
-// })
-// export class NgForLabel {
-//     public items: Array<string> = ["one", "two", "three"];
-//     constructor(public elementRef: ElementRef) {
-//     }
-// }
-
-// describe("Renderer E2E", () => {
-//     beforeEach(nsTestBedBeforeEach([
-//         LayoutWithLabel, LabelCmp, LabelContainer,
-//         ProjectableCmp, ProjectionContainer,
-//         StyledLabelCmp, StyledLabelCmp2,
-//         HostStyledCmp, HostStyledParentCmp,
-//         NgIfLabel, NgIfThenElseComponent, NgIfMultiple,
-//         NgIfTwoElements, NgIfMultiple,
-//         NgIfElseComponent, NgIfThenElseComponent,
-//         NgForLabel, ZonedRenderer
-//     ]));
-//     afterEach(nsTestBedAfterEach(false));
-
-//     it("component with a layout", () => {
-//         return nsTestBedRender(LayoutWithLabel).then((fixture) => {
-//             const componentRef: ComponentRef<LayoutWithLabel> = fixture.componentRef;
-//             const componentRoot = componentRef.instance.elementRef.nativeElement;
-//             assert.equal("(proxyviewcontainer (stacklayout (label)))", dumpView(componentRoot));
-//         });
-//     });
-
-//     it("component without a layout", () => {
-//         return nsTestBedRender(LabelContainer).then((fixture) => {
-//             const componentRef: ComponentRef<LabelContainer> = fixture.componentRef;
-//             const componentRoot = componentRef.instance.elementRef.nativeElement;
-//             assert.equal("(proxyviewcontainer (gridlayout (proxyviewcontainer (label))))", dumpView(componentRoot));
-//         });
-//     });
-
-//     it("projects content into components", () => {
-//         return nsTestBedRender(ProjectionContainer).then((fixture) => {
-//             const componentRef: ComponentRef<ProjectionContainer> = fixture.componentRef;
-//             const componentRoot = componentRef.instance.elementRef.nativeElement;
-//             assert.equal(
-//                 "(proxyviewcontainer (gridlayout (proxyviewcontainer (stacklayout (button)))))",
-//                  dumpView(componentRoot));
-//         });
-//     });
-
-//     it("applies component styles from single source", () => {
-//         return nsTestBedRender(StyledLabelCmp).then((fixture) => {
-//             const componentRef: ComponentRef<StyledLabelCmp> = fixture.componentRef;
-//             const componentRoot = componentRef.instance.elementRef.nativeElement;
-//             const label = (<ProxyViewContainer>componentRoot).getChildAt(0);
-//             assert.equal(Red, label.style.color.hex);
-//         });
-//     });
-
-//     it("applies component :host styles", () => {
-//         return nsTestBedRender(HostStyledParentCmp).then((fixture) => {
-//             const proxyView = fixture.componentRef.instance.elementRef.nativeElement;
-
-//             for (let i = 0; i < 2; i += 1) {
-//                 const child = proxyView.getChildAt(i) as ProxyViewContainer;
-//                 const label = child.getChildAt(0) as Label;
-//                 assert.equal(Red, label.style.color.hex);
-//             }
-//         });
-//     });
-
-//     it("applies component styles from multiple sources", () => {
-//         return nsTestBedRender(StyledLabelCmp2).then((fixture) => {
-//             const componentRef: ComponentRef<StyledLabelCmp2> = fixture.componentRef;
-//             const componentRoot = componentRef.instance.elementRef.nativeElement;
-//             const layout = (<ProxyViewContainer>componentRoot).getChildAt(0);
-
-//             const label = (<LayoutBase>layout).getChildAt(0);
-//             assert.equal(Red, label.style.color.hex);
-
-//             const textField = (<LayoutBase>layout).getChildAt(1);
-//             console.log("TEXT style.color: " + textField.style.color);
-//             assert.equal(Red, textField.style.color.hex);
-//         });
-//     });
-
-//     it("executes events inside NgZone when listen is called inside NgZone", async(() => {
-//         const eventName = "someEvent";
-//         const view = new StackLayout();
-//         const eventArg = { eventName, object: view };
-//         const callback = (arg) => {
-//             assert.equal(arg, eventArg);
-//             assert.isTrue(NgZone.isInAngularZone(), "Event should be executed inside NgZone");
-//         };
-
-//         nsTestBedRender(ZonedRenderer).then((fixture: ComponentFixture<ZonedRenderer>) => {
-//             fixture.ngZone.run(() => {
-//                 fixture.componentInstance.renderer.listen(view, eventName, callback);
-//             });
-
-//             setTimeout(() => {
-//                 fixture.ngZone.runOutsideAngular(() => {
-//                     view.notify(eventArg);
-//                 });
-//             }, 10);
-//         });
-
-//     }));
-
-//     it("executes events inside NgZone when listen is called outside NgZone", async(() => {
-//         const eventName = "someEvent";
-//         const view = new StackLayout();
-//         const eventArg = { eventName, object: view };
-//         const callback = (arg) => {
-//             assert.equal(arg, eventArg);
-//             assert.isTrue(NgZone.isInAngularZone(), "Event should be executed inside NgZone");
-//         };
-//         nsTestBedRender(ZonedRenderer).then((fixture: ComponentFixture<ZonedRenderer>) => {
-//             fixture.ngZone.runOutsideAngular(() => {
-//                 fixture.componentInstance.renderer.listen(view, eventName, callback);
-
-//                 view.notify(eventArg);
-//             });
-//         });
-//     }));
-
-//     describe("Structural directives", () => {
-//         it("ngIf hides component when false", () => {
-//             return nsTestBedRender(NgIfLabel).then((fixture) => {
-//                 const componentRef: ComponentRef<NgIfLabel> = fixture.componentRef;
-//                 const componentRoot = componentRef.instance.elementRef.nativeElement;
-//                 assert.equal("(proxyviewcontainer)", dumpView(componentRoot));
-//             });
-//         });
-
-//         it("ngIf show component when true", () => {
-//             return nsTestBedRender(NgIfLabel).then((fixture) => {
-//                 const componentRef: ComponentRef<NgIfLabel> = fixture.componentRef;
-//                 const component = <NgIfLabel>componentRef.instance;
-//                 const componentRoot = component.elementRef.nativeElement;
-
-//                 component.show = true;
-//                 fixture.detectChanges();
-//                 assert.equal("(proxyviewcontainer (label))", dumpView(componentRoot));
-//             });
-//         });
-
-//         it("ngIf shows elements in correct order when two are rendered", () => {
-//             return nsTestBedRender(NgIfTwoElements).then((fixture) => {
-//                 const componentRef: ComponentRef<NgIfTwoElements> = fixture.componentRef;
-//                 const component = <NgIfTwoElements>componentRef.instance;
-//                 const componentRoot = component.elementRef.nativeElement;
-
-//                 component.show = true;
-//                 fixture.detectChanges();
-//                 assert.equal(
-//                     "(proxyviewcontainer (stacklayout (label), (button)))",
-//                     dumpView(componentRoot));
-//             });
-//         });
-
-//         it("ngIf shows elements in correct order when multiple are rendered and there's *ngIf", () => {
-//             return nsTestBedRender(NgIfMultiple).then((fixture) => {
-//                 const componentRef: ComponentRef<NgIfMultiple> = fixture.componentRef;
-//                 const component = <NgIfMultiple>componentRef.instance;
-//                 const componentRoot = component.elementRef.nativeElement;
-
-//                 component.show = true;
-//                 fixture.detectChanges();
-//                 assert.equal(
-//                     "(proxyviewcontainer " +
-//                         "(stacklayout " +
-//                             "(label[text=1]), " +
-//                             "(label[text=2]), " +
-//                             "(label[text=3]), " +
-//                             "(label[text=4]), " + // the content to be conditionally displayed
-//                             "(label[text=5])" +
-//                         ")" +
-//                     ")",
-//                     dumpView(componentRoot, true));
-//             });
-//         });
-
-//         it("ngIfElse show 'if' template when condition is true", () => {
-//             return nsTestBedRender(NgIfElseComponent).then((fixture) => {
-//                 const componentRef: ComponentRef<NgIfElseComponent> = fixture.componentRef;
-//                 const component = <NgIfElseComponent>componentRef.instance;
-//                 const componentRoot = component.elementRef.nativeElement;
-
-//                 fixture.detectChanges();
-
-//                 assert.equal(
-//                     "(proxyviewcontainer " +
-//                         "(stacklayout " +
-//                             "(label[text=If])" +
-//                         ")" +
-//                     ")",
-
-//                     dumpView(componentRoot, true));
-//             });
-//         });
-
-//         it("ngIfElse show 'else' template when condition is false", () => {
-//             return nsTestBedRender(NgIfElseComponent).then((fixture) => {
-//                 const componentRef: ComponentRef<NgIfElseComponent> = fixture.componentRef;
-//                 const component = <NgIfElseComponent>componentRef.instance;
-//                 const componentRoot = component.elementRef.nativeElement;
-
-//                 component.show = false;
-//                 fixture.detectChanges();
-//                 assert.equal(
-//                     "(proxyviewcontainer " +
-//                         "(stacklayout " +
-//                             "(label[text=Else])" +
-//                         ")" +
-//                     ")",
-
-//                     dumpView(componentRoot, true));
-//             });
-//         });
-
-//         it("ngIfThenElse show 'then' template when condition is true", () => {
-//             return nsTestBedRender(NgIfThenElseComponent).then((fixture) => {
-//                 const componentRef: ComponentRef<NgIfThenElseComponent> = fixture.componentRef;
-//                 const component = <NgIfThenElseComponent>componentRef.instance;
-//                 const componentRoot = component.elementRef.nativeElement;
-
-//                 fixture.detectChanges();
-//                 assert.equal(
-//                     "(proxyviewcontainer " +
-//                         "(stacklayout " +
-//                             "(label[text=Then])" +
-//                         ")" +
-//                     ")",
-
-//                     dumpView(componentRoot, true));
-//             });
-//         });
-
-//         it("ngIfThenElse show 'else' template when condition is false", () => {
-//             return nsTestBedRender(NgIfThenElseComponent).then((fixture) => {
-//                 const componentRef: ComponentRef<NgIfThenElseComponent> = fixture.componentRef;
-//                 const component = <NgIfThenElseComponent>componentRef.instance;
-//                 const componentRoot = component.elementRef.nativeElement;
-
-//                 component.show = false;
-//                 fixture.detectChanges();
-//                 assert.equal(
-//                     "(proxyviewcontainer " +
-//                         "(stacklayout " +
-//                             "(label[text=Else])" +
-//                         ")" +
-//                     ")",
-
-//                     dumpView(componentRoot, true));
-//             });
-//         });
-
-//         it("ngFor creates element for each item", () => {
-//             return nsTestBedRender(NgForLabel).then((fixture) => {
-//                 const componentRef: ComponentRef<NgForLabel> = fixture.componentRef;
-//                 const componentRoot = componentRef.instance.elementRef.nativeElement;
-//                 assert.equal(
-//                     "(proxyviewcontainer (label[text=one]), (label[text=two]), (label[text=three]))",
-//                     dumpView(componentRoot, true));
-//             });
-//         });
-
-//         it("ngFor updates when item is removed", () => {
-//             return nsTestBedRender(NgForLabel).then((fixture) => {
-//                 const componentRef: ComponentRef<NgForLabel> = fixture.componentRef;
-//                 const component = <NgForLabel>componentRef.instance;
-//                 const componentRoot = component.elementRef.nativeElement;
-
-//                 component.items.splice(1, 1);
-//                 fixture.detectChanges();
-
-//                 assert.equal(
-//                     "(proxyviewcontainer (label[text=one]), (label[text=three]))",
-//                     dumpView(componentRoot, true));
-//             });
-//         });
-
-//         it("ngFor updates when item is inserted", () => {
-//             return nsTestBedRender(NgForLabel).then((fixture) => {
-//                 const componentRef: ComponentRef<NgForLabel> = fixture.componentRef;
-//                 const component = <NgForLabel>componentRef.instance;
-//                 const componentRoot = component.elementRef.nativeElement;
-
-//                 component.items.splice(1, 0, "new");
-//                 fixture.detectChanges();
-
-//                 assert.equal(
-//                     "(proxyviewcontainer " +
-//                     "(label[text=one]), (label[text=new]), (label[text=two]), (label[text=three]))",
-//                     dumpView(componentRoot, true));
-//             });
-//         });
-//     });
-// });
-
-// describe("Renderer createElement", () => {
-//     let renderer: Renderer2 = null;
-//     beforeEach(nsTestBedBeforeEach([ZonedRenderer]));
-//     afterEach(nsTestBedAfterEach(false));
-//     beforeEach(() => {
-//         return nsTestBedRender(ZonedRenderer).then((fixture: ComponentFixture<ZonedRenderer>) => {
-//             fixture.ngZone.run(() => {
-//                 renderer = fixture.componentInstance.renderer;
-//             });
-//         });
-//     });
-
-//     it("creates element from CamelCase", () => {
-//         const result = renderer.createElement("StackLayout");
-//         assert.instanceOf(result, StackLayout, "Renderer should create StackLayout form 'StackLayout'");
-//     });
-
-//     it("creates element from lowercase", () => {
-//         const result = renderer.createElement("stacklayout");
-//         assert.instanceOf(result, StackLayout, "Renderer should create StackLayout form 'stacklayout'");
-//     });
-
-//     it("creates element from kebab-case", () => {
-//         const result = renderer.createElement("stack-layout");
-//         assert.instanceOf(result, StackLayout, "Renderer should create StackLayout form 'stack-layout'");
-//     });
-
-//     it("creates ProxyViewContainer for unknownTag", () => {
-//         const result = renderer.createElement("unknown-tag");
-//         assert.instanceOf(result, ProxyViewContainer, "Renderer should create ProxyViewContainer form 'unknown-tag'");
-//     });
-// });
-
-// describe("Renderer attach/detach", () => {
-//     let renderer: Renderer2 = null;
-//     beforeEach(nsTestBedBeforeEach([ZonedRenderer]));
-//     afterEach(nsTestBedAfterEach(false));
-//     beforeEach(() => {
-//         return nsTestBedRender(ZonedRenderer).then((fixture: ComponentFixture<ZonedRenderer>) => {
-//             fixture.ngZone.run(() => {
-//                 renderer = fixture.componentInstance.renderer;
-//             });
-//         });
-//     });
-
-//     it("createElement element with parent attaches element to content view", () => {
-//         const parent = <ContentView>renderer.createElement("ContentView");
-//         const button = <Button>renderer.createElement("Button");
-//         renderer.appendChild(parent, button);
-
-//         assert.equal(parent.content, button);
-//         assert.equal(button.parent, parent);
-//     });
-
-//     it("createElement element with parent attaches element to layout view", () => {
-//         const parent = <StackLayout>renderer.createElement("StackLayout");
-//         const button = <Button>renderer.createElement("Button");
-//         renderer.appendChild(parent, button);
-
-//         assert.equal(parent.getChildAt(0), button);
-//         assert.equal(button.parent, parent);
-//     });
-
-//     it("detachView element removes element from content view", () => {
-//         const parent = <ContentView>renderer.createElement("ContentView");
-//         const button = <Button>renderer.createElement("Button");
-//         renderer.appendChild(parent, button);
-
-//         renderer.removeChild(parent, button);
-
-//         assert.isNull(parent.content);
-//         assert.isUndefined(button.parent);
-//     });
-
-//     it("detachView element removes element from layout view", () => {
-//         const parent = <StackLayout>renderer.createElement("StackLayout");
-//         const button = <Button>renderer.createElement("Button");
-//         renderer.appendChild(parent, button);
-
-//         renderer.removeChild(parent, button);
-
-//         assert.equal(parent.getChildrenCount(), 0);
-//         assert.isUndefined(button.parent);
-//     });
-// });
-
-// describe("Renderer lifecycle", () => {
-//     let renderer: Renderer2 = null;
-//     beforeEach(nsTestBedBeforeEach([ZonedRenderer, NgControlSettersCount]));
-//     afterEach(nsTestBedAfterEach(false));
-//     beforeEach(() => {
-//         return nsTestBedRender(ZonedRenderer).then((fixture: ComponentFixture<ZonedRenderer>) => {
-//             fixture.ngZone.run(() => {
-//                 renderer = fixture.componentInstance.renderer;
-//             });
-//         });
-//     });
-
-//     it("view native setters are called once on startup", () => {
-//         const fixture = TestBed.createComponent(NgControlSettersCount);
-//         const component: NgControlSettersCount = fixture.componentInstance;
-//         return component.ready$.subscribe(() => {
-//             component.buttons.map(btn => btn.nativeElement).forEach(btn => {
-//                 assert.isTrue(btn.isLoaded, `Expected ${btn.id} to be loaded.`);
-//                 assert.isFalse(
-//                     btn.isLayoutValid,
-//                     `Expected ${btn.id}'s layout to be invalid because it is uninitialized.`
-//                 );
-
-//                 assert.equal(
-//                     btn.backgroundInternalSetNativeCount, 1,
-//                     `Expected ${btn.id} backgroundInternalSetNativeCount to be called just once.`
-//                 );
-//                 assert.equal(
-//                     btn.fontInternalSetNativeCount, 1,
-//                     `Expected ${btn.id} fontInternalSetNativeCount to be called just once.`
-//                 );
-//                 const expectedBackgroundRedraws = isIOS ? 0 : 1;
-//                 assert.equal(
-//                     btn.nativeBackgroundRedraws, expectedBackgroundRedraws,
-//                     `Expected ${btn.id} nativeBackgroundRedraws to be called after its layout pass.`
-//                 );
-//             });
-//         });
-//     });
-// });
+import { Component, ElementRef, inject, NO_ERRORS_SCHEMA, Renderer2, signal, ViewChild } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  DEFER_NATIVE_OPS_DURING_CD,
+  NativeScriptCommonModule,
+  NativeScriptRendererFactory,
+  NativeScriptRendererHelperService,
+  registerElement,
+} from '@nativescript/angular';
+import {
+  Button,
+  ContentView,
+  GridLayout,
+  Label,
+  LayoutBase,
+  ProxyViewContainer,
+  StackLayout,
+  TextField,
+  View,
+} from '@nativescript/core';
+import { dumpView } from './test-utils.spec';
+
+function childCount(view: View): number {
+  return (view as LayoutBase).getChildrenCount();
+}
+function childAt(view: View, index: number): View {
+  return (view as LayoutBase).getChildAt(index);
+}
+
+// ---------------------------------------------------------------------------
+// Low-level renderer behavior. We drive the public renderer API exactly the way
+// Angular does (factory.begin()/end() bracket a change-detection pass), so these
+// exercise the real deferral path without depending on Angular's internals.
+// ---------------------------------------------------------------------------
+describe('NativeScriptRenderer deferred native ops (enabled)', () => {
+  let factory: NativeScriptRendererFactory;
+  let helper: NativeScriptRendererHelperService;
+  let renderer: Renderer2;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [{ provide: DEFER_NATIVE_OPS_DURING_CD, useValue: true }],
+      schemas: [NO_ERRORS_SCHEMA],
+    });
+    factory = TestBed.inject(NativeScriptRendererFactory);
+    helper = TestBed.inject(NativeScriptRendererHelperService);
+    renderer = factory.createRenderer(null, null);
+  });
+
+  it('begin()/end() toggle the deferral window when the token is enabled', () => {
+    expect(helper.deferral.deferring).toBe(false);
+    factory.begin();
+    expect(helper.deferral.deferring).toBe(true);
+    factory.end();
+    expect(helper.deferral.deferring).toBe(false);
+  });
+
+  it('defers the native attach until end() but keeps the logical tree synchronous', () => {
+    factory.begin();
+    const parent = renderer.createElement('StackLayout') as View;
+    const child = renderer.createElement('Button') as View;
+    renderer.appendChild(parent, child);
+
+    // Native tree is untouched mid-CD...
+    expect(childCount(parent)).toBe(0);
+    // ...but Angular can still read the logical tree back synchronously.
+    expect(renderer.parentNode(child)).toBe(parent);
+
+    factory.end();
+
+    expect(childCount(parent)).toBe(1);
+    expect(childAt(parent, 0)).toBe(child);
+  });
+
+  it('never attaches a view created and removed within the same CD pass', () => {
+    factory.begin();
+    const parent = renderer.createElement('StackLayout') as View;
+    const child = renderer.createElement('Button') as View;
+    renderer.appendChild(parent, child);
+    renderer.removeChild(parent, child);
+    factory.end();
+
+    expect(childCount(parent)).toBe(0);
+    expect(child.parent).toBeFalsy();
+  });
+
+  it('inserts deferred children at the correct position among existing children', () => {
+    // First pass: attach the anchors a and d.
+    factory.begin();
+    const parent = renderer.createElement('StackLayout') as View;
+    const a = renderer.createElement('Label') as View;
+    const d = renderer.createElement('Label') as View;
+    renderer.appendChild(parent, a);
+    renderer.appendChild(parent, d);
+    factory.end();
+    expect(childCount(parent)).toBe(2);
+
+    // Second pass: insert b and c between a and d. The flush must place them
+    // correctly even though their anchor (each other / d) is also pending.
+    factory.begin();
+    const b = renderer.createElement('Label') as View;
+    const c = renderer.createElement('Label') as View;
+    renderer.insertBefore(parent, b, d);
+    renderer.insertBefore(parent, c, d);
+    // Native order is still just [a, d] until end().
+    expect(childCount(parent)).toBe(2);
+    factory.end();
+
+    expect(childCount(parent)).toBe(4);
+    expect(childAt(parent, 0)).toBe(a);
+    expect(childAt(parent, 1)).toBe(b);
+    expect(childAt(parent, 2)).toBe(c);
+    expect(childAt(parent, 3)).toBe(d);
+  });
+
+  it('attaches to the final parent when a view is moved within a CD pass', () => {
+    factory.begin();
+    const parentA = renderer.createElement('StackLayout') as View;
+    const parentB = renderer.createElement('StackLayout') as View;
+    const child = renderer.createElement('Button') as View;
+    renderer.appendChild(parentA, child);
+    renderer.appendChild(parentB, child); // move before anything was attached
+    factory.end();
+
+    expect(childCount(parentA)).toBe(0);
+    expect(childCount(parentB)).toBe(1);
+    expect(childAt(parentB, 0)).toBe(child);
+  });
+
+  it('defers property, style and class writes until end()', () => {
+    factory.begin();
+    const label = renderer.createElement('Label') as Label;
+    renderer.setProperty(label, 'text', 'hello');
+    renderer.setStyle(label, 'color', 'red');
+    renderer.addClass(label, 'foo');
+
+    expect(label.text).not.toBe('hello');
+    expect(label.style.color).toBeFalsy();
+    expect(label.className).toBeFalsy();
+
+    factory.end();
+
+    expect(label.text).toBe('hello');
+    expect(label.style.color).toBeTruthy();
+    expect(label.className).toBe('foo');
+  });
+
+  it('coalesces repeated writes within a CD pass to the final value', () => {
+    factory.begin();
+    const label = renderer.createElement('Label') as Label;
+    renderer.setProperty(label, 'text', 'first');
+    renderer.setProperty(label, 'text', 'second');
+    renderer.addClass(label, 'a');
+    renderer.addClass(label, 'b');
+    renderer.removeClass(label, 'a');
+    factory.end();
+
+    expect(label.text).toBe('second');
+    expect(label.className).toBe('b');
+  });
+
+  it('flushes leftovers from a CD pass that threw before end()', () => {
+    factory.begin();
+    const parent = renderer.createElement('StackLayout') as View;
+    const child = renderer.createElement('Button') as View;
+    renderer.appendChild(parent, child);
+    // Simulate a tick that threw between begin() and end(): end() is never
+    // called. The next begin() must apply the leftovers instead of losing them.
+    factory.begin();
+
+    expect(childCount(parent)).toBe(1);
+    expect(childAt(parent, 0)).toBe(child);
+    factory.end();
+  });
+});
+
+describe('NativeScriptRenderer deferred native ops (disabled by default)', () => {
+  let factory: NativeScriptRendererFactory;
+  let helper: NativeScriptRendererHelperService;
+  let renderer: Renderer2;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ schemas: [NO_ERRORS_SCHEMA] });
+    factory = TestBed.inject(NativeScriptRendererFactory);
+    helper = TestBed.inject(NativeScriptRendererHelperService);
+    renderer = factory.createRenderer(null, null);
+  });
+
+  it('does not open a deferral window', () => {
+    factory.begin();
+    expect(helper.deferral.deferring).toBe(false);
+    factory.end();
+  });
+
+  it('applies native operations immediately', () => {
+    factory.begin();
+    const parent = renderer.createElement('StackLayout') as View;
+    const child = renderer.createElement('Button') as View;
+    renderer.appendChild(parent, child);
+    const label = renderer.createElement('Label') as Label;
+    renderer.setProperty(label, 'text', 'hello');
+
+    // No deferral: everything is applied as it happens.
+    expect(childCount(parent)).toBe(1);
+    expect(label.text).toBe('hello');
+    factory.end();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// End-to-end: drive real Angular change detection (built-in control flow) with
+// the feature enabled and assert the rendered native tree is correct. These
+// cover what the renderer-level tests can't: Angular reusing and *moving* views
+// (@for with track), nested structure, and property/class bindings.
+// ---------------------------------------------------------------------------
+interface Item {
+  id: number;
+  text: string;
+}
+
+// Components use signals so that, in the zoneless test harness, model changes
+// reliably mark the consuming views dirty and are picked up by detectChanges().
+@Component({
+  selector: 'if-comp',
+  template: `<StackLayout #sl>
+    @if (show()) {
+      <Label text="If"></Label>
+    } @else {
+      <Label text="Else"></Label>
+    }
+  </StackLayout>`,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+class IfComp {
+  @ViewChild('sl', { static: true }) sl: ElementRef<StackLayout>;
+  show = signal(true);
+}
+
+@Component({
+  selector: 'for-comp',
+  template: `<StackLayout #sl>
+    @for (item of items(); track item.id) {
+      <Label [text]="item.text" [class.selected]="item.id === selectedId()"></Label>
+    }
+  </StackLayout>`,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+class ForComp {
+  @ViewChild('sl', { static: true }) sl: ElementRef<StackLayout>;
+  items = signal<Item[]>([
+    { id: 1, text: 'a' },
+    { id: 2, text: 'b' },
+    { id: 3, text: 'c' },
+  ]);
+  selectedId = signal(-1);
+}
+
+@Component({
+  selector: 'nested-comp',
+  template: `<StackLayout #sl>
+    @for (group of groups(); track group) {
+      <StackLayout>
+        @for (item of group; track item) {
+          <Label [text]="item"></Label>
+        }
+      </StackLayout>
+    }
+  </StackLayout>`,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+class NestedComp {
+  @ViewChild('sl', { static: true }) sl: ElementRef<StackLayout>;
+  groups = signal<string[][]>([
+    ['a', 'b'],
+    ['c', 'd'],
+  ]);
+}
+
+describe('NativeScriptRenderer rendering under deferral (Angular control flow)', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [IfComp, ForComp, NestedComp],
+      providers: [{ provide: DEFER_NATIVE_OPS_DURING_CD, useValue: true }],
+    });
+  });
+
+  it('renders @if / @else and swaps branches across change detection', () => {
+    const fixture: ComponentFixture<IfComp> = TestBed.createComponent(IfComp);
+    fixture.detectChanges();
+    const root = fixture.componentInstance.sl.nativeElement;
+    expect(dumpView(root, true)).toBe('(stacklayout (label[text=If]))');
+
+    fixture.componentInstance.show.set(false);
+    fixture.detectChanges();
+    expect(dumpView(root, true)).toBe('(stacklayout (label[text=Else]))');
+
+    fixture.componentInstance.show.set(true);
+    fixture.detectChanges();
+    expect(dumpView(root, true)).toBe('(stacklayout (label[text=If]))');
+  });
+
+  it('renders a tracked @for', () => {
+    const fixture: ComponentFixture<ForComp> = TestBed.createComponent(ForComp);
+    fixture.detectChanges();
+    const root = fixture.componentInstance.sl.nativeElement;
+    expect(dumpView(root, true)).toBe(
+      '(stacklayout (label[text=a]), (label[text=b]), (label[text=c]))',
+    );
+  });
+
+  it('inserts a @for item at the correct position', () => {
+    const fixture: ComponentFixture<ForComp> = TestBed.createComponent(ForComp);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    const root = component.sl.nativeElement;
+
+    const current = component.items();
+    component.items.set([current[0], { id: 4, text: 'x' }, ...current.slice(1)]);
+    fixture.detectChanges();
+    expect(dumpView(root, true)).toBe(
+      '(stacklayout (label[text=a]), (label[text=x]), (label[text=b]), (label[text=c]))',
+    );
+  });
+
+  it('removes a @for item', () => {
+    const fixture: ComponentFixture<ForComp> = TestBed.createComponent(ForComp);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    const root = component.sl.nativeElement;
+
+    const current = component.items();
+    component.items.set([current[0], current[2]]); // drop id 2 ('b')
+    fixture.detectChanges();
+    expect(dumpView(root, true)).toBe('(stacklayout (label[text=a]), (label[text=c]))');
+  });
+
+  it('reorders @for items by moving the tracked views', () => {
+    const fixture: ComponentFixture<ForComp> = TestBed.createComponent(ForComp);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    const root = component.sl.nativeElement;
+    const before = component.sl.nativeElement.getChildAt(0);
+
+    // Reverse the list. Because we track by id, Angular reuses the existing
+    // Label views and *moves* them, which goes through removeChild + insertBefore
+    // in the renderer -- the case the deferral flush has to order correctly.
+    component.items.set([...component.items()].reverse());
+    fixture.detectChanges();
+    expect(dumpView(root, true)).toBe(
+      '(stacklayout (label[text=c]), (label[text=b]), (label[text=a]))',
+    );
+    // The 'a' view instance was reused, just moved to the end.
+    expect(component.sl.nativeElement.getChildAt(2)).toBe(before);
+  });
+
+  it('applies a [class] binding that changes across change detection', () => {
+    const fixture: ComponentFixture<ForComp> = TestBed.createComponent(ForComp);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    const root = component.sl.nativeElement;
+
+    component.selectedId.set(2);
+    fixture.detectChanges();
+    expect((root.getChildAt(0) as Label).className || '').not.toContain('selected');
+    expect((root.getChildAt(1) as Label).className).toContain('selected');
+  });
+
+  it('renders nested @for blocks and reflects updates', () => {
+    const fixture: ComponentFixture<NestedComp> = TestBed.createComponent(NestedComp);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    const root = component.sl.nativeElement;
+    expect(dumpView(root, true)).toBe(
+      '(stacklayout ' +
+        '(stacklayout (label[text=a]), (label[text=b])), ' +
+        '(stacklayout (label[text=c]), (label[text=d])))',
+    );
+
+    component.groups.set([...component.groups(), ['e']]);
+    fixture.detectChanges();
+    expect(dumpView(root, true)).toBe(
+      '(stacklayout ' +
+        '(stacklayout (label[text=a]), (label[text=b])), ' +
+        '(stacklayout (label[text=c]), (label[text=d])), ' +
+        '(stacklayout (label[text=e])))',
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Renderer.createElement (ported from the original suite)
+// ---------------------------------------------------------------------------
+describe('NativeScriptRenderer createElement', () => {
+  let renderer: Renderer2;
+  beforeEach(() => {
+    TestBed.configureTestingModule({ schemas: [NO_ERRORS_SCHEMA] });
+    renderer = TestBed.inject(NativeScriptRendererFactory).createRenderer(null, null);
+  });
+
+  it('creates an element from CamelCase', () => {
+    expect(renderer.createElement('StackLayout') instanceof StackLayout).toBe(true);
+  });
+  it('creates an element from lowercase', () => {
+    expect(renderer.createElement('stacklayout') instanceof StackLayout).toBe(true);
+  });
+  it('creates an element from kebab-case', () => {
+    expect(renderer.createElement('stack-layout') instanceof StackLayout).toBe(true);
+  });
+  it('creates a ProxyViewContainer for an unknown tag', () => {
+    expect(renderer.createElement('unknown-tag') instanceof ProxyViewContainer).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Renderer attach/detach (ported from the original suite)
+// ---------------------------------------------------------------------------
+describe('NativeScriptRenderer attach/detach', () => {
+  let renderer: Renderer2;
+  beforeEach(() => {
+    TestBed.configureTestingModule({ schemas: [NO_ERRORS_SCHEMA] });
+    renderer = TestBed.inject(NativeScriptRendererFactory).createRenderer(null, null);
+  });
+
+  it('attaches a child to a ContentView', () => {
+    const parent = renderer.createElement('ContentView') as ContentView;
+    const button = renderer.createElement('Button') as Button;
+    renderer.appendChild(parent, button);
+    expect(parent.content).toBe(button);
+    expect(button.parent).toBe(parent);
+  });
+
+  it('attaches a child to a layout', () => {
+    const parent = renderer.createElement('StackLayout') as StackLayout;
+    const button = renderer.createElement('Button') as Button;
+    renderer.appendChild(parent, button);
+    expect(parent.getChildAt(0)).toBe(button);
+    expect(button.parent).toBe(parent);
+  });
+
+  it('detaches a child from a ContentView', () => {
+    const parent = renderer.createElement('ContentView') as ContentView;
+    const button = renderer.createElement('Button') as Button;
+    renderer.appendChild(parent, button);
+    renderer.removeChild(parent, button);
+    expect(parent.content).toBeFalsy();
+    expect(button.parent).toBeFalsy();
+  });
+
+  it('detaches a child from a layout', () => {
+    const parent = renderer.createElement('StackLayout') as StackLayout;
+    const button = renderer.createElement('Button') as Button;
+    renderer.appendChild(parent, button);
+    renderer.removeChild(parent, button);
+    expect(parent.getChildrenCount()).toBe(0);
+    expect(button.parent).toBeFalsy();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Renderer.listen (ported; the original asserted NgZone, which is a no-op zone
+// in this harness, so we assert the functional contract instead).
+// ---------------------------------------------------------------------------
+describe('NativeScriptRenderer listen', () => {
+  let renderer: Renderer2;
+  beforeEach(() => {
+    TestBed.configureTestingModule({ schemas: [NO_ERRORS_SCHEMA] });
+    renderer = TestBed.inject(NativeScriptRendererFactory).createRenderer(null, null);
+  });
+
+  it('invokes the callback on the event and stops after the returned disposer runs', () => {
+    const view = renderer.createElement('StackLayout') as View;
+    let calls = 0;
+    // A plain (non-gesture) event so notify() drives it directly.
+    const dispose = renderer.listen(view, 'someEvent', () => {
+      calls++;
+    });
+    view.notify({ eventName: 'someEvent', object: view });
+    expect(calls).toBe(1);
+
+    dispose();
+    view.notify({ eventName: 'someEvent', object: view });
+    expect(calls).toBe(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Component structure, projection and styles (ported & modernized to
+// standalone components). These run with the feature in its default (off)
+// state -- they verify general renderer behavior is unchanged.
+// ---------------------------------------------------------------------------
+@Component({
+  selector: 'layout-with-label',
+  template: `<StackLayout><Label text="Layout"></Label></StackLayout>`,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+class LayoutWithLabel {
+  elementRef = inject(ElementRef);
+}
+
+@Component({
+  selector: 'label-cmp',
+  template: `<Label text="Layout"></Label>`,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+class LabelCmp {}
+
+@Component({
+  selector: 'label-container',
+  template: `<GridLayout><label-cmp></label-cmp></GridLayout>`,
+  imports: [NativeScriptCommonModule, LabelCmp],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+class LabelContainer {
+  elementRef = inject(ElementRef);
+}
+
+@Component({
+  selector: 'projectable-cmp',
+  template: `<StackLayout><ng-content></ng-content></StackLayout>`,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+class ProjectableCmp {}
+
+@Component({
+  selector: 'projection-container',
+  template: `<GridLayout><projectable-cmp><Button text="projected"></Button></projectable-cmp></GridLayout>`,
+  imports: [NativeScriptCommonModule, ProjectableCmp],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+class ProjectionContainer {
+  elementRef = inject(ElementRef);
+}
+
+describe('NativeScriptRenderer component structure', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [LayoutWithLabel, LabelContainer, ProjectionContainer],
+      schemas: [NO_ERRORS_SCHEMA],
+    });
+  });
+
+  it('renders a component with a layout', () => {
+    const fixture = TestBed.createComponent(LayoutWithLabel);
+    fixture.detectChanges();
+    expect(dumpView(fixture.componentInstance.elementRef.nativeElement)).toBe(
+      '(proxyviewcontainer (stacklayout (label)))',
+    );
+  });
+
+  it('renders a component without a layout', () => {
+    const fixture = TestBed.createComponent(LabelContainer);
+    fixture.detectChanges();
+    expect(dumpView(fixture.componentInstance.elementRef.nativeElement)).toBe(
+      '(proxyviewcontainer (gridlayout (proxyviewcontainer (label))))',
+    );
+  });
+
+  it('projects content into a component', () => {
+    const fixture = TestBed.createComponent(ProjectionContainer);
+    fixture.detectChanges();
+    expect(dumpView(fixture.componentInstance.elementRef.nativeElement)).toBe(
+      '(proxyviewcontainer (gridlayout (proxyviewcontainer (stacklayout (button)))))',
+    );
+  });
+});
+
+@Component({
+  selector: 'styled-label',
+  styles: ['Label { color: red; }'],
+  template: `<Label text="Styled!"></Label>`,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+class StyledLabelCmp {
+  elementRef = inject(ElementRef);
+}
+
+@Component({
+  selector: 'host-styled',
+  styles: [`Label { color: blue; } :host Label { color: red; }`],
+  template: `<Label text="Styled!"></Label>`,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+class HostStyledCmp {}
+
+@Component({
+  selector: 'host-styled-parent',
+  template: `<host-styled></host-styled><host-styled></host-styled>`,
+  imports: [NativeScriptCommonModule, HostStyledCmp],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+class HostStyledParentCmp {
+  elementRef = inject(ElementRef);
+}
+
+@Component({
+  selector: 'styled-label2',
+  styles: ['Label { color: red; }', `StackLayout { color: brown; } TextField { color: red; background-color: lime; }`],
+  template: `<StackLayout orientation="horizontal">
+    <Label text="Styled!"></Label>
+    <TextField text="Styled too!"></TextField>
+  </StackLayout>`,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+class StyledLabelCmp2 {
+  elementRef = inject(ElementRef);
+}
+
+describe('NativeScriptRenderer component styles', () => {
+  const RED = '#FF0000';
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [StyledLabelCmp, HostStyledParentCmp, StyledLabelCmp2],
+      schemas: [NO_ERRORS_SCHEMA],
+    });
+  });
+
+  it('applies component styles from a single source', () => {
+    const fixture = TestBed.createComponent(StyledLabelCmp);
+    fixture.detectChanges();
+    const host = fixture.componentInstance.elementRef.nativeElement as ProxyViewContainer;
+    const label = host.getChildAt(0) as Label;
+    expect(label.style.color.hex).toBe(RED);
+  });
+
+  it('applies component :host styles', () => {
+    const fixture = TestBed.createComponent(HostStyledParentCmp);
+    fixture.detectChanges();
+    const host = fixture.componentInstance.elementRef.nativeElement as ProxyViewContainer;
+    for (let i = 0; i < 2; i++) {
+      const child = host.getChildAt(i) as ProxyViewContainer;
+      const label = child.getChildAt(0) as Label;
+      expect(label.style.color.hex).toBe(RED);
+    }
+  });
+
+  it('applies component styles from multiple sources', () => {
+    const fixture = TestBed.createComponent(StyledLabelCmp2);
+    fixture.detectChanges();
+    const host = fixture.componentInstance.elementRef.nativeElement as ProxyViewContainer;
+    const layout = host.getChildAt(0) as LayoutBase;
+    const label = layout.getChildAt(0) as Label;
+    const textField = layout.getChildAt(1) as TextField;
+    expect(label.style.color.hex).toBe(RED);
+    expect(textField.style.color.hex).toBe(RED);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// View loading: with deferral enabled, a freshly attached view must still load
+// exactly once (the feature batches the attach, it must not duplicate it).
+// ---------------------------------------------------------------------------
+class CounterLabel extends Label {
+  loadedCount = 0;
+  onLoaded() {
+    this.loadedCount++;
+    super.onLoaded();
+  }
+}
+registerElement('CounterLabel', () => CounterLabel);
+
+@Component({
+  selector: 'loads-once',
+  template: `<StackLayout><CounterLabel #c text="hi"></CounterLabel></StackLayout>`,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+class LoadsOnceComp {
+  @ViewChild('c', { static: true, read: ElementRef }) c: ElementRef<CounterLabel>;
+}
+
+describe('NativeScriptRenderer view loading (deferral enabled)', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [LoadsOnceComp],
+      providers: [{ provide: DEFER_NATIVE_OPS_DURING_CD, useValue: true }],
+    });
+  });
+
+  it('loads a newly attached view exactly once', async () => {
+    const fixture = TestBed.createComponent(LoadsOnceComp);
+    fixture.detectChanges();
+    await fixture.whenRenderingDone();
+    expect(fixture.componentInstance.c.nativeElement.loadedCount).toBe(1);
+  });
+});

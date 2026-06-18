@@ -19,7 +19,13 @@ import { DOCUMENT, LocationChangeListener, LocationStrategy, PlatformLocation } 
 import { NativeScriptPlatformRefProxy } from './platform-ref';
 import { AppHostView } from './app-host-view';
 import { Color, GridLayout } from '@nativescript/core';
-import { defaultPageFactory, ENABLE_REUSABE_VIEWS, PAGE_FACTORY, WRAP_CD_IN_TRANSACTION } from './tokens';
+import {
+  DEFER_NATIVE_OPS_DURING_CD,
+  defaultPageFactory,
+  ENABLE_REUSABE_VIEWS,
+  PAGE_FACTORY,
+  WRAP_CD_IN_TRANSACTION,
+} from './tokens';
 import { AppLaunchView } from './application';
 import { NATIVESCRIPT_MODULE_PROVIDERS, NATIVESCRIPT_MODULE_STATIC_PROVIDERS } from './nativescript';
 
@@ -145,6 +151,12 @@ export interface BootstrapContext {
 
 export interface NativeScriptApplicationConfig extends ApplicationConfig {
   reusableViews?: boolean;
+  /**
+   * Batch native side-effects (property/style/class writes and view
+   * attaching/loading) produced during change detection and apply them once,
+   * after CD finishes. The logical tree Angular reads during CD stays in sync.
+   */
+  deferNativeOpsDuringChangeDetection?: boolean;
   ios?: {
     wrapChangeDetectionInTransaction?: boolean;
   };
@@ -157,6 +169,9 @@ function createProvidersConfig(options?: NativeScriptApplicationConfig, context?
   }
   if (options?.ios?.wrapChangeDetectionInTransaction) {
     nsProviders.push({ provide: WRAP_CD_IN_TRANSACTION, useValue: true });
+  }
+  if (options?.deferNativeOpsDuringChangeDetection) {
+    nsProviders.push({ provide: DEFER_NATIVE_OPS_DURING_CD, useValue: true });
   }
   return {
     platformRef: context?.platformRef,
