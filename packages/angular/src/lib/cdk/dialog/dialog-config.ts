@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import { ViewContainerRef, ComponentFactoryResolver, Injector } from '@angular/core';
+import { ViewContainerRef, Binding, Injector } from '@angular/core';
 import { ShowModalOptions, View } from '@nativescript/core';
 
 export type NativeShowModalOptions = Partial<Omit<ShowModalOptions, 'cancelable' | 'closeCallback'>>;
@@ -50,10 +50,11 @@ export class NativeDialogConfig<D = any> {
    */
   closeOnNavigation?: boolean = true;
 
-  /** Alternate `ComponentFactoryResolver` to use when resolving the associated component.
-   * @deprecated
+  /**
+   * Bindings to apply to the component rendered inside the dialog.
+   * Does nothing for template-based dialogs.
    */
-  componentFactoryResolver?: ComponentFactoryResolver;
+  bindings?: Binding[];
 
   nativeOptions?: NativeShowModalOptions = {};
 

@@ -1,11 +1,10 @@
-import { ApplicationRef, ComponentFactoryResolver, ComponentRef, Injectable, Injector, NgModuleRef, NgZone, Type, ViewContainerRef } from '@angular/core';
+import { ApplicationRef, ComponentRef, Injectable, Injector, NgModuleRef, NgZone, Type, ViewContainerRef } from '@angular/core';
 import { Application, ContentView, Frame, ShowModalOptions, View, ViewBase } from '@nativescript/core';
 import { Subject } from 'rxjs';
 import { AppHostAsyncView, AppHostView } from '../../app-host-view';
-import { DetachedLoader } from '../../cdk/detached-loader';
 import { ComponentPortal } from '../../cdk/portal/common';
 import { NativeScriptDomPortalOutlet } from '../../cdk/portal/nsdom-portal-outlet';
-import { once } from '../../utils/general';
+import { didModalOpen, once } from '../../utils/general';
 import { NgViewRef } from '../../view-refs';
 import { NSLocationStrategy } from '../router/ns-location-strategy';
 
@@ -34,7 +33,6 @@ export interface ShowDialogOptions extends ModalDialogOptions {
   doneCallback;
   pageFactory?: any;
   parentView: ViewBase;
-  resolver: ComponentFactoryResolver;
   type: Type<any>;
 }
 
@@ -89,7 +87,6 @@ export class ModalDialogService {
     // resolve from particular module (moduleRef)
     // or from same module as parentView (viewContainerRef)
     const componentInjector = options.moduleRef?.injector || options.viewContainerRef?.injector || this.defaultInjector;
-    const resolver = componentInjector.get(ComponentFactoryResolver);
 
     let frame = parentView;
     if (!(parentView instanceof Frame)) {
@@ -108,7 +105,6 @@ export class ModalDialogService {
             context: options.context,
             doneCallback: resolve,
             parentView,
-            resolver,
             type,
           });
         } catch (err) {
@@ -120,7 +116,6 @@ export class ModalDialogService {
 
   private _showDialog(options: ShowDialogOptions): void {
     let componentViewRef: NgViewRef<unknown>;
-    let detachedLoaderRef: ComponentRef<DetachedLoader>;
     let portalOutlet: NativeScriptDomPortalOutlet;
 
     const closeCallback = once(async (...args) => {
@@ -132,11 +127,9 @@ export class ModalDialogService {
           this._closed$.next(params);
         }
         await this.location._closeModalNavigation();
-        if (detachedLoaderRef || portalOutlet) {
+        if (portalOutlet) {
           this.zone.run(() => {
             portalOutlet?.dispose();
-            detachedLoaderRef?.instance.detectChanges();
-            detachedLoaderRef?.destroy();
           });
         }
       }
@@ -153,21 +146,9 @@ export class ModalDialogService {
       parent: options.injector,
     });
     this.zone.run(() => {
-      // if we ever support templates in the old API
-      // if(options.templateRef) {
-      //     const detachedFactory = options.resolver.resolveComponentFactory(DetachedLoader);
-      //     if(options.attachToContainerRef) {
-      //         detachedLoaderRef = options.attachToContainerRef.createComponent(detachedFactory, 0, childInjector, null);
-      //     } else {
-      //         detachedLoaderRef = detachedFactory.create(childInjector); // this DetachedLoader is **completely** detached
-      //         this.appRef.attachView(detachedLoaderRef.hostView); // we attach it to the applicationRef, so it becomes a "root" view in angular's hierarchy
-      //     }
-      //     detachedLoaderRef.changeDetectorRef.detectChanges(); // force a change detection
-      //     detachedLoaderRef.instance.createTemplatePortal(options.templateRef);
-      // }
       const targetView = new ContentView();
       const portal = new ComponentPortal(options.type);
-      portalOutlet = new NativeScriptDomPortalOutlet(targetView, options.resolver, this.appRef, childInjector);
+      portalOutlet = new NativeScriptDomPortalOutlet(targetView, this.appRef, childInjector);
       const componentRef = portalOutlet.attach(portal);
       componentRef.changeDetectorRef.detectChanges();
       componentViewRef = new NgViewRef(componentRef);
@@ -181,7 +162,26 @@ export class ModalDialogService {
       }
       // if we don't detach the view from its parent, ios gets mad
       componentViewRef.detachNativeLikeView();
-      options.parentView.showModal(componentViewRef.firstNativeLikeView, { ...options, closeCallback });
+      const modalView = componentViewRef.firstNativeLikeView;
+      options.parentView.showModal(modalView, { ...options, closeCallback });
+      if (!didModalOpen(options.parentView as View, modalView)) {
+        this._handleFailedOpen(modalParams, portalOutlet);
+      }
     });
+  }
+
+  /**
+   * Rolls back everything that was set up to present the modal when NativeScript silently
+   * failed to actually present it. Without this the modal navigation stack stays incremented
+   * (blocking further navigation) and the attached view/loader leak on the `ApplicationRef`.
+   */
+  private _handleFailedOpen(modalParams: ModalDialogParams, portalOutlet?: NativeScriptDomPortalOutlet): never {
+    const index = this.openedModalParams?.indexOf(modalParams) ?? -1;
+    if (index > -1) {
+      this.openedModalParams.splice(index, 1);
+    }
+    this.location?._closeModalNavigation();
+    portalOutlet?.dispose();
+    throw new Error('Failed to open dialog: the modal view could not be presented. This usually happens when another modal is already being presented.');
   }
 }

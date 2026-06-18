@@ -1,8 +1,9 @@
 import {
   ApplicationRef,
-  ComponentFactoryResolver,
   ComponentRef,
+  createComponent,
   EmbeddedViewRef,
+  EnvironmentInjector,
   Injector,
   TemplateRef,
   Type,
@@ -15,20 +16,20 @@ import { NgViewRef } from './view-refs';
 
 /**
  * creates a DetachedLoader either linked to the ViewContainerRef or the ApplicationRef if ViewContainerRef is not defined
- * @param resolver component factory resolver
  * @param injector default injector, unused if viewContainerRef is set
  * @param viewContainerRef where the view should live in the angular tree
  * @returns reference to the DetachedLoader
  */
-export function generateDetachedLoader(
-  resolver: ComponentFactoryResolver,
-  injector: Injector,
-  viewContainerRef?: ViewContainerRef,
-) {
+export function generateDetachedLoader(injector: Injector, viewContainerRef?: ViewContainerRef) {
   injector = viewContainerRef?.injector || injector;
-  const detachedFactory = resolver.resolveComponentFactory(DetachedLoader);
-  const detachedLoaderRef = viewContainerRef?.createComponent(detachedFactory) || detachedFactory.create(injector);
-  if (!viewContainerRef) {
+  let detachedLoaderRef: ComponentRef<DetachedLoader>;
+  if (viewContainerRef) {
+    detachedLoaderRef = viewContainerRef.createComponent(DetachedLoader);
+  } else {
+    detachedLoaderRef = createComponent(DetachedLoader, {
+      environmentInjector: injector.get(EnvironmentInjector),
+      elementInjector: injector,
+    });
     injector.get(ApplicationRef).attachView(detachedLoaderRef.hostView);
   }
   detachedLoaderRef.changeDetectorRef.detectChanges();
@@ -46,7 +47,6 @@ export function generateDetachedLoader(
 export function generateNativeScriptView<T>(
   typeOrTemplate: Type<T> | TemplateRef<T>,
   options: {
-    resolver?: ComponentFactoryResolver;
     viewContainerRef?: ViewContainerRef;
     injector: Injector;
     keepNativeViewAttached?: boolean;
@@ -62,9 +62,8 @@ export function generateNativeScriptView<T>(
     options.viewContainerRef = detachedLoaderRef.instance.vc;
   }
   const injector = options.viewContainerRef?.injector || options.injector;
-  const resolver = options.resolver || injector.get(ComponentFactoryResolver);
   if (!detachedLoaderRef && (options.viewContainerRef || typeOrTemplate instanceof TemplateRef)) {
-    detachedLoaderRef = generateDetachedLoader(resolver, injector, options.viewContainerRef);
+    detachedLoaderRef = generateDetachedLoader(injector, options.viewContainerRef);
   }
   let portal: ComponentPortal<T> | TemplatePortal<T>;
   if (typeOrTemplate instanceof TemplateRef) {
@@ -73,7 +72,7 @@ export function generateNativeScriptView<T>(
     portal = new ComponentPortal(typeOrTemplate, detachedLoaderRef?.instance.vc);
   }
   const parentView = new ContentView();
-  const portalOutlet = new NativeScriptDomPortalOutlet(parentView, resolver, injector.get(ApplicationRef), injector);
+  const portalOutlet = new NativeScriptDomPortalOutlet(parentView, injector.get(ApplicationRef), injector);
   const componentOrTemplateRef: ComponentRef<T> | EmbeddedViewRef<T> = portalOutlet.attach(portal);
   if (detachedLoaderRef && !reusingDetachedLoader) {
     componentOrTemplateRef.onDestroy(() => {
