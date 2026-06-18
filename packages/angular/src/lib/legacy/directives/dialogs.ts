@@ -1,4 +1,4 @@
-import { ApplicationRef, ComponentFactoryResolver, ComponentRef, Injectable, Injector, NgModuleRef, NgZone, Type, ViewContainerRef } from '@angular/core';
+import { ApplicationRef, ComponentRef, Injectable, Injector, NgModuleRef, NgZone, Type, ViewContainerRef } from '@angular/core';
 import { Application, ContentView, Frame, ShowModalOptions, View, ViewBase } from '@nativescript/core';
 import { Subject } from 'rxjs';
 import { AppHostAsyncView, AppHostView } from '../../app-host-view';
@@ -34,7 +34,6 @@ export interface ShowDialogOptions extends ModalDialogOptions {
   doneCallback;
   pageFactory?: any;
   parentView: ViewBase;
-  resolver: ComponentFactoryResolver;
   type: Type<any>;
 }
 
@@ -89,7 +88,6 @@ export class ModalDialogService {
     // resolve from particular module (moduleRef)
     // or from same module as parentView (viewContainerRef)
     const componentInjector = options.moduleRef?.injector || options.viewContainerRef?.injector || this.defaultInjector;
-    const resolver = componentInjector.get(ComponentFactoryResolver);
 
     let frame = parentView;
     if (!(parentView instanceof Frame)) {
@@ -108,7 +106,6 @@ export class ModalDialogService {
             context: options.context,
             doneCallback: resolve,
             parentView,
-            resolver,
             type,
           });
         } catch (err) {
@@ -167,7 +164,7 @@ export class ModalDialogService {
       // }
       const targetView = new ContentView();
       const portal = new ComponentPortal(options.type);
-      portalOutlet = new NativeScriptDomPortalOutlet(targetView, options.resolver, this.appRef, childInjector);
+      portalOutlet = new NativeScriptDomPortalOutlet(targetView, this.appRef, childInjector);
       const componentRef = portalOutlet.attach(portal);
       componentRef.changeDetectorRef.detectChanges();
       componentViewRef = new NgViewRef(componentRef);

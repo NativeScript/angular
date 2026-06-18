@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import { ViewContainerRef, ComponentFactoryResolver, Injector } from '@angular/core';
+import { ViewContainerRef, Injector } from '@angular/core';
 import { ShowModalOptions, View } from '@nativescript/core';
 
 export type NativeShowModalOptions = Partial<Omit<ShowModalOptions, 'cancelable' | 'closeCallback'>>;
@@ -49,11 +49,6 @@ export class NativeDialogConfig<D = any> {
    * the `HashLocationStrategy`).
    */
   closeOnNavigation?: boolean = true;
-
-  /** Alternate `ComponentFactoryResolver` to use when resolving the associated component.
-   * @deprecated
-   */
-  componentFactoryResolver?: ComponentFactoryResolver;
 
   nativeOptions?: NativeShowModalOptions = {};
 

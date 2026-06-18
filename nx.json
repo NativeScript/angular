@@ -118,5 +118,8 @@
       "typeSeparator": "."
     }
   },
-  "analytics": false
+  "analytics": false,
+  "tui": {
+    "enabled": false
+  }
 }
