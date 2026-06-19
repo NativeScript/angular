@@ -22,6 +22,7 @@ import { Color, GridLayout } from '@nativescript/core';
 import { defaultPageFactory, ENABLE_REUSABE_VIEWS, PAGE_FACTORY, WRAP_CD_IN_TRANSACTION } from './tokens';
 import { AppLaunchView } from './application';
 import { NATIVESCRIPT_MODULE_PROVIDERS, NATIVESCRIPT_MODULE_STATIC_PROVIDERS } from './nativescript';
+import { registerNativeScriptViewComponents } from './element-registry';
 
 export const defaultPageFactoryProvider = { provide: PAGE_FACTORY, useValue: defaultPageFactory };
 export class NativeScriptSanitizer extends Sanitizer {
@@ -175,6 +176,12 @@ export function bootstrapApplication(
   options?: NativeScriptApplicationConfig,
   context?: BootstrapContext,
 ) {
+  // Ensure NativeScript view components are registered in this module instance's
+  // element registry. During Vite HMR, the vendor bundle and HTTP-loaded modules
+  // may have separate module instances of @nativescript/angular, each with their
+  // own elementMap. Without this call, the HTTP instance's elementMap would be
+  // empty and the renderer would throw "No known component for element ...".
+  registerNativeScriptViewComponents();
   return ɵinternalCreateApplication({
     rootComponent: rootComponent,
     ...createProvidersConfig(options, context),
@@ -182,6 +189,7 @@ export function bootstrapApplication(
 }
 
 export function createApplication(options?: NativeScriptApplicationConfig, context?: BootstrapContext) {
+  registerNativeScriptViewComponents();
   return ɵinternalCreateApplication(createProvidersConfig(options, context));
 }
 
@@ -223,7 +231,7 @@ export interface AppOptions {
  * @deprecated use runNativeScriptAngularApp instead
  */
 export const platformNativeScriptDynamic = function (options?: AppOptions, extraProviders?: StaticProvider[]) {
-  console.log('platformNativeScriptDynamic is deprecated, use runNativeScriptAngularApp instead');
+  console.warn('platformNativeScriptDynamic is deprecated, use runNativeScriptAngularApp instead');
   options = options || {};
   extraProviders = extraProviders || [];
 

@@ -4,7 +4,11 @@ import { ViewClassMeta } from '../views/view-types';
 
 export type ViewResolver = () => any;
 
-export const elementMap = new Map<string, { resolver: ViewResolver; meta?: ViewClassMeta }>();
+// Use a global elementMap so the vendor bundle and HTTP-loaded module instances
+// share the same element registry during Vite HMR (where two copies of
+// @nativescript/angular can coexist in separate module realms).
+export const elementMap: Map<string, { resolver: ViewResolver; meta?: ViewClassMeta }> =
+  (globalThis as any).__NS_NG_ELEMENT_MAP__ || ((globalThis as any).__NS_NG_ELEMENT_MAP__ = new Map());
 const camelCaseSplit = /([a-z0-9])([A-Z])/g;
 const defaultViewMeta: ViewClassMeta = { skipAddToDom: false };
 

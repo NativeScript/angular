@@ -1,11 +1,15 @@
 import {
+  APP_BOOTSTRAP_LISTENER,
+  ENVIRONMENT_INITIALIZER,
   NgModule,
   ModuleWithProviders,
   NO_ERRORS_SCHEMA,
   Optional,
   Provider,
   SkipSelf,
+  inject,
   makeEnvironmentProviders,
+  provideEnvironmentInitializer,
 } from '@angular/core';
 import {
   RouterModule,
@@ -31,6 +35,9 @@ import { FrameService } from '../frame.service';
 import { NSEmptyOutletComponent } from './ns-empty-outlet.component';
 import { NativeScriptCommonModule } from '../../nativescript-common.module';
 import { START_PATH } from '../../tokens';
+import { cloneRoutesForBootstrap } from './hmr-route-bootstrap-core';
+import { NativeScriptAngularHmrRouteReplay } from './hmr-route-replay';
+import { NativeScriptAngularHmrRouteTracker, readAngularHmrPendingStartPath } from './hmr-route-state';
 import { ComponentInputBindingOptions, INPUT_BINDER, RoutedComponentInputBinder } from './router-component-input-binder';
 
 export { PageRoute } from './page-router-outlet';
@@ -73,7 +80,11 @@ export class NativeScriptRouterModule {
     return {
       ngModule: NativeScriptRouterModule,
       providers: [
-        ...RouterModule.forRoot(routes, config).providers,
+        ...RouterModule.forRoot(cloneRoutesForBootstrap(routes), config).providers,
+        {
+          provide: START_PATH,
+          useFactory: readAngularHmrPendingStartPath,
+        },
         {
           provide: NSLocationStrategy,
           useFactory: provideLocationStrategy,
@@ -85,6 +96,14 @@ export class NativeScriptRouterModule {
         RouterExtensions,
         NSRouteReuseStrategy,
         { provide: RouteReuseStrategy, useExisting: NSRouteReuseStrategy },
+        NativeScriptAngularHmrRouteTracker,
+        NativeScriptAngularHmrRouteReplay,
+        {
+          provide: APP_BOOTSTRAP_LISTENER,
+          multi: true,
+          deps: [NativeScriptAngularHmrRouteTracker, NativeScriptAngularHmrRouteReplay],
+          useFactory: () => () => undefined,
+        },
         config?.bindToComponentInputs
           ? inputBinderProviders(typeof config.bindToComponentInputs === 'object' ? config.bindToComponentInputs : {})
           : [],
@@ -93,7 +112,7 @@ export class NativeScriptRouterModule {
   }
 
   static forChild(routes: Routes): ModuleWithProviders<NativeScriptRouterModule> {
-    return { ngModule: NativeScriptRouterModule, providers: RouterModule.forChild(routes).providers };
+    return { ngModule: NativeScriptRouterModule, providers: RouterModule.forChild(cloneRoutesForBootstrap(routes)).providers };
   }
 }
 export function rootRoute(router: Router): ActivatedRoute {
@@ -103,7 +122,11 @@ export function rootRoute(router: Router): ActivatedRoute {
 export function provideNativeScriptRouter(routes: Routes, ...features: RouterFeatures[]) {
   const hasInputBinding = features.some((f: any) => f.ɵkind === COMPONENT_INPUT_BINDING_FEATURE_KIND);
   return makeEnvironmentProviders([
-    provideRouter(routes, ...features),
+    provideRouter(cloneRoutesForBootstrap(routes), ...features),
+    {
+      provide: START_PATH,
+      useFactory: readAngularHmrPendingStartPath,
+    },
     {
       provide: NSLocationStrategy,
       useFactory: provideLocationStrategy,
@@ -115,6 +138,13 @@ export function provideNativeScriptRouter(routes: Routes, ...features: RouterFea
     RouterExtensions,
     NSRouteReuseStrategy,
     { provide: RouteReuseStrategy, useExisting: NSRouteReuseStrategy },
+    NativeScriptAngularHmrRouteTracker,
+    NativeScriptAngularHmrRouteReplay,
+    provideEnvironmentInitializer(() => {
+      inject(NativeScriptAngularHmrRouteTracker);
+      inject(NativeScriptAngularHmrRouteReplay);
+    }),
+    // {provide: APP_BOOTSTRAP_LISTENER, multi: true, useFactory: getBootstrapListener},
     hasInputBinding ? inputBinderProviders() : [],
   ]);
 }
