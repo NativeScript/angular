@@ -24,6 +24,7 @@ import {
   APP_ROOT_VIEW,
   ENABLE_REUSABE_VIEWS,
   NATIVESCRIPT_ROOT_MODULE_ID,
+  PREVENT_CHANGE_EVENTS_DURING_CD,
   PREVENT_SPECIFIC_EVENTS_DURING_CD,
   WRAP_CD_IN_TRANSACTION,
 } from './tokens';
@@ -234,7 +235,7 @@ class NativeScriptRenderer implements Renderer2 {
     }) ?? [],
   );
   private preventChangeEvents =
-    inject(PREVENT_SPECIFIC_EVENTS_DURING_CD, {
+    inject(PREVENT_CHANGE_EVENTS_DURING_CD, {
       optional: true,
     }) ?? false;
 
@@ -329,7 +330,9 @@ class NativeScriptRenderer implements Renderer2 {
       if (view && typeof view.tagName !== 'string') {
         try {
           view.tagName = view.nodeName || fallback || 'view';
-        } catch {}
+        } catch {
+          // ignore
+        }
       }
       return view;
     };
