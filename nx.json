@@ -18,6 +18,12 @@
       "inputs": ["production", "^production"],
       "cache": true
     },
+    "nx-release-publish": {
+      "dependsOn": ["build"],
+      "options": {
+        "packageRoot": "dist/packages/{projectName}"
+      }
+    },
     "test": {
       "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"],
       "cache": true
@@ -62,6 +68,45 @@
   "parallel": 2,
   "useInferencePlugins": false,
   "defaultBase": "main",
+  "release": {
+    "releaseTag": {
+      "pattern": "{projectName}@{version}"
+    },
+    "version": {
+      "preVersionCommand": "npx nx run-many -t build -p angular,zone-js",
+      "manifestRootsToUpdate": ["{projectRoot}", "dist/packages/{projectName}"],
+      "updateDependents": "never"
+    },
+    "git": {
+      "commitMessage": "release: {version}"
+    },
+    "groups": {
+      "angular": {
+        "projects": ["angular"],
+        "releaseTag": {
+          "pattern": "angular@{version}"
+        },
+        "changelog": {
+          "createRelease": "github",
+          "renderOptions": {
+            "authors": false
+          }
+        }
+      },
+      "zone-js": {
+        "projects": ["zone-js"],
+        "releaseTag": {
+          "pattern": "zone-js@{version}"
+        },
+        "changelog": {
+          "createRelease": "github",
+          "renderOptions": {
+            "authors": false
+          }
+        }
+      }
+    }
+  },
   "generators": {
     "@nx/angular:component": {
       "type": "component"
