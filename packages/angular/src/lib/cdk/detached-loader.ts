@@ -1,4 +1,4 @@
-import { ApplicationRef, ChangeDetectorRef, Component, ComponentFactory, ComponentRef, createComponent, inject, Injector, NO_ERRORS_SCHEMA, OnDestroy, TemplateRef, Type, ViewChild, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
+import { ApplicationRef, ChangeDetectorRef, Component, ComponentRef, createComponent, inject, Injector, NO_ERRORS_SCHEMA, OnDestroy, TemplateRef, Type, ViewChild, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { ProxyViewContainer, Trace } from '@nativescript/core';
 import { registerElement } from '../element-registry';
 import type { ComponentType } from '../utils/general';
@@ -95,26 +95,5 @@ export class DetachedLoader implements OnDestroy {
   public loadComponentInLocation(componentType: Type<any>): ComponentRef<any> {
     Trace.write('DetachedLoader.loadComponentInLocation', 'detached-loader');
     return this.loadInLocation(componentType);
-  }
-
-  /**
-   * @deprecated use Portals
-   */
-  public loadWithFactory<T>(factory: ComponentFactory<T>): ComponentRef<T> {
-    const componentRef = factory.create(this.containerRef.injector);
-    this.appRef.attachView(componentRef.hostView);
-
-    this.disposeFunctions.push(() => {
-      this.appRef.detachView(componentRef.hostView);
-      componentRef.destroy();
-    });
-    return componentRef;
-  }
-
-  /**
-   * @deprecated use Portals
-   */
-  public loadWithFactoryInLocation<T>(factory: ComponentFactory<T>): ComponentRef<T> {
-    return this.vc.createComponent(factory);
   }
 }
