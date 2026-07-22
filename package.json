@@ -62,7 +62,7 @@
     "@angular/compiler-cli": "22.0.8",
     "@eslint/eslintrc": "^3.0.0",
     "@jsdevtools/coverage-istanbul-loader": "3.0.5",
-    "@nativescript/nx": "file:../nativescript-nx/nativescript-nx-23.0.0.tgz",
+    "@nativescript/nx": "^23.0.0-rc.0",
     "@nativescript/types": "~9.0.0",
     "@nativescript/unit-test-runner": "4.0.0",
     "@nativescript/webpack": "~5.0.27",
