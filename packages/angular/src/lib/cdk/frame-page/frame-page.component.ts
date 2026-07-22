@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, Renderer2, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, Renderer2, SimpleChanges, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Frame, Page, View } from '@nativescript/core';
 import { frameMeta, registerElement } from '../../element-registry';
 import { PageService } from './page.service';
@@ -25,6 +25,7 @@ registerElement('FramePage', () => Frame, {
   selector: 'FramePage',
   template: `<ng-content></ng-content>`,
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: Frame,

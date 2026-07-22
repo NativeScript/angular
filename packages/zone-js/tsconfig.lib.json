@@ -6,5 +6,8 @@
     "types": []
   },
   "include": ["**/*.ts"],
-  "exclude": ["**/*.spec.ts", "jest.config.ts"]
+  "exclude": ["**/*.spec.ts", "jest.config.ts"],
+  "angularCompilerOptions": {
+    "strictTemplates": false
+  }
 }

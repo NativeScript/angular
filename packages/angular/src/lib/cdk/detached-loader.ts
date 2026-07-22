@@ -1,4 +1,4 @@
-import { ApplicationRef, ChangeDetectorRef, Component, ComponentFactory, ComponentRef, createComponent, inject, Injector, NO_ERRORS_SCHEMA, OnDestroy, TemplateRef, Type, ViewChild, ViewContainerRef } from '@angular/core';
+import { ApplicationRef, ChangeDetectorRef, Component, ComponentFactory, ComponentRef, createComponent, inject, Injector, NO_ERRORS_SCHEMA, OnDestroy, TemplateRef, Type, ViewChild, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { ProxyViewContainer, Trace } from '@nativescript/core';
 import { registerElement } from '../element-registry';
 import type { ComponentType } from '../utils/general';
@@ -20,6 +20,7 @@ registerElement('DetachedContainer', () => ProxyViewContainer, {
     <ng-container #vc></ng-container>
     <ng-content></ng-content>`,
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   schemas: [NO_ERRORS_SCHEMA],
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix

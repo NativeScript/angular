@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Page } from '@nativescript/core';
 import { PageRouterOutlet } from './page-router-outlet';
 
@@ -6,6 +6,7 @@ import { PageRouterOutlet } from './page-router-outlet';
   // tslint:disable-next-line:component-selector
   selector: 'ns-empty-outlet',
   template: "<page-router-outlet isEmptyOutlet='true'></page-router-outlet>",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PageRouterOutlet],
 })
 export class NSEmptyOutletComponent {

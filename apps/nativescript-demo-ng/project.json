@@ -33,16 +33,14 @@
     },
     "debug": {
       "executor": "@nativescript/nx:debug",
+      "dependsOn": ["^build"],
       "options": {
         "noHmr": true,
         "uglify": false,
         "release": false,
         "forDevice": false,
         "prepare": false
-      },
-      "dependsOn": [
-        "^build"
-      ]
+      }
     },
     "clean": {
       "executor": "@nativescript/nx:clean",
@@ -53,15 +51,11 @@
     },
     "test": {
       "executor": "@nativescript/nx:test",
-      "outputs": [
-        "{workspaceRoot}/coverage/apps/nativescript-demo-ng"
-      ],
+      "outputs": ["{workspaceRoot}/coverage/apps/nativescript-demo-ng"],
+      "dependsOn": ["^build"],
       "options": {
         "coverage": false
       },
-      "dependsOn": [
-        "^build"
-      ],
       "configurations": {}
     }
   }

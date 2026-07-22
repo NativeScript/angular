@@ -18,10 +18,10 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/packages/angular"],
       "options": {
         "jestConfig": "packages/angular/jest.config.ts"
-      },
-      "outputs": ["{workspaceRoot}/coverage/packages/angular"]
+      }
     }
   }
 }

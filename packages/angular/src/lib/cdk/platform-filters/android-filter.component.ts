@@ -1,5 +1,5 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { IDevice, platformNames } from '@nativescript/core';
 import { DEVICE } from '../../tokens';
 
@@ -8,6 +8,7 @@ import { DEVICE } from '../../tokens';
   template: `@if (show) { 
     <ng-content></ng-content>
   }`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class AndroidFilterComponent {

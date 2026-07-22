@@ -6,7 +6,7 @@
     "types": ["node", "jasmine"],
     "outDir": "../../dist/out-tsc",
     "paths": {
-      "~/*": ["src/*"],
+      "~/*": ["./src/*"],
       "@nativescript/angular": ["../../packages/angular/src/index.ts"],
       "@nativescript/angular/*": ["../../packages/angular/src/*"],
       "@nativescript/angular/testing": ["../../packages/angular/testing/src/index.ts"],
