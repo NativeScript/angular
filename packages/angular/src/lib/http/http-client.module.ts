@@ -4,6 +4,7 @@ import {
   HttpFeatureKind,
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr
 } from '@angular/common/http';
 import { makeEnvironmentProviders, NgModule } from '@angular/core';
 
@@ -12,7 +13,7 @@ import { NsHttpBackEnd } from './ns-http-backend';
 
 export function provideNativeScriptHttpClient(...features: HttpFeature<HttpFeatureKind>[]) {
   return makeEnvironmentProviders([
-    provideHttpClient(...features),
+    provideHttpClient(withXhr(), ...features),
     NSFileSystem,
     NsHttpBackEnd,
     { provide: HttpBackend, useExisting: NsHttpBackEnd },

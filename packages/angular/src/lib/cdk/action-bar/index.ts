@@ -1,4 +1,4 @@
-import { Directive, Component, ElementRef, OnDestroy, inject } from '@angular/core';
+import { Directive, Component, ElementRef, OnDestroy, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActionBar, ActionItem, ActionItems, NavigationButton, Page } from '@nativescript/core';
 
 import { isBlank } from '../../utils/lang-facade';
@@ -78,6 +78,7 @@ const appendActionItem = (bar: NgActionBar, item: ActionItem) => {
 @Component({
   selector: 'ActionBar',
   template: '<ng-content></ng-content>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class ActionBarComponent {
@@ -99,6 +100,7 @@ export class ActionBarComponent {
 @Component({
   selector: 'ActionBarExtension',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class ActionBarScope {
