@@ -13,7 +13,7 @@ env:
   # NativeScript CLI (provides the `ns` binary the nx test executor spawns)
   NS_CLI_VERSION: latest
   # iOS (runner label is set on the job's `runs-on`, it can't read env)
-  XCODE_VERSION: "^16.0"
+  XCODE_VERSION: "^26.0"
   # Android
   JAVA_VERSION: "21"
   ANDROID_API: "34"
