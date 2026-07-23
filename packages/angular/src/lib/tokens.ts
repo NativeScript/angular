@@ -14,6 +14,17 @@ export const WRAP_CD_IN_TRANSACTION = new InjectionToken<boolean>('NativeScriptW
   factory: () => false,
 });
 
+/**
+ * When enabled, native side-effects produced during change detection (applying
+ * native properties/styles/classes and attaching/loading native views) are
+ * batched and applied once, after CD finishes. The logical view tree Angular
+ * reads back during CD is always kept in sync synchronously.
+ */
+export const DEFER_NATIVE_OPS_DURING_CD = new InjectionToken<boolean>('NativeScriptDeferNativeOpsDuringCd', {
+  providedIn: 'root',
+  factory: () => false,
+});
+
 export type PageFactory = (options: PageFactoryOptions) => Page;
 export interface PageFactoryOptions {
   isBootstrap?: boolean;
