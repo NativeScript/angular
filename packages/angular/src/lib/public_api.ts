@@ -57,6 +57,7 @@ export {
   ApplicationConfig,
 } from './application';
 export * from './element-registry';
+export * from './nativescript-event-manager-plugin';
 export * from './nativescript-xhr-factory';
 export {
   EmulatedRenderer,

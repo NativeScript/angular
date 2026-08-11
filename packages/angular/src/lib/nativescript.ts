@@ -1,8 +1,10 @@
 import { ViewportScroller, XhrFactory, ɵNullViewportScroller as NullViewportScroller } from '@angular/common';
 import { ApplicationModule, ErrorHandler, Inject, NgModule, NO_ERRORS_SCHEMA, Optional, Provider, RendererFactory2, SkipSelf, StaticProvider, ɵINJECTOR_SCOPE as INJECTOR_SCOPE } from '@angular/core';
+import { EVENT_MANAGER_PLUGINS, EventManager } from '@angular/platform-browser';
 import { Color, Device, View } from '@nativescript/core';
 import { AppHostView } from './app-host-view';
 import { NativescriptXhrFactory } from './nativescript-xhr-factory';
+import { NativeScriptEventManagerPlugin } from './nativescript-event-manager-plugin';
 import { NativeScriptRendererFactory } from './nativescript-renderer';
 import { PlatformNamespaceFilter, NAMESPACE_FILTERS } from './property-filter';
 import { APP_ROOT_VIEW, DEVICE, ENABLE_REUSABE_VIEWS, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
@@ -40,7 +42,13 @@ export const NATIVESCRIPT_MODULE_STATIC_PROVIDERS: StaticProvider[] = [
   { provide: DEVICE, useValue: Device },
   { provide: XhrFactory, useClass: NativescriptXhrFactory, deps: [] },
 ];
-export const NATIVESCRIPT_MODULE_PROVIDERS: Provider[] = [{ provide: ViewportScroller, useClass: NullViewportScroller }];
+export const NATIVESCRIPT_MODULE_PROVIDERS: Provider[] = [
+  { provide: ViewportScroller, useClass: NullViewportScroller },
+  // The EventManager checks plugins in reverse registration order, so plugins
+  // provided by the application take priority over this default one.
+  { provide: EVENT_MANAGER_PLUGINS, useClass: NativeScriptEventManagerPlugin, multi: true },
+  EventManager,
+];
 
 @NgModule({
   imports: [ApplicationModule, DetachedLoader, NativeScriptCommonModule],

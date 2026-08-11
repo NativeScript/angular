@@ -2,6 +2,7 @@ import {
   inject,
   Injectable,
   Injector,
+  ListenerOptions,
   Renderer2,
   RendererFactory2,
   RendererStyleFlags2,
@@ -9,16 +10,17 @@ import {
   runInInjectionContext,
   ViewEncapsulation,
 } from '@angular/core';
+import { EventManager } from '@angular/platform-browser';
 import {
   addTaggedAdditionalCSS,
   Application,
   ContentView,
   getViewById,
-  Observable,
   profile,
   View,
 } from '@nativescript/core';
 import { isKnownView } from './element-registry';
+import { NativeScriptEventManagerPlugin } from './nativescript-event-manager-plugin';
 import { NAMESPACE_FILTERS } from './property-filter';
 import {
   APP_ROOT_VIEW,
@@ -238,6 +240,12 @@ class NativeScriptRenderer implements Renderer2 {
     inject(PREVENT_CHANGE_EVENTS_DURING_CD, {
       optional: true,
     }) ?? false;
+  private injector = inject(Injector);
+  // EventManager must be resolved lazily: eager injection would instantiate
+  // every EVENT_MANAGER_PLUGINS provider while the renderer factory's own DI
+  // record is still circular, breaking plugins that inject RendererFactory2.
+  private eventManager: EventManager | null | undefined;
+  private fallbackEventPlugin: NativeScriptEventManagerPlugin | undefined;
 
   constructor(private rootView: View) {}
   get data(): { [key: string]: any } {
@@ -433,8 +441,7 @@ class NativeScriptRenderer implements Renderer2 {
     }
     // throw new Error("Method not implemented.");
   }
-  listen(target: View, eventName: string, callback: (event: any) => boolean | void): () => void {
-    // throw new Error("Method not implemented.");
+  listen(target: View, eventName: string, callback: (event: any) => boolean | void, options?: ListenerOptions): () => void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.listen: ${eventName}`);
     }
@@ -447,17 +454,16 @@ class NativeScriptRenderer implements Renderer2 {
         return callback(...args);
       };
     }
-    target.on(eventName, modifiedCallback);
-    if (eventName === View.loadedEvent && target.isLoaded) {
-      // we must create a new obervable here to ensure that the event goes through whatever zone patches are applied
-      const obs = new Observable();
-      obs.once(eventName, modifiedCallback);
-      obs.notify({
-        eventName,
-        object: target,
-      });
+    if (this.eventManager === undefined) {
+      this.eventManager = this.injector.get(EventManager, null);
     }
-    return () => target.off(eventName, modifiedCallback);
+    if (this.eventManager) {
+      return this.eventManager.addEventListener(target as any, eventName, modifiedCallback, options) as () => void;
+    }
+    // No EventManager provided (e.g. a custom setup that only spreads
+    // NATIVESCRIPT_MODULE_STATIC_PROVIDERS) — bind through the default plugin.
+    this.fallbackEventPlugin ??= new NativeScriptEventManagerPlugin();
+    return this.fallbackEventPlugin.addEventListener(target, eventName, modifiedCallback) as () => void;
   }
 }
 
