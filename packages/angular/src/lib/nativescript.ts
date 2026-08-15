@@ -1,4 +1,4 @@
-import { ViewportScroller, XhrFactory, ɵNullViewportScroller as NullViewportScroller } from '@angular/common';
+import { IMAGE_CONFIG, ViewportScroller, XhrFactory, ɵNullViewportScroller as NullViewportScroller } from '@angular/common';
 import { ApplicationModule, ErrorHandler, Inject, NgModule, NO_ERRORS_SCHEMA, Optional, Provider, RendererFactory2, SkipSelf, StaticProvider, ɵINJECTOR_SCOPE as INJECTOR_SCOPE } from '@angular/core';
 import { Color, Device, View } from '@nativescript/core';
 import { AppHostView } from './app-host-view';
@@ -40,7 +40,13 @@ export const NATIVESCRIPT_MODULE_STATIC_PROVIDERS: StaticProvider[] = [
   { provide: DEVICE, useValue: Device },
   { provide: XhrFactory, useClass: NativescriptXhrFactory, deps: [] },
 ];
-export const NATIVESCRIPT_MODULE_PROVIDERS: Provider[] = [{ provide: ViewportScroller, useClass: NullViewportScroller }];
+export const NATIVESCRIPT_MODULE_PROVIDERS: Provider[] = [
+  { provide: ViewportScroller, useClass: NullViewportScroller },
+  // Angular's dev-mode image warnings scan the DOM for <img> elements, which
+  // NativeScript has none of. Angular only skips them when both flags are set,
+  // and reaches for `document` as soon as a global PerformanceObserver exists.
+  { provide: IMAGE_CONFIG, useValue: { disableImageSizeWarning: true, disableImageLazyLoadWarning: true } },
+];
 
 @NgModule({
   imports: [ApplicationModule, DetachedLoader, NativeScriptCommonModule],
