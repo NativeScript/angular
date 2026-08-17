@@ -37,12 +37,41 @@ export class NativeScriptSanitizer extends Sanitizer {
 //   };
 // }
 
+/**
+ * Angular probes the DOM to discover optional configuration it may have been handed
+ * out of band - a `ngCspNonce` attribute on `<body>`, a transfer state `<script>` in
+ * the document. None of that can exist here, so the lookups answer "nothing found".
+ * Leaving the methods undefined instead surfaces as a `TypeError` thrown from deep
+ * inside framework code, since `document.body` is present and merely hollow.
+ */
+const NO_DOM_QUERIES = {
+  querySelector: () => null,
+  querySelectorAll: () => [],
+  getElementById: () => null,
+  getElementsByTagName: () => [],
+  getElementsByClassName: () => [],
+  getAttribute: () => null,
+  hasAttribute: () => false,
+};
+
 export class NativeScriptDocument {
   // Required by the AnimationDriver
   public body: any = {
     isOverride: true,
+    ...NO_DOM_QUERIES,
   };
 
+  public head: any = {
+    ...NO_DOM_QUERIES,
+  };
+
+  public querySelector = NO_DOM_QUERIES.querySelector;
+  public querySelectorAll = NO_DOM_QUERIES.querySelectorAll;
+  public getElementById = NO_DOM_QUERIES.getElementById;
+  public getElementsByTagName = NO_DOM_QUERIES.getElementsByTagName;
+  public getElementsByClassName = NO_DOM_QUERIES.getElementsByClassName;
+
+  // Deliberately still throws: constructing real nodes is a caller bug, not a probe.
   createElement(tag: string) {
     throw new Error('NativeScriptDocument is not DOM Document. There is no createElement() method.');
   }

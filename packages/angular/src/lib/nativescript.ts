@@ -1,5 +1,5 @@
 import { IMAGE_CONFIG, ViewportScroller, XhrFactory, ɵNullViewportScroller as NullViewportScroller } from '@angular/common';
-import { ApplicationModule, ErrorHandler, Inject, NgModule, NO_ERRORS_SCHEMA, Optional, Provider, RendererFactory2, SkipSelf, StaticProvider, ɵINJECTOR_SCOPE as INJECTOR_SCOPE } from '@angular/core';
+import { ApplicationModule, CSP_NONCE, ErrorHandler, Inject, NgModule, NO_ERRORS_SCHEMA, Optional, Provider, RendererFactory2, SkipSelf, StaticProvider, ɵINJECTOR_SCOPE as INJECTOR_SCOPE } from '@angular/core';
 import { Color, Device, View } from '@nativescript/core';
 import { AppHostView } from './app-host-view';
 import { NativescriptXhrFactory } from './nativescript-xhr-factory';
@@ -39,6 +39,10 @@ export const NATIVESCRIPT_MODULE_STATIC_PROVIDERS: StaticProvider[] = [
   { provide: NAMESPACE_FILTERS, useClass: PlatformNamespaceFilter, deps: [DEVICE], multi: true },
   { provide: DEVICE, useValue: Device },
   { provide: XhrFactory, useClass: NativescriptXhrFactory, deps: [] },
+  // No CSP in a NativeScript runtime. Providing it also stops the token's default
+  // factory reading `DOCUMENT.body.querySelector()`. Must stay root-scoped: the root
+  // injector resolves `providedIn: 'root'` tokens before consulting the platform.
+  { provide: CSP_NONCE, useValue: null },
 ];
 export const NATIVESCRIPT_MODULE_PROVIDERS: Provider[] = [
   { provide: ViewportScroller, useClass: NullViewportScroller },
