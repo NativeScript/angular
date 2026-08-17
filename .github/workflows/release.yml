@@ -9,7 +9,7 @@ on:
         options: [angular, zone-js]
         default: angular
       version:
-        description: Version specifier (e.g. 22.0.0, patch, minor)
+        description: Version specifier (e.g. 22.0.0, 22.0.0-rc.4, patch, minor)
         required: true
       dry-run:
         description: Dry run (preview only, no push/publish)
@@ -61,6 +61,31 @@ jobs:
           ${{ inputs.dry-run && '--dry-run' || '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Prereleases (e.g. 22.0.0-rc.4) publish to their prerelease dist-tag (rc),
+      # never latest. In a dry run keyword specifiers (patch/minor) resolve from
+      # the unbumped manifest, so the previewed tag may differ from a real run.
+      - name: Resolve npm dist-tag
+        id: dist-tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          spec='${{ inputs.version }}'
+          if [[ "$spec" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-.+)?$ ]]; then
+            version="$spec"
+          else
+            version=$(node -p "require('./packages/${{ inputs.project }}/package.json').version")
+          fi
+          if [[ "$version" == *-* ]]; then
+            pre="${version#*-}"
+            tag="${pre%%.*}"
+            if [[ "$tag" =~ ^[0-9]+$ ]]; then
+              tag="next"
+            fi
+          else
+            tag="latest"
+          fi
+          echo "Resolved version ${version} -> dist-tag ${tag}"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
       # OIDC trusted publishing (default): npm must find no token auth at all,
       # otherwise it uses the token instead of the OIDC exchange.
       - name: nx release publish (OIDC)
@@ -79,6 +104,7 @@ jobs:
 
           npx nx release publish \
             --groups=${{ inputs.project }} \
+            --tag "${{ steps.dist-tag.outputs.tag }}" \
             --access public \
             ${{ inputs.dry-run && '--dry-run' || '' }}
       # Token fallback: only when explicitly enabled via repo variable USE_NPM_TOKEN=true.
@@ -90,5 +116,6 @@ jobs:
         run: >
           npx nx release publish
           --groups=${{ inputs.project }}
+          --tag "${{ steps.dist-tag.outputs.tag }}"
           --access public
           ${{ inputs.dry-run && '--dry-run' || '' }}
