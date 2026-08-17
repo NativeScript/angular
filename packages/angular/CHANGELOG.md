@@ -1,3 +1,29 @@
+# 22.0.0 (2026-08-17)
+
+### 🚀 Features
+
+- nx 23 and angular 22 ([#175](https://github.com/NativeScript/angular/pull/175))
+- update cdk-inspired components and drop ComponentFactoryResolver ([4c8f696](https://github.com/NativeScript/angular/commit/4c8f696))
+- throw error on failed to open dialog and refactor some deprecated usages ([d24b766](https://github.com/NativeScript/angular/commit/d24b766))
+- make it easier to configure custom flags ([e0dab64](https://github.com/NativeScript/angular/commit/e0dab64))
+- enable option to wrap CD in CATransaction ([96d4c0e](https://github.com/NativeScript/angular/commit/96d4c0e))
+- expose BootstrapContext on bootstrapApplication ([4114bd3](https://github.com/NativeScript/angular/commit/4114bd3))
+- use upstream angular router link ([#166](https://github.com/NativeScript/angular/pull/166))
+- add router input binding ([#165](https://github.com/NativeScript/angular/pull/165))
+- allow custom injector in dialogs and handle deprecations ([#140](https://github.com/NativeScript/angular/pull/140))
+- angular 21.2.9 ([59c8899](https://github.com/NativeScript/angular/commit/59c8899))
+- expose createApplication and allow passing in a platformRef ([00f319c](https://github.com/NativeScript/angular/commit/00f319c))
+
+### 🩹 Fixes
+
+- answer DOM probes on NativeScriptDocument instead of throwing ([#176](https://github.com/NativeScript/angular/pull/176))
+- stop unlinking parents on array-valued bindings ([#900](https://github.com/NativeScript/angular/issues/900))
+- bootstrap NG0210 when the runtime exposes a global PerformanceObserver ([#178](https://github.com/NativeScript/angular/pull/178))
+- correctly identify if modal has opened or not ([6a6f90c](https://github.com/NativeScript/angular/commit/6a6f90c))
+- correctly use the `PREVENT_CHANGE_EVENTS_DURING_CD` token to gate change events ([#174](https://github.com/NativeScript/angular/pull/174))
+- set tagName on NgView for Angular 21 bootstrap compatibility ([#168](https://github.com/NativeScript/angular/pull/168))
+- don't dispose the portal on component destroy ([7de9f41](https://github.com/NativeScript/angular/commit/7de9f41))
+
 # [21.0.0](https://github.com/NativeScript/angular/compare/20.1.1...21.0.0) (2026-01-04)
 
 
