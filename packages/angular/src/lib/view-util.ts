@@ -1,4 +1,5 @@
 import { unsetValue, View } from '@nativescript/core';
+import { DeferredRendererOps, VisualTreeFlusher } from './deferred-renderer-ops';
 import { getViewClass, getViewMeta, isKnownView } from './element-registry';
 import { NamespaceFilter } from './property-filter';
 import {
@@ -75,10 +76,11 @@ function printSiblingsTree(view: NgView) {
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 const propertyMaps: Map<Function, Map<string, string>> = new Map<Function, Map<string, string>>();
 
-export class ViewUtil {
+export class ViewUtil implements VisualTreeFlusher {
   constructor(
     private namespaceFilters?: NamespaceFilter[],
     private reuseViews?: boolean,
+    private deferral?: DeferredRendererOps,
   ) {}
   /**
    * Inserts a child into a parrent, preferably before next.
@@ -118,8 +120,16 @@ export class ViewUtil {
     }
 
     if (!isDetachedElement(child)) {
-      const nextVisual = this.findNextVisual(next);
-      this.addToVisualTree(extendedParent, extendedChild, nextVisual);
+      if (this.deferral?.deferring) {
+        // Keep the logical parent correct synchronously (Angular reads
+        // `parentNode` back during CD); defer the native attach/load to the
+        // end of the CD pass.
+        extendedChild.parentNode = extendedParent;
+        this.deferral.queueVisualAdd(extendedParent, extendedChild, this);
+      } else {
+        const nextVisual = this.findNextVisual(next);
+        this.addToVisualTree(extendedParent, extendedChild, nextVisual);
+      }
     } else if (isInvisibleNode(extendedChild)) {
       const nextVisual = this.findNextVisual(next);
       this.addInvisibleNode(extendedParent, extendedChild, nextVisual);
@@ -186,6 +196,20 @@ export class ViewUtil {
     }
   }
 
+  /**
+   * Applies a previously deferred native attach. Called by the deferral
+   * controller at the end of the CD pass, once the logical tree is final.
+   */
+  public flushVisualAdd(parent: NgView, child: NgView): void {
+    // The child may have been moved to another parent (handled by that parent's
+    // own flush) or detached after it was queued.
+    if (child.parentNode !== parent || isDetachedElement(child)) {
+      return;
+    }
+    const nextVisual = this.findNextVisual(child.nextSibling);
+    this.addToVisualTree(parent, child, nextVisual);
+  }
+
   private addInvisibleNode(parent: NgView, child: NgView, next: NgView): void {
     if (parent.meta?.insertInvisibleNode) {
       parent.meta.insertInvisibleNode(parent, child, next);
@@ -236,6 +260,9 @@ export class ViewUtil {
 
     this.removeFromList(extendedParent, extendedChild);
     if (!isDetachedElement(extendedChild)) {
+      // If this child was queued for a (not yet applied) native attach, drop it.
+      // The immediate detach below is then a no-op since it was never attached.
+      this.deferral?.cancelVisualAdd(extendedParent, extendedChild);
       this.removeFromVisualTree(extendedParent, extendedChild);
     } else if (isInvisibleNode(extendedChild)) {
       this.removeInvisibleNode(extendedParent, extendedChild);
@@ -425,7 +452,14 @@ export class ViewUtil {
     if (!view || (namespace && !this.runsIn(namespace))) {
       return;
     }
+    if (this.deferral?.deferring) {
+      this.deferral.queueOp(() => this.applyProperty(view, attributeName, value));
+      return;
+    }
+    this.applyProperty(view, attributeName, value);
+  }
 
+  private applyProperty(view: NgView, attributeName: string, value: any): void {
     if (attributeName.indexOf('.') !== -1) {
       // Handle nested properties
       const properties = attributeName.split('.');
@@ -562,11 +596,30 @@ export class ViewUtil {
   }
 
   private syncClasses(view: NgView): void {
+    // The class map (source of truth) is already mutated synchronously above;
+    // only the native className write is deferred. It reads the final map at
+    // flush time, so coalescing add/remove within a CD pass is automatic.
+    if (this.deferral?.deferring) {
+      this.deferral.queueOp(() => this.applySyncClasses(view));
+      return;
+    }
+    this.applySyncClasses(view);
+  }
+
+  private applySyncClasses(view: NgView): void {
     const classValue = (<any>Array).from(this.cssClasses(view).keys()).join(' ');
     view.className = classValue;
   }
 
   public setStyle(view: View, styleName: string, value: any) {
+    if (this.deferral?.deferring) {
+      this.deferral.queueOp(() => this.applyStyle(view, styleName, value));
+      return;
+    }
+    this.applyStyle(view, styleName, value);
+  }
+
+  private applyStyle(view: View, styleName: string, value: any) {
     if (isCssVariable(styleName)) {
       view.style.setUnscopedCssVariable(styleName, value);
       view._onCssStateChange();
@@ -576,6 +629,14 @@ export class ViewUtil {
   }
 
   public removeStyle(view: View, styleName: string) {
+    if (this.deferral?.deferring) {
+      this.deferral.queueOp(() => this.applyRemoveStyle(view, styleName));
+      return;
+    }
+    this.applyRemoveStyle(view, styleName);
+  }
+
+  private applyRemoveStyle(view: View, styleName: string) {
     if (isCssVariable(styleName)) {
       // TODO: expose this on core
       (view.style as any).unscopedCssVariables.delete(styleName);
