@@ -2,5 +2,9 @@
   "name": "@nativescript/zone-js",
   "version": "4.0.0",
   "description": "NativeScript Zone.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NativeScript/angular.git"
+  },
   "main": "dist/index.js"
 }

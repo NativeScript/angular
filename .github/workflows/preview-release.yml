@@ -1,0 +1,31 @@
+name: Preview release
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  NX_BRANCH: ${{ github.event.number || github.ref_name }}
+  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+
+jobs:
+  preview:
+    name: Publish preview packages (pkg.pr.new)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: npm
+      - name: npm install
+        run: npm install --force
+      - name: Build packages
+        run: npx nx run-many -t build -p angular,zone-js
+      - name: Publish preview packages
+        run: npx pkg-pr-new publish --compact ./dist/packages/angular ./dist/packages/zone-js
