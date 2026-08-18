@@ -28,6 +28,7 @@ import { NativeScriptLoadingService } from './loading.service';
 import { clearAngularHmrRouteConfigCaches } from './legacy/router/hmr-route-cache-core';
 import { NSLocationStrategy } from './legacy/router/ns-location-strategy';
 import { NSRouteReuseStrategy } from './legacy/router/ns-route-reuse-strategy';
+import { resolveAngularAppSessionAction } from './application-reload';
 import { createAngularRootTransitionGuard } from './root-transition-guard';
 import { APP_ROOT_VIEW, DISABLE_ROOT_VIEW_HANDLING, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { NativeScriptDebug } from './trace';
@@ -334,9 +335,19 @@ export interface ApplicationConfig {
 
 export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   const hmrGlobal = globalThis as any;
+  const sessionAction = resolveAngularAppSessionAction(hmrGlobal, Application.hasLaunched());
 
-  if (hmrGlobal.__NS_ANGULAR_HMR_REGISTER_ONLY__ && typeof hmrGlobal.__NS_UPDATE_ANGULAR_APP_OPTIONS__ === 'function') {
+  if (sessionAction === 'register-only') {
     hmrGlobal.__NS_UPDATE_ANGULAR_APP_OPTIONS__(options);
+    return;
+  }
+
+  // Live session: update options and remount, never Application.run().
+  if (sessionAction === 'reboot-existing') {
+    if (typeof hmrGlobal.__NS_UPDATE_ANGULAR_APP_OPTIONS__ === 'function') {
+      hmrGlobal.__NS_UPDATE_ANGULAR_APP_OPTIONS__(options);
+    }
+    hmrGlobal.__reboot_ng_modules__();
     return;
   }
 
@@ -830,6 +841,10 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     if (traceEnabled) {
       NativeScriptDebug.hmrLog(`bootstrapRoot returned cycle=${cycleNum} bootstrapId=${bootstrapId}`);
     }
+  };
+  // Core resetRootView cannot remount Angular's stale `{ create }` entry.
+  global['__onApplicationReload'] = () => {
+    global['__reboot_ng_modules__']();
   };
 
   // First (cold) launch entry point. Embedded apps are already running inside a
