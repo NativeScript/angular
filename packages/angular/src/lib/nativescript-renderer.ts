@@ -463,7 +463,7 @@ class NativeScriptRenderer implements Renderer2 {
     // No EventManager provided (e.g. a custom setup that only spreads
     // NATIVESCRIPT_MODULE_STATIC_PROVIDERS) — bind through the default plugin.
     this.fallbackEventPlugin ??= new NativeScriptEventManagerPlugin();
-    return this.fallbackEventPlugin.addEventListener(target, eventName, modifiedCallback) as () => void;
+    return this.fallbackEventPlugin.addEventListener(target, eventName, modifiedCallback, options) as () => void;
   }
 }
 

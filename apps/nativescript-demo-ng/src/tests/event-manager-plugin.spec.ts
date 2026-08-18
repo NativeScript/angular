@@ -1,4 +1,4 @@
-import { Component, ElementRef, NgZone, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, NgZone, NO_ERRORS_SCHEMA, RendererFactory2, ViewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { EVENT_MANAGER_PLUGINS, EventManager, EventManagerPlugin } from '@angular/platform-browser';
 import { NativeScriptCommonModule, NativeScriptEventManagerPlugin, NativeScriptRendererHelperService, PREVENT_CHANGE_EVENTS_DURING_CD } from '@nativescript/angular';
@@ -37,6 +37,38 @@ describe('NativeScriptEventManagerPlugin', () => {
     let fired = 0;
     plugin.addEventListener(target, View.loadedEvent, () => fired++);
     expect(fired).toBe(0);
+  });
+
+  it('removes a { once: true } handler after the first event', () => {
+    const plugin = new NativeScriptEventManagerPlugin();
+    const view = new StackLayout();
+    let count = 0;
+    plugin.addEventListener(view, 'myEvent', () => count++, { once: true });
+    view.notify({ eventName: 'myEvent', object: view });
+    view.notify({ eventName: 'myEvent', object: view });
+    expect(count).toBe(1);
+  });
+
+  it('does not leave a registration behind when { once: true } is satisfied by the loaded replay', () => {
+    const plugin = new NativeScriptEventManagerPlugin();
+    const handlers: ((data: unknown) => void)[] = [];
+    const track = (eventName: string, handler: (data: unknown) => void) => handlers.push(handler);
+    const target: any = {
+      isLoaded: true,
+      on: track,
+      once: track,
+      off(eventName: string, handler: (data: unknown) => void) {
+        const index = handlers.indexOf(handler);
+        if (index >= 0) {
+          handlers.splice(index, 1);
+        }
+      },
+    };
+    let fired = 0;
+    plugin.addEventListener(target, View.loadedEvent, () => fired++, { once: true });
+    expect(fired).toBe(1);
+    handlers.forEach((handler) => handler({ eventName: View.loadedEvent, object: target }));
+    expect(fired).toBe(1);
   });
 
   it('delivers events in the zone that registered them', () => {
@@ -132,6 +164,56 @@ describe('EVENT_MANAGER_PLUGINS integration', () => {
     view.notify({ eventName: 'myPlainEvent', object: view });
     expect(fixture.componentInstance.hits).toBe(0);
     expect(fixture.componentInstance.plainHits).toBe(0);
+  });
+});
+
+class RendererFactoryAwarePlugin extends EventManagerPlugin {
+  rendererFactory = inject(RendererFactory2);
+
+  constructor() {
+    super(null);
+  }
+
+  supports(eventName: string): boolean {
+    return eventName.startsWith('factory.');
+  }
+
+  addEventListener(element: any, eventName: string, handler: Function): Function {
+    const view = element as View;
+    view.on('factoryEvent', handler as any);
+    return () => view.off('factoryEvent', handler as any);
+  }
+}
+
+@Component({
+  template: `<StackLayout #el (factory.event)="hits = hits + 1"></StackLayout>`,
+  imports: [NativeScriptCommonModule],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+class FactoryPluginHostComponent {
+  @ViewChild('el', { read: ElementRef, static: true }) el: ElementRef<View>;
+  hits = 0;
+}
+
+describe('plugins that inject RendererFactory2', () => {
+  beforeEach(() => {
+    return TestBed.configureTestingModule({
+      imports: [FactoryPluginHostComponent],
+      providers: [{ provide: EVENT_MANAGER_PLUGINS, useClass: RendererFactoryAwarePlugin, multi: true }],
+    }).compileComponents();
+  });
+
+  it('creates components and registers listeners without a DI cycle', () => {
+    const fixture = TestBed.createComponent(FactoryPluginHostComponent);
+    fixture.detectChanges();
+
+    const plugins = TestBed.inject(EVENT_MANAGER_PLUGINS);
+    const plugin = plugins.find((p): p is RendererFactoryAwarePlugin => p instanceof RendererFactoryAwarePlugin);
+    expect(plugin.rendererFactory).toBe(TestBed.inject(RendererFactory2));
+
+    const view = fixture.componentInstance.el.nativeElement;
+    view.notify({ eventName: 'factoryEvent', object: view });
+    expect(fixture.componentInstance.hits).toBe(1);
   });
 });
 
