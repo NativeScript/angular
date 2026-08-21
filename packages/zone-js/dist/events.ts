@@ -19,7 +19,7 @@ Zone.__load_patch('nativescript_mainThreadify', (global, zone, api) => {
       function (self, args) {
         const callback = args[0];
         return delegate.apply(self, [Zone.current.wrap(callback, 'NS mainThreadify patch')]);
-      }
+      },
   );
 });
 
@@ -31,7 +31,7 @@ Zone.__load_patch('nativescript_executeOnMainThread', (global, zone, api) => {
       function (self, args) {
         const callback = args[0];
         return delegate.apply(self, [Zone.current.wrap(callback, 'NS executeOnMainThread patch')]);
-      }
+      },
   );
 });
 
@@ -43,7 +43,7 @@ Zone.__load_patch('nativescript_dispatchToMainThread', (global, zone, api) => {
       function (self, args) {
         const callback = args[0];
         return delegate.apply(self, [Zone.current.wrap(callback, 'NS dispatchToMainThread patch')]);
-      }
+      },
   );
 });
 
@@ -62,7 +62,7 @@ Zone.__load_patch('nativescript_showModal', (global, zone, api) => {
           args[3] = Zone.current.wrap(args[3], 'NS showModal patch');
         }
         return delegate.apply(self, args);
-      }
+      },
   );
 });
 

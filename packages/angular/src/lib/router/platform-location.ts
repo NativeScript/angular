@@ -10,9 +10,8 @@ export class NativescriptPlatformLocation extends PlatformLocation {
   constructor(@Inject(START_PATH) private startPath: any) {
     super();
     if (NativeScriptDebug.enabled) {
-      NativeScriptDebug.routerLog('NativescriptPlatformLocation.constructor');
+      NativeScriptDebug.routerLog(`NativescriptPlatformLocation.constructor startPath=${startPath}`);
     }
-    console.log(startPath);
     if (this.startPath) {
       if (this.startPath instanceof Promise) {
         this.startPath.then((v) => (this._pathname = this._pathname === undefined ? v : this._pathname));
@@ -68,7 +67,9 @@ export class NativescriptPlatformLocation extends PlatformLocation {
     if (this._pathname === undefined) {
       this._pathname = '';
     }
-    console.log('pathname', this._pathname);
+    if (NativeScriptDebug.enabled) {
+      NativeScriptDebug.routerLog(`NativescriptPlatformLocation.pathname ${this._pathname}`);
+    }
     return this._pathname;
   }
   get search(): string {

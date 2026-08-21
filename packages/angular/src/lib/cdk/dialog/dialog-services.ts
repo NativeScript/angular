@@ -16,14 +16,35 @@ import {
   TemplateRef,
   Type,
 } from '@angular/core';
-import { defer, Observable, Subject } from 'rxjs';
+import { Application, View } from '@nativescript/core';
+import { defer, Observable, Subject, Subscription } from 'rxjs';
 import { startWith } from 'rxjs/operators';
+import { postAngularBootstrap$, preAngularDisposal$ } from '../../application';
+import { getFreshComponentClass, isAngularHmrEnabled, registerHmrEagerInstantiator } from '../../hmr';
 import { NSLocationStrategy } from '../../legacy/router/ns-location-strategy';
+import { NativeScriptDebug } from '../../trace';
 import { ComponentType } from '../../utils/general';
 import { ComponentPortal, TemplatePortal } from '../portal/common';
 import { NativeDialogConfig } from './dialog-config';
+import {
+  abortCapturedDialog,
+  buildNonAnimatedRestoreConfig,
+  captureDialogsForHmr,
+  CapturedHmrDialog,
+  consumePendingHmrDialogs,
+  HmrCandidateDialog,
+  peekPendingHmrDialogs,
+  suppressNativeCloseAnimation,
+} from './dialog-hmr';
 import { NativeDialogRef } from './dialog-ref';
 import { NativeModalRef } from './native-modal-ref';
+
+function hmrDialogLog(message: string): void {
+  if (!isAngularHmrEnabled() || !NativeScriptDebug.isLogEnabled()) {
+    return;
+  }
+  NativeScriptDebug.hmrLog(`[dialog] ${message}`);
+}
 
 /** Injection token that can be used to access the data that was passed in to a dialog. */
 export const NATIVE_DIALOG_DATA = new InjectionToken<any>('NativeDialogData');
@@ -42,6 +63,8 @@ export class NativeDialog implements OnDestroy {
   private _openDialogsAtThisLevel: NativeDialogRef<any>[] = [];
   private readonly _afterAllClosedAtThisLevel = new Subject<void>();
   private readonly _afterOpenedAtThisLevel = new Subject<NativeDialogRef<any>>();
+  private readonly _openDialogMetadata = new WeakMap<NativeDialogRef<any>, { componentClass?: ComponentType<any>; config: NativeDialogConfig }>();
+  private _hmrSubscriptions: Subscription[] = [];
   // TODO (jelbourn): tighten the typing right-hand side of this expression.
   /**
    * Stream that emits when all open dialog have finished closing.
@@ -76,6 +99,7 @@ export class NativeDialog implements OnDestroy {
   private _nativeModalType = NativeModalRef;
   private _dialogDataToken = NATIVE_DIALOG_DATA;
   private locationStrategy = inject(NSLocationStrategy);
+  private _hmrInitMarker = this._initHmrLifecycle();
   /**
    * Opens a modal dialog containing the given component.
    * @param component Type of the component to load into the dialog.
@@ -109,6 +133,10 @@ export class NativeDialog implements OnDestroy {
     const dialogRef = this._attachDialogContent<T, R>(componentOrTemplateRef, config);
 
     this.openDialogs.push(dialogRef);
+    this._openDialogMetadata.set(dialogRef, {
+      componentClass: componentOrTemplateRef instanceof TemplateRef ? undefined : (componentOrTemplateRef as ComponentType<T>),
+      config,
+    });
     dialogRef.afterClosed().subscribe(() => this._removeOpenDialog(dialogRef));
     this.afterOpened.next(dialogRef);
 
@@ -139,6 +167,190 @@ export class NativeDialog implements OnDestroy {
     this._closeDialogs(this._openDialogsAtThisLevel);
     this._afterAllClosedAtThisLevel.complete();
     this._afterOpenedAtThisLevel.complete();
+    for (const sub of this._hmrSubscriptions) {
+      try {
+        sub.unsubscribe();
+      } catch {
+        // ignore
+      }
+    }
+    this._hmrSubscriptions = [];
+  }
+
+  private _restoreScheduledForThisInstance = false;
+
+  private _initHmrLifecycle(): null {
+    if (this._parentDialog || !isAngularHmrEnabled()) {
+      return null;
+    }
+
+    const dispose = preAngularDisposal$.subscribe((event) => {
+      if (event.moduleType !== 'main' || event.reason !== 'hotreload') {
+        return;
+      }
+      this._captureOpenDialogsForHmr();
+    });
+
+    const bootstrap = postAngularBootstrap$.subscribe((event) => {
+      if (event.moduleType !== 'main' || event.reason !== 'hotreload') {
+        return;
+      }
+      this._maybeScheduleRestore(`postAngularBootstrap$ (reason=${event.reason})`);
+    });
+
+    this._hmrSubscriptions.push(dispose, bootstrap);
+
+    const pendingNow = peekPendingHmrDialogs();
+    if (pendingNow.length > 0) {
+      this._maybeScheduleRestore(`stash peek on ctor: ${pendingNow.length} pending dialog(s)`);
+    }
+    return null;
+  }
+
+  private _maybeScheduleRestore(triggerDescription: string): void {
+    if (this._restoreScheduledForThisInstance) {
+      return;
+    }
+    this._restoreScheduledForThisInstance = true;
+    hmrDialogLog(`scheduling restore (trigger=${triggerDescription})`);
+    setTimeout(() => {
+      void this._restorePendingDialogs();
+    }, 0);
+  }
+
+  private _captureOpenDialogsForHmr(): void {
+    const candidates: HmrCandidateDialog[] = this._openDialogsAtThisLevel.map((ref) => {
+      const meta = this._openDialogMetadata.get(ref);
+      return {
+        ref,
+        componentClass: meta?.componentClass,
+        config: meta?.config ?? new NativeDialogConfig(),
+      };
+    });
+
+    const captured = captureDialogsForHmr(candidates);
+
+    if (captured.length > 0) {
+      for (const candidate of candidates) {
+        suppressNativeCloseAnimation(candidate);
+      }
+      hmrDialogLog(`captured ${captured.length} dialog(s) for HMR restore [${captured.map((c) => c.componentName).join(', ')}]`);
+    } else if (this._openDialogsAtThisLevel.length > 0) {
+      hmrDialogLog(`skipped capture: ${this._openDialogsAtThisLevel.length} open dialog(s) but none preservable`);
+    }
+  }
+
+  private async _restorePendingDialogs(): Promise<void> {
+    const pending = consumePendingHmrDialogs();
+    if (pending.length === 0) {
+      return;
+    }
+
+    hmrDialogLog(`restoring ${pending.length} dialog(s) after reboot [${pending.map((c) => c.componentName).join(', ')}]`);
+
+    for (const captured of pending) {
+      this._restoreSingleDialog(captured);
+    }
+  }
+
+  private _restoreSingleDialog(captured: CapturedHmrDialog): void {
+    const live = getFreshComponentClass<ComponentType<unknown>>(captured.componentName);
+    const componentClass = live ?? captured.componentClass;
+    const usingFresh = !!live && live !== captured.componentClass;
+    this._scheduleRestoreOpenWhenReady(captured, componentClass, usingFresh);
+  }
+
+  private static readonly _ROOT_VIEW_LOADED_TIMEOUT_MS = 1_000;
+
+  private _scheduleRestoreOpenWhenReady(
+    captured: CapturedHmrDialog,
+    componentClass: ComponentType<unknown>,
+    usingFresh: boolean,
+  ): void {
+    const rootView = Application.getRootView();
+
+    if (rootView && rootView.isLoaded) {
+      // Yield so the incoming root view can attach first.
+      setTimeout(() => this._performRestoreOpen(captured, componentClass, usingFresh), 0);
+      return;
+    }
+
+    if (!rootView) {
+      this._pollForRootView(captured, componentClass, usingFresh, Date.now());
+      return;
+    }
+
+    hmrDialogLog(`restore ${captured.componentName} waiting for root view loadedEvent`);
+
+    let settled = false;
+    const onLoaded = () => {
+      if (settled) return;
+      settled = true;
+      try {
+        rootView.off(View.loadedEvent, onLoaded);
+      } catch {
+        // ignore
+      }
+      // viewWillAppear runs before the view is in a window.
+      setTimeout(() => this._performRestoreOpen(captured, componentClass, usingFresh), 0);
+    };
+
+    try {
+      rootView.once(View.loadedEvent, onLoaded);
+    } catch {
+      setTimeout(() => onLoaded(), 50);
+    }
+
+    setTimeout(() => {
+      if (settled) return;
+      hmrDialogLog(`restore ${captured.componentName} root view never loaded within ${NativeDialog._ROOT_VIEW_LOADED_TIMEOUT_MS}ms; attempting open anyway`);
+      onLoaded();
+    }, NativeDialog._ROOT_VIEW_LOADED_TIMEOUT_MS);
+  }
+
+  private _pollForRootView(
+    captured: CapturedHmrDialog,
+    componentClass: ComponentType<unknown>,
+    usingFresh: boolean,
+    startedAt: number,
+  ): void {
+    const rootView = Application.getRootView();
+    if (rootView) {
+      this._scheduleRestoreOpenWhenReady(captured, componentClass, usingFresh);
+      return;
+    }
+    if (Date.now() - startedAt > NativeDialog._ROOT_VIEW_LOADED_TIMEOUT_MS) {
+      hmrDialogLog(`restore ${captured.componentName} aborted: no root view after ${NativeDialog._ROOT_VIEW_LOADED_TIMEOUT_MS}ms`);
+      abortCapturedDialog(captured);
+      return;
+    }
+    setTimeout(() => this._pollForRootView(captured, componentClass, usingFresh, startedAt), 16);
+  }
+
+  private _performRestoreOpen(
+    captured: CapturedHmrDialog,
+    componentClass: ComponentType<unknown>,
+    usingFresh: boolean,
+  ): void {
+    if (usingFresh) {
+      hmrDialogLog(`restore ${captured.componentName} usingFreshClass=true`);
+    }
+
+    const restoreConfig = buildNonAnimatedRestoreConfig(captured.config);
+
+    try {
+      const newRef = this.open(componentClass, restoreConfig);
+      hmrDialogLog(`restore ${captured.componentName} → opened newRef.id=${newRef?.id ?? 'n/a'}`);
+      newRef.afterClosed().subscribe({
+        next: (value) => captured.graftAfterClosed(value),
+        complete: () => captured.graftAfterClosed(undefined),
+      });
+    } catch (err) {
+      abortCapturedDialog(captured);
+      const message = (err as Error)?.message ?? String(err);
+      hmrDialogLog(`restore ${captured.componentName} FAILED: ${message}`);
+      NativeScriptDebug.hmrLogError(`HMR modal restore failed: ${message}`);
+    }
   }
 
   /**
@@ -208,6 +420,7 @@ export class NativeDialog implements OnDestroy {
 
     if (index > -1) {
       this.openDialogs.splice(index, 1);
+      this._openDialogMetadata.delete(dialogRef);
 
       // If all the dialogs were closed, remove/restore the `aria-hidden`
       // to a the siblings and emit to the `afterAllClosed` stream.
@@ -239,6 +452,16 @@ export class NativeDialog implements OnDestroy {
  */
 function _applyConfigDefaults(config?: NativeDialogConfig, defaultOptions?: NativeDialogConfig): NativeDialogConfig {
   return { ...defaultOptions, ...config };
+}
+
+if (isAngularHmrEnabled()) {
+  registerHmrEagerInstantiator((injector: Injector) => {
+    try {
+      injector.get(NativeDialog, null);
+    } catch {
+      // ignore
+    }
+  });
 }
 
 export {

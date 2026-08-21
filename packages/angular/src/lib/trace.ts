@@ -8,6 +8,7 @@ export class NativeScriptDebug {
   static readonly routeReuseStrategyTraceCategory = 'ns-route-reuse-strategy';
   static readonly listViewTraceCategory = 'ns-list-view';
   static readonly bootstrapCategory = 'bootstrap';
+  static readonly hmrTraceCategory = 'ns-ng-hmr';
   // TODO: migrate all usage to this - avoids extraneous method executions
   static readonly enabled = Trace.isEnabled();
 
@@ -61,5 +62,13 @@ export class NativeScriptDebug {
 
   static bootstrapLogError(message: string): void {
     Trace.write(message, NativeScriptDebug.bootstrapCategory, Trace.messageType.error);
+  }
+
+  static hmrLog(message: string): void {
+    Trace.write(message, NativeScriptDebug.hmrTraceCategory);
+  }
+
+  static hmrLogError(message: string): void {
+    Trace.write(message, NativeScriptDebug.hmrTraceCategory, Trace.messageType.error);
   }
 }

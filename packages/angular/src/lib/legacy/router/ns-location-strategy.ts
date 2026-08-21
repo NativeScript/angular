@@ -33,6 +33,26 @@ export class NSLocationStrategy extends LocationStrategy implements OnDestroy {
     return this.currentOutlet && this.currentOutlet.peekState();
   }
 
+  resetForHmr() {
+    const outletCount = this.outlets.length;
+    const stateCount = this.outlets.reduce((total, outlet) => total + outlet.states.length, 0);
+    const callbackCount = this.popStateCallbacks.length;
+    const hadUrlTree = !!this.currentUrlTree;
+
+    this.outlets = [];
+    this.currentOutlet = null;
+    this.currentUrlTree = null;
+    this.popStateCallbacks = [];
+    this._modalNavigationDepth = 0;
+
+    return {
+      outlets: outletCount,
+      states: stateCount,
+      callbacks: callbackCount,
+      hadUrlTree,
+    };
+  }
+
   path(): string {
     if (!this.currentUrlTree) {
       return this.startPath || '/';
@@ -683,7 +703,6 @@ export class NSLocationStrategy extends LocationStrategy implements OnDestroy {
       NativeScriptDebug.routerLog('NSLocationStrategy.ngOnDestroy()');
     }
 
-    this.outlets = [];
-    this.currentOutlet = null;
+    this.resetForHmr();
   }
 }

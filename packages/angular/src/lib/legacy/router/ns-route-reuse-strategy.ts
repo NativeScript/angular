@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { RouteReuseStrategy, ActivatedRouteSnapshot, DetachedRouteHandle } from '@angular/router';
 
 import { NativeScriptDebug } from '../../trace';
@@ -114,7 +114,7 @@ class DetachedStateCache {
  * Reuses routes as long as their route config is the same.
  */
 @Injectable()
-export class NSRouteReuseStrategy implements RouteReuseStrategy {
+export class NSRouteReuseStrategy implements RouteReuseStrategy, OnDestroy {
   private cacheByOutlet: { [key: string]: DetachedStateCache } = {};
 
   constructor(private location: NSLocationStrategy) {}
@@ -328,5 +328,20 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
     if (cache) {
       cache.clearModalCache();
     }
+  }
+
+  clearAllCaches(): number {
+    const outletKeys = Object.keys(this.cacheByOutlet);
+
+    for (const outletKey of outletKeys) {
+      this.cacheByOutlet[outletKey]?.clear();
+      delete this.cacheByOutlet[outletKey];
+    }
+
+    return outletKeys.length;
+  }
+
+  ngOnDestroy(): void {
+    this.clearAllCaches();
   }
 }

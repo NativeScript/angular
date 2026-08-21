@@ -36,15 +36,15 @@ function printNgTree(view: NgView) {
 }
 function printChildrenRecurse(parent: NgView) {
   const children = parent.firstChild ? [parent.firstChild, ...getChildrenSiblings(parent.firstChild).nextSiblings] : [];
-  console.log(
-    `parent: ${parent}, firstChild: ${parent.firstChild}, lastChild: ${parent.lastChild} children: ${children}`,
-  );
-  if (parent.firstChild) {
-    console.log(`----- start ${parent}`);
+  if (NativeScriptDebug.isLogEnabled()) {
+    NativeScriptDebug.viewUtilLog(`parent: ${parent}, firstChild: ${parent.firstChild}, lastChild: ${parent.lastChild} children: ${children}`);
+    if (parent.firstChild) {
+      NativeScriptDebug.viewUtilLog(`----- start ${parent}`);
+    }
   }
   children.forEach((c) => printChildrenRecurse(c));
-  if (parent.firstChild) {
-    console.log(`----- end ${parent}`);
+  if (parent.firstChild && NativeScriptDebug.isLogEnabled()) {
+    NativeScriptDebug.viewUtilLog(`----- end ${parent}`);
   }
 }
 
@@ -68,8 +68,9 @@ function getChildrenSiblings(view: NgView) {
 }
 
 function printSiblingsTree(view: NgView) {
+  if (!NativeScriptDebug.isLogEnabled()) return;
   const { previousSiblings, nextSiblings } = getChildrenSiblings(view);
-  console.log(`${view} previousSiblings: ${previousSiblings} nextSiblings: ${nextSiblings}`);
+  NativeScriptDebug.viewUtilLog(`${view} previousSiblings: ${previousSiblings} nextSiblings: ${nextSiblings}`);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type

@@ -10,6 +10,7 @@ import { DetachedLoader } from '../detached-loader';
 import { ComponentPortal, TemplatePortal } from '../portal/common';
 import { NativeScriptDomPortalOutlet } from '../portal/nsdom-portal-outlet';
 import { NativeDialogConfig } from './dialog-config';
+import { AddViewHost, installPvcModalHostPropPropagation, ModalHostView, propagateModalHostPropsToDescendants } from './modal-host-props';
 
 export class NativeModalRef {
   _id: string;
@@ -20,6 +21,16 @@ export class NativeModalRef {
   portalOutlet: NativeScriptDomPortalOutlet;
   detachedLoaderRef: ComponentRef<DetachedLoader>;
   modalViewRef: NgViewRef<any>;
+  /**
+   * The actual NativeScript view passed to `parentView.showModal(...)`.
+   *
+   * For component portals this is the stable `targetView` ContentView
+   * wrapper that owns the Angular host PVC. For template portals it
+   * remains `modalViewRef.firstNativeLikeView` (the historical
+   * behavior). Keeping a direct reference avoids walking parent
+   * chains when programmatically closing the modal.
+   */
+  modalView?: View;
 
   private _closeCallback: () => void;
   private _isDismissed = false;
@@ -52,11 +63,13 @@ export class NativeModalRef {
     this._closeCallback = once(async () => {
       this.stateChanged.next({ state: 'closing' });
       if (!this._isDismissed) {
-        this.modalViewRef.firstNativeLikeView?.closeModal();
+        // Prefer the presented wrapper; HMR may replace the first root.
+        const closeTarget = this.modalView ?? this.modalViewRef.firstNativeLikeView;
+        closeTarget?.closeModal();
       }
       await this.location?._closeModalNavigation();
       // this.detachedLoaderRef?.destroy();
-      if (this.modalViewRef?.firstNativeLikeView.isLoaded) {
+      if (this.modalViewRef?.firstNativeLikeView?.isLoaded) {
         fromEvent(this.modalViewRef.firstNativeLikeView, 'unloaded')
           .pipe(take(1))
           .subscribe(() => this.stateChanged.next({ state: 'closed' }));
@@ -117,20 +130,23 @@ export class NativeModalRef {
   attachComponentPortal<T>(portal: ComponentPortal<T>): ComponentRef<T> {
     this.startModalNavigation();
 
+    // Present a stable wrapper so HMR can replace the template root.
     const targetView = new ContentView();
     this.portalOutlet = new NativeScriptDomPortalOutlet(targetView, this._injector.get(ApplicationRef), this._injector);
     const componentRef = this.portalOutlet.attach(portal);
     componentRef.changeDetectorRef.detectChanges();
     this.modalViewRef = new NgViewRef(componentRef);
+    this.modalView = targetView;
     if (this.modalViewRef.firstNativeLikeView !== this.modalViewRef.view) {
       (<any>this.modalViewRef.view)._ngDialogRoot = this.modalViewRef.firstNativeLikeView;
     }
-    this.modalViewRef.firstNativeLikeView['__ng_modal_id__'] = this._id;
-    // if we don't detach the view from its parent, ios gets mad
-    this.modalViewRef.detachNativeLikeView();
+    targetView['__ng_modal_id__'] = this._id;
+    if (this.modalViewRef.firstNativeLikeView) {
+      this.modalViewRef.firstNativeLikeView['__ng_modal_id__'] = this._id;
+    }
 
     const userOptions = this._config.nativeOptions || {};
-    const modalView = this.modalViewRef.firstNativeLikeView;
+    const modalView = targetView;
     this.parentView.showModal(modalView, {
       context: null,
       ...userOptions,
@@ -145,6 +161,13 @@ export class NativeModalRef {
     if (!didModalOpen(this.parentView, modalView)) {
       this._handleFailedOpen();
     }
+
+    propagateModalHostPropsToDescendants(targetView as ModalHostView, targetView as ModalHostView);
+    const hostView = componentRef.location?.nativeElement as View | undefined;
+    if (hostView) {
+      installPvcModalHostPropPropagation(hostView as unknown as AddViewHost, targetView as ModalHostView);
+    }
+
     return componentRef;
   }
 
@@ -168,6 +191,7 @@ export class NativeModalRef {
   dispose() {
     this.portalOutlet.dispose();
   }
+
   private startModalNavigation() {
     const frame = this.parentView instanceof Frame ? this.parentView : this.parentView?.page?.frame || Frame.topmost();
 
