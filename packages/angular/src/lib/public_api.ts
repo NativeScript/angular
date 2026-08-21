@@ -42,6 +42,7 @@ export * from './file-system';
 export * from './nativescript-common.module';
 export * from './loading.service';
 export * from './detached-loader-utils';
+export { HmrCacheService, configureHmrCache, type HmrCacheOptions, type HmrCacheScope } from './hmr-cache';
 // export * from './router/router.module';
 export {
   AppLaunchView,

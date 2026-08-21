@@ -107,6 +107,7 @@ function modifiesDom() {
 
 export class NativeScriptRendererFactory implements RendererFactory2 {
   private componentRenderers = new Map<string, Renderer2>();
+  private componentStyleSignatures = new Map<string, string>();
   private defaultRenderer: Renderer2;
   // backwards compatibility with RadListView
   private rootView = inject(APP_ROOT_VIEW);
@@ -152,6 +153,17 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
         renderer.applyToHost(hostElement);
       }
 
+      // Cached renderer skips addStyles; re-apply when styles changed.
+      const styleSignature = this.styleSignature(type.styles);
+      if (this.componentStyleSignatures.get(type.id) !== styleSignature) {
+        this.componentStyleSignatures.set(type.id, styleSignature);
+        if (renderer instanceof EmulatedRenderer) {
+          renderer.reapplyStyles(type.styles);
+        } else {
+          this.reapplyGlobalStyles(type.styles);
+        }
+      }
+
       return renderer;
     }
 
@@ -166,7 +178,27 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
     }
 
     this.componentRenderers.set(type.id, renderer);
+    this.componentStyleSignatures.set(type.id, this.styleSignature(type.styles));
     return renderer;
+  }
+
+  private styleSignature(styles: (string | any[])[]): string {
+    try {
+      return (styles || []).map((s) => s.toString()).join("\n");
+    } catch {
+      return '';
+    }
+  }
+
+  private reapplyGlobalStyles(styles: (string | any[])[]): void {
+    try {
+      styles.map((s) => s.toString()).forEach((v) => addStyleToCss(v, this.rootModuleID));
+      Application.getRootView()?._onCssStateChange();
+    } catch (err) {
+      if (NativeScriptDebug.enabled) {
+        NativeScriptDebug.rendererLog(`reapplyGlobalStyles failed: ${err}`);
+      }
+    }
   }
   begin() {
     if (__APPLE__ && this.wrapCdInTransaction) {
@@ -487,15 +519,29 @@ const addScopedStyleToCss = profile(
 export class EmulatedRenderer extends NativeScriptRenderer {
   private contentAttr: string;
   private hostAttr: string;
+  private componentId: string;
   private rootModuleId = inject(NATIVESCRIPT_ROOT_MODULE_ID);
 
   constructor(component: RendererType2, rootView: View) {
     super(rootView);
 
     const componentId = component.id.replace(ATTR_SANITIZER, '_');
+    this.componentId = componentId;
     this.contentAttr = replaceNgAttribute(CONTENT_ATTR, componentId);
     this.hostAttr = replaceNgAttribute(HOST_ATTR, componentId);
     this.addStyles(component.styles, componentId);
+  }
+
+  /**
+   * Re-apply emulated styles after an HMR style edit.
+   */
+  reapplyStyles(styles: (string | any[])[]): void {
+    this.addStyles(styles, this.componentId);
+    try {
+      Application.getRootView()?._onCssStateChange();
+    } catch {
+      // ignore
+    }
   }
 
   applyToHost(view: NgView) {

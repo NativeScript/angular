@@ -14,7 +14,13 @@ Zone.__load_patch('nativescript_XHR', (global: any, Zone: ZoneType, api: _ZonePr
   /** Zone symbol prefix string const. */
   const ZONE_SYMBOL_PREFIX = Zone.__symbol__('');
   const zoneSymbol = Zone.__symbol__;
-  function scheduleMacroTaskWithCurrentZone(source: string, callback: Function, data?: TaskData, customSchedule?: (task: Task) => void, customCancel?: (task: Task) => void): MacroTask {
+  function scheduleMacroTaskWithCurrentZone(
+    source: string,
+    callback: Function,
+    data?: TaskData,
+    customSchedule?: (task: Task) => void,
+    customCancel?: (task: Task) => void,
+  ): MacroTask {
     return Zone.current.scheduleMacroTask(source, callback, data, customSchedule, customCancel);
   }
   // Treat XMLHttpRequest as a macrotask.
@@ -142,7 +148,7 @@ Zone.__load_patch('nativescript_XHR', (global: any, Zone: ZoneType, api: _ZonePr
           self[XHR_SYNC] = args[2] == false;
           self[XHR_URL] = args[1];
           return openNative!.apply(self, args);
-        }
+        },
     );
 
     const XMLHTTPREQUEST_SOURCE = 'XMLHttpRequest.send';
@@ -163,8 +169,20 @@ Zone.__load_patch('nativescript_XHR', (global: any, Zone: ZoneType, api: _ZonePr
             // if the XHR is sync there is no task to schedule, just execute the code.
             return sendNative!.apply(self, args);
           } else {
-            const options: XHROptions = { target: self, url: self[XHR_URL], isPeriodic: false, args: args, aborted: false };
-            const task = scheduleMacroTaskWithCurrentZone(XMLHTTPREQUEST_SOURCE, placeholderCallback, options, scheduleTask, clearTask);
+            const options: XHROptions = {
+              target: self,
+              url: self[XHR_URL],
+              isPeriodic: false,
+              args: args,
+              aborted: false,
+            };
+            const task = scheduleMacroTaskWithCurrentZone(
+              XMLHTTPREQUEST_SOURCE,
+              placeholderCallback,
+              options,
+              scheduleTask,
+              clearTask,
+            );
             if (self && self[XHR_ERROR_BEFORE_SCHEDULED] === true && !options.aborted && task.state === SCHEDULED) {
               // xhr request throw error when send
               // we should invoke task instead of leaving a scheduled
@@ -172,7 +190,7 @@ Zone.__load_patch('nativescript_XHR', (global: any, Zone: ZoneType, api: _ZonePr
               task.invoke();
             }
           }
-        }
+        },
     );
 
     const abortNative = api.patchMethod(
@@ -197,7 +215,7 @@ Zone.__load_patch('nativescript_XHR', (global: any, Zone: ZoneType, api: _ZonePr
           // Otherwise, we are trying to abort an XHR which has not yet been sent, so there is no
           // task
           // to cancel. Do nothing.
-        }
+        },
     );
   }
 });
