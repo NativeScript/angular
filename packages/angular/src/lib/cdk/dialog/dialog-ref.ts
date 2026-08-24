@@ -5,6 +5,14 @@ import { NativeModalRef } from './native-modal-ref';
 // Counter for unique dialog ids.
 let uniqueId = 0;
 
+/**
+ * Safety-net delay before `afterClosed` is forced when the native dismissal never reports
+ * completion (e.g. the parent view is destroyed mid-animation). Must exceed the longest
+ * modal dismiss animation, including custom transitions, so it can't preempt a normal
+ * close — the 'closed' state emitted after the native dismissal is the real trigger.
+ */
+const CLOSE_FALLBACK_TIMEOUT = 5000;
+
 /** Possible states of the lifecycle of a dialog. */
 export const enum NativeDialogState {
   OPEN,
@@ -31,7 +39,7 @@ export class NativeDialogRef<T, R = any> {
   /** Result to be passed to afterClosed. */
   private _result: R | undefined;
 
-  /** Handle to the timeout that's running as a fallback in case the exit animation doesn't fire. */
+  /** Handle to the safety-net timeout in case the native dismissal never reports completion. */
   private _closeFallbackTimeout: any;
 
   /** Current state of the dialog. */
@@ -82,7 +90,6 @@ export class NativeDialogRef<T, R = any> {
   close(dialogResult?: R): void {
     this._result = dialogResult;
 
-    // Transition the backdrop in parallel to the dialog.
     this._nativeModalRef.stateChanged
       .pipe(
         filter((event) => event.state === 'closing'),
@@ -92,22 +99,12 @@ export class NativeDialogRef<T, R = any> {
         this._beforeClosed.next(dialogResult);
         this._beforeClosed.complete();
         this._nativeModalRef.dispose();
-        // this._overlayRef.detachBackdrop();
 
-        // The logic that disposes of the overlay depends on the exit animation completing, however
-        // it isn't guaranteed if the parent view is destroyed while it's running. Add a fallback
-        // timeout which will clean everything up if the animation hasn't fired within the specified
-        // amount of time plus 100ms. We don't need to run this outside the NgZone, because for the
-        // vast majority of cases the timeout will have been cleared before it has the chance to fire.
-        this._closeFallbackTimeout = setTimeout(
-          () => {
-            this._finishDialogClose();
-            this._afterClosed.next(this._result);
-            this._afterClosed.complete();
-          },
-          //event.totalTime + 100);
-          100
-        );
+        this._closeFallbackTimeout = setTimeout(() => {
+          this._finishDialogClose();
+          this._afterClosed.next(this._result);
+          this._afterClosed.complete();
+        }, CLOSE_FALLBACK_TIMEOUT);
       });
 
     this._state = NativeDialogState.CLOSING;
