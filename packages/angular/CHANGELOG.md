@@ -1,3 +1,9 @@
+## 22.0.1 (2026-08-24)
+
+### 🩹 Fixes
+
+- emit afterClosed only after the native modal dismissal completes ([#179](https://github.com/NativeScript/angular/pull/179))
+
 # 22.0.0 (2026-08-17)
 
 ### 🚀 Features
