@@ -1,7 +1,6 @@
 import { ApplicationRef, ComponentRef, createComponent, EmbeddedViewRef, Injector, Optional, ViewContainerRef } from '@angular/core';
 import { Application, ContentView, Frame, View } from '@nativescript/core';
-import { fromEvent, Subject } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { AppHostAsyncView, AppHostView } from '../../app-host-view';
 import { NSLocationStrategy } from '../../legacy/router/ns-location-strategy';
 import { didModalOpen, once } from '../../utils/general';
@@ -60,21 +59,12 @@ export class NativeModalRef {
     }
     this.parentView = parentView;
 
-    this._closeCallback = once(async () => {
+    this._closeCallback = once(() => {
       this.stateChanged.next({ state: 'closing' });
       if (!this._isDismissed) {
         // Prefer the presented wrapper; HMR may replace the first root.
         const closeTarget = this.modalView ?? this.modalViewRef.firstNativeLikeView;
         closeTarget?.closeModal();
-      }
-      await this.location?._closeModalNavigation();
-      // this.detachedLoaderRef?.destroy();
-      if (this.modalViewRef?.firstNativeLikeView?.isLoaded) {
-        fromEvent(this.modalViewRef.firstNativeLikeView, 'unloaded')
-          .pipe(take(1))
-          .subscribe(() => this.stateChanged.next({ state: 'closed' }));
-      } else {
-        this.stateChanged.next({ state: 'closed' });
       }
     });
   }
@@ -106,21 +96,7 @@ export class NativeModalRef {
     // if we don't detach the view from its parent, ios gets mad
     this.modalViewRef.detachNativeLikeView();
 
-    const userOptions = this._config.nativeOptions || {};
-    const modalView = this.modalViewRef.firstNativeLikeView;
-    this.parentView.showModal(modalView, {
-      context: null,
-      ...userOptions,
-      closeCallback: async () => {
-        await this.location?._closeModalNavigation();
-        this.onDismiss.next();
-        this.onDismiss.complete();
-      },
-      cancelable: !this._config.disableClose,
-    });
-    if (!didModalOpen(this.parentView, modalView)) {
-      this._handleFailedOpen();
-    }
+    this._showModal(this.modalViewRef.firstNativeLikeView);
     //   if (this.modalView !== templateRef.rootNodes[0]) {
     //     componentRef.location.nativeElement._ngDialogRoot = this.modalView;
     //   }
@@ -145,22 +121,7 @@ export class NativeModalRef {
       this.modalViewRef.firstNativeLikeView['__ng_modal_id__'] = this._id;
     }
 
-    const userOptions = this._config.nativeOptions || {};
-    const modalView = targetView;
-    this.parentView.showModal(modalView, {
-      context: null,
-      ...userOptions,
-      closeCallback: async () => {
-        this._isDismissed = true;
-        this._closeCallback(); // close callback can only be called once, so we call it here to setup the exit events
-        this.onDismiss.next();
-        this.onDismiss.complete();
-      },
-      cancelable: !this._config.disableClose,
-    });
-    if (!didModalOpen(this.parentView, modalView)) {
-      this._handleFailedOpen();
-    }
+    this._showModal(targetView);
 
     propagateModalHostPropsToDescendants(targetView as ModalHostView, targetView as ModalHostView);
     const hostView = componentRef.location?.nativeElement as View | undefined;
@@ -173,6 +134,46 @@ export class NativeModalRef {
 
   _startExitAnimation() {
     this._closeCallback();
+  }
+
+  private _showModal(modalView: View): void {
+    modalView.once(View.shownModallyEvent, () => this.stateChanged.next({ state: 'opened' }));
+    const userOptions = this._config.nativeOptions || {};
+    this.parentView.showModal(modalView, {
+      context: null,
+      ...userOptions,
+      closeCallback: () => this._onDismissed(),
+      cancelable: !this._config.disableClose,
+    });
+    if (!didModalOpen(this.parentView, modalView)) {
+      this._handleFailedOpen();
+    }
+  }
+
+  /**
+   * Runs when core reports the native dismissal as complete (the `showModal` closeCallback —
+   * on iOS the `dismissViewControllerAnimated` completion handler). The `unloaded` listener
+   * must not be attached before this point: a view also unloads for unrelated reasons (e.g.
+   * the app going to the background), which would signal 'closed' while the modal is still
+   * presented and make the next `showModal` fail.
+   */
+  private async _onDismissed(): Promise<void> {
+    this._isDismissed = true;
+    // Emits 'closing' when the dismissal was native-initiated (back button, swipe-down)
+    // and NativeDialogRef.close() was never called.
+    this._closeCallback();
+
+    // Core tears the view down right after this callback returns, so the listener has to be
+    // attached synchronously, before any await.
+    const modalView = this.modalViewRef?.firstNativeLikeView;
+    const whenUnloaded = modalView?.isLoaded ? new Promise<void>((resolve) => modalView.once(View.unloadedEvent, () => resolve())) : Promise.resolve();
+
+    await this.location?._closeModalNavigation();
+    this.onDismiss.next();
+    this.onDismiss.complete();
+
+    await whenUnloaded;
+    this.stateChanged.next({ state: 'closed' });
   }
 
   /**

@@ -2,30 +2,9 @@
 import { Component, inject, NgModule, NO_ERRORS_SCHEMA, ViewContainerRef } from '@angular/core';
 import { TestBed, waitForAsync } from '@angular/core/testing';
 import { FrameService, ModalDialogParams, ModalDialogService, NativeScriptCommonModule, NSLocationStrategy, Outlet } from '@nativescript/angular';
-import { Application, View } from '@nativescript/core';
 
 import { FakeFrameService } from './ns-location-strategy.spec';
-
-/**
- * Resolves once `condition` is truthy, polling on each frame. Unlike a fixed delay this resolves
- * as soon as the awaited state is reached (e.g. a modal finishing its animated dismissal), with a
- * bounded safety timeout so a stuck condition can't hang the suite.
- */
-function waitUntil(condition: () => boolean, timeout = 5000): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const start = Date.now();
-    const check = () => {
-      if (condition()) {
-        resolve();
-      } else if (Date.now() - start > timeout) {
-        reject(new Error('Timed out waiting for condition'));
-      } else {
-        setTimeout(check, 16);
-      }
-    };
-    check();
-  });
-}
+import { closeRemainingModals } from './test-utils.spec';
 
 @Component({
   selector: 'modal-comp',
@@ -95,23 +74,7 @@ describe('modal-dialog', () => {
   //     done()
   //   });
 
-  afterEach(async () => {
-    // Close any modal still presented (via core's global registry) and wait until it has actually
-    // finished dismissing before the next test runs.
-    //
-    // Note: `closeModal()` removes the modal from `_rootModalViews` *synchronously*, before the
-    // animated dismissal starts, so the registry being empty does NOT mean the modal is gone. On
-    // iOS the parent keeps a `presentedViewController` until the dismiss animation completes — and
-    // that's exactly what makes the next `showModal` fail with "already presenting" — so wait on it.
-    const open = ((Application.getRootView()?._getRootModalViews() ?? []) as View[]).slice();
-    // Capture parents before closing: `closeModal()` nulls `_modalParent` synchronously.
-    const parents = open
-      .map((modal) => (modal as { _modalParent?: View })._modalParent)
-      .filter((parent): parent is View => !!parent);
-    open.forEach((modal) => modal.closeModal());
-    const isPresenting = (parent: View) => !!(parent as { viewController?: { presentedViewController?: unknown } }).viewController?.presentedViewController;
-    await waitUntil(() => parents.every((parent) => !isPresenting(parent))).catch(() => undefined);
-  });
+  afterEach(() => closeRemainingModals());
 
   it('showModal does not throws when there is no viewContainer provided', waitForAsync(async () => {
     const fixture = TestBed.createComponent(FailComponent);
