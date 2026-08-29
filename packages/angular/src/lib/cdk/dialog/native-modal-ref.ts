@@ -165,7 +165,8 @@ export class NativeModalRef {
 
     // Core tears the view down right after this callback returns, so the listener has to be
     // attached synchronously, before any await.
-    const modalView = this.modalViewRef?.firstNativeLikeView;
+    // Prefer the presented wrapper; HMR may replace the first root.
+    const modalView = this.modalView ?? this.modalViewRef?.firstNativeLikeView;
     const whenUnloaded = modalView?.isLoaded ? new Promise<void>((resolve) => modalView.once(View.unloadedEvent, () => resolve())) : Promise.resolve();
 
     await this.location?._closeModalNavigation();
