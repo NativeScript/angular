@@ -24,7 +24,7 @@ jest.mock('./page-router-outlet-utils', () => ({
 import { NSRouteReuseStrategy } from './ns-route-reuse-strategy';
 
 describe('NSRouteReuseStrategy', () => {
-  it('clears every cached outlet when destroyed', () => {
+  it('destroys and forgets every cached outlet', () => {
     const primaryClear = jest.fn();
     const secondaryClear = jest.fn();
     const strategy = new NSRouteReuseStrategy({} as any);
@@ -34,24 +34,10 @@ describe('NSRouteReuseStrategy', () => {
       secondary: { clear: secondaryClear },
     };
 
-    expect(strategy.clearAllCaches()).toBe(2);
+    strategy.clearAllCaches();
+
     expect(primaryClear).toHaveBeenCalledTimes(1);
     expect(secondaryClear).toHaveBeenCalledTimes(1);
-    expect((strategy as any).cacheByOutlet).toEqual({});
-  });
-
-  it('makes ngOnDestroy idempotently drain cached outlets', () => {
-    const primaryClear = jest.fn();
-    const strategy = new NSRouteReuseStrategy({} as any);
-
-    (strategy as any).cacheByOutlet = {
-      primary: { clear: primaryClear },
-    };
-
-    strategy.ngOnDestroy();
-    strategy.ngOnDestroy();
-
-    expect(primaryClear).toHaveBeenCalledTimes(1);
     expect((strategy as any).cacheByOutlet).toEqual({});
   });
 });

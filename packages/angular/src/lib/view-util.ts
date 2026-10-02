@@ -37,7 +37,9 @@ function printNgTree(view: NgView) {
 function printChildrenRecurse(parent: NgView) {
   const children = parent.firstChild ? [parent.firstChild, ...getChildrenSiblings(parent.firstChild).nextSiblings] : [];
   if (NativeScriptDebug.isLogEnabled()) {
-    NativeScriptDebug.viewUtilLog(`parent: ${parent}, firstChild: ${parent.firstChild}, lastChild: ${parent.lastChild} children: ${children}`);
+    NativeScriptDebug.viewUtilLog(
+      `parent: ${parent}, firstChild: ${parent.firstChild}, lastChild: ${parent.lastChild} children: ${children}`,
+    );
     if (parent.firstChild) {
       NativeScriptDebug.viewUtilLog(`----- start ${parent}`);
     }

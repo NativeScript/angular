@@ -58,12 +58,7 @@ export interface PatchEventTargetOptions {
   transferEventName?: (eventName: string) => string;
 }
 
-export function patchNativeScriptEventTarget(
-  global: any,
-  api: _ZonePrivate,
-  apis?: any[],
-  patchOptions?: PatchEventTargetOptions,
-) {
+export function patchNativeScriptEventTarget(global: any, api: _ZonePrivate, apis?: any[], patchOptions?: PatchEventTargetOptions) {
   const ADD_EVENT_LISTENER = (patchOptions && patchOptions.add) || ADD_EVENT_LISTENER_STR;
   const REMOVE_EVENT_LISTENER = (patchOptions && patchOptions.rm) || REMOVE_EVENT_LISTENER_STR;
   const ONCE = (patchOptions && patchOptions.once) || 'once';
@@ -154,13 +149,7 @@ export function patchNativeScriptEventTarget(
               nsTaskData: taskData,
             };
             const objName = obj.name || obj?.constructor?.name;
-            const task: ExtendedTask = Zone.current.scheduleEventTask(
-              objName + ':' + (eventNameToString ? eventNameToString(eventName) : eventName),
-              callback,
-              data,
-              schedule,
-              unschedule,
-            );
+            const task: ExtendedTask = Zone.current.scheduleEventTask(objName + ':' + (eventNameToString ? eventNameToString(eventName) : eventName), callback, data, schedule, unschedule);
             // should clear taskData.target to avoid memory leak
             // issue, https://github.com/angular/angular/issues/20442
             taskData.target = null;
@@ -185,7 +174,7 @@ export function patchNativeScriptEventTarget(
           } else {
             addSingleEvent(originalTarget, originalArgs);
           }
-        },
+        }
     );
 
     const nativeOnce = api.patchMethod(
@@ -229,11 +218,7 @@ export function patchNativeScriptEventTarget(
               task.customCallback = function (...args) {
                 task.invoke.apply(this, args);
                 task.ranOnce = true;
-                task.target[REMOVE_EVENT_LISTENER](
-                  task.eventName,
-                  task.callback,
-                  task.thisArg ? task.thisArg.get() : undefined,
-                );
+                task.target[REMOVE_EVENT_LISTENER](task.eventName, task.callback, task.thisArg ? task.thisArg.get() : undefined);
               };
               const args2 = [taskData.eventName, task.invoke];
               if (taskData.thisArg) {
@@ -255,13 +240,7 @@ export function patchNativeScriptEventTarget(
               nsTaskData: taskData,
             };
             const objName = obj.name || obj?.constructor?.name;
-            const task: ExtendedTask = Zone.current.scheduleEventTask(
-              objName + ':' + (eventNameToString ? eventNameToString(eventName) : eventName),
-              callback,
-              data,
-              schedule,
-              unschedule,
-            );
+            const task: ExtendedTask = Zone.current.scheduleEventTask(objName + ':' + (eventNameToString ? eventNameToString(eventName) : eventName), callback, data, schedule, unschedule);
             // should clear taskData.target to avoid memory leak
             // issue, https://github.com/angular/angular/issues/20442
             taskData.target = null;
@@ -276,10 +255,7 @@ export function patchNativeScriptEventTarget(
             task.eventName = eventName;
             existingTasks.push(task);
           };
-          const events: string[] =
-            originalArgs && Array.isArray(originalArgs) && typeof originalArgs[0] === 'string'
-              ? originalArgs[0].split(',')
-              : [];
+          const events: string[] = originalArgs && Array.isArray(originalArgs) && typeof originalArgs[0] === 'string' ? originalArgs[0].split(',') : [];
           if (events.length > 0) {
             if (originalArgs && Array.isArray(originalArgs)) {
               originalArgs.splice(0, 1);
@@ -290,7 +266,7 @@ export function patchNativeScriptEventTarget(
           } else {
             addSingleEvent(originalTarget, originalArgs);
           }
-        },
+        }
     );
 
     const nativeRemoveListener = api.patchMethod(
@@ -344,7 +320,7 @@ export function patchNativeScriptEventTarget(
           } else {
             removeSingleEvent(originalTarget, originalArgs);
           }
-        },
+        }
     );
   }
 

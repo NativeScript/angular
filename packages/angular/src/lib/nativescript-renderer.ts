@@ -107,7 +107,6 @@ function modifiesDom() {
 
 export class NativeScriptRendererFactory implements RendererFactory2 {
   private componentRenderers = new Map<string, Renderer2>();
-  private componentStyleSignatures = new Map<string, string>();
   private defaultRenderer: Renderer2;
   // backwards compatibility with RadListView
   private rootView = inject(APP_ROOT_VIEW);
@@ -152,16 +151,8 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
       if (renderer instanceof EmulatedRenderer) {
         renderer.applyToHost(hostElement);
       }
-
-      // Cached renderer skips addStyles; re-apply when styles changed.
-      const styleSignature = this.styleSignature(type.styles);
-      if (this.componentStyleSignatures.get(type.id) !== styleSignature) {
-        this.componentStyleSignatures.set(type.id, styleSignature);
-        if (renderer instanceof EmulatedRenderer) {
-          renderer.reapplyStyles(type.styles);
-        } else {
-          this.reapplyGlobalStyles(type.styles);
-        }
+      if (typeof ngDevMode === 'undefined' || ngDevMode) {
+        reapplyChangedStyles(type, this.rootModuleID);
       }
 
       return renderer;
@@ -178,27 +169,10 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
     }
 
     this.componentRenderers.set(type.id, renderer);
-    this.componentStyleSignatures.set(type.id, this.styleSignature(type.styles));
+    if (typeof ngDevMode === 'undefined' || ngDevMode) {
+      reapplyChangedStyles(type, this.rootModuleID);
+    }
     return renderer;
-  }
-
-  private styleSignature(styles: (string | any[])[]): string {
-    try {
-      return (styles || []).map((s) => s.toString()).join("\n");
-    } catch {
-      return '';
-    }
-  }
-
-  private reapplyGlobalStyles(styles: (string | any[])[]): void {
-    try {
-      styles.map((s) => s.toString()).forEach((v) => addStyleToCss(v, this.rootModuleID));
-      Application.getRootView()?._onCssStateChange();
-    } catch (err) {
-      if (NativeScriptDebug.enabled) {
-        NativeScriptDebug.rendererLog(`reapplyGlobalStyles failed: ${err}`);
-      }
-    }
   }
   begin() {
     if (__APPLE__ && this.wrapCdInTransaction) {
@@ -515,33 +489,44 @@ const addScopedStyleToCss = profile(
   },
 );
 
+let styleSignatures: Map<string, string> | undefined;
+
+/**
+ * Renderers are cached per component id, so styles changed by in-place component HMR
+ * (ɵɵreplaceMetadata keeps the id) would otherwise never reach the CSS. Dev builds only.
+ */
+function reapplyChangedStyles(type: RendererType2, rootModuleID: string | number): void {
+  styleSignatures ??= new Map();
+  const key = `${rootModuleID}:${type.id}`;
+  const signature = type.styles.join('\n');
+  const previous = styleSignatures.get(key);
+  styleSignatures.set(key, signature);
+  if (previous === undefined || previous === signature) {
+    return;
+  }
+  const styles = type.styles.map((s) => s.toString());
+  if (type.encapsulation === ViewEncapsulation.None) {
+    styles.forEach((s) => addStyleToCss(s, rootModuleID));
+  } else {
+    const componentId = type.id.replace(ATTR_SANITIZER, '_');
+    styles.forEach((s) => addScopedStyleToCss(replaceNgAttribute(s, componentId), rootModuleID));
+  }
+  Application.getRootView()?._onCssStateChange();
+}
+
 @Injectable()
 export class EmulatedRenderer extends NativeScriptRenderer {
   private contentAttr: string;
   private hostAttr: string;
-  private componentId: string;
   private rootModuleId = inject(NATIVESCRIPT_ROOT_MODULE_ID);
 
   constructor(component: RendererType2, rootView: View) {
     super(rootView);
 
     const componentId = component.id.replace(ATTR_SANITIZER, '_');
-    this.componentId = componentId;
     this.contentAttr = replaceNgAttribute(CONTENT_ATTR, componentId);
     this.hostAttr = replaceNgAttribute(HOST_ATTR, componentId);
     this.addStyles(component.styles, componentId);
-  }
-
-  /**
-   * Re-apply emulated styles after an HMR style edit.
-   */
-  reapplyStyles(styles: (string | any[])[]): void {
-    this.addStyles(styles, this.componentId);
-    try {
-      Application.getRootView()?._onCssStateChange();
-    } catch {
-      // ignore
-    }
   }
 
   applyToHost(view: NgView) {

@@ -2,6 +2,8 @@ import { ApplicationRef, ComponentRef, createComponent, EmbeddedViewRef, Injecto
 import { Application, ContentView, Frame, View } from '@nativescript/core';
 import { Subject } from 'rxjs';
 import { AppHostAsyncView, AppHostView } from '../../app-host-view';
+import { isHmrActive } from '../../hmr/hmr';
+import { shareModalHostProps } from '../../hmr/modal-host';
 import { NSLocationStrategy } from '../../legacy/router/ns-location-strategy';
 import { didModalOpen, once } from '../../utils/general';
 import { NgViewRef } from '../../view-refs';
@@ -9,7 +11,6 @@ import { DetachedLoader } from '../detached-loader';
 import { ComponentPortal, TemplatePortal } from '../portal/common';
 import { NativeScriptDomPortalOutlet } from '../portal/nsdom-portal-outlet';
 import { NativeDialogConfig } from './dialog-config';
-import { AddViewHost, installPvcModalHostPropPropagation, ModalHostView, propagateModalHostPropsToDescendants } from './modal-host-props';
 
 export class NativeModalRef {
   _id: string;
@@ -20,15 +21,7 @@ export class NativeModalRef {
   portalOutlet: NativeScriptDomPortalOutlet;
   detachedLoaderRef: ComponentRef<DetachedLoader>;
   modalViewRef: NgViewRef<any>;
-  /**
-   * The actual NativeScript view passed to `parentView.showModal(...)`.
-   *
-   * For component portals this is the stable `targetView` ContentView
-   * wrapper that owns the Angular host PVC. For template portals it
-   * remains `modalViewRef.firstNativeLikeView` (the historical
-   * behavior). Keeping a direct reference avoids walking parent
-   * chains when programmatically closing the modal.
-   */
+  /** View presented with showModal when it is not `modalViewRef.firstNativeLikeView`. */
   modalView?: View;
 
   private _closeCallback: () => void;
@@ -62,9 +55,7 @@ export class NativeModalRef {
     this._closeCallback = once(() => {
       this.stateChanged.next({ state: 'closing' });
       if (!this._isDismissed) {
-        // Prefer the presented wrapper; HMR may replace the first root.
-        const closeTarget = this.modalView ?? this.modalViewRef.firstNativeLikeView;
-        closeTarget?.closeModal();
+        (this.modalView ?? this.modalViewRef.firstNativeLikeView)?.closeModal();
       }
     });
   }
@@ -106,29 +97,32 @@ export class NativeModalRef {
   attachComponentPortal<T>(portal: ComponentPortal<T>): ComponentRef<T> {
     this.startModalNavigation();
 
-    // Present a stable wrapper so HMR can replace the template root.
     const targetView = new ContentView();
     this.portalOutlet = new NativeScriptDomPortalOutlet(targetView, this._injector.get(ApplicationRef), this._injector);
     const componentRef = this.portalOutlet.attach(portal);
     componentRef.changeDetectorRef.detectChanges();
     this.modalViewRef = new NgViewRef(componentRef);
-    this.modalView = targetView;
     if (this.modalViewRef.firstNativeLikeView !== this.modalViewRef.view) {
       (<any>this.modalViewRef.view)._ngDialogRoot = this.modalViewRef.firstNativeLikeView;
     }
-    targetView['__ng_modal_id__'] = this._id;
-    if (this.modalViewRef.firstNativeLikeView) {
-      this.modalViewRef.firstNativeLikeView['__ng_modal_id__'] = this._id;
+    this.modalViewRef.firstNativeLikeView['__ng_modal_id__'] = this._id;
+
+    if ((typeof ngDevMode === 'undefined' || ngDevMode) && isHmrActive()) {
+      // Present the stable outlet so in-place template HMR can replace the component's root view.
+      const root = this.modalViewRef.firstNativeLikeView;
+      targetView.width = root.width;
+      targetView.height = root.height;
+      targetView['__ng_modal_id__'] = this._id;
+      this.modalView = targetView;
+      this._showModal(targetView);
+      shareModalHostProps(targetView, componentRef.location.nativeElement);
+      return componentRef;
     }
 
-    this._showModal(targetView);
+    // if we don't detach the view from its parent, ios gets mad
+    this.modalViewRef.detachNativeLikeView();
 
-    propagateModalHostPropsToDescendants(targetView as ModalHostView, targetView as ModalHostView);
-    const hostView = componentRef.location?.nativeElement as View | undefined;
-    if (hostView) {
-      installPvcModalHostPropPropagation(hostView as unknown as AddViewHost, targetView as ModalHostView);
-    }
-
+    this._showModal(this.modalViewRef.firstNativeLikeView);
     return componentRef;
   }
 
@@ -165,7 +159,6 @@ export class NativeModalRef {
 
     // Core tears the view down right after this callback returns, so the listener has to be
     // attached synchronously, before any await.
-    // Prefer the presented wrapper; HMR may replace the first root.
     const modalView = this.modalView ?? this.modalViewRef?.firstNativeLikeView;
     const whenUnloaded = modalView?.isLoaded ? new Promise<void>((resolve) => modalView.once(View.unloadedEvent, () => resolve())) : Promise.resolve();
 
@@ -193,7 +186,6 @@ export class NativeModalRef {
   dispose() {
     this.portalOutlet.dispose();
   }
-
   private startModalNavigation() {
     const frame = this.parentView instanceof Frame ? this.parentView : this.parentView?.page?.frame || Frame.topmost();
 
