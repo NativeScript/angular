@@ -82,7 +82,7 @@ jobs:
               tag="next"
             fi
           else
-            tag="latest"
+            tag="v21"
           fi
           echo "Resolved version ${version} -> dist-tag ${tag}"
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
