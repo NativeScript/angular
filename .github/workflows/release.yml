@@ -15,6 +15,10 @@ on:
         description: Dry run (preview only, no push/publish)
         type: boolean
         default: true
+      publish-only:
+        description: Skip versioning and publish the version already committed (retry a failed publish)
+        type: boolean
+        default: false
 
 concurrency:
   group: nx-release-${{ github.ref }}
@@ -54,6 +58,7 @@ jobs:
       # Publishing is intentionally split out (--skip-publish) so the OIDC
       # token-clearing logic below wraps only the publish step.
       - name: nx release version + changelog
+        if: ${{ !inputs.publish-only }}
         run: >
           npx nx release ${{ inputs.version }}
           --groups=${{ inputs.project }}
@@ -82,7 +87,7 @@ jobs:
               tag="next"
             fi
           else
-            tag="v21"
+            tag="v21-lts"
           fi
           echo "Resolved version ${version} -> dist-tag ${tag}"
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
