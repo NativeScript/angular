@@ -14,6 +14,7 @@ import {
 import { Observable, Subject } from 'rxjs';
 import { filter, map, take } from 'rxjs/operators';
 import { AppHostView } from './app-host-view';
+import { handOffHmrAppOptions, hmrLog, installViteHmrGlobals, runHmrHooks } from './hmr/hmr';
 import { NativeScriptLoadingService } from './loading.service';
 import { APP_ROOT_VIEW, DISABLE_ROOT_VIEW_HANDLING, NATIVESCRIPT_ROOT_MODULE_ID } from './tokens';
 import { NativeScriptDebug } from './trace';
@@ -220,6 +221,9 @@ export interface ApplicationConfig {
 }
 
 export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
+  if ((typeof ngDevMode === 'undefined' || ngDevMode) && handOffHmrAppOptions(options)) {
+    return;
+  }
   let mainModuleRef: NgModuleRef<T> | ApplicationRef = null;
   let loadingModuleRef: NgModuleRef<K> | ApplicationRef;
   let platformRef: PlatformRef = null;
@@ -274,6 +278,10 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
       Application.run({ create: () => newRoot });
     } else if (launchEventDone) {
       Application.resetRootView({ create: () => newRoot });
+      if (typeof ngDevMode === 'undefined' || ngDevMode) {
+        // A reboot's root is built before its component CSS is re-added; restyle it once attached.
+        setTimeout(() => Application.getRootView() === newRoot && newRoot._onCssStateChange());
+      }
     } else {
       targetRootView = newRoot;
     }
@@ -303,20 +311,37 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
                 ref.destroy();
                 return;
               }
-              mainModuleRef = ref;
+              const onBootstrapped = () => {
+                mainModuleRef = ref;
 
-              (ref instanceof ApplicationRef ? ref.components[0] : ref).onDestroy(
-                () => (mainModuleRef = mainModuleRef === ref ? null : mainModuleRef),
-              );
-              updatePlatformRef(ref, reason);
-              const styleTag = ref.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
-              (ref instanceof ApplicationRef ? ref.components[0] : ref).onDestroy(() => {
-                removeTaggedAdditionalCSS(styleTag);
-              });
-              bootstrapped = true;
-              onMainBootstrap();
-              emitModuleBootstrapEvent(ref, 'main', reason);
-              // bootstrapped component: (ref as any)._bootstrapComponents[0];
+                (ref instanceof ApplicationRef ? ref.components[0] : ref).onDestroy(
+                  () => (mainModuleRef = mainModuleRef === ref ? null : mainModuleRef),
+                );
+                updatePlatformRef(ref, reason);
+                const styleTag = ref.injector.get(NATIVESCRIPT_ROOT_MODULE_ID);
+                (ref instanceof ApplicationRef ? ref.components[0] : ref).onDestroy(() => {
+                  removeTaggedAdditionalCSS(styleTag);
+                });
+                bootstrapped = true;
+                onMainBootstrap();
+                emitModuleBootstrapEvent(ref, 'main', reason);
+                // bootstrapped component: (ref as any)._bootstrapComponents[0];
+              };
+              if ((typeof ngDevMode === 'undefined' || ngDevMode) && reason === 'hotreload') {
+                // A reboot resolves outside the Angular zone; run the new app's setup inside it.
+                const zone = typeof Zone !== 'undefined' && !NgZone.isInAngularZone() ? ref.injector.get(NgZone) : null;
+                const afterReboot = () => {
+                  onBootstrapped();
+                  runHmrHooks('afterBootstrap', ref.injector);
+                };
+                if (zone) {
+                  zone.run(afterReboot);
+                } else {
+                  afterReboot();
+                }
+              } else {
+                onBootstrapped();
+              }
             },
             (err) => {
               bootstrapped = true;
@@ -427,6 +452,9 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     platformRef = null;
   };
   const disposeLastModules = (reason: NgModuleReason) => {
+    if ((typeof ngDevMode === 'undefined' || ngDevMode) && reason === 'hotreload') {
+      runHmrHooks('beforeDispose', mainModuleRef?.injector);
+    }
     // reset bootstrap ID to make sure any modules bootstrapped after this are discarded
     bootstrapId = -1;
     destroyRef(loadingModuleRef, 'loading', reason);
@@ -457,8 +485,8 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   if (oldAddEventListener) {
     global.NativeScriptGlobals.events.addEventListener = oldAddEventListener;
   }
-  if (import.meta['webpackHot']) {
-    // handle HMR Application.run
+  if (typeof ngDevMode === 'undefined' || ngDevMode) {
+    // Hooks for webpack and @nativescript/vite HMR.
     global['__dispose_app_ng_platform__'] = () => {
       disposePlatform('hotreload');
     };
@@ -475,19 +503,20 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
       disposePlatform('hotreload');
     };
     global['__reboot_ng_modules__'] = (shouldDisposePlatform: boolean = false) => {
+      hmrLog(`rebooting Angular (disposePlatform=${shouldDisposePlatform})`);
       disposeLastModules('hotreload');
       if (shouldDisposePlatform) {
         disposePlatform('hotreload');
       }
       bootstrapRoot('hotreload');
     };
+    installViteHmrGlobals((next: AppRunOptions<T, K>) => (options = next));
 
-    if (!Application.hasLaunched()) {
-      Application.run();
+    // Already launched means HMR re-ran the entry (webpack) or Vite's placeholder root launched the app first.
+    if (Application.hasLaunched()) {
+      bootstrapRoot('hotreload');
       return;
     }
-    bootstrapRoot('hotreload');
-    return;
   }
 
   if (options.embedded) {
