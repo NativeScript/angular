@@ -408,8 +408,11 @@ export class NSLocationStrategy extends LocationStrategy implements OnDestroy {
         isEqualToCurrent = currentOutlet.pathByOutlets === this.currentOutlet.pathByOutlets;
       }
 
-      // Remove outlet from the url tree.
-      if (currentOutlet.containsFrame(frame) && !isEqualToCurrent) {
+      // Remove outlet from the url tree, but only when this is its last frame: an outlet
+      // still showing other frames (e.g. primary after a nested page-router-outlet is
+      // destroyed) is still routed, and popping it would navigate the app to "/".
+      const isLastFrame = currentOutlet.containsFrame(frame) && currentOutlet.frames.every((currentFrame) => currentFrame === frame);
+      if (isLastFrame && !isEqualToCurrent) {
         this.callPopState(null, true, currentOutlet);
       }
 
