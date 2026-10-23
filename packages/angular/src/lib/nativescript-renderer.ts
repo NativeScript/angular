@@ -43,6 +43,15 @@ const addStyleToCss = profile(
   },
 );
 
+// Angular >= 22.1 compiles custom properties in component styles and style bindings
+// to `--%NS%name`, leaving the renderer to substitute a namespace. NativeScript has no
+// namespacing, so drop the placeholder to match Angular's default (an empty namespace).
+const CSS_VAR_NAMESPACE_REGEX = /%NS%/g;
+
+function stripCssVarNamespace(input: string): string {
+  return input.replace(CSS_VAR_NAMESPACE_REGEX, '');
+}
+
 function runInRootZone<T>(fn: () => T): T {
   if (typeof Zone === 'undefined') {
     return fn();
@@ -156,7 +165,7 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
     }
 
     if (type.encapsulation === ViewEncapsulation.None) {
-      type.styles.map((s) => s.toString()).forEach((v) => addStyleToCss(v, this.rootModuleID));
+      type.styles.map((s) => stripCssVarNamespace(s.toString())).forEach((v) => addStyleToCss(v, this.rootModuleID));
       renderer = this.defaultRenderer;
     } else {
       runInInjectionContext(this.injector, () => {
@@ -404,6 +413,9 @@ class NativeScriptRenderer implements Renderer2 {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(`NativeScriptRenderer.setStyle: ${el}, ${style} = ${value}`);
     }
+    if (style.startsWith('--')) {
+      style = stripCssVarNamespace(style);
+    }
     this.viewUtil.setStyle(el, style, value);
   }
   @inRootZone()
@@ -411,6 +423,9 @@ class NativeScriptRenderer implements Renderer2 {
   removeStyle(el: any, style: string, flags?: RendererStyleFlags2): void {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog('NativeScriptRenderer.removeStyle: ${styleName}');
+    }
+    if (style.startsWith('--')) {
+      style = stripCssVarNamespace(style);
     }
     this.viewUtil.removeStyle(el, style);
   }
@@ -522,7 +537,7 @@ export class EmulatedRenderer extends NativeScriptRenderer {
   private addStyles(styles: (string | any[])[], componentId: string) {
     styles
       .map((s) => s.toString())
-      .map((s) => replaceNgAttribute(s, componentId))
+      .map((s) => stripCssVarNamespace(replaceNgAttribute(s, componentId)))
       .forEach((s) => addScopedStyleToCss(s, this.rootModuleId));
   }
 }
