@@ -1,3 +1,10 @@
+## 22.0.2 (2026-10-23)
+
+### 🩹 Fixes
+
+- **router:** clear stale back-navigation marks on forward page navigation ([#181](https://github.com/NativeScript/angular/pull/181))
+- substitute Angular 22.1 CSS custom property namespace placeholder ([#182](https://github.com/NativeScript/angular/pull/182))
+
 ## 22.0.1 (2026-08-24)
 
 ### 🩹 Fixes
