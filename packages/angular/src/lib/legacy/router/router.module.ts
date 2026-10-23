@@ -31,6 +31,7 @@ import { FrameService } from '../frame.service';
 import { NSEmptyOutletComponent } from './ns-empty-outlet.component';
 import { NativeScriptCommonModule } from '../../nativescript-common.module';
 import { START_PATH } from '../../tokens';
+import { consumeHmrStartPath, registerRouterHmrHooks } from '../../hmr/route';
 import { ComponentInputBindingOptions, INPUT_BINDER, RoutedComponentInputBinder } from './router-component-input-binder';
 
 export { PageRoute } from './page-router-outlet';
@@ -58,7 +59,14 @@ export function provideLocationStrategy(
   frameService: FrameService,
   startPath: string,
 ): NSLocationStrategy {
-  return locationStrategy ? locationStrategy : new NSLocationStrategy(frameService, startPath);
+  if (locationStrategy) {
+    return locationStrategy;
+  }
+  if (typeof ngDevMode === 'undefined' || ngDevMode) {
+    registerRouterHmrHooks();
+    startPath = consumeHmrStartPath() ?? startPath;
+  }
+  return new NSLocationStrategy(frameService, startPath);
 }
 
 const ROUTER_COMPONENTS = [NSRouterLink, NSRouterLinkActive, PageRouterOutlet, NSEmptyOutletComponent];

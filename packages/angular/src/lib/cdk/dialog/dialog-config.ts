@@ -58,5 +58,10 @@ export class NativeDialogConfig<D = any> {
 
   nativeOptions?: NativeShowModalOptions = {};
 
+  /**
+   * Reopen this component dialog after HMR. TemplateRef openings are skipped.
+   */
+  preserveOnHmr?: boolean = false;
+
   // TODO(jelbourn): add configuration for lifecycle hooks, ARIA labelling.
 }

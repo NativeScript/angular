@@ -151,6 +151,9 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
       if (renderer instanceof EmulatedRenderer) {
         renderer.applyToHost(hostElement);
       }
+      if (typeof ngDevMode === 'undefined' || ngDevMode) {
+        reapplyChangedStyles(type, this.rootModuleID);
+      }
 
       return renderer;
     }
@@ -166,6 +169,9 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
     }
 
     this.componentRenderers.set(type.id, renderer);
+    if (typeof ngDevMode === 'undefined' || ngDevMode) {
+      reapplyChangedStyles(type, this.rootModuleID);
+    }
     return renderer;
   }
   begin() {
@@ -482,6 +488,31 @@ const addScopedStyleToCss = profile(
     }
   },
 );
+
+let styleSignatures: Map<string, string> | undefined;
+
+/**
+ * Renderers are cached per component id, so styles changed by in-place component HMR
+ * (ɵɵreplaceMetadata keeps the id) would otherwise never reach the CSS. Dev builds only.
+ */
+function reapplyChangedStyles(type: RendererType2, rootModuleID: string | number): void {
+  styleSignatures ??= new Map();
+  const key = `${rootModuleID}:${type.id}`;
+  const signature = type.styles.join('\n');
+  const previous = styleSignatures.get(key);
+  styleSignatures.set(key, signature);
+  if (previous === undefined || previous === signature) {
+    return;
+  }
+  const styles = type.styles.map((s) => s.toString());
+  if (type.encapsulation === ViewEncapsulation.None) {
+    styles.forEach((s) => addStyleToCss(s, rootModuleID));
+  } else {
+    const componentId = type.id.replace(ATTR_SANITIZER, '_');
+    styles.forEach((s) => addScopedStyleToCss(replaceNgAttribute(s, componentId), rootModuleID));
+  }
+  Application.getRootView()?._onCssStateChange();
+}
 
 @Injectable()
 export class EmulatedRenderer extends NativeScriptRenderer {

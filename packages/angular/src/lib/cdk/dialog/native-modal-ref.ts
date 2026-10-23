@@ -2,6 +2,8 @@ import { ApplicationRef, ComponentRef, createComponent, EmbeddedViewRef, Injecto
 import { Application, ContentView, Frame, View } from '@nativescript/core';
 import { Subject } from 'rxjs';
 import { AppHostAsyncView, AppHostView } from '../../app-host-view';
+import { isHmrActive } from '../../hmr/hmr';
+import { shareModalHostProps } from '../../hmr/modal-host';
 import { NSLocationStrategy } from '../../legacy/router/ns-location-strategy';
 import { didModalOpen, once } from '../../utils/general';
 import { NgViewRef } from '../../view-refs';
@@ -19,6 +21,8 @@ export class NativeModalRef {
   portalOutlet: NativeScriptDomPortalOutlet;
   detachedLoaderRef: ComponentRef<DetachedLoader>;
   modalViewRef: NgViewRef<any>;
+  /** View presented with showModal when it is not `modalViewRef.firstNativeLikeView`. */
+  modalView?: View;
 
   private _closeCallback: () => void;
   private _isDismissed = false;
@@ -51,7 +55,7 @@ export class NativeModalRef {
     this._closeCallback = once(() => {
       this.stateChanged.next({ state: 'closing' });
       if (!this._isDismissed) {
-        this.modalViewRef.firstNativeLikeView?.closeModal();
+        (this.modalView ?? this.modalViewRef.firstNativeLikeView)?.closeModal();
       }
     });
   }
@@ -102,6 +106,19 @@ export class NativeModalRef {
       (<any>this.modalViewRef.view)._ngDialogRoot = this.modalViewRef.firstNativeLikeView;
     }
     this.modalViewRef.firstNativeLikeView['__ng_modal_id__'] = this._id;
+
+    if ((typeof ngDevMode === 'undefined' || ngDevMode) && isHmrActive()) {
+      // Present the stable outlet so in-place template HMR can replace the component's root view.
+      const root = this.modalViewRef.firstNativeLikeView;
+      targetView.width = root.width;
+      targetView.height = root.height;
+      targetView['__ng_modal_id__'] = this._id;
+      this.modalView = targetView;
+      this._showModal(targetView);
+      shareModalHostProps(targetView, componentRef.location.nativeElement);
+      return componentRef;
+    }
+
     // if we don't detach the view from its parent, ios gets mad
     this.modalViewRef.detachNativeLikeView();
 
@@ -142,7 +159,7 @@ export class NativeModalRef {
 
     // Core tears the view down right after this callback returns, so the listener has to be
     // attached synchronously, before any await.
-    const modalView = this.modalViewRef?.firstNativeLikeView;
+    const modalView = this.modalView ?? this.modalViewRef?.firstNativeLikeView;
     const whenUnloaded = modalView?.isLoaded ? new Promise<void>((resolve) => modalView.once(View.unloadedEvent, () => resolve())) : Promise.resolve();
 
     await this.location?._closeModalNavigation();

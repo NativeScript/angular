@@ -329,4 +329,12 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
       cache.clearModalCache();
     }
   }
+
+  /** Destroys every detached route in every outlet. */
+  clearAllCaches(): void {
+    for (const key of Object.keys(this.cacheByOutlet)) {
+      this.cacheByOutlet[key].clear();
+      delete this.cacheByOutlet[key];
+    }
+  }
 }
