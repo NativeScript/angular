@@ -288,20 +288,22 @@ export class NSLocationStrategy extends LocationStrategy implements OnDestroy {
     outlet.setOutletKeyNavigatingBack(outletKey);
     // outlet.isPageNavigationBack = true;
     // we find all the children and also set their isPageNavigationBack
-    this.outlets
-      .filter((o) => {
-        let parent = o.parent;
-        while (parent) {
-          if (parent === outlet) {
-            return true;
-          }
-          parent = parent.parent;
-        }
-        return false;
-      })
-      .forEach((o) => (o.isPageNavigationBack = true));
+    this.getDescendantOutlets(outlet).forEach((o) => (o.isPageNavigationBack = true));
 
     this.currentOutlet = outlet;
+  }
+
+  private getDescendantOutlets(outlet: Outlet): Outlet[] {
+    return this.outlets.filter((o) => {
+      let parent = o.parent;
+      while (parent) {
+        if (parent === outlet) {
+          return true;
+        }
+        parent = parent.parent;
+      }
+      return false;
+    });
   }
 
   public _finishBackPageNavigation(frame: Frame) {
@@ -366,6 +368,12 @@ export class NSLocationStrategy extends LocationStrategy implements OnDestroy {
     }
 
     this.currentOutlet = this.getOutletByFrame(frame) || this.currentOutlet;
+    // _beginBackPageNavigation marks every descendant outlet as going back, but only an outlet that
+    // is activated during that back clears its own mark. The outlets of a page lower in the back stack
+    // (for example the per-tab outlets of a tab page) are not activated, so they keep the mark. A later
+    // forward navigation into such a page then ran as a back navigation for those outlets and they
+    // rendered blank. A forward page navigation means no back is in progress below this outlet.
+    this.getDescendantOutlets(this.currentOutlet).forEach((o) => o._navigatingBackOutlets.clear());
     const lastState = this.currentOutlet.peekState();
 
     if (lastState) {
