@@ -18,6 +18,7 @@ import {
 } from '@angular/core';
 import { defer, Observable, Subject } from 'rxjs';
 import { startWith } from 'rxjs/operators';
+import { trackHmrDialog } from '../../hmr/dialog';
 import { NSLocationStrategy } from '../../legacy/router/ns-location-strategy';
 import { ComponentType } from '../../utils/general';
 import { ComponentPortal, TemplatePortal } from '../portal/common';
@@ -110,6 +111,9 @@ export class NativeDialog implements OnDestroy {
 
     this.openDialogs.push(dialogRef);
     dialogRef.afterClosed().subscribe(() => this._removeOpenDialog(dialogRef));
+    if ((typeof ngDevMode === 'undefined' || ngDevMode) && !(componentOrTemplateRef instanceof TemplateRef)) {
+      trackHmrDialog(NativeDialog, dialogRef, componentOrTemplateRef, config);
+    }
     this.afterOpened.next(dialogRef);
 
     // Notify the dialog container that the content has been attached.
