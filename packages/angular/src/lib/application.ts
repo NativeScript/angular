@@ -457,7 +457,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   if (oldAddEventListener) {
     global.NativeScriptGlobals.events.addEventListener = oldAddEventListener;
   }
-  if (import.meta['webpackHot']) {
+  if (import.meta['webpackHot'] || import.meta['hot']) {
     // handle HMR Application.run
     global['__dispose_app_ng_platform__'] = () => {
       disposePlatform('hotreload');
@@ -490,7 +490,9 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     return;
   }
 
-  if (options.embedded) {
+  // A host that already launched the app (e.g. a dev server's boot UI) will not
+  // fire launchEvent again, so bootstrap now instead of waiting for it.
+  if (options.embedded || Application.hasLaunched()) {
     bootstrapRoot('applaunch');
   } else {
     Application.run();

@@ -13,6 +13,16 @@ export const WRAP_CD_IN_TRANSACTION = new InjectionToken<boolean>('NativeScriptW
   providedIn: 'root',
   factory: () => false,
 });
+/**
+ * Base URL that Angular's external runtime styles (relative `.css` URLs, emitted by
+ * dev servers for component style HMR) are resolved against — the role
+ * `document.baseURI` plays on the web. Defaults to `globalThis.__NS_DEV_ORIGIN__`,
+ * which a dev server session sets; `null` when no dev server is involved.
+ */
+export const NATIVESCRIPT_STYLE_BASE_URL = new InjectionToken<string | null>('NativeScriptStyleBaseUrl', {
+  providedIn: 'root',
+  factory: () => (globalThis as { __NS_DEV_ORIGIN__?: string }).__NS_DEV_ORIGIN__ ?? null,
+});
 
 export type PageFactory = (options: PageFactoryOptions) => Page;
 export interface PageFactoryOptions {
