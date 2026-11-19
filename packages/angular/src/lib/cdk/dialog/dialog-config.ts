@@ -58,5 +58,11 @@ export class NativeDialogConfig<D = any> {
 
   nativeOptions?: NativeShowModalOptions = {};
 
+  /**
+   * Reopen this component dialog after a Vite HMR reboot. Needs `provideNativeScriptHmrCompat()`;
+   * TemplateRef dialogs are not reopened.
+   */
+  preserveOnHmr?: boolean = false;
+
   // TODO(jelbourn): add configuration for lifecycle hooks, ARIA labelling.
 }

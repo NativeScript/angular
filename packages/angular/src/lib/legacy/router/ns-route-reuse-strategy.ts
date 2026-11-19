@@ -329,4 +329,15 @@ export class NSRouteReuseStrategy implements RouteReuseStrategy {
       cache.clearModalCache();
     }
   }
+
+  /**
+   * Destroys every detached route of every outlet. `provideNativeScriptHmrCompat()` calls this on
+   * whatever `RouteReuseStrategy` the app provides, when it has the method, before an HMR reboot.
+   */
+  clearAllCaches(): void {
+    for (const key of Object.keys(this.cacheByOutlet)) {
+      this.cacheByOutlet[key].clear();
+      delete this.cacheByOutlet[key];
+    }
+  }
 }

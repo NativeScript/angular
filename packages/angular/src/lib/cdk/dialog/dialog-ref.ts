@@ -1,5 +1,6 @@
 import { Observable, Subject } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
+import { NativeDialogConfig } from './dialog-config';
 import { NativeModalRef } from './native-modal-ref';
 
 // Counter for unique dialog ids.
@@ -44,6 +45,11 @@ export class NativeDialogRef<T, R = any> {
 
   /** Current state of the dialog. */
   private _state = NativeDialogState.OPEN;
+
+  /** The configuration the dialog was opened with. */
+  get config(): NativeDialogConfig {
+    return this._nativeModalRef.config;
+  }
 
   constructor(private _nativeModalRef: NativeModalRef, readonly id: string = `native-dialog-${uniqueId++}`) {
     // Pass the id along to the container.

@@ -42,6 +42,14 @@ export * from './file-system';
 export * from './nativescript-common.module';
 export * from './loading.service';
 export * from './detached-loader-utils';
+export {
+  provideNativeScriptHmrCompat,
+  installAngularHmrCompatGlobals,
+  type NativeScriptHmrCompatOptions,
+} from './hmr-compat/provide';
+export { HmrCacheService, configureHmrCache } from './hmr-compat/cache';
+export type { HmrCacheOptions, HmrCacheScope } from './hmr-compat/lru-store';
+export { isAngularHmrRestoringRoute, getAngularHmrRestoringRoute } from './hmr-compat/route-restore';
 // export * from './router/router.module';
 export {
   AppLaunchView,

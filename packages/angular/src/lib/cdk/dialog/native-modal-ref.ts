@@ -23,6 +23,10 @@ export class NativeModalRef {
   private _closeCallback: () => void;
   private _isDismissed = false;
 
+  get config(): NativeDialogConfig {
+    return this._config;
+  }
+
   constructor(
     private _config: NativeDialogConfig,
     private _injector: Injector,

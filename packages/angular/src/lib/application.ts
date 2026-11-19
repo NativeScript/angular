@@ -243,6 +243,7 @@ type MainRef = NgModuleRef<unknown> | ApplicationRef;
 interface HmrRun {
   mainRef(): MainRef | null;
   dispose(): void;
+  reboot(disposePlatform: boolean): void;
 }
 
 interface PendingHmrReboot {
@@ -294,11 +295,34 @@ export async function prepareHmrReboot(): Promise<void> {
   if (ref && !pendingHmrReboot) {
     hmrSnapshots = saveHmrSnapshots(readHmrParticipants(ref), logHmr);
   }
+  startPendingHmrReboot();
+  run.dispose();
+}
+
+function startPendingHmrReboot(): void {
   pendingHmrReboot?.resolveBootstrapped(null);
   let resolveBootstrapped: (ref: MainRef | null) => void;
   const bootstrapped = new Promise<MainRef | null>((resolve) => (resolveBootstrapped = resolve));
   pendingHmrReboot = { bootstrapStarted: false, bootstrapped, resolveBootstrapped };
-  run.dispose();
+}
+
+/**
+ * @internal Dev only: re-bootstraps the running app with the code it already has, saving and
+ * restoring its HMR participants like an entry reboot. Returns false when no app is running or a
+ * reboot is still settling.
+ */
+export function rebootHmrAppInPlace(disposePlatform: boolean): boolean {
+  const run = currentHmrRun;
+  if (!run || pendingHmrReboot) {
+    return false;
+  }
+  const ref = run.mainRef();
+  if (ref) {
+    hmrSnapshots = saveHmrSnapshots(readHmrParticipants(ref), logHmr);
+  }
+  startPendingHmrReboot();
+  run.reboot(disposePlatform);
+  return true;
 }
 
 /**
@@ -635,6 +659,13 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
         // The next bootstrap may define edited copies of app components; without
         // this, dev mode warns NG0912 because cached component IDs map to the old classes.
         ɵresetCompiledComponents();
+      },
+      reboot: (shouldDisposePlatform) => {
+        disposeLastModules('hotreload');
+        if (shouldDisposePlatform) {
+          disposePlatform('hotreload');
+        }
+        bootstrapRoot('hotreload');
       },
     };
   }
