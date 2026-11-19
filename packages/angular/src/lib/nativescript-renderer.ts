@@ -118,10 +118,14 @@ function modifiesDom() {
   };
 }
 
-interface DevHmrEvents {
-  on?(event: string, cb: (payload: any) => void): void;
-  off?(event: string, cb: (payload: any) => void): void;
+interface ViteHotContext {
+  on(event: string, cb: (payload: any) => void): void;
 }
+
+// This module is never re-evaluated in a dev session, so one `vite:beforeUpdate`
+// listener serves every renderer factory created across app re-bootstraps.
+const liveRendererFactories = new Set<NativeScriptRendererFactory>();
+let viteBeforeUpdateRegistered = false;
 
 @Injectable()
 export class NativeScriptRendererFactory implements RendererFactory2, OnDestroy {
@@ -138,16 +142,23 @@ export class NativeScriptRendererFactory implements RendererFactory2, OnDestroy 
   private injector = inject(Injector);
   private cdDepth = 0;
   private viewUtil = new ViewUtil(this.namespaceFilters, this.reuseViews);
-  // `@nativescript/vite`'s device HMR client exposes this during dev only; it
-  // delivers Vite's client events (`vite:beforeUpdate`, ...).
-  private devHmr = (globalThis as { __NS_HOT_REGISTRY__?: DevHmrEvents }).__NS_HOT_REGISTRY__ ?? null;
 
   constructor() {
     if (typeof this.reuseViews !== 'boolean') {
       this.reuseViews = false; // default to false
     }
     this.defaultRenderer = new NativeScriptRenderer(this.rootView);
-    this.devHmr?.on?.('vite:beforeUpdate', this.onViteBeforeUpdate);
+    // Must stay the literal `import.meta.hot`: Vite only injects the hot context for that form.
+    const hot = (import.meta as ImportMeta & { hot?: ViteHotContext }).hot;
+    if (hot) {
+      liveRendererFactories.add(this);
+      if (!viteBeforeUpdateRegistered) {
+        viteBeforeUpdateRegistered = true;
+        hot.on('vite:beforeUpdate', (payload) => {
+          liveRendererFactories.forEach((factory) => factory.onViteBeforeUpdate(payload));
+        });
+      }
+    }
   }
 
   // There is no `<link>` element on device: emulated renderers own the
@@ -219,7 +230,7 @@ export class NativeScriptRendererFactory implements RendererFactory2, OnDestroy 
   }
 
   ngOnDestroy(): void {
-    this.devHmr?.off?.('vite:beforeUpdate', this.onViteBeforeUpdate);
+    liveRendererFactories.delete(this);
     this.componentRenderers.forEach((renderer) => {
       if (renderer instanceof EmulatedRenderer) {
         renderer.removeStyles();

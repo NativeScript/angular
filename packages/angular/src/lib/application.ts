@@ -1,4 +1,12 @@
-import { ApplicationRef, EnvironmentProviders, NgModuleRef, NgZone, PlatformRef, Provider } from '@angular/core';
+import {
+  ApplicationRef,
+  EnvironmentProviders,
+  NgModuleRef,
+  NgZone,
+  PlatformRef,
+  Provider,
+  ɵresetCompiledComponents,
+} from '@angular/core';
 import {
   Application,
   ApplicationEventData,
@@ -218,6 +226,16 @@ export interface ApplicationConfig {
    */
   providers: Array<Provider | EnvironmentProviders>;
 }
+
+interface ViteHotContext {
+  on(event: string, cb: (payload: any) => void): void;
+}
+
+// This module is never re-evaluated on a dev full reload, but the app entry
+// calling runNativeScriptAngularApp is: register the listener once and have it
+// dispose whichever app run is current.
+let disposeCurrentAppForFullReload: (() => void) | null = null;
+let fullReloadListenerRegistered = false;
 
 export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   let mainModuleRef: NgModuleRef<T> | ApplicationRef = null;
@@ -457,7 +475,28 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   if (oldAddEventListener) {
     global.NativeScriptGlobals.events.addEventListener = oldAddEventListener;
   }
-  if (import.meta['webpackHot'] || import.meta['hot']) {
+  // Must stay the literal `import.meta.hot`: Vite only injects the hot context for that form.
+  const hot = (import.meta as ImportMeta & { hot?: ViteHotContext }).hot;
+  if (hot) {
+    disposeCurrentAppForFullReload = () => {
+      Application.off(Application.launchEvent, launchCallback);
+      Application.off(Application.exitEvent, exitCallback);
+      disposeLastModules('hotreload');
+      disposePlatform('hotreload');
+      // The re-evaluated entry redefines every app component; without this,
+      // dev mode warns NG0912 because the cached component IDs map to the old classes.
+      ɵresetCompiledComponents();
+    };
+    if (!fullReloadListenerRegistered) {
+      fullReloadListenerRegistered = true;
+      hot.on('vite:beforeFullReload', () => {
+        const dispose = disposeCurrentAppForFullReload;
+        disposeCurrentAppForFullReload = null;
+        dispose?.();
+      });
+    }
+  }
+  if (import.meta['webpackHot']) {
     // handle HMR Application.run
     global['__dispose_app_ng_platform__'] = () => {
       disposePlatform('hotreload');
