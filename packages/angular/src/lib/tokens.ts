@@ -13,6 +13,48 @@ export const WRAP_CD_IN_TRANSACTION = new InjectionToken<boolean>('NativeScriptW
   providedIn: 'root',
   factory: () => false,
 });
+/**
+ * Base URL that Angular's external runtime styles (relative `.css` URLs, emitted by
+ * dev servers for component style HMR) are resolved against — the role
+ * `document.baseURI` plays on the web. Defaults to the origin this package was
+ * served from when that is an http(s) dev server; `null` otherwise.
+ */
+export const NATIVESCRIPT_STYLE_BASE_URL = new InjectionToken<string | null>('NativeScriptStyleBaseUrl', {
+  providedIn: 'root',
+  factory: () => {
+    // Literal `import.meta.hot` condition: webpack folds it to `if (false) {}` and drops the
+    // body, so its build-time `file://` value of `import.meta.url` never lands in a bundle.
+    if ((import.meta as ImportMeta & { hot?: unknown }).hot) {
+      try {
+        // Not `new URL(x, import.meta.url)`: webpack turns that form into an asset import.
+        const moduleUrl = new URL(import.meta.url);
+        return moduleUrl.protocol === 'http:' || moduleUrl.protocol === 'https:' ? moduleUrl.origin : null;
+      } catch {}
+    }
+    return null;
+  },
+});
+
+/**
+ * Carries state across a dev-server HMR reboot of the app: `save()` runs in the
+ * old app before it is destroyed, `restore()` in the new app once it has
+ * bootstrapped and settled. A snapshot is restored only into a participant with
+ * the same `key` and `version`. A participant that cannot restore its state may
+ * call `requestNativeScriptAppRestart`.
+ */
+export interface NativeScriptHmrParticipant {
+  key: string;
+  version?: number;
+  save(): unknown;
+  restore(state: unknown): void | Promise<void>;
+}
+
+/**
+ * Multi-provider of {@link NativeScriptHmrParticipant}s, read from the app's root injector.
+ */
+export const NATIVESCRIPT_HMR_PARTICIPANTS = new InjectionToken<NativeScriptHmrParticipant[]>(
+  'NativeScriptHmrParticipants',
+);
 
 export type PageFactory = (options: PageFactoryOptions) => Page;
 export interface PageFactoryOptions {

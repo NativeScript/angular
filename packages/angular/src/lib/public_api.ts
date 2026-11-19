@@ -55,7 +55,11 @@ export {
   preAngularDisposal$,
   runNativeScriptAngularApp,
   ApplicationConfig,
+  prepareHmrReboot,
+  whenHmrRebootSettled,
+  requestNativeScriptAppRestart,
 } from './application';
+export type { HmrRebootResult } from './hmr-reboot-state';
 export * from './element-registry';
 export * from './nativescript-xhr-factory';
 export {

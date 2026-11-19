@@ -2,6 +2,7 @@ import {
   inject,
   Injectable,
   Injector,
+  OnDestroy,
   Renderer2,
   RendererFactory2,
   RendererStyleFlags2,
@@ -11,7 +12,9 @@ import {
 } from '@angular/core';
 import {
   addTaggedAdditionalCSS,
+  removeTaggedAdditionalCSS,
   Application,
+  Http,
   ContentView,
   getViewById,
   Observable,
@@ -24,6 +27,7 @@ import {
   APP_ROOT_VIEW,
   ENABLE_REUSABE_VIEWS,
   NATIVESCRIPT_ROOT_MODULE_ID,
+  NATIVESCRIPT_STYLE_BASE_URL,
   PREVENT_CHANGE_EVENTS_DURING_CD,
   PREVENT_SPECIFIC_EVENTS_DURING_CD,
   WRAP_CD_IN_TRANSACTION,
@@ -114,7 +118,17 @@ function modifiesDom() {
   };
 }
 
-export class NativeScriptRendererFactory implements RendererFactory2 {
+interface ViteHotContext {
+  on(event: string, cb: (payload: any) => void): void;
+}
+
+// This module is never re-evaluated in a dev session, so one `vite:beforeUpdate`
+// listener serves every renderer factory created across app re-bootstraps.
+const liveRendererFactories = new Set<NativeScriptRendererFactory>();
+let viteBeforeUpdateRegistered = false;
+
+@Injectable()
+export class NativeScriptRendererFactory implements RendererFactory2, OnDestroy {
   private componentRenderers = new Map<string, Renderer2>();
   private defaultRenderer: Renderer2;
   // backwards compatibility with RadListView
@@ -134,7 +148,31 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
       this.reuseViews = false; // default to false
     }
     this.defaultRenderer = new NativeScriptRenderer(this.rootView);
+    // Must stay the literal `import.meta.hot`: Vite only injects the hot context for that form.
+    const hot = (import.meta as ImportMeta & { hot?: ViteHotContext }).hot;
+    if (hot) {
+      liveRendererFactories.add(this);
+      if (!viteBeforeUpdateRegistered) {
+        viteBeforeUpdateRegistered = true;
+        hot.on('vite:beforeUpdate', (payload) => {
+          liveRendererFactories.forEach((factory) => factory.onViteBeforeUpdate(payload));
+        });
+      }
+    }
   }
+
+  // There is no `<link>` element on device: emulated renderers own the
+  // stylesheets they loaded at runtime, so they reload them on `css-update`.
+  private onViteBeforeUpdate = (payload: { updates?: { type: string; path: string; timestamp?: number }[] }) => {
+    for (const update of payload?.updates ?? []) {
+      if (update.type !== 'css-update') continue;
+      this.componentRenderers.forEach((renderer) => {
+        if (renderer instanceof EmulatedRenderer) {
+          renderer.externalStyleChanged(update.path, update.timestamp);
+        }
+      });
+    }
+  };
   createRenderer(hostElement: any, type: RendererType2): Renderer2 {
     if (NativeScriptDebug.enabled) {
       NativeScriptDebug.rendererLog(
@@ -176,6 +214,29 @@ export class NativeScriptRendererFactory implements RendererFactory2 {
 
     this.componentRenderers.set(type.id, renderer);
     return renderer;
+  }
+
+  /**
+   * Called by Angular's HMR (`ɵɵreplaceMetadata`) before a component is
+   * re-created with new metadata: drop its cached renderer and its styles so
+   * the next `createRenderer` applies the replacement styles.
+   */
+  componentReplaced(componentId: string): void {
+    const renderer = this.componentRenderers.get(componentId);
+    if (renderer instanceof EmulatedRenderer) {
+      renderer.removeStyles();
+    }
+    this.componentRenderers.delete(componentId);
+  }
+
+  ngOnDestroy(): void {
+    liveRendererFactories.delete(this);
+    this.componentRenderers.forEach((renderer) => {
+      if (renderer instanceof EmulatedRenderer) {
+        renderer.removeStyles();
+      }
+    });
+    this.componentRenderers.clear();
   }
   begin() {
     if (__APPLE__ && this.wrapCdInTransaction) {
@@ -503,14 +564,91 @@ export class EmulatedRenderer extends NativeScriptRenderer {
   private contentAttr: string;
   private hostAttr: string;
   private rootModuleId = inject(NATIVESCRIPT_ROOT_MODULE_ID);
+  private styleBaseUrl = inject(NATIVESCRIPT_STYLE_BASE_URL);
+  // Per-component tag so a single component's styles can be replaced (HMR)
+  // without dropping every other component's CSS.
+  private styleTag: string;
+  private stylesRemoved = false;
+  private componentId: string;
+  private inlineStyles: (string | any[])[];
+  private externalStyleUrls: string[];
+  private externalStyles: string[] = [];
 
-  constructor(component: RendererType2, rootView: View) {
+  constructor(
+    private component: RendererType2,
+    rootView: View,
+  ) {
     super(rootView);
 
     const componentId = component.id.replace(ATTR_SANITIZER, '_');
+    this.componentId = componentId;
     this.contentAttr = replaceNgAttribute(CONTENT_ATTR, componentId);
     this.hostAttr = replaceNgAttribute(HOST_ATTR, componentId);
+    this.styleTag = `${this.rootModuleId}:${componentId}`;
+    this.inlineStyles = component.styles;
+    this.externalStyleUrls = Array.from(component.getExternalStyles?.(componentId) ?? []);
     this.addStyles(component.styles, componentId);
+    this.loadExternalStyles();
+  }
+
+  removeStyles(): void {
+    this.stylesRemoved = true;
+    removeTaggedAdditionalCSS(this.styleTag);
+  }
+
+  /**
+   * Reloads the external stylesheets served at `path`. `timestamp` busts any
+   * cache between the app and the dev server, as Vite's client does when it
+   * swaps a `<link>`. Returns whether this component loads that stylesheet.
+   */
+  externalStyleChanged(path: string, timestamp?: number): boolean {
+    if (this.stylesRemoved || !this.styleBaseUrl) return false;
+    // Component style URLs may be relative to the base while the update path is root-relative.
+    const pathname = new URL(path, this.styleBaseUrl).pathname;
+    if (!this.externalStyleUrls.some((url) => new URL(url, this.styleBaseUrl).pathname === pathname)) {
+      return false;
+    }
+    this.loadExternalStyles(timestamp);
+    return true;
+  }
+
+  // External runtime styles (dev servers emit these for style HMR) are URLs the
+  // server already scoped to the component; they arrive after the views exist,
+  // so the root view is restyled once they are applied.
+  private loadExternalStyles(timestamp?: number): void {
+    const urls = this.externalStyleUrls;
+    if (!urls.length) return;
+    if (!this.styleBaseUrl) {
+      NativeScriptDebug.rendererError(
+        `External styles for ${this.component.id} need NATIVESCRIPT_STYLE_BASE_URL to resolve: ${urls.join(', ')}`,
+      );
+      return;
+    }
+    // `Accept: text/css` is what a browser `<link>` sends; dev servers otherwise
+    // answer a `.css` URL with a JS module (Vite's CSS-as-module wrapper).
+    const fetchCss = (url: string) => {
+      const target = new URL(url, this.styleBaseUrl);
+      if (timestamp) target.searchParams.set('t', String(timestamp));
+      return Http.request({ url: target.href, method: 'GET', headers: { Accept: 'text/css' } }).then((response) => {
+        if (response.statusCode >= 400) throw new Error(`HTTP ${response.statusCode} for ${url}`);
+        return response.content.toString();
+      });
+    };
+    Promise.all(urls.map(fetchCss))
+      .then((sheets) => {
+        if (this.stylesRemoved) return;
+        const reload = this.externalStyles.length > 0;
+        this.externalStyles = sheets.map((css) => stripCssVarNamespace(css));
+        if (reload) {
+          removeTaggedAdditionalCSS(this.styleTag);
+          this.addStyles(this.inlineStyles, this.componentId);
+        }
+        this.externalStyles.forEach((css) => addScopedStyleToCss(css, this.styleTag));
+        Application.getRootView()?._onCssStateChange();
+      })
+      .catch((err) =>
+        NativeScriptDebug.rendererError(`Failed to load external styles for ${this.component.id}: ${err}`),
+      );
   }
 
   applyToHost(view: NgView) {
@@ -538,6 +676,6 @@ export class EmulatedRenderer extends NativeScriptRenderer {
     styles
       .map((s) => s.toString())
       .map((s) => stripCssVarNamespace(replaceNgAttribute(s, componentId)))
-      .forEach((s) => addScopedStyleToCss(s, this.rootModuleId));
+      .forEach((s) => addScopedStyleToCss(s, this.styleTag));
   }
 }
