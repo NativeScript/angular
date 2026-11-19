@@ -23,6 +23,7 @@ import { Observable, Subject } from 'rxjs';
 import { filter, map, take } from 'rxjs/operators';
 import { AppHostView } from './app-host-view';
 import { NativeScriptLoadingService } from './loading.service';
+import { HmrRebootResult, HmrRebootState, HmrRun } from './hmr-reboot-state';
 import { HmrSnapshot, restoreHmrSnapshots, saveHmrSnapshots } from './hmr-snapshots';
 import {
   APP_ROOT_VIEW,
@@ -240,26 +241,8 @@ interface ViteHotContext {
 
 type MainRef = NgModuleRef<unknown> | ApplicationRef;
 
-interface HmrRun {
-  mainRef(): MainRef | null;
-  dispose(): void;
-}
-
-interface PendingHmrReboot {
-  bootstrapStarted: boolean;
-  bootstrapped: Promise<MainRef | null>;
-  resolveBootstrapped(ref: MainRef | null): void;
-  settled?: Promise<void>;
-}
-
 // A zone that never settles (e.g. an app-level setInterval) must not stall the dev client's update queue.
 const HMR_STABLE_TIMEOUT_MS = 5000;
-
-// This module is never re-evaluated in a dev session, but the app entry that
-// calls runNativeScriptAngularApp is, so this state outlives each app run.
-let currentHmrRun: HmrRun | null = null;
-let pendingHmrReboot: PendingHmrReboot | null = null;
-let hmrSnapshots = new Map<string, HmrSnapshot>();
 
 function logHmr(message: string, error?: unknown) {
   if (error === undefined) {
@@ -278,64 +261,7 @@ function readHmrParticipants(ref: MainRef): readonly NativeScriptHmrParticipant[
   }
 }
 
-/**
- * Dev only, called by the dev server's HMR client before it re-imports the app
- * entry: saves the HMR participants' state and tears the running app down so
- * the re-imported entry can bootstrap a new one. A no-op when nothing is running.
- */
-export async function prepareHmrReboot(): Promise<void> {
-  const run = currentHmrRun;
-  if (!run) {
-    return;
-  }
-  currentHmrRun = null;
-  // Snapshots not yet restored (the previous reboot is unsettled or failed) are newer than anything this run holds.
-  const ref = run.mainRef();
-  if (ref && !pendingHmrReboot) {
-    hmrSnapshots = saveHmrSnapshots(readHmrParticipants(ref), logHmr);
-  }
-  pendingHmrReboot?.resolveBootstrapped(null);
-  let resolveBootstrapped: (ref: MainRef | null) => void;
-  const bootstrapped = new Promise<MainRef | null>((resolve) => (resolveBootstrapped = resolve));
-  pendingHmrReboot = { bootstrapStarted: false, bootstrapped, resolveBootstrapped };
-  run.dispose();
-}
-
-/**
- * Dev only: resolves once the app bootstrapped after {@link prepareHmrReboot}
- * is stable and its HMR participants are restored. Resolves immediately when no
- * reboot is pending, and also when the bootstrap fails (the error is logged and
- * shown in the app).
- */
-export function whenHmrRebootSettled(): Promise<void> {
-  const reboot = pendingHmrReboot;
-  if (!reboot) {
-    return Promise.resolve();
-  }
-  return (reboot.settled ??= settleHmrReboot(reboot));
-}
-
-async function settleHmrReboot(reboot: PendingHmrReboot): Promise<void> {
-  try {
-    await restoreAfterHmrReboot(reboot);
-  } catch (error) {
-    logHmr('Could not restore HMR state after a reboot.', error);
-  }
-  // Unrestored snapshots are kept on purpose: the next reboot will likely carry the fix.
-  if (pendingHmrReboot === reboot) {
-    pendingHmrReboot = null;
-  }
-}
-
-async function restoreAfterHmrReboot(reboot: PendingHmrReboot): Promise<void> {
-  if (!reboot.bootstrapStarted) {
-    logHmr('The app entry did not bootstrap Angular after an HMR reboot; HMR state was not restored.');
-    return;
-  }
-  const ref = await reboot.bootstrapped;
-  if (!ref || pendingHmrReboot !== reboot) {
-    return;
-  }
+async function whenHmrAppStable(ref: MainRef): Promise<boolean> {
   const appRef = ref instanceof ApplicationRef ? ref : ref.injector.get(ApplicationRef);
   const zone = ref.injector.get(NgZone);
   let timer: ReturnType<typeof setTimeout>;
@@ -350,15 +276,41 @@ async function restoreAfterHmrReboot(reboot: PendingHmrReboot): Promise<void> {
   if (!stable) {
     logHmr(`The app was not stable ${HMR_STABLE_TIMEOUT_MS}ms after an HMR reboot; restoring HMR state anyway.`);
   }
-  if (pendingHmrReboot !== reboot || appRef.destroyed) {
-    return;
-  }
-  if (hmrSnapshots.size) {
-    await restoreHmrSnapshots(readHmrParticipants(ref), hmrSnapshots, (fn) => zone.run(fn), logHmr);
-  }
-  if (pendingHmrReboot === reboot) {
-    hmrSnapshots = new Map();
-  }
+  return !appRef.destroyed;
+}
+
+// This module is never re-evaluated in a dev session, but the app entry that
+// calls runNativeScriptAngularApp is, so this state outlives each app run.
+const hmrReboots = new HmrRebootState<MainRef, Map<string, HmrSnapshot>>({
+  save: (ref) => saveHmrSnapshots(readHmrParticipants(ref), logHmr),
+  whenStable: whenHmrAppStable,
+  restore: async (ref, snapshots) => {
+    if (snapshots.size) {
+      const zone = ref.injector.get(NgZone);
+      await restoreHmrSnapshots(readHmrParticipants(ref), snapshots, (fn) => zone.run(fn), logHmr);
+    }
+  },
+  log: logHmr,
+});
+
+/**
+ * Dev only, called by the dev server's HMR client before it re-imports the app
+ * entry: saves the HMR participants' state and tears the running app down so
+ * the re-imported entry can bootstrap a new one. A no-op when nothing is running.
+ * The saved state is kept until an app bootstraps and restores it, across any
+ * number of failed reboots.
+ */
+export async function prepareHmrReboot(): Promise<void> {
+  hmrReboots.prepare();
+}
+
+/**
+ * Dev only: resolves once the app bootstrapped after {@link prepareHmrReboot}
+ * is stable and its HMR participants are restored, or to `{ error }` when that
+ * bootstrap failed. Resolves immediately when no reboot is pending. Never rejects.
+ */
+export function whenHmrRebootSettled(): Promise<HmrRebootResult> {
+  return hmrReboots.settled();
 }
 
 /**
@@ -436,13 +388,8 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
     errorTextBox.color = new Color('red');
     setRootView(errorTextBox);
   };
+  let hmrRun: HmrRun<MainRef> | null = null;
   const bootstrapRoot = (reason: NgModuleReason) => {
-    const hmrReboot = pendingHmrReboot;
-    if (hmrReboot && !hmrReboot.bootstrapStarted) {
-      hmrReboot.bootstrapStarted = true;
-      // Started here rather than on demand so the restore runs even if the dev client never awaits it.
-      hmrReboot.settled ??= settleHmrReboot(hmrReboot);
-    }
     try {
       bootstrapId = Date.now();
       const currentBootstrapId = bootstrapId;
@@ -461,7 +408,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
                 return;
               }
               mainModuleRef = ref;
-              hmrReboot?.resolveBootstrapped(ref);
+              hmrRun?.bootstrapped(ref);
 
               (ref instanceof ApplicationRef ? ref.components[0] : ref).onDestroy(
                 () => (mainModuleRef = mainModuleRef === ref ? null : mainModuleRef),
@@ -480,9 +427,8 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
               bootstrapped = true;
               NativeScriptDebug.bootstrapLogError(`Error bootstrapping app module:\n${err.message}\n\n${err.stack}`);
               showErrorUI(err);
-              if (hmrReboot && currentBootstrapId === bootstrapId) {
-                logHmr('The app failed to bootstrap after an HMR reboot.', err);
-                hmrReboot.resolveBootstrapped(null);
+              if (currentBootstrapId === bootstrapId) {
+                hmrRun?.failed(err);
               }
               throw err;
             },
@@ -582,10 +528,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
       );
     } catch (err) {
       NativeScriptDebug.bootstrapLogError(`Error in Bootstrap Function:\n${err.message}\n\n${err.stack}`);
-      if (hmrReboot) {
-        logHmr('The app failed to bootstrap after an HMR reboot.', err);
-        hmrReboot.resolveBootstrapped(null);
-      }
+      hmrRun?.failed(err);
     }
   };
   const disposePlatform = (reason: NgModuleReason) => {
@@ -625,8 +568,8 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   }
   // Must stay the literal `import.meta.hot`: Vite only injects the hot context for that form.
   if ((import.meta as ImportMeta & { hot?: ViteHotContext }).hot) {
-    currentHmrRun = {
-      mainRef: () => mainModuleRef,
+    hmrRun = hmrReboots.attach({
+      ref: () => mainModuleRef,
       dispose: () => {
         Application.off(Application.launchEvent, launchCallback);
         Application.off(Application.exitEvent, exitCallback);
@@ -636,7 +579,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
         // this, dev mode warns NG0912 because cached component IDs map to the old classes.
         ɵresetCompiledComponents();
       },
-    };
+    });
   }
   if (import.meta['webpackHot']) {
     // handle HMR Application.run
@@ -674,7 +617,7 @@ export function runNativeScriptAngularApp<T, K>(options: AppRunOptions<T, K>) {
   // A host that already launched the app (e.g. a dev server's boot UI) will not
   // fire launchEvent again, so bootstrap now instead of waiting for it.
   if (options.embedded || Application.hasLaunched()) {
-    bootstrapRoot(pendingHmrReboot ? 'hotreload' : 'applaunch');
+    bootstrapRoot(hmrRun?.rebooted ? 'hotreload' : 'applaunch');
   } else {
     Application.run();
   }
