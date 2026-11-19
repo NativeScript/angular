@@ -35,6 +35,27 @@ export const NATIVESCRIPT_STYLE_BASE_URL = new InjectionToken<string | null>('Na
   },
 });
 
+/**
+ * Carries state across a dev-server HMR reboot of the app: `save()` runs in the
+ * old app before it is destroyed, `restore()` in the new app once it has
+ * bootstrapped and settled. A snapshot is restored only into a participant with
+ * the same `key` and `version`. A participant that cannot restore its state may
+ * call `requestNativeScriptAppRestart`.
+ */
+export interface NativeScriptHmrParticipant {
+  key: string;
+  version?: number;
+  save(): unknown;
+  restore(state: unknown): void | Promise<void>;
+}
+
+/**
+ * Multi-provider of {@link NativeScriptHmrParticipant}s, read from the app's root injector.
+ */
+export const NATIVESCRIPT_HMR_PARTICIPANTS = new InjectionToken<NativeScriptHmrParticipant[]>(
+  'NativeScriptHmrParticipants',
+);
+
 export type PageFactory = (options: PageFactoryOptions) => Page;
 export interface PageFactoryOptions {
   isBootstrap?: boolean;
