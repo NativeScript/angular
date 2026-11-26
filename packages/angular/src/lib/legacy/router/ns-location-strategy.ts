@@ -15,6 +15,7 @@ export class NSLocationStrategy extends LocationStrategy implements OnDestroy {
   private currentOutlet: Outlet;
 
   private popStateCallbacks = new Array<(_: any) => any>();
+  private popStateHandled: Promise<void> | null = null;
   private currentUrlTree: UrlTree;
 
   public _modalNavigationDepth = 0;
@@ -253,6 +254,22 @@ export class NSLocationStrategy extends LocationStrategy implements OnDestroy {
     for (const fn of this.popStateCallbacks) {
       fn(change);
     }
+
+    // The Router handles a popstate in a setTimeout, this timeout runs after it
+    const handled = new Promise<void>((resolve) => setTimeout(resolve, 0)).then(() => {
+      if (this.popStateHandled === handled) {
+        this.popStateHandled = null;
+      }
+    });
+    this.popStateHandled = handled;
+  }
+
+  /**
+   * Runs the navigation once the Router has handled the last popstate.
+   * Otherwise the Router would apply that popstate after the navigation and undo it.
+   */
+  public _navigateAfterPopState<T>(navigate: () => Promise<T>): Promise<T> {
+    return this.popStateHandled ? this.popStateHandled.then(navigate) : navigate();
   }
 
   public toString() {
