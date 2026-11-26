@@ -21,11 +21,11 @@ export class RouterExtensions {
   constructor(public router: Router, public locationStrategy: NSLocationStrategy, public frameService: FrameService) {}
 
   public navigate(commands: any[], extras?: ExtendedNavigationExtras): Promise<boolean> {
-    return this.router.navigate(commands, extras);
+    return this.locationStrategy._navigateAfterPopState(() => this.router.navigate(commands, extras));
   }
 
   public navigateByUrl(url: string | UrlTree, options?: ExtendedNavigationBehaviorOptions): Promise<boolean> {
-    return this.router.navigateByUrl(url, options);
+    return this.locationStrategy._navigateAfterPopState(() => this.router.navigateByUrl(url, options));
   }
 
   public back(backNavigationOptions?: BackNavigationOptions) {

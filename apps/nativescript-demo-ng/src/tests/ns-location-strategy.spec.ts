@@ -1,6 +1,13 @@
 // make sure you import mocha-config before @angular/core
 import { DefaultUrlSerializer, UrlTree } from '@angular/router';
-import { FrameService, LocationState, NavigationOptions, NSLocationStrategy, Outlet } from '@nativescript/angular';
+import {
+  FrameService,
+  LocationState,
+  NavigationOptions,
+  NSLocationStrategy,
+  Outlet,
+  RouterExtensions,
+} from '@nativescript/angular';
 import { BackstackEntry, Frame, NavigationEntry, Page, View } from '@nativescript/core';
 
 export class FakeFrameService extends FrameService {
@@ -507,5 +514,28 @@ describe('NSLocationStrategy', () => {
     // Assert
     assertStatesEqual(outlet.states, expectedStatesTest1);
     assertStatesEqual(outlet2.states, expectedStatesTest2);
+  });
+
+  it('RouterExtensions navigates after the Router handled the popstate of a page back', async () => {
+    const { strategy, frameService } = initStrategy('/');
+    const currentFrame = frameService.getFrame();
+    const handled: Array<string> = [];
+    // The Router handles a popstate in a setTimeout
+    strategy.onPopState(() => setTimeout(() => handled.push('popstate')));
+    const router: any = {
+      navigate: () => {
+        handled.push('navigate');
+        return Promise.resolve(true);
+      },
+    };
+    const routerExtensions = new RouterExtensions(router, strategy, frameService);
+    simulatePageNavigation(strategy, '/page', currentFrame, 'primary');
+
+    // Act
+    simulatePageBack(strategy, currentFrame);
+    await routerExtensions.navigate(['/other']);
+
+    // Assert
+    expect(handled).toEqual(['popstate', 'navigate']);
   });
 });
